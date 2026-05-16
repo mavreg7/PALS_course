@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 11 — Post-Cardiac Arrest Care</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  *{font-family:'Manrope',system-ui,sans-serif}
+  html,body{height:100%;margin:0}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
+  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
+  .blob1{width:500px;height:500px;background:#34D399;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
+  .blob2{width:450px;height:450px;background:#0891B2;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
+  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 6vw;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
+  .slide.active{opacity:1;pointer-events:auto}
+  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#0891B2}
+  .slide h2{font-size:clamp(20px,2.8vw,36px);font-weight:800;color:#1E293B;margin-bottom:14px}
+  .slide h3{font-size:clamp(14px,1.4vw,20px);font-weight:700;color:#0891B2;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.2vw,17px);line-height:1.5;color:#334155}
+  .slide ul{padding-left:24px} .slide li{margin-bottom:5px}
+  .card{background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);border:1px solid rgba(8,145,178,.12);border-radius:14px;padding:16px}
+  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(52,211,153,.15);color:#0f9b6c;letter-spacing:.5px}
+  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:10}
+  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
+  .dot.active{background:#34D399;transform:scale(1.4)}
+  .nav-btn{background:#34D399;color:#0f3a26;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px}
+  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none}
+  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:16px 22px;border-radius:8px}
+  .pearl h3{color:#0f9b6c}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid #e2e8f0}
+  th{background:rgba(8,145,178,.08);font-weight:700;color:#0891B2;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+  .target{background:#fff;border:2px solid #0891B2;border-radius:14px;padding:18px;text-align:center}
+  .target-num{font-size:42px;font-weight:800;color:#0891B2;line-height:1}
+  .target-lbl{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div><div class="blob blob2"></div>
+<a class="home" href="../index.html">← Hub</a>
+<div class="counter"><span id="cur">1</span>/<span id="tot">8</span></div>
+
+<section class="slide active">
+  <span class="pill">Module 11</span>
+  <h1 class="mt-3">Post-Cardiac Arrest Care</h1>
+  <p class="mt-6 text-slate-500">Optimize oxygenation, perfusion, temperature, and neuro outcome</p>
+</section>
+
+<section class="slide">
+  <h3>Objectives</h3>
+  <ul class="mt-4">
+    <li>Apply post-ROSC oxygen and ventilation targets.</li>
+    <li>Manage hemodynamics with appropriate vasoactives and fluids.</li>
+    <li>Deliver targeted temperature management and avoid fever.</li>
+    <li>Coordinate transport, PICU handoff, and family communication.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h3>Core Post-ROSC Targets</h3>
+  <h2>Don't Hurt the Brain You Just Saved</h2>
+  <div class="grid3 mt-3">
+    <div class="target"><div class="target-num">94-99%</div><div class="target-lbl">SpO₂</div></div>
+    <div class="target"><div class="target-num">35-45</div><div class="target-lbl">PaCO₂ (mmHg)</div></div>
+    <div class="target"><div class="target-num">≤37.5°C</div><div class="target-lbl">Core temp (avoid fever)</div></div>
+    <div class="target"><div class="target-num">≥5th %ile</div><div class="target-lbl">SBP for age</div></div>
+    <div class="target"><div class="target-num">80-180</div><div class="target-lbl">Glucose (mg/dL)</div></div>
+    <div class="target"><div class="target-num">Treat</div><div class="target-lbl">Seizures aggressively</div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Oxygenation & Ventilation</h3>
+  <h2>Avoid Hyperoxia and Hyperventilation</h2>
+  <div class="grid2 mt-3">
+    <div class="card"><h3 style="color:#0891B2">Oxygenation</h3>
+      <ul><li>Titrate FiO₂ to SpO₂ <strong>94-99%</strong></li><li>Wean from 100% as soon as ABG / SpO₂ allow</li><li>Hyperoxia worsens reperfusion injury</li></ul></div>
+    <div class="card"><h3 style="color:#0891B2">Ventilation</h3>
+      <ul><li>Target PaCO₂ <strong>35-45 mmHg</strong></li><li>Use ETCO₂ continuously</li><li>Permissive hypercapnia only for ARDS / specific contexts</li><li>Hypocapnia ↓ cerebral perfusion — avoid</li></ul></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Hemodynamic Support</h3>
+  <h2>Maintain Mean Perfusion</h2>
+  <div class="card mt-3">
+    <ul>
+      <li>Targets: SBP <strong>≥ 5th percentile for age</strong>; MAP guided by age-specific norms.</li>
+      <li>Start with isotonic bolus 10 mL/kg if hypovolemic; reassess.</li>
+      <li>Vasoactive: epinephrine, norepinephrine, dopamine, or milrinone — match to cardiac vs vascular failure.</li>
+      <li>Consider central + arterial line for invasive monitoring (gives DBP feedback).</li>
+      <li>Echocardiogram early — look for myocardial dysfunction, effusion, congenital lesions.</li>
+      <li>Treat ongoing dysrhythmia; correct electrolytes (K⁺, Ca²⁺, Mg²⁺).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Targeted Temperature Management</h3>
+  <h2>Avoid Fever — Active Normothermia</h2>
+  <div class="card mt-3">
+    <ul>
+      <li>Continuous core temperature monitoring (bladder/esophageal).</li>
+      <li>Avoid fever &gt; 37.5°C in all comatose post-arrest patients.</li>
+      <li>Options for unresponsive children: targeted normothermia (36-37.5°C) for at least 5 days, or therapeutic hypothermia (32-34°C × 2 days then rewarm to 36-37.5°C × 3 days) — institutional protocol.</li>
+      <li>Treat shivering — sedation, neuromuscular blockade per protocol.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Neuro Monitoring</h3>
+  <h2>Anticipate Secondary Injury</h2>
+  <div class="grid2 mt-3">
+    <div class="card"><h3 style="color:#0891B2">Continuous</h3><ul><li>Pupillary check q1 h</li><li>Pediatric GCS / FOUR score</li><li>EEG when available — high seizure incidence</li><li>Glucose Q1-2 h, treat hypo aggressively</li></ul></div>
+    <div class="card"><h3 style="color:#0891B2">Imaging / interventions</h3><ul><li>Head CT / MRI per indication</li><li>Treat documented seizures with levetiracetam / phenytoin</li><li>Consult neurology, palliative care for prognosis discussion at 72 h</li></ul></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Communication & Transport</h3>
+  <h2>Handoff and Family</h2>
+  <div class="card mt-3">
+    <ul>
+      <li>Closed-loop handoff to PICU: timeline, doses, downtime, complications, family status, code status.</li>
+      <li>Use a structured tool (e.g., SBAR + I-PASS) — write it down.</li>
+      <li>Family presence during resuscitation is supported with appropriate facilitator.</li>
+      <li>Early, honest communication: outcome uncertainty, role of TTM, expected neuro re-evaluation at 72 h.</li>
+      <li>Activate social work, chaplaincy, palliative as needed.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="pearl">
+    <h3>Clinical Pearl</h3>
+    <h2 style="color:#0f3a26">"The first 72 hours decide the next 72 years."</h2>
+    <p class="mt-3">Get oxygen, CO₂, perfusion, and temperature right — and the brain has its best shot. Prognostication before that window is unreliable.</p>
+  </div>
+</section>
+
+<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
+<script>
+const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
+const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
+function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
+function go(d){show(cur+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+</script>
+</body>
+</html>

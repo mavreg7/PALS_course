@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 — Pediatric BLS & High-Quality CPR</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  *{font-family:'Manrope',system-ui,sans-serif}
+  html,body{height:100%;margin:0}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
+  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
+  .blob1{width:500px;height:500px;background:#EF4444;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
+  .blob2{width:450px;height:450px;background:#0891B2;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
+  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
+  .deck{position:relative;z-index:1;height:100vh}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 8vw;opacity:0;pointer-events:none;transition:opacity .5s ease}
+  .slide.active{opacity:1;pointer-events:auto}
+  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#0891B2;letter-spacing:-1px}
+  .slide h2{font-size:clamp(22px,3vw,38px);font-weight:800;color:#1E293B;margin-bottom:18px}
+  .slide h3{font-size:clamp(15px,1.5vw,22px);font-weight:700;color:#0891B2;margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase}
+  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.3vw,18px);line-height:1.5;color:#334155}
+  .slide ul{padding-left:24px} .slide li{margin-bottom:7px}
+  .card{background:rgba(255,255,255,0.88);backdrop-filter:blur(6px);border:1px solid rgba(8,145,178,.12);border-radius:14px;padding:20px;box-shadow:0 4px 20px rgba(30,41,59,.05)}
+  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(8,145,178,.12);color:#0891B2;letter-spacing:.5px}
+  .nav{position:fixed;bottom:20px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:10}
+  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
+  .dot.active{background:#0891B2;transform:scale(1.4)}
+  .nav-btn{background:#0891B2;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;backdrop-filter:blur(8px)}
+  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none;backdrop-filter:blur(8px)}
+  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:18px 22px;border-radius:8px}
+  .pearl h3{color:#0f9b6c}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #e2e8f0}
+  th{background:rgba(8,145,178,.08);font-weight:700;color:#0891B2;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+  .big-num{font-size:42px;font-weight:800;color:#0891B2;line-height:1}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div><div class="blob blob2"></div>
+<a class="home" href="../index.html">← Hub</a>
+<div class="counter"><span id="cur">1</span>/<span id="tot">8</span></div>
+
+<div class="deck">
+
+  <section class="slide active">
+    <span class="pill">Module 02</span>
+    <h1 class="mt-3">Pediatric BLS<br>& High-Quality CPR</h1>
+    <p class="mt-6 text-slate-500">Recognition · technique · AED · 2025 metrics</p>
+  </section>
+
+  <section class="slide">
+    <h3>Objectives</h3>
+    <h2>You will be able to</h2>
+    <ul class="mt-4">
+      <li>Recognize cardiopulmonary arrest in infants and children.</li>
+      <li>Perform <strong>simultaneous</strong> breathing and pulse assessment per 2025 update.</li>
+      <li>Deliver high-quality CPR meeting AHA 2025 metrics.</li>
+      <li>Use the AED with pediatric pads correctly.</li>
+      <li>Switch roles in 1- and 2-rescuer scenarios.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <h3>Recognition of Arrest</h3>
+    <h2>The 10-Second Window</h2>
+    <div class="grid2 mt-3">
+      <div class="card">
+        <h3 style="color:#EF4444">Action sequence</h3>
+        <ol class="list-decimal pl-5 text-base">
+          <li>Verify <strong>scene safety</strong>.</li>
+          <li>Tap and shout — assess responsiveness.</li>
+          <li>Shout for help / activate ERS / get AED.</li>
+          <li><strong>Simultaneously</strong> check breathing and pulse for ≤10 s.</li>
+          <li>If no pulse or HR &lt; 60 with poor perfusion → CPR.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3 style="color:#0891B2">Pulse check site</h3>
+        <ul>
+          <li><strong>Infant (&lt;1 y):</strong> brachial</li>
+          <li><strong>Child:</strong> carotid or femoral</li>
+          <li>If uncertain after 10 s → assume cardiac arrest and start CPR.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h3>High-Quality CPR Metrics — 2025</h3>
+    <h2>The numbers you must hit</h2>
+    <div class="grid3 mt-3">
+      <div class="card text-center"><div class="big-num">100-120</div><div class="text-sm mt-1">Rate (per min)</div></div>
+      <div class="card text-center"><div class="big-num">≥4 cm</div><div class="text-sm mt-1">Infant depth</div></div>
+      <div class="card text-center"><div class="big-num">≥5 cm</div><div class="text-sm mt-1">Child depth (1/3 AP)</div></div>
+      <div class="card text-center"><div class="big-num">≥80%</div><div class="text-sm mt-1">Compression fraction</div></div>
+      <div class="card text-center"><div class="big-num">&lt;10 s</div><div class="text-sm mt-1">Max pause</div></div>
+      <div class="card text-center"><div class="big-num">100%</div><div class="text-sm mt-1">Recoil</div></div>
+    </div>
+    <p class="mt-5 text-sm text-slate-500"><strong>Avoid:</strong> excessive ventilation · leaning · interruptions · poor depth.</p>
+  </section>
+
+  <section class="slide">
+    <h3>Technique by Age</h3>
+    <h2>Compression Method</h2>
+    <table class="mt-3">
+      <thead><tr><th>Age</th><th>1-Rescuer</th><th>2-Rescuer</th><th>Ratio</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Infant</strong></td><td>2 fingers, just below nipple line</td><td>2-thumb encircling hands</td><td>30:2 / 15:2</td></tr>
+        <tr><td><strong>Child</strong></td><td>1 or 2 hands, lower sternum</td><td>2 hands, lower sternum</td><td>30:2 / 15:2</td></tr>
+        <tr><td><strong>Adolescent</strong></td><td>2 hands, adult technique</td><td>2 hands</td><td>30:2</td></tr>
+      </tbody>
+    </table>
+    <p class="mt-5 text-sm text-slate-500">Switch compressors every 2 min (or sooner if fatigued) to maintain depth.</p>
+  </section>
+
+  <section class="slide">
+    <h3>AED Use</h3>
+    <h2>Defibrillate Early When Indicated</h2>
+    <div class="grid2 mt-3">
+      <div class="card">
+        <h3 style="color:#EF4444">Pad selection</h3>
+        <ul>
+          <li><strong>&lt;8 years / &lt;25 kg:</strong> pediatric pads or attenuator.</li>
+          <li><strong>≥8 years:</strong> adult pads.</li>
+          <li>If pediatric unavailable → adult pads acceptable, avoid touching.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="color:#EF4444">Workflow</h3>
+        <ol class="list-decimal pl-5">
+          <li>Power on AED — follow voice prompts.</li>
+          <li>Place pads (anterior-anterior or A-P).</li>
+          <li>Clear, analyze, shock if advised.</li>
+          <li>Resume CPR <strong>immediately</strong> post-shock — no pulse check.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="pearl">
+      <h3>Clinical Pearl</h3>
+      <h2 style="color:#0f3a26">"Push hard, push fast, don't lean, count it out loud."</h2>
+      <p class="mt-3">Compression fraction is the single strongest predictor of survival. Coach your team aloud: rate, depth, recoil, switch — every two minutes, every time.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h3>Summary</h3>
+    <h2>Key Take-Aways</h2>
+    <ul class="mt-3">
+      <li>Recognize → simultaneous breathing + pulse ≤10 s → CPR.</li>
+      <li>Rate 100-120 · Depth ≥4 cm infant, ≥5 cm child · Full recoil · ≥80% fraction.</li>
+      <li>Ratio: 30:2 (1-rescuer) / 15:2 (2-rescuer infant or child).</li>
+      <li>AED: pediatric pads &lt; 8 y or &lt; 25 kg.</li>
+      <li>Switch every 2 minutes. Resume compressions immediately after shock.</li>
+    </ul>
+    <p class="text-sm text-slate-500 mt-8">Next → Module 3: Systematic Pediatric Assessment</p>
+  </section>
+
+</div>
+
+<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
+<script>
+const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
+const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
+function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
+function go(d){show(cur+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+</script>
+</body>
+</html>

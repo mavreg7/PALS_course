@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PALS 2025 Instructor Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  *{font-family:'Manrope',system-ui,sans-serif}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);min-height:100vh;color:#1E293B}
+  .card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(30,41,59,0.06);border:1px solid rgba(8,145,178,0.08)}
+  .btn{padding:9px 14px;border-radius:9px;font-weight:600;font-size:13px;transition:all .2s;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px}
+  .btn-prim{background:#0891B2;color:#fff}.btn-prim:hover{background:#0e7490}
+  .btn-ghost{background:#fff;color:#0891B2;border:1px solid #0891B2}.btn-ghost:hover{background:#f0f9ff}
+  .btn-sec{background:#34D399;color:#0f3a26}.btn-sec:hover{background:#22c281}
+  .btn-warn{background:#F59E0B;color:#fff}.btn-warn:hover{background:#d97706}
+  .stat-num{font-size:28px;font-weight:800;line-height:1}
+  .stat-label{font-size:11px;color:#64748b;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+  .pill{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600}
+  .pill-g{background:rgba(34,197,94,.15);color:#15803d}
+  .pill-r{background:rgba(239,68,68,.15);color:#b91c1c}
+  .pill-y{background:rgba(245,158,11,.15);color:#b45309}
+  .pill-b{background:rgba(8,145,178,.12);color:#0891B2}
+  .field{padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background:#fff}
+  .field:focus{outline:none;border-color:#0891B2;box-shadow:0 0 0 3px rgba(8,145,178,.15)}
+  table{width:100%;font-size:13px;border-collapse:collapse}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#64748b;padding:10px 8px;border-bottom:1px solid #e2e8f0;font-weight:700}
+  td{padding:10px 8px;border-bottom:1px solid #f1f5f9}
+  tr:hover td{background:#f8fafc}
+  .bar{height:8px;background:#f1f5f9;border-radius:999px;overflow:hidden}
+  .bar > div{height:100%;background:linear-gradient(90deg,#0891B2,#34D399);border-radius:999px;transition:width .4s}
+  @media print{.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}}
+</style>
+</head>
+<body>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+
+  <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 no-print">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Instructor Dashboard</h1>
+      <p class="text-slate-500 text-sm">Live roster · scores · attendance · certificates</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <a href="index.html" class="btn btn-ghost">← Hub</a>
+      <button class="btn btn-ghost" onclick="refreshAll()">↻ Refresh</button>
+      <button class="btn btn-ghost" onclick="window.print()">🖨️ Print</button>
+    </div>
+  </header>
+
+  <!-- COUNTDOWN -->
+  <section class="card p-4 mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div style="width:42px;height:42px;border-radius:10px;background:rgba(8,145,178,.1);color:#0891B2;display:flex;align-items:center;justify-content:center;font-size:20px">⏱</div>
+      <div>
+        <div class="text-xs uppercase tracking-wider font-semibold text-slate-500">Course Countdown</div>
+        <div id="countdown" class="font-bold text-lg">—</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 no-print">
+      <input class="field" type="datetime-local" id="course_start" onchange="setStart(this.value)">
+      <button class="btn btn-ghost" onclick="clearStart()">Clear</button>
+    </div>
+  </section>
+
+  <!-- SUMMARY CARDS -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="card p-4">
+      <div class="stat-label">Enrolled</div>
+      <div class="stat-num mt-2" id="s_enrolled">0</div>
+      <div class="text-xs text-slate-500 mt-2">Pre-registrations saved</div>
+    </div>
+    <div class="card p-4">
+      <div class="stat-label">Passed</div>
+      <div class="stat-num mt-2" id="s_passed" style="color:#22C55E">0</div>
+      <div class="text-xs text-slate-500 mt-2">Final exam ≥84%</div>
+    </div>
+    <div class="card p-4">
+      <div class="stat-label">Failed</div>
+      <div class="stat-num mt-2" id="s_failed" style="color:#EF4444">0</div>
+      <div class="text-xs text-slate-500 mt-2">Below passing</div>
+    </div>
+    <div class="card p-4">
+      <div class="stat-label">Pending Remediation</div>
+      <div class="stat-num mt-2" id="s_remed" style="color:#F59E0B">0</div>
+      <div class="text-xs text-slate-500 mt-2">Megacode / skills</div>
+    </div>
+  </section>
+
+  <!-- BULK ACTIONS -->
+  <section class="card p-4 mb-6 no-print">
+    <div class="flex flex-wrap gap-2">
+      <button class="btn btn-prim" onclick="exportRoster()">⬇ Export Roster CSV</button>
+      <button class="btn btn-ghost" onclick="printAttendance()">🖨 Attendance Sheets</button>
+      <button class="btn btn-sec" onclick="generateAllCerts()">🎓 Generate All Certificates</button>
+      <button class="btn btn-warn" onclick="exportAll()">⬇ Export All Forms (JSON)</button>
+      <button class="btn" style="background:#fee2e2;color:#b91c1c" onclick="clearAll()">🗑 Clear All Data</button>
+    </div>
+  </section>
+
+  <!-- ROSTER -->
+  <section class="card p-5 mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <h2 class="font-bold text-lg">Student Roster</h2>
+      <div class="flex gap-2 flex-wrap">
+        <input class="field" id="search" placeholder="Search name / role…" oninput="renderRoster()">
+        <select class="field" id="filter" onchange="renderRoster()">
+          <option value="">All</option><option value="Pass">Passed</option><option value="Fail">Failed</option><option value="Pending">Pending</option>
+        </select>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr>
+          <th>Name</th><th>Role</th><th>Type</th><th>Attend</th><th>Pre-Test</th><th>BLS</th><th>Megacode</th><th>Final Exam</th><th>Cert</th>
+        </tr></thead>
+        <tbody id="roster_body"></tbody>
+      </table>
+    </div>
+    <div id="roster_empty" class="text-sm text-slate-400 italic text-center py-6 hidden">No students yet. Pre-registrations will appear here.</div>
+  </section>
+
+  <!-- FEEDBACK SUMMARY -->
+  <section class="card p-5 mb-6">
+    <h2 class="font-bold text-lg mb-4">Feedback Summary</h2>
+    <div id="fb_summary"></div>
+  </section>
+
+  <!-- SESSION PROGRESS -->
+  <section class="card p-5">
+    <h2 class="font-bold text-lg mb-4">Session Progress (Today)</h2>
+    <div id="session_progress"></div>
+  </section>
+
+</div>
+
+<script>
+function get(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
+function pct(v){return Math.min(100,Math.max(0,v))+'%'}
+
+function uniqByName(arr){const m=new Map();arr.forEach(e=>m.set((e.name||'').toLowerCase().trim(),e));m.delete('');return [...m.values()]}
+
+function buildRoster(){
+  const regs=get('pals2025_preregistration');
+  const att=get('pals2025_attendance');
+  const pre=get('pals2025_pretest');
+  const bls=get('pals2025_bls_skills');
+  const mc=get('pals2025_megacode');
+  const ex=get('pals2025_final_exam');
+  const certs=get('pals2025_certificates');
+  const all=uniqByName(regs);
+  const allNames=new Set(all.map(r=>r.name.toLowerCase().trim()));
+  [att,pre,bls,mc,ex,certs].forEach(arr=>arr.forEach(e=>{const n=(e.name||'').toLowerCase().trim();if(n&&!allNames.has(n)){all.push({name:e.name,role:'',type:''});allNames.add(n)}}));
+  return all.map(r=>{
+    const n=(r.name||'').toLowerCase().trim();
+    const find=arr=>arr.filter(x=>(x.name||'').toLowerCase().trim()===n).slice(-1)[0];
+    const a=att.filter(x=>(x.name||'').toLowerCase().trim()===n);
+    const p=find(pre);const b=find(bls);const m=find(mc);const e=find(ex);const c=find(certs);
+    return{
+      name:r.name,role:r.role||'',type:r.type||'',
+      attendance:a.length?(a.every(x=>x.status==='Present')?'Full':a.length+' days'):'—',
+      pretest:p?p.percent+'%':'—',
+      bls:b?b.overall:'—',
+      megacode:m?m.result:'—',
+      exam:e?e.result+' ('+e.percent+'%)':'—',
+      examRaw:e?e.result:null,
+      cert:c?'Issued':'—'
+    };
+  });
+}
+
+function renderStats(){
+  const r=buildRoster();
+  document.getElementById('s_enrolled').textContent=r.length;
+  document.getElementById('s_passed').textContent=r.filter(x=>x.examRaw==='Pass').length;
+  document.getElementById('s_failed').textContent=r.filter(x=>x.examRaw==='Fail').length;
+  document.getElementById('s_remed').textContent=r.filter(x=>x.bls==='Needs Remediation'||x.megacode==='Remediate').length;
+}
+
+function pillFor(v){
+  if(!v||v==='—')return `<span class="pill pill-b">—</span>`;
+  if(v==='Pass'||v.startsWith('Pass'))return `<span class="pill pill-g">${v}</span>`;
+  if(v==='Fail'||v.startsWith('Fail'))return `<span class="pill pill-r">${v}</span>`;
+  if(v==='Remediate'||v.includes('Remediation'))return `<span class="pill pill-y">${v}</span>`;
+  if(v==='Full')return `<span class="pill pill-g">${v}</span>`;
+  if(v==='Issued')return `<span class="pill pill-g">${v}</span>`;
+  return `<span class="pill pill-b">${v}</span>`;
+}
+
+function renderRoster(){
+  const r=buildRoster();
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const f=document.getElementById('filter').value;
+  let rows=r.filter(x=>!q||(x.name+' '+x.role).toLowerCase().includes(q));
+  if(f==='Pass')rows=rows.filter(x=>x.examRaw==='Pass');
+  if(f==='Fail')rows=rows.filter(x=>x.examRaw==='Fail');
+  if(f==='Pending')rows=rows.filter(x=>!x.examRaw);
+  document.getElementById('roster_empty').classList.toggle('hidden',rows.length>0);
+  document.getElementById('roster_body').innerHTML=rows.map(x=>`
+    <tr><td class="font-semibold">${x.name}</td><td>${x.role||'—'}</td><td>${x.type||'—'}</td>
+    <td>${pillFor(x.attendance)}</td><td>${pillFor(x.pretest)}</td><td>${pillFor(x.bls)}</td>
+    <td>${pillFor(x.megacode)}</td><td>${pillFor(x.exam)}</td><td>${pillFor(x.cert)}</td></tr>
+  `).join('');
+}
+
+function renderFB(){
+  const fb=get('pals2025_feedback');
+  if(!fb.length){document.getElementById('fb_summary').innerHTML='<div class="text-sm text-slate-400 italic">No feedback submitted yet.</div>';return}
+  const items={};
+  fb.forEach(e=>(e.ratings||[]).forEach(r=>{
+    if(!r.score)return;
+    items[r.item]=items[r.item]||{tot:0,n:0};items[r.item].tot+=r.score;items[r.item].n+=1;
+  }));
+  const recs=fb.map(e=>e.recommend).filter(Boolean);
+  const recCounts=recs.reduce((a,b)=>(a[b]=(a[b]||0)+1,a),{});
+  document.getElementById('fb_summary').innerHTML=`
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>${Object.entries(items).map(([k,v])=>{const avg=(v.tot/v.n);return`
+        <div class="mb-3"><div class="flex justify-between text-sm mb-1"><span>${k}</span><span class="font-bold">${avg.toFixed(1)}/5</span></div>
+        <div class="bar"><div style="width:${avg/5*100}%"></div></div></div>`}).join('')}</div>
+      <div>
+        <div class="text-xs uppercase tracking-wider font-semibold text-slate-500 mb-2">Total responses: ${fb.length}</div>
+        <div class="text-xs uppercase tracking-wider font-semibold text-slate-500 mb-2 mt-4">Would recommend</div>
+        ${Object.entries(recCounts).map(([k,n])=>`<div class="flex justify-between text-sm mb-1"><span>${k}</span><span>${n}</span></div>`).join('')||'<div class="text-sm text-slate-400 italic">No data</div>'}
+      </div>
+    </div>`;
+}
+
+function renderSessions(){
+  let sched={};try{sched=JSON.parse(localStorage.getItem('pals2025_planner')||'{}')}catch(e){}
+  const all=[...(sched.day1||[]),...(sched.day2||[])];
+  if(!all.length){document.getElementById('session_progress').innerHTML='<div class="text-sm text-slate-400 italic">No schedule loaded. Open the Course Planner to populate.</div>';return}
+  const now=new Date();const today=now.toTimeString().slice(0,5);
+  document.getElementById('session_progress').innerHTML=`
+    <div class="space-y-2">${all.slice(0,12).map(s=>{
+      const [a,b]=(s.time||'').split('-');
+      const status=!b?'upcoming':(a<=today&&today<=b?'now':(b<today?'done':'upcoming'));
+      const color=status==='now'?'#22C55E':status==='done'?'#94a3b8':'#0891B2';
+      return `<div class="flex items-center gap-3"><div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+      <div class="text-xs text-slate-500 w-24">${s.time||'—'}</div>
+      <div class="text-sm flex-1">${s.title}</div>
+      <div class="text-xs ${status==='now'?'text-green-600 font-bold':'text-slate-400'}">${status==='now'?'IN PROGRESS':status==='done'?'done':''}</div></div>`}).join('')}</div>`;
+}
+
+/* COUNTDOWN */
+const CK='pals2025_course_start';
+function setStart(v){if(v){localStorage.setItem(CK,v);tickCountdown()}}
+function clearStart(){localStorage.removeItem(CK);document.getElementById('course_start').value='';document.getElementById('countdown').textContent='—'}
+function tickCountdown(){
+  const v=localStorage.getItem(CK);if(!v){document.getElementById('countdown').textContent='Set a course start time →';return}
+  document.getElementById('course_start').value=v;
+  const diff=new Date(v)-new Date();
+  if(diff<=0){document.getElementById('countdown').textContent='Course in progress / ended';return}
+  const d=Math.floor(diff/86400000),h=Math.floor(diff%86400000/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);
+  document.getElementById('countdown').textContent=`${d}d ${h}h ${m}m ${s}s until course`;
+}
+setInterval(tickCountdown,1000);tickCountdown();
+
+/* BULK ACTIONS */
+function exportRoster(){
+  const r=buildRoster();
+  if(!r.length){alert('No data');return}
+  const keys=Object.keys(r[0]);
+  const csv=[keys.join(',')].concat(r.map(o=>keys.map(k=>'"'+String(o[k]??'').replace(/"/g,'""')+'"').join(','))).join('\n');
+  download(new Blob([csv],{type:'text/csv'}),'pals_roster.csv');
+}
+function printAttendance(){
+  const w=window.open('','_blank');
+  const r=buildRoster();
+  w.document.write(`<html><head><title>Attendance Sheet</title><style>body{font-family:Arial;padding:30px}h1{color:#0891B2}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:8px;text-align:left;font-size:12px}th{background:#f0f9ff}</style></head><body>
+  <h1>PALS 2025 — Attendance Sheet</h1>
+  <table><thead><tr><th>Name</th><th>Role</th><th>Day 1 Sign-In</th><th>Day 1 Sign-Out</th><th>Day 2 Sign-In</th><th>Day 2 Sign-Out</th></tr></thead>
+  <tbody>${r.map(x=>`<tr><td>${x.name}</td><td>${x.role||''}</td><td></td><td></td><td></td><td></td></tr>`).join('')}
+  ${Array.from({length:Math.max(0,15-r.length)}).map(()=>'<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>').join('')}
+  </tbody></table></body></html>`);
+  w.print();
+}
+function generateAllCerts(){
+  const r=buildRoster().filter(x=>x.examRaw==='Pass');
+  if(!r.length){alert('No passing students yet');return}
+  const arr=get('pals2025_certificates');
+  const meta=JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}');
+  const today=new Date().toISOString().slice(0,10);
+  const expiry=new Date();expiry.setFullYear(expiry.getFullYear()+2);
+  r.forEach((x,i)=>{
+    arr.push({timestamp:new Date().toISOString(),name:x.name,date:today,expiry:expiry.toISOString().slice(0,10),instructor:meta.instructor||'',site:meta.site||'',cardid:'PALS-'+today.replace(/-/g,'')+'-'+(i+1)});
+  });
+  localStorage.setItem('pals2025_certificates',JSON.stringify(arr));
+  alert('Generated '+r.length+' certificates. View in Forms Portal → Certificate.');
+  refreshAll();
+}
+function exportAll(){
+  const all={};
+  ['pals2025_preregistration','pals2025_pretest','pals2025_attendance','pals2025_bls_skills','pals2025_megacode','pals2025_final_exam','pals2025_feedback','pals2025_certificates','pals2025_course_meta','pals2025_planner'].forEach(k=>{
+    try{all[k]=JSON.parse(localStorage.getItem(k)||'null')}catch(e){all[k]=null}
+  });
+  download(new Blob([JSON.stringify(all,null,2)],{type:'application/json'}),'pals_full_export.json');
+}
+function clearAll(){
+  if(!confirm('This permanently clears ALL course data on this device. Continue?'))return;
+  if(!confirm('Are you absolutely sure? This cannot be undone.'))return;
+  ['pals2025_preregistration','pals2025_pretest','pals2025_attendance','pals2025_bls_skills','pals2025_megacode','pals2025_final_exam','pals2025_feedback','pals2025_certificates'].forEach(k=>localStorage.removeItem(k));
+  refreshAll();alert('Cleared.');
+}
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+
+function refreshAll(){renderStats();renderRoster();renderFB();renderSessions()}
+refreshAll();
+setInterval(refreshAll,5000);
+</script>
+</body>
+</html>

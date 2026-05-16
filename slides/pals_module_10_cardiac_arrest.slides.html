@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 10 — Pediatric Cardiac Arrest Algorithm</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  *{font-family:'Manrope',system-ui,sans-serif}
+  html,body{height:100%;margin:0}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
+  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
+  .blob1{width:500px;height:500px;background:#EF4444;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
+  .blob2{width:450px;height:450px;background:#0891B2;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
+  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 6vw;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
+  .slide.active{opacity:1;pointer-events:auto}
+  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#EF4444}
+  .slide h2{font-size:clamp(20px,2.8vw,36px);font-weight:800;color:#1E293B;margin-bottom:14px}
+  .slide h3{font-size:clamp(14px,1.4vw,20px);font-weight:700;color:#EF4444;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.2vw,17px);line-height:1.5;color:#334155}
+  .slide ul{padding-left:24px} .slide li{margin-bottom:5px}
+  .card{background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);border:1px solid rgba(239,68,68,.15);border-radius:14px;padding:16px}
+  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(239,68,68,.15);color:#b91c1c;letter-spacing:.5px}
+  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:10}
+  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
+  .dot.active{background:#EF4444;transform:scale(1.4)}
+  .nav-btn{background:#EF4444;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px}
+  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none}
+  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:16px 22px;border-radius:8px}
+  .pearl h3{color:#0f9b6c}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid #e2e8f0}
+  th{background:rgba(239,68,68,.1);font-weight:700;color:#b91c1c;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+  .new{background:#34D399;color:#0f3a26;padding:1px 7px;border-radius:5px;font-weight:700;font-size:10px;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div><div class="blob blob2"></div>
+<a class="home" href="../index.html">← Hub</a>
+<div class="counter"><span id="cur">1</span>/<span id="tot">9</span></div>
+
+<section class="slide active">
+  <span class="pill">Module 10</span>
+  <h1 class="mt-3">Pediatric Cardiac<br>Arrest Algorithm</h1>
+  <p class="mt-6 text-slate-500">2025 updates · physiology-directed CPR · ECPR considerations</p>
+</section>
+
+<section class="slide">
+  <h3>Objectives</h3>
+  <ul class="mt-4">
+    <li>Execute the 2025 pediatric cardiac arrest algorithm including shockable and non-shockable pathways.</li>
+    <li>Apply physiology-directed CPR using DBP and ETCO₂ targets.</li>
+    <li>Identify and treat reversible causes — including the 2025 additions.</li>
+    <li>Recognize candidates for ECPR.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h3>Cardiac Arrest Algorithm</h3>
+  <h2>Two Pathways, One Cycle</h2>
+  <svg viewBox="0 0 980 460" style="width:100%;max-width:1020px" class="mt-2">
+    <defs><marker id="ar" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="#EF4444"/></marker></defs>
+    <rect x="380" y="10" width="220" height="50" rx="10" fill="#EF4444"/><text x="490" y="40" text-anchor="middle" fill="#fff" font-weight="800">Cardiac arrest</text>
+    <line x1="490" y1="60" x2="490" y2="78" stroke="#EF4444" stroke-width="3" marker-end="url(#ar)"/>
+    <rect x="340" y="85" width="300" height="50" rx="10" fill="#fff" stroke="#EF4444" stroke-width="2"/><text x="490" y="115" text-anchor="middle" font-weight="700" fill="#1E293B">CPR · O₂ · monitor / defib pads · IV-IO</text>
+    <line x1="490" y1="135" x2="490" y2="158" stroke="#EF4444" stroke-width="3" marker-end="url(#ar)"/>
+    <polygon points="380,165 600,165 540,225 440,225" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/><text x="490" y="200" text-anchor="middle" font-weight="700" fill="#92400e">Shockable rhythm?</text>
+    <line x1="380" y1="200" x2="200" y2="200" stroke="#EF4444" stroke-width="3" marker-end="url(#ar)"/>
+    <text x="290" y="190" text-anchor="middle" font-size="12" fill="#475569">No (Asystole/PEA)</text>
+    <line x1="600" y1="200" x2="780" y2="200" stroke="#EF4444" stroke-width="3" marker-end="url(#ar)"/>
+    <text x="700" y="190" text-anchor="middle" font-size="12" fill="#475569">Yes (VF/pVT)</text>
+    <rect x="20" y="230" width="290" height="180" rx="14" fill="#fff" stroke="#1E293B" stroke-width="2"/>
+    <text x="165" y="255" text-anchor="middle" font-weight="800" fill="#1E293B">Non-shockable</text>
+    <text x="40" y="285" font-size="13" fill="#334155">• CPR 2 min</text>
+    <text x="40" y="305" font-size="13" fill="#334155">• Epinephrine 0.01 mg/kg q3-5 min</text>
+    <text x="40" y="325" font-size="13" fill="#334155">• Advanced airway / ETCO₂</text>
+    <text x="40" y="345" font-size="13" fill="#334155">• Treat reversibles (H&Ts + ICH + block)</text>
+    <text x="40" y="365" font-size="13" fill="#334155">• Reassess rhythm every 2 min</text>
+    <text x="40" y="390" font-size="11" fill="#64748b">Continue cycles until ROSC or termination</text>
+    <rect x="670" y="230" width="290" height="180" rx="14" fill="#fff" stroke="#EF4444" stroke-width="2"/>
+    <text x="815" y="255" text-anchor="middle" font-weight="800" fill="#EF4444">Shockable</text>
+    <text x="690" y="285" font-size="13" fill="#334155">• Shock #1: 2 J/kg</text>
+    <text x="690" y="305" font-size="13" fill="#334155">• Resume CPR 2 min</text>
+    <text x="690" y="325" font-size="13" fill="#334155">• Shock #2: 4 J/kg + Epi 0.01 mg/kg</text>
+    <text x="690" y="345" font-size="13" fill="#334155">• Shock #3+ ≥4 J/kg (max 10) + amiodarone 5 mg/kg</text>
+    <text x="690" y="365" font-size="13" fill="#334155">• Continue cycles, treat reversibles</text>
+    <text x="690" y="390" font-size="11" fill="#64748b">Lidocaine 1 mg/kg alternative to amiodarone</text>
+    <path d="M165 410 Q 165 450 490 450 Q 815 450 815 410" stroke="#34D399" stroke-width="2" fill="none" stroke-dasharray="6 4"/>
+    <text x="490" y="440" text-anchor="middle" font-size="11" fill="#34D399" font-weight="700">Reassess → ROSC pathway or continue</text>
+  </svg>
+</section>
+
+<section class="slide">
+  <h3>Physiology-Directed CPR</h3>
+  <h2>If You Can Measure It, Use It<span class="new">2025</span></h2>
+  <div class="grid2 mt-3">
+    <div class="card"><h3 style="color:#0891B2">Diastolic BP via art line</h3>
+      <ul><li>Infants: target <strong>≥25 mmHg</strong></li><li>Children: target <strong>≥30 mmHg</strong></li><li>If below: improve depth, recoil, switch compressor, consider epi sooner</li></ul></div>
+    <div class="card"><h3 style="color:#0891B2">ETCO₂ via waveform</h3>
+      <ul><li>Target <strong>≥15-20 mmHg</strong></li><li>Sudden ↑ → ROSC</li><li>Sudden ↓ → arrest recurred or tube displaced</li><li>Avoid hyperventilation that drops ETCO₂ artificially</li></ul></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Defibrillation Dosing</h3>
+  <h2>Escalate, Don't Hesitate</h2>
+  <table class="mt-3">
+    <thead><tr><th>Shock</th><th>Dose</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>1st</td><td><strong>2 J/kg</strong></td><td>Asynchronous</td></tr>
+      <tr><td>2nd</td><td><strong>4 J/kg</strong></td><td>Give epi after this shock</td></tr>
+      <tr><td>3rd+</td><td><strong>≥ 4 J/kg</strong> (max 10)</td><td>Consider amiodarone or lidocaine after 3rd shock</td></tr>
+    </tbody>
+  </table>
+  <p class="text-sm text-slate-500 mt-3">Resume compressions immediately after each shock — do NOT pulse-check.</p>
+</section>
+
+<section class="slide">
+  <h3>Drug Doses — Cardiac Arrest</h3>
+  <table class="mt-3">
+    <thead><tr><th>Drug</th><th>Dose</th><th>Indication</th></tr></thead>
+    <tbody>
+      <tr><td>Epinephrine</td><td><strong>0.01 mg/kg</strong> IV/IO q3-5 min (max 1 mg)</td><td>All arrest rhythms</td></tr>
+      <tr><td>Amiodarone</td><td><strong>5 mg/kg</strong> IV/IO bolus, may repeat ×2 (max 15 mg/kg)</td><td>VF / pulseless VT</td></tr>
+      <tr><td>Lidocaine</td><td><strong>1 mg/kg</strong> IV/IO bolus</td><td>Alternative to amiodarone</td></tr>
+      <tr><td>Magnesium</td><td><strong>25-50 mg/kg</strong> IV/IO (max 2 g)</td><td>Torsades / hypomagnesemia</td></tr>
+      <tr><td>Calcium chloride 10%</td><td><strong>20 mg/kg</strong> IV/IO</td><td>Hyper-K, hypocalcemia, CCB overdose</td></tr>
+      <tr><td>Sodium bicarbonate</td><td><strong>1 mEq/kg</strong> IV/IO</td><td>Hyper-K, TCA overdose, prolonged arrest</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <h3>Reversible Causes — 2025</h3>
+  <h2>H's and T's <span class="new">Expanded</span></h2>
+  <div class="grid4 mt-3">
+    <div class="card"><strong>H</strong>ypoxia<br><span class="text-xs text-slate-500">Oxygenate, ventilate</span></div>
+    <div class="card"><strong>H</strong>ypovolemia<br><span class="text-xs text-slate-500">Fluid, blood</span></div>
+    <div class="card"><strong>H</strong>ydrogen ion<br><span class="text-xs text-slate-500">Bicarb if severe</span></div>
+    <div class="card"><strong>H</strong>ypo/hyper-K<br><span class="text-xs text-slate-500">Ca, bicarb, glucose+insulin</span></div>
+    <div class="card"><strong>H</strong>ypothermia<br><span class="text-xs text-slate-500">Active rewarming</span></div>
+    <div class="card"><strong>H</strong>ypoglycemia<br><span class="text-xs text-slate-500">Dextrose</span></div>
+    <div class="card"><strong>T</strong>ension PTX<br><span class="text-xs text-slate-500">Needle decompression</span></div>
+    <div class="card"><strong>T</strong>amponade<br><span class="text-xs text-slate-500">Pericardiocentesis</span></div>
+    <div class="card"><strong>T</strong>oxins<br><span class="text-xs text-slate-500">Antidote / lipid emulsion</span></div>
+    <div class="card"><strong>T</strong>hrombosis<br><span class="text-xs text-slate-500">PE, MI — thrombolysis</span></div>
+    <div class="card" style="border:2px solid #34D399"><strong>I</strong>CH (intracranial HTN)<span class="new">2025</span><br><span class="text-xs text-slate-500">Hyperosmolar Tx</span></div>
+    <div class="card" style="border:2px solid #34D399"><strong>B</strong>lock (heart)<span class="new">2025</span><br><span class="text-xs text-slate-500">Pacing</span></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>ECPR Considerations</h3>
+  <h2>When ECMO Becomes an Option</h2>
+  <div class="card mt-3">
+    <ul>
+      <li>2025 PALS: ECPR is <strong>reasonable</strong> for in-hospital pediatric arrest with a reversible cause when ECMO expertise, protocols, and resources are immediately available.</li>
+      <li>Activate ECMO team early (within first 15 min) if standard CPR not achieving ROSC.</li>
+      <li>Best outcomes: cardiac surgical / myocarditis populations with quality CPR pre-cannulation.</li>
+      <li>Not recommended for OHCA outside specialized programs.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="pearl">
+    <h3>Clinical Pearl</h3>
+    <h2 style="color:#0f3a26">"DBP and ETCO₂ tell you whether CPR is working — listen to them."</h2>
+    <p class="mt-3">A clock measures cycles. The patient's physiology measures perfusion. Use both, but trust the physiology.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Summary</h3>
+  <ul class="mt-3">
+    <li>Branch on shockability immediately; continue 2-min cycles.</li>
+    <li>Defib 2 → 4 J/kg, then ≥ 4 J/kg (max 10). Epi 0.01 mg/kg q3-5 min.</li>
+    <li>Physiology-directed CPR: DBP ≥ 25 (infant) / ≥ 30 (child) · ETCO₂ ≥ 15-20.</li>
+    <li>2025 reversibles add <strong>intracranial hypertension</strong> and <strong>heart block</strong>.</li>
+    <li>Consider ECPR for IHCA with reversible cause and program expertise.</li>
+  </ul>
+  <p class="text-sm text-slate-500 mt-8">Next → Module 11: Post-Cardiac Arrest Care</p>
+</section>
+
+<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
+<script>
+const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
+const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
+function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
+function go(d){show(cur+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+</script>
+</body>
+</html>

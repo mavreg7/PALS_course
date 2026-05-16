@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PALS 2025 Course Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+  *{font-family:'Manrope',system-ui,sans-serif}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);min-height:100vh;color:#1E293B}
+  .card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(30,41,59,0.06);border:1px solid rgba(8,145,178,0.08)}
+  .btn{padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;transition:all .2s;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px}
+  .btn-prim{background:#0891B2;color:#fff}.btn-prim:hover{background:#0e7490}
+  .btn-ghost{background:#fff;color:#0891B2;border:1px solid #0891B2}.btn-ghost:hover{background:#f0f9ff}
+  .tab{padding:10px 24px;border-radius:10px;font-weight:600;font-size:14px;color:#64748b;cursor:pointer;transition:all .2s}
+  .tab.active{background:#0891B2;color:#fff}
+  .tab:not(.active):hover{background:#f0f9ff;color:#0891B2}
+  .session{display:flex;gap:14px;padding:14px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;margin-bottom:10px;cursor:grab;transition:all .2s}
+  .session:hover{border-color:#0891B2;transform:translateX(2px)}
+  .session.dragging{opacity:.4}
+  .session.drop-target{border-color:#0891B2;border-style:dashed}
+  .session-time{font-weight:700;font-size:13px;color:#475569;min-width:110px;letter-spacing:.3px}
+  .session-body{flex:1}
+  .session-title{font-weight:700;font-size:15px;color:#1E293B}
+  .session-meta{font-size:12px;color:#64748b;margin-top:2px}
+  .session-color{width:6px;border-radius:3px;flex-shrink:0}
+  .type-didactic{background:#0891B2}
+  .type-skills{background:#22C55E}
+  .type-megacode{background:#F59E0B}
+  .type-break{background:#94a3b8}
+  .type-exam{background:#EF4444}
+  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;margin-left:6px}
+  .pill-d{background:rgba(8,145,178,.12);color:#0891B2}
+  .pill-s{background:rgba(34,197,94,.12);color:#15803d}
+  .pill-m{background:rgba(245,158,11,.15);color:#b45309}
+  .pill-b{background:rgba(100,116,139,.15);color:#475569}
+  .pill-e{background:rgba(239,68,68,.15);color:#b91c1c}
+  .field{width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px}
+  .field:focus{outline:none;border-color:#0891B2;box-shadow:0 0 0 3px rgba(8,145,178,.15)}
+  .details{display:none;padding:12px;background:#f8fafc;border-radius:8px;margin-top:8px}
+  .details.show{display:block}
+  .toast{position:fixed;bottom:20px;right:20px;background:#22C55E;color:#fff;padding:12px 20px;border-radius:10px;font-weight:600;z-index:1000;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+  @media print{
+    .no-print{display:none!important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ccc}
+    .session{break-inside:avoid;page-break-inside:avoid}
+    .panel-day{display:block!important;page-break-after:always}
+    .day-print-title{display:block!important;font-size:22px;font-weight:800;margin:20px 0 10px}
+  }
+  .day-print-title{display:none}
+</style>
+</head>
+<body>
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+
+  <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 no-print">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">PALS Course Planner</h1>
+      <p class="text-slate-500 text-sm">Drag to reorder · click to expand · auto-save</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <a href="index.html" class="btn btn-ghost">← Hub</a>
+      <button class="btn btn-ghost" onclick="resetSchedule()">↻ Reset Default</button>
+      <button class="btn btn-ghost" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-prim" onclick="genQR()">📱 Share QR</button>
+    </div>
+  </header>
+
+  <section class="card p-5 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500">Course Date</label><input class="field mt-1" id="course_date" placeholder="e.g., May 28-29, 2026"></div>
+      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500">Lead Instructor</label><input class="field mt-1" id="course_instr" placeholder="Instructor name"></div>
+      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500">Location</label><input class="field mt-1" id="course_loc" placeholder="Training site"></div>
+    </div>
+  </section>
+
+  <div class="flex gap-2 mb-5 no-print">
+    <div class="tab active" data-day="1" onclick="switchDay(1)">Day 1</div>
+    <div class="tab" data-day="2" onclick="switchDay(2)">Day 2</div>
+    <div class="flex-1"></div>
+    <div class="flex gap-2 text-xs items-center">
+      <span class="pill pill-d">Didactic</span><span class="pill pill-s">Skills</span><span class="pill pill-m">Megacode</span><span class="pill pill-b">Break</span><span class="pill pill-e">Exam</span>
+    </div>
+  </div>
+
+  <div class="panel-day" id="day1_panel">
+    <div class="day-print-title">DAY 1 — Recognition, Algorithms, Megacodes</div>
+    <div id="day1_list"></div>
+  </div>
+  <div class="panel-day hidden" id="day2_panel">
+    <div class="day-print-title">DAY 2 — Cardiac Arrest, Post-Arrest, Testing</div>
+    <div id="day2_list"></div>
+  </div>
+
+  <section class="card p-5 mt-6 no-print">
+    <h3 class="font-bold mb-2">Share with Students</h3>
+    <p class="text-sm text-slate-500 mb-3">Generate a QR code or export the schedule.</p>
+    <div class="flex flex-wrap gap-2 items-start">
+      <button class="btn btn-prim" onclick="genQR()">📱 Generate QR</button>
+      <button class="btn btn-ghost" onclick="exportJSON()">⬇ Export JSON</button>
+      <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+      <div id="qr_box" class="ml-3"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const DEFAULT_SCHEDULE = {
+  day1: [
+    {time:'08:00-08:30',title:'Registration & Pre-Course Self-Assessment Review',type:'break',instr:'Course coordinator',room:'Lobby / Classroom A',notes:'Sign-in, name tags, distribute manuals'},
+    {time:'08:30-09:00',title:'Course Introduction & 2025 AHA Updates Overview',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Module 1 slides · 2025 updates highlights'},
+    {time:'09:00-09:45',title:'Pediatric BLS & High-Quality CPR',type:'skills',instr:'BLS faculty (1:6)',room:'Skills Bay 1-3',notes:'Infant + child manikins, AED pediatric pads'},
+    {time:'09:45-10:30',title:'Systematic Pediatric Assessment',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Module 3 · PAT, ABCDE, vital signs tables'},
+    {time:'10:30-10:45',title:'Break',type:'break',instr:'',room:'',notes:'Refreshments'},
+    {time:'10:45-11:45',title:'Respiratory Emergencies',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 4 · BVM technique demo'},
+    {time:'11:45-12:30',title:'Shock Recognition & Management',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 5 · case-based discussion'},
+    {time:'12:30-13:15',title:'Lunch',type:'break',instr:'',room:'Dining Area',notes:''},
+    {time:'13:15-14:00',title:'Rhythm Recognition',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 6 · annotated rhythm strips'},
+    {time:'14:00-15:00',title:'Bradycardia & Tachycardia Algorithms',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 7 · IV sotalol update'},
+    {time:'15:00-15:15',title:'Break',type:'break',instr:'',room:'',notes:''},
+    {time:'15:15-16:00',title:'Megacode Station 1 — Respiratory Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 1',notes:'Module 8 · high-fidelity manikin'},
+    {time:'16:00-16:45',title:'Megacode Station 2 — Shock Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 2',notes:'Module 9 · septic shock scenario'},
+    {time:'16:45-17:30',title:'Day 1 Debrief & Q&A',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Pre-read for Day 2'}
+  ],
+  day2: [
+    {time:'08:00-08:15',title:'Day 2 Intro & Review',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:''},
+    {time:'08:15-09:15',title:'Pediatric Cardiac Arrest Algorithm & 2025 Updates',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 10 · physiology-directed CPR, DBP targets'},
+    {time:'09:15-10:00',title:'Post-Cardiac Arrest Care',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 11 · SpO2 94-99%, PaCO2 35-45'},
+    {time:'10:00-10:15',title:'Break',type:'break',instr:'',room:'',notes:''},
+    {time:'10:15-11:15',title:'Advanced Airway Management & Pharmacology',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 12 · live drug calculator'},
+    {time:'11:15-12:00',title:'Megacode Station 3 — Cardiac Arrest Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 1',notes:'VF / pulseless VT'},
+    {time:'12:00-12:30',title:'Lunch',type:'break',instr:'',room:'Dining Area',notes:''},
+    {time:'12:30-13:30',title:'Megacode Station 4 — Full Team Scenario',type:'megacode',instr:'All faculty',room:'Sim Bay 1-2',notes:'Multi-rescuer integrated case'},
+    {time:'13:30-14:15',title:'Written Exam (Open-Resource)',type:'exam',instr:'Lead instructor',room:'Classroom A',notes:'25 Q · ≥84% to pass · AHA 2025 policy'},
+    {time:'14:15-14:30',title:'Break',type:'break',instr:'',room:'',notes:''},
+    {time:'14:30-15:00',title:'Skills Testing',type:'skills',instr:'Skills faculty',room:'Skills Bay 1-3',notes:'BLS + megacode skills sign-off'},
+    {time:'15:00-15:30',title:'Debrief, Remediation, Certificates',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Hand out cards / digital certificates'},
+    {time:'15:30',title:'Course End',type:'break',instr:'',room:'',notes:''}
+  ]
+};
+
+const KEY='pals2025_planner';
+let schedule = (function(){
+  try{const s=JSON.parse(localStorage.getItem(KEY));return s||structuredClone(DEFAULT_SCHEDULE)}catch(e){return structuredClone(DEFAULT_SCHEDULE)}
+})();
+let meta = (function(){try{return JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}')}catch(e){return{}}})();
+document.getElementById('course_date').value=meta.dates||'';
+document.getElementById('course_instr').value=meta.instructor||'';
+document.getElementById('course_loc').value=meta.site||'';
+['course_date','course_instr','course_loc'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    const cur=JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}');
+    cur.dates=document.getElementById('course_date').value;
+    cur.instructor=document.getElementById('course_instr').value;
+    cur.site=document.getElementById('course_loc').value;
+    cur.timestamp=new Date().toISOString();
+    localStorage.setItem('pals2025_course_meta',JSON.stringify(cur));
+  });
+});
+
+function pillClass(t){return {didactic:'pill-d',skills:'pill-s',megacode:'pill-m',break:'pill-b',exam:'pill-e'}[t]||'pill-b'}
+function pillLabel(t){return {didactic:'Didactic',skills:'Skills',megacode:'Megacode',break:'Break',exam:'Exam'}[t]||t}
+
+function durationOf(time){
+  if(!time||!time.includes('-'))return '';
+  const [a,b]=time.split('-');
+  const [ah,am]=a.split(':').map(Number);const [bh,bm]=b.split(':').map(Number);
+  const mins=(bh*60+bm)-(ah*60+am);
+  return mins>0?`${mins} min`:'';
+}
+
+function render(){
+  ['day1','day2'].forEach(d=>{
+    const list=document.getElementById(d+'_list');
+    list.innerHTML=schedule[d].map((s,i)=>`
+      <div class="session" draggable="true" data-day="${d}" data-idx="${i}" onclick="toggleDetails(event,'${d}',${i})">
+        <div class="session-color type-${s.type}"></div>
+        <div class="session-time">${s.time}</div>
+        <div class="session-body">
+          <div class="session-title">${s.title}<span class="pill ${pillClass(s.type)}">${pillLabel(s.type)}</span>${durationOf(s.time)?`<span class="text-xs text-slate-400 ml-2">${durationOf(s.time)}</span>`:''}</div>
+          <div class="session-meta">${s.instr?'👤 '+s.instr+' · ':''}${s.room?'📍 '+s.room:''}</div>
+          <div class="details" id="det_${d}_${i}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+              <div><label class="text-xs font-semibold text-slate-500">Title</label><input class="field" value="${escAttr(s.title)}" onchange="updateField('${d}',${i},'title',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">Time</label><input class="field" value="${s.time}" onchange="updateField('${d}',${i},'time',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">Type</label>
+                <select class="field" onchange="updateField('${d}',${i},'type',this.value)" onclick="event.stopPropagation()">
+                  ${['didactic','skills','megacode','break','exam'].map(t=>`<option ${t===s.type?'selected':''} value="${t}">${pillLabel(t)}</option>`).join('')}
+                </select>
+              </div>
+              <div><label class="text-xs font-semibold text-slate-500">Instructor</label><input class="field" value="${escAttr(s.instr)}" onchange="updateField('${d}',${i},'instr',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">Room / Materials</label><input class="field" value="${escAttr(s.room)}" onchange="updateField('${d}',${i},'room',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">Notes</label><input class="field" value="${escAttr(s.notes)}" onchange="updateField('${d}',${i},'notes',this.value)" onclick="event.stopPropagation()"></div>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button class="btn btn-ghost" onclick="moveSession(event,'${d}',${i},-1)">↑ Up</button>
+              <button class="btn btn-ghost" onclick="moveSession(event,'${d}',${i},1)">↓ Down</button>
+              <button class="btn" style="background:#fee2e2;color:#b91c1c" onclick="deleteSession(event,'${d}',${i})">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('') + `<button class="btn btn-ghost no-print w-full justify-center mt-2" onclick="addSession('${d}')">+ Add Session</button>`;
+  });
+  attachDragHandlers();
+}
+function escAttr(s){return (s||'').replace(/"/g,'&quot;')}
+function toggleDetails(e,d,i){
+  if(e.target.closest('.field')||e.target.tagName==='BUTTON')return;
+  const el=document.getElementById(`det_${d}_${i}`);el.classList.toggle('show');
+}
+function updateField(d,i,f,v){schedule[d][i][f]=v;persist();
+  if(f==='type'||f==='time'||f==='title')render();
+}
+function moveSession(e,d,i,delta){
+  e.stopPropagation();
+  const j=i+delta;if(j<0||j>=schedule[d].length)return;
+  [schedule[d][i],schedule[d][j]]=[schedule[d][j],schedule[d][i]];persist();render();
+}
+function deleteSession(e,d,i){e.stopPropagation();if(!confirm('Delete this session?'))return;schedule[d].splice(i,1);persist();render()}
+function addSession(d){schedule[d].push({time:'00:00-00:00',title:'New session',type:'didactic',instr:'',room:'',notes:''});persist();render()}
+function persist(){localStorage.setItem(KEY,JSON.stringify(schedule));toast('Saved')}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1500)}
+function resetSchedule(){if(!confirm('Reset to default schedule? This discards your edits.'))return;schedule=structuredClone(DEFAULT_SCHEDULE);persist();render()}
+
+function switchDay(n){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.day==n));
+  document.getElementById('day1_panel').classList.toggle('hidden',n!==1);
+  document.getElementById('day2_panel').classList.toggle('hidden',n!==2);
+}
+
+function attachDragHandlers(){
+  let dragEl=null;
+  document.querySelectorAll('.session').forEach(s=>{
+    s.addEventListener('dragstart',e=>{dragEl=s;s.classList.add('dragging')});
+    s.addEventListener('dragend',()=>{dragEl=null;document.querySelectorAll('.session').forEach(x=>x.classList.remove('dragging','drop-target'))});
+    s.addEventListener('dragover',e=>{e.preventDefault();if(dragEl&&dragEl.dataset.day===s.dataset.day&&dragEl!==s)s.classList.add('drop-target')});
+    s.addEventListener('dragleave',()=>s.classList.remove('drop-target'));
+    s.addEventListener('drop',e=>{
+      e.preventDefault();s.classList.remove('drop-target');
+      if(!dragEl||dragEl.dataset.day!==s.dataset.day||dragEl===s)return;
+      const d=s.dataset.day;const from=parseInt(dragEl.dataset.idx);const to=parseInt(s.dataset.idx);
+      const item=schedule[d].splice(from,1)[0];schedule[d].splice(to,0,item);persist();render();
+    });
+  });
+}
+
+function genQR(){
+  const box=document.getElementById('qr_box');
+  box.innerHTML='<div class="bg-white p-3 rounded-lg border border-slate-200 inline-block"><div id="qr_inner"></div><div class="text-xs text-slate-500 mt-2 text-center">Scan to open planner</div></div>';
+  new QRCode(document.getElementById('qr_inner'),{text:location.href,width:160,height:160,colorDark:'#0891B2',colorLight:'#fff'});
+}
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(schedule,null,2)],{type:'application/json'});
+  download(blob,'pals_schedule.json');
+}
+function exportCSV(){
+  const rows=['Day,Time,Title,Type,Instructor,Room,Notes'];
+  ['day1','day2'].forEach((d,di)=>schedule[d].forEach(s=>{
+    rows.push([di+1,s.time,s.title,s.type,s.instr,s.room,s.notes].map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(','));
+  }));
+  download(new Blob([rows.join('\n')],{type:'text/csv'}),'pals_schedule.csv');
+}
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+
+render();
+</script>
+</body>
+</html>

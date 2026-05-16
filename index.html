@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PALS 2025 Course Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  :root{
+    --primary:#0891B2;--secondary:#34D399;--accent:#1E293B;
+    --bg1:#F8FAFC;--bg2:#EFF6FF;--success:#22C55E;--warning:#F59E0B;--danger:#EF4444;
+  }
+  *{font-family:'Manrope',system-ui,sans-serif}
+  body{background:linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh;color:var(--accent)}
+  .glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(10px);border:1px solid rgba(8,145,178,0.1)}
+  .card{background:#fff;border-radius:16px;box-shadow:0 4px 16px rgba(30,41,59,0.06);border:1px solid rgba(8,145,178,0.08);transition:all .25s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(8,145,178,0.15);border-color:rgba(8,145,178,0.25)}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.5px}
+  .badge-prim{background:rgba(8,145,178,.1);color:#0891B2}
+  .badge-sec{background:rgba(52,211,153,.15);color:#0f9b6c}
+  .badge-warn{background:rgba(245,158,11,.15);color:#b45309}
+  .grad-bar{height:4px;background:linear-gradient(90deg,#0891B2,#34D399);border-radius:0 0 16px 16px}
+  .icon-box{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+  .blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.25;z-index:0;pointer-events:none}
+  .blob1{width:400px;height:400px;background:#0891B2;top:-100px;left:-100px;animation:float 14s ease-in-out infinite}
+  .blob2{width:380px;height:380px;background:#34D399;bottom:-100px;right:-80px;animation:float 18s ease-in-out infinite reverse}
+  @keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,30px)}}
+  .container-x{position:relative;z-index:1}
+  input.editable{background:transparent;border:none;border-bottom:1px dashed #94a3b8;padding:2px 6px;font-weight:600;color:#1E293B;transition:all .2s}
+  input.editable:focus{outline:none;border-bottom-color:#0891B2;background:rgba(8,145,178,.05)}
+  .btn{padding:10px 18px;border-radius:10px;font-weight:600;font-size:14px;transition:all .2s;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px}
+  .btn-prim{background:#0891B2;color:#fff}
+  .btn-prim:hover{background:#0e7490}
+  .btn-ghost{background:#fff;color:#0891B2;border:1px solid #0891B2}
+  .btn-ghost:hover{background:#f0f9ff}
+  @media print{
+    .no-print{display:none!important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
+    .blob{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+
+<div class="container-x max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+  <header class="mb-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <div class="icon-box" style="background:linear-gradient(135deg,#0891B2,#34D399);color:#fff">P</div>
+          <div>
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">PALS 2025 Course Hub</h1>
+            <p class="text-slate-500 text-sm">Pediatric Advanced Life Support — 2-Day Provider Course</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2 no-print">
+        <button class="btn btn-ghost" onclick="window.print()">🖨️ Print</button>
+        <button class="btn btn-prim" onclick="saveMeta()">💾 Save</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="card p-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <label class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Course Dates</label>
+        <input id="meta_dates" type="text" class="editable w-full text-lg mt-1" placeholder="e.g., May 28-29, 2026">
+      </div>
+      <div>
+        <label class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Lead Instructor</label>
+        <input id="meta_instructor" type="text" class="editable w-full text-lg mt-1" placeholder="Instructor name">
+      </div>
+      <div>
+        <label class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Course Site</label>
+        <input id="meta_site" type="text" class="editable w-full text-lg mt-1" placeholder="Hospital / Training Center">
+      </div>
+    </div>
+    <div class="mt-4 text-xs text-slate-400">Edits auto-save to your browser. Based on 2025 AHA / ILCOR pediatric updates.</div>
+  </section>
+
+  <section class="mb-10">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-slate-700">Course Tools</h2>
+      <span class="badge badge-prim">Core</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+      <a href="pals_course_planner.html" class="card overflow-hidden block">
+        <div class="p-5">
+          <div class="icon-box mb-3" style="background:rgba(8,145,178,.1);color:#0891B2">📅</div>
+          <h3 class="font-bold text-lg mb-1">Course Planner</h3>
+          <p class="text-sm text-slate-500">Editable 2-day schedule, drag-and-drop sessions, color-coded blocks, QR share, print-ready agenda.</p>
+        </div>
+        <div class="grad-bar"></div>
+      </a>
+
+      <a href="pals_forms_portal.html" class="card overflow-hidden block">
+        <div class="p-5">
+          <div class="icon-box mb-3" style="background:rgba(52,211,153,.15);color:#0f9b6c">📋</div>
+          <h3 class="font-bold text-lg mb-1">Forms Portal</h3>
+          <p class="text-sm text-slate-500">Pre-registration, pre-test, attendance, skills checklists, megacode evaluation, exam, feedback, certificates.</p>
+        </div>
+        <div class="grad-bar"></div>
+      </a>
+
+      <a href="pals_instructor_dashboard.html" class="card overflow-hidden block">
+        <div class="p-5">
+          <div class="icon-box mb-3" style="background:rgba(30,41,59,.08);color:#1E293B">📊</div>
+          <h3 class="font-bold text-lg mb-1">Instructor Dashboard</h3>
+          <p class="text-sm text-slate-500">Roster, scores, attendance, certificates, bulk exports, feedback analytics.</p>
+        </div>
+        <div class="grad-bar"></div>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="mb-10">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-slate-700">12 Module Slide Decks</h2>
+      <span class="badge badge-sec">2025 AHA</span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="modules-grid"></div>
+  </section>
+
+  <footer class="text-center text-xs text-slate-400 mt-12 mb-4">
+    PALS 2025 Course Hub · Built for instructors & students · Reflects 2025 AHA / ILCOR pediatric life support updates
+  </footer>
+</div>
+
+<script>
+const modules = [
+  {n:1, file:'slides/pals_module_01_intro.slides.html', title:'Course Intro & 2025 Updates', desc:'Goals, certification, key 2025 changes: physiology-directed CPR, DBP targets, expanded reversible causes.', icon:'🩺', color:'#0891B2'},
+  {n:2, file:'slides/pals_module_02_bls.slides.html', title:'Pediatric BLS & High-Quality CPR', desc:'C-A-B sequence, depth, rate, AED use, 1- and 2-rescuer technique.', icon:'❤️', color:'#EF4444'},
+  {n:3, file:'slides/pals_module_03_assessment.slides.html', title:'Systematic Pediatric Assessment', desc:'PAT, ABCDE, Evaluate-Identify-Intervene, age-specific vitals.', icon:'🔍', color:'#34D399'},
+  {n:4, file:'slides/pals_module_04_respiratory.slides.html', title:'Respiratory Emergencies', desc:'Distress vs failure, BVM, ETCO2 targets, intubation indications.', icon:'🫁', color:'#0891B2'},
+  {n:5, file:'slides/pals_module_05_shock.slides.html', title:'Shock Recognition & Management', desc:'Compensated vs decompensated, fluid strategy, vasoactives, sepsis bundle.', icon:'💧', color:'#F59E0B'},
+  {n:6, file:'slides/pals_module_06_rhythms.slides.html', title:'Rhythm Recognition', desc:'Sinus, brady, blocks, SVT, VT, VF, asystole, PEA with annotated strips.', icon:'📈', color:'#1E293B'},
+  {n:7, file:'slides/pals_module_07_algorithms.slides.html', title:'Brady & Tachy Algorithms', desc:'Atropine, pacing, adenosine, cardioversion, amiodarone, IV sotalol update.', icon:'⚡', color:'#0891B2'},
+  {n:8, file:'slides/pals_module_08_megacode_resp.slides.html', title:'Megacode 1: Respiratory Case', desc:'Team roles, checklist, debrief, scoring rubric.', icon:'🎯', color:'#F59E0B'},
+  {n:9, file:'slides/pals_module_09_megacode_shock.slides.html', title:'Megacode 2: Shock Case', desc:'Septic shock scenario, fluid + vasoactive management, debrief.', icon:'🎯', color:'#F59E0B'},
+  {n:10, file:'slides/pals_module_10_cardiac_arrest.slides.html', title:'Pediatric Cardiac Arrest Algorithm', desc:'Shockable vs non-shockable, epinephrine, ECPR, physiology-directed CPR.', icon:'🚨', color:'#EF4444'},
+  {n:11, file:'slides/pals_module_11_postarrest.slides.html', title:'Post-Cardiac Arrest Care', desc:'SpO2 94-99%, PaCO2 35-45, fever avoidance, neuro monitoring.', icon:'🛏️', color:'#34D399'},
+  {n:12, file:'slides/pals_module_12_airway_pharm.slides.html', title:'Advanced Airway & Pharmacology', desc:'BVM, SGA, ETT sizing, RSI, live drug calculator.', icon:'💊', color:'#0891B2'},
+];
+
+const grid = document.getElementById('modules-grid');
+grid.innerHTML = modules.map(m=>`
+  <a href="${m.file}" class="card overflow-hidden block">
+    <div class="p-5">
+      <div class="flex items-start gap-3 mb-2">
+        <div class="icon-box" style="background:${m.color}15;color:${m.color}">${m.icon}</div>
+        <div class="flex-1">
+          <div class="text-xs text-slate-400 font-semibold">MODULE ${String(m.n).padStart(2,'0')}</div>
+          <h3 class="font-bold leading-tight">${m.title}</h3>
+        </div>
+      </div>
+      <p class="text-xs text-slate-500 leading-relaxed mt-2">${m.desc}</p>
+    </div>
+    <div class="grad-bar"></div>
+  </a>
+`).join('');
+
+const META_KEY='pals2025_course_meta';
+function loadMeta(){
+  try{
+    const d = JSON.parse(localStorage.getItem(META_KEY)||'{}');
+    if(d.dates) document.getElementById('meta_dates').value=d.dates;
+    if(d.instructor) document.getElementById('meta_instructor').value=d.instructor;
+    if(d.site) document.getElementById('meta_site').value=d.site;
+  }catch(e){}
+}
+function saveMeta(){
+  const data={
+    dates:document.getElementById('meta_dates').value,
+    instructor:document.getElementById('meta_instructor').value,
+    site:document.getElementById('meta_site').value,
+    timestamp:new Date().toISOString()
+  };
+  localStorage.setItem(META_KEY, JSON.stringify(data));
+  flash('Saved');
+}
+['meta_dates','meta_instructor','meta_site'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    clearTimeout(window._t);window._t=setTimeout(saveMeta,500);
+  });
+});
+function flash(msg){
+  const f=document.createElement('div');
+  f.textContent=msg;
+  f.style.cssText='position:fixed;bottom:20px;right:20px;background:#22C55E;color:#fff;padding:10px 18px;border-radius:10px;font-weight:600;z-index:1000;box-shadow:0 6px 18px rgba(0,0,0,.2);animation:fadeOut 2s forwards';
+  document.body.appendChild(f);
+  setTimeout(()=>f.remove(),2000);
+}
+const st=document.createElement('style');
+st.textContent='@keyframes fadeOut{0%,70%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}';
+document.head.appendChild(st);
+loadMeta();
+</script>
+</body>
+</html>

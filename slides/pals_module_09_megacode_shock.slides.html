@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 9 — Megacode 2: Septic Shock</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  *{font-family:'Manrope',system-ui,sans-serif}
+  html,body{height:100%;margin:0}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
+  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
+  .blob1{width:500px;height:500px;background:#F59E0B;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
+  .blob2{width:450px;height:450px;background:#0891B2;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
+  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 6vw;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
+  .slide.active{opacity:1;pointer-events:auto}
+  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#F59E0B}
+  .slide h2{font-size:clamp(20px,2.8vw,36px);font-weight:800;color:#1E293B;margin-bottom:14px}
+  .slide h3{font-size:clamp(14px,1.4vw,20px);font-weight:700;color:#F59E0B;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.2vw,17px);line-height:1.5;color:#334155}
+  .slide ul{padding-left:24px} .slide li{margin-bottom:5px}
+  .card{background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);border:1px solid rgba(245,158,11,.18);border-radius:14px;padding:16px}
+  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(245,158,11,.15);color:#b45309;letter-spacing:.5px}
+  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:10}
+  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
+  .dot.active{background:#F59E0B;transform:scale(1.4)}
+  .nav-btn{background:#F59E0B;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px}
+  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none}
+  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:16px 22px;border-radius:8px}
+  .pearl h3{color:#0f9b6c}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid #e2e8f0}
+  th{background:rgba(245,158,11,.1);font-weight:700;color:#b45309;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+  .role{display:inline-block;padding:3px 9px;border-radius:6px;background:#FEF3C7;color:#92400e;font-weight:700;font-size:12px;margin-right:6px;margin-bottom:4px}
+  .step{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+  .step-n{background:#F59E0B;color:#fff;font-weight:800;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div><div class="blob blob2"></div>
+<a class="home" href="../index.html">← Hub</a>
+<div class="counter"><span id="cur">1</span>/<span id="tot">8</span></div>
+
+<section class="slide active">
+  <span class="pill">Megacode 2</span>
+  <h1 class="mt-3">Septic Shock<br>→ Cold Shock → Vasoactives</h1>
+  <p class="mt-6 text-slate-500">Recognition, first-hour bundle, vasoactive escalation, debrief.</p>
+</section>
+
+<section class="slide">
+  <h3>Scenario Brief</h3>
+  <h2>9-Month-Old (8 kg) with Fever and Lethargy</h2>
+  <div class="card mt-3">
+    <p><strong>Setting:</strong> PICU admit from ED. 48 h of fever, decreased PO, diarrhea ×6 today.</p>
+    <p class="mt-2"><strong>Vitals:</strong> HR 192 · RR 60 · BP 68/40 · T 39.2 · SpO₂ 92% RA · Cap refill 5 s · cool feet · lethargic.</p>
+    <p class="mt-2"><strong>Labs:</strong> Lactate 4.2 · WBC 22k bands · glucose 58.</p>
+    <p class="mt-2"><strong>Trigger event:</strong> After 40 mL/kg fluid, BP 64/36, mottled, hepatomegaly noted → cold-shock pattern persists.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Team Roles</h3>
+  <div class="card mt-3">
+    <p><span class="role">Team Leader</span> drives sepsis bundle, escalates to vasoactive within 60 min.</p>
+    <p><span class="role">Airway</span> O₂ via NC/HFNC, monitors for impending failure.</p>
+    <p><span class="role">Access</span> 2 IVs / IO if delays; sends labs and cultures.</p>
+    <p><span class="role">Medications</span> draws fluid boluses, antibiotics, vasoactive infusion.</p>
+    <p><span class="role">Recorder</span> logs times of bolus #1/#2/#3, antibiotics, vasoactive start.</p>
+    <p><span class="role">Family Liaison</span> updates caregivers, obtains consent.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Expected Actions</h3>
+  <h2>First-Hour Bundle</h2>
+  <div class="mt-3">
+    <div class="step"><div class="step-n">1</div><div><strong>0:00</strong> · Recognize sepsis · O₂ · monitor · obtain access ×2 within 5 min.</div></div>
+    <div class="step"><div class="step-n">2</div><div><strong>0:10</strong> · 1st bolus 20 mL/kg (160 mL) over 5-10 min · reassess.</div></div>
+    <div class="step"><div class="step-n">3</div><div><strong>0:20</strong> · Broad-spectrum antibiotics (ceftriaxone 50-100 mg/kg) within 60 min · blood cultures already sent.</div></div>
+    <div class="step"><div class="step-n">4</div><div><strong>0:25</strong> · Glucose D10 2-5 mL/kg for hypoglycemia.</div></div>
+    <div class="step"><div class="step-n">5</div><div><strong>0:30</strong> · 2nd bolus 20 mL/kg, reassess for hepatomegaly / rales.</div></div>
+    <div class="step"><div class="step-n">6</div><div><strong>0:40</strong> · Persistent shock + cold extremities → <strong>epinephrine</strong> 0.05 mcg/kg/min IV/IO via peripheral line acceptable initially.</div></div>
+    <div class="step"><div class="step-n">7</div><div><strong>0:55</strong> · Reassess. Consider stress-dose hydrocortisone if catecholamine-resistant. Central line, arterial line, PICU.</div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Cold vs Warm Shock</h3>
+  <h2>Pick the Right Pressor</h2>
+  <div class="grid2 mt-3">
+    <div class="card"><h3 style="color:#0891B2">Cold shock</h3>
+      <ul><li>Cap refill ≥3 s, cold extremities</li><li>Narrow pulse pressure</li><li>Often infants</li><li><strong>Epinephrine</strong> first-line</li></ul></div>
+    <div class="card"><h3 style="color:#EF4444">Warm shock</h3>
+      <ul><li>Flash cap refill, warm extremities</li><li>Wide pulse pressure, bounding pulses</li><li>Older children</li><li><strong>Norepinephrine</strong> first-line</li></ul></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Critical Errors</h3>
+  <div class="card mt-3">
+    <ul>
+      <li>Delaying antibiotics &gt; 60 min from recognition.</li>
+      <li>Withholding fluid boluses despite hypoperfusion (when no signs of overload).</li>
+      <li>Failing to recognize fluid overload (rales, hepatomegaly) and continuing boluses.</li>
+      <li>Starting vasoactive without correcting hypoglycemia / hypocalcemia.</li>
+      <li>Wrong epinephrine concentration (IV/IO infusion vs cardiac arrest push).</li>
+      <li>Missing reassessment after each bolus.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Scoring Rubric</h3>
+  <table class="mt-3">
+    <thead><tr><th>Domain</th><th>Pts</th><th>Pass Criterion</th></tr></thead>
+    <tbody>
+      <tr><td>Recognition of shock</td><td>2</td><td>Sepsis identified within 5 min; cold-shock pattern named</td></tr>
+      <tr><td>Vascular access</td><td>2</td><td>IV/IO ≤ 5 min</td></tr>
+      <tr><td>Fluid resuscitation</td><td>2</td><td>10-20 mL/kg, reassess each bolus</td></tr>
+      <tr><td>Antimicrobials</td><td>2</td><td>Broad-spectrum within 60 min</td></tr>
+      <tr><td>Vasoactive escalation</td><td>2</td><td>Correct agent + dose for cold shock</td></tr>
+      <tr><td>Team / communication</td><td>2</td><td>Closed-loop, role clarity, recorder updates</td></tr>
+    </tbody>
+  </table>
+  <p class="text-sm text-slate-500 mt-3"><strong>Pass:</strong> ≥ 9 points and zero critical errors.</p>
+</section>
+
+<section class="slide">
+  <h3>Debrief Prompts</h3>
+  <h2>Open with the Learners</h2>
+  <ul class="mt-3">
+    <li>"Walk me through your mental model at the 10-minute mark."</li>
+    <li>"What told you to stop boluses and start a vasoactive?"</li>
+    <li>"When did antibiotics actually get hung — and what slowed you down?"</li>
+    <li>"How did the team reassess after each intervention?"</li>
+  </ul>
+  <div class="pearl mt-4">
+    <h3>Clinical Pearl</h3>
+    <h2 style="color:#0f3a26">"Recognize early, treat fast, reassess after every step."</h2>
+    <p class="mt-3">Each pediatric sepsis bundle element saves lives — but only if delivered <em>and</em> reassessed within the first hour.</p>
+  </div>
+</section>
+
+<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
+<script>
+const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
+const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
+function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
+function go(d){show(cur+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+</script>
+</body>
+</html>

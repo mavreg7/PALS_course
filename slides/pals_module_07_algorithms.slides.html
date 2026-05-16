@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 7 — Bradycardia & Tachycardia Algorithms</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  *{font-family:'Manrope',system-ui,sans-serif}
+  html,body{height:100%;margin:0}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
+  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
+  .blob1{width:500px;height:500px;background:#0891B2;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
+  .blob2{width:450px;height:450px;background:#34D399;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
+  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 6vw;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
+  .slide.active{opacity:1;pointer-events:auto}
+  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#0891B2}
+  .slide h2{font-size:clamp(20px,2.8vw,36px);font-weight:800;color:#1E293B;margin-bottom:14px}
+  .slide h3{font-size:clamp(14px,1.4vw,20px);font-weight:700;color:#0891B2;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.2vw,17px);line-height:1.5;color:#334155}
+  .slide ul{padding-left:24px} .slide li{margin-bottom:5px}
+  .card{background:rgba(255,255,255,0.9);backdrop-filter:blur(6px);border:1px solid rgba(8,145,178,.12);border-radius:14px;padding:16px}
+  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(8,145,178,.12);color:#0891B2;letter-spacing:.5px}
+  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:10}
+  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
+  .dot.active{background:#0891B2;transform:scale(1.4)}
+  .nav-btn{background:#0891B2;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px}
+  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none}
+  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:16px 22px;border-radius:8px}
+  .pearl h3{color:#0f9b6c}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid #e2e8f0}
+  th{background:rgba(8,145,178,.08);font-weight:700;color:#0891B2;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+  .badge-new{display:inline-block;background:#34D399;color:#0f3a26;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div><div class="blob blob2"></div>
+<a class="home" href="../index.html">← Hub</a>
+<div class="counter"><span id="cur">1</span>/<span id="tot">8</span></div>
+
+<section class="slide active">
+  <span class="pill">Module 07</span>
+  <h1 class="mt-3">Brady & Tachy Algorithms</h1>
+  <p class="mt-6 text-slate-500">Atropine · pacing · adenosine · cardioversion · amiodarone · IV sotalol update</p>
+</section>
+
+<section class="slide">
+  <h3>Objectives</h3>
+  <h2>You will be able to</h2>
+  <ul class="mt-4">
+    <li>Apply the pediatric bradycardia algorithm with cardiopulmonary compromise.</li>
+    <li>Treat stable and unstable tachycardia with appropriate drugs and energy.</li>
+    <li>Calculate epinephrine, atropine, adenosine, amiodarone, procainamide, IV sotalol doses.</li>
+    <li>Recognize when to cardiovert versus defibrillate.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h3>Bradycardia Algorithm</h3>
+  <h2>HR &lt; 60 with Cardiopulmonary Compromise → CPR</h2>
+  <svg viewBox="0 0 900 360" style="width:100%;max-width:960px" class="mt-2">
+    <defs><marker id="ar" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="#0891B2"/></marker></defs>
+    <rect x="350" y="10" width="200" height="50" rx="10" fill="#0891B2"/><text x="450" y="40" text-anchor="middle" fill="#fff" font-weight="700">Bradycardia + compromise</text>
+    <line x1="450" y1="60" x2="450" y2="80" stroke="#0891B2" stroke-width="3" marker-end="url(#ar)"/>
+    <rect x="320" y="85" width="260" height="55" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2"/><text x="450" y="108" text-anchor="middle" font-weight="700" fill="#1E293B">Support ABCs · O₂ · monitor · IV/IO</text><text x="450" y="128" text-anchor="middle" font-size="12" fill="#475569">Identify treatable cause (H&Ts)</text>
+    <line x1="450" y1="140" x2="450" y2="160" stroke="#0891B2" stroke-width="3" marker-end="url(#ar)"/>
+    <polygon points="350,165 550,165 480,225 420,225" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/><text x="450" y="195" text-anchor="middle" font-weight="700" fill="#92400e">HR &lt;60 + poor perfusion?</text>
+    <line x1="350" y1="195" x2="170" y2="195" stroke="#0891B2" stroke-width="3" marker-end="url(#ar)"/>
+    <text x="270" y="187" text-anchor="middle" font-size="12" fill="#475569">No</text>
+    <line x1="550" y1="195" x2="730" y2="195" stroke="#0891B2" stroke-width="3" marker-end="url(#ar)"/>
+    <text x="640" y="187" text-anchor="middle" font-size="12" fill="#475569">Yes</text>
+    <rect x="20" y="170" width="150" height="50" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2"/><text x="95" y="200" text-anchor="middle" font-weight="700" fill="#1E293B">Observe · Support</text>
+    <rect x="730" y="170" width="160" height="50" rx="10" fill="#FEE2E2" stroke="#EF4444" stroke-width="2"/><text x="810" y="200" text-anchor="middle" font-weight="700" fill="#b91c1c">Start CPR</text>
+    <line x1="810" y1="220" x2="810" y2="245" stroke="#0891B2" stroke-width="3" marker-end="url(#ar)"/>
+    <rect x="650" y="250" width="240" height="100" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2"/>
+    <text x="770" y="275" text-anchor="middle" font-weight="700" fill="#0891B2">Epinephrine 0.01 mg/kg IV/IO q3-5 min</text>
+    <text x="770" y="295" text-anchor="middle" font-size="13" fill="#475569">Atropine 0.02 mg/kg if vagal/AV block</text>
+    <text x="770" y="313" text-anchor="middle" font-size="13" fill="#475569">Pacing for high-grade block</text>
+    <text x="770" y="330" text-anchor="middle" font-size="13" fill="#475569">Treat reversible causes</text>
+  </svg>
+</section>
+
+<section class="slide">
+  <h3>Tachycardia — Unstable</h3>
+  <h2>Poor Perfusion / Hypotension / Altered LOC</h2>
+  <table class="mt-3">
+    <thead><tr><th>Rhythm</th><th>Action</th><th>Energy / Dose</th></tr></thead>
+    <tbody>
+      <tr><td>Narrow regular (SVT)</td><td>Adenosine if IV ready, else synchronized cardioversion</td><td>0.1 mg/kg (max 6) → 0.2 mg/kg (max 12) · 0.5-1 J/kg → 2 J/kg</td></tr>
+      <tr><td>Wide regular (VT w/ pulse)</td><td>Synchronized cardioversion</td><td>0.5-1 J/kg → 2 J/kg</td></tr>
+      <tr><td>Wide irregular (polymorphic VT)</td><td><strong>Defibrillate</strong> (unsynchronized)</td><td>2 J/kg → 4 J/kg</td></tr>
+      <tr><td>Pulseless VT / VF</td><td>Defibrillation + CPR</td><td>2 → 4 → ≥4 J/kg (max 10)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <h3>Tachycardia — Stable</h3>
+  <h2>Treat with Pharmacology</h2>
+  <div class="grid2 mt-3">
+    <div class="card">
+      <h3 style="color:#0891B2">Narrow (SVT)</h3>
+      <ul>
+        <li>Vagal maneuvers (ice to face / Valsalva)</li>
+        <li><strong>Adenosine 0.1 mg/kg</strong> rapid IV push (max 6 mg) → 0.2 mg/kg (max 12 mg)</li>
+        <li>If refractory: amiodarone 5 mg/kg over 20-60 min OR procainamide 15 mg/kg over 30-60 min</li>
+        <li><strong>IV sotalol</strong> 1 mg/kg over 5 min — endorsed 2025 for refractory SVT <span class="badge-new">2025</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="color:#0891B2">Wide regular (likely VT)</h3>
+      <ul>
+        <li>Expert consult; treat as VT</li>
+        <li><strong>Amiodarone</strong> 5 mg/kg over 20-60 min, OR</li>
+        <li><strong>Procainamide</strong> 15 mg/kg over 30-60 min</li>
+        <li>Avoid combining amiodarone + procainamide</li>
+        <li>Polymorphic / torsades → magnesium 25-50 mg/kg, defibrillate if pulseless</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Adenosine Technique</h3>
+  <h2>Fast Push, Fast Flush</h2>
+  <div class="card mt-3">
+    <ul>
+      <li>Use the largest, most proximal IV; central preferred if available.</li>
+      <li>Stopcock with adenosine + 10 mL flush; both syringes preloaded.</li>
+      <li>Push adenosine rapidly, <strong>immediately</strong> flush with saline, raise arm.</li>
+      <li>Brief asystole expected — record continuous rhythm strip.</li>
+      <li>1st dose 0.1 mg/kg (max 6 mg). 2nd dose 0.2 mg/kg (max 12 mg).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Energy Selection</h3>
+  <h2>Cardiovert vs Defibrillate</h2>
+  <div class="grid2 mt-3">
+    <div class="card"><h3 style="color:#0891B2">Synchronized Cardioversion</h3>
+      <ul><li>Unstable SVT or VT with pulse</li><li>Start 0.5-1 J/kg → 2 J/kg</li><li>Sedate if time permits</li></ul></div>
+    <div class="card"><h3 style="color:#EF4444">Defibrillation</h3>
+      <ul><li>VF, pulseless VT, polymorphic VT</li><li>First shock 2 J/kg, then 4 J/kg</li><li>Subsequent shocks ≥ 4 J/kg, max 10 J/kg</li><li>Resume CPR immediately for 2 min</li></ul></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="pearl">
+    <h3>Clinical Pearl</h3>
+    <h2 style="color:#0f3a26">"Find the cause, then chase the rhythm."</h2>
+    <p class="mt-3">Sinus tachycardia from fever or hypovolemia won't respond to adenosine. Bradycardia from hypoxia won't respond to atropine. Always treat the cause first.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Summary</h3>
+  <ul class="mt-3">
+    <li>Brady with compromise: O2, support, <strong>CPR if HR &lt; 60</strong> + poor perfusion, epi q3-5 min, atropine for vagal/block, pace for high-grade.</li>
+    <li>Unstable tach: cardiovert (0.5-1 → 2 J/kg) or defib (2 → 4 J/kg).</li>
+    <li>Stable SVT: vagal → adenosine → amiodarone/procainamide → <strong>IV sotalol</strong> (2025).</li>
+    <li>Stable VT: amiodarone or procainamide (not together).</li>
+  </ul>
+  <p class="text-sm text-slate-500 mt-8">Next → Module 8: Megacode Station 1</p>
+</section>
+
+<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
+<script>
+const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
+const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
+function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
+function go(d){show(cur+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+</script>
+</body>
+</html>

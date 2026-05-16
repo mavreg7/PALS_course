@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 8 — Megacode 1: Respiratory Case</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  *{font-family:'Manrope',system-ui,sans-serif}
+  html,body{height:100%;margin:0}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
+  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
+  .blob1{width:500px;height:500px;background:#F59E0B;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
+  .blob2{width:450px;height:450px;background:#EF4444;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
+  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 6vw;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
+  .slide.active{opacity:1;pointer-events:auto}
+  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#F59E0B}
+  .slide h2{font-size:clamp(20px,2.8vw,36px);font-weight:800;color:#1E293B;margin-bottom:14px}
+  .slide h3{font-size:clamp(14px,1.4vw,20px);font-weight:700;color:#F59E0B;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.2vw,17px);line-height:1.5;color:#334155}
+  .slide ul{padding-left:24px} .slide li{margin-bottom:5px}
+  .card{background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);border:1px solid rgba(245,158,11,.18);border-radius:14px;padding:16px}
+  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(245,158,11,.15);color:#b45309;letter-spacing:.5px}
+  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:10}
+  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
+  .dot.active{background:#F59E0B;transform:scale(1.4)}
+  .nav-btn{background:#F59E0B;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px}
+  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none}
+  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:16px 22px;border-radius:8px}
+  .pearl h3{color:#0f9b6c}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid #e2e8f0}
+  th{background:rgba(245,158,11,.1);font-weight:700;color:#b45309;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+  .role{display:inline-block;padding:3px 9px;border-radius:6px;background:#FEF3C7;color:#92400e;font-weight:700;font-size:12px;margin-right:6px;margin-bottom:4px}
+  .step{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+  .step-n{background:#F59E0B;color:#fff;font-weight:800;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div><div class="blob blob2"></div>
+<a class="home" href="../index.html">← Hub</a>
+<div class="counter"><span id="cur">1</span>/<span id="tot">8</span></div>
+
+<section class="slide active">
+  <span class="pill">Megacode 1</span>
+  <h1 class="mt-3">Respiratory Failure<br>→ Bradycardia → Arrest</h1>
+  <p class="mt-6 text-slate-500">Hypoxia-driven decompensation. Team roles, checklist, debrief.</p>
+</section>
+
+<section class="slide">
+  <h3>Scenario Brief</h3>
+  <h2>3-Year-Old with Severe Asthma Exacerbation</h2>
+  <div class="card mt-3">
+    <p><strong>Setting:</strong> ED resuscitation room. 14 kg child, 24-hour worsening wheeze and cough; 2 albuterol nebs at home.</p>
+    <p class="mt-2"><strong>Initial vitals:</strong> HR 162 · RR 52 · SpO₂ 84% on room air · BP 92/56 · T 38.1 · Cap refill 3 s.</p>
+    <p class="mt-2"><strong>PAT:</strong> Tripoding, head-bobbing, retractions, audible wheeze, anxious.</p>
+    <p class="mt-2"><strong>Trigger event:</strong> After 5 min of nebs + steroids, child becomes lethargic, SpO₂ drops to 72%, HR falls to 48.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Team Roles</h3>
+  <h2>Six-Person Resus Team</h2>
+  <div class="card mt-3">
+    <p><span class="role">Team Leader</span> directs, prioritizes, summarizes, makes definitive calls.</p>
+    <p><span class="role">Airway</span> O₂, BVM, suction, prepares advanced airway.</p>
+    <p><span class="role">Compressor</span> high-quality CPR; rotates every 2 min.</p>
+    <p><span class="role">Monitor / Defib</span> attaches pads, calls rhythm, manages defibrillator.</p>
+    <p><span class="role">IV/IO + Meds</span> obtains access, draws and labels meds, double-checks doses.</p>
+    <p><span class="role">Recorder</span> writes times, doses, events; calls 2-min cycles aloud.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Expected Actions Timeline</h3>
+  <h2>What "Good" Looks Like</h2>
+  <div class="mt-3">
+    <div class="step"><div class="step-n">1</div><div><strong>0:00</strong> · Scene safe, PAT, simultaneous pulse/breath check ≤10 s. Call team. NRB → 100% O₂.</div></div>
+    <div class="step"><div class="step-n">2</div><div><strong>0:30</strong> · IV/IO access ×2 attempts. Continuous nebulized albuterol. IV methylprednisolone 2 mg/kg.</div></div>
+    <div class="step"><div class="step-n">3</div><div><strong>2:00</strong> · IV magnesium sulfate 25-50 mg/kg over 20 min. ETCO₂ waveform applied.</div></div>
+    <div class="step"><div class="step-n">4</div><div><strong>5:00</strong> · Deterioration: lethargy + SpO₂ 72 + HR 48. <strong>Begin BVM</strong> 1 breath q2-3 s with 2-rescuer technique.</div></div>
+    <div class="step"><div class="step-n">5</div><div><strong>5:30</strong> · HR remains 48, signs of poor perfusion → <strong>start CPR</strong> (HR &lt;60 + compromise).</div></div>
+    <div class="step"><div class="step-n">6</div><div><strong>6:00</strong> · Epinephrine 0.01 mg/kg IV/IO (0.14 mg). Prepare ETT 4.5 cuffed.</div></div>
+    <div class="step"><div class="step-n">7</div><div><strong>8:00</strong> · ROSC: HR 132, SpO₂ 96%, ETCO₂ 38. Transition to post-arrest care.</div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Critical Errors</h3>
+  <h2>Auto-Fail Behaviors</h2>
+  <div class="card mt-3">
+    <ul>
+      <li><strong>Hyperventilation</strong> via BVM (raises intrathoracic pressure, drops perfusion).</li>
+      <li>Delay starting CPR when HR &lt; 60 with poor perfusion.</li>
+      <li>Skipping simultaneous pulse + breath check.</li>
+      <li>Wrong epinephrine dose / wrong concentration (1:10,000 vs 1:1,000).</li>
+      <li>Failure to call out 2-min cycles or change compressors.</li>
+      <li>Closed-loop communication missing → orders unconfirmed.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Scoring Rubric</h3>
+  <h2>Twelve-Point Megacode Standard</h2>
+  <table class="mt-3">
+    <thead><tr><th>Domain</th><th>Pts</th><th>Pass Criterion</th></tr></thead>
+    <tbody>
+      <tr><td>Team leadership / closed loop</td><td>2</td><td>Clear roles, addresses by name, repeats orders</td></tr>
+      <tr><td>Recognition (PAT + ABCDE)</td><td>2</td><td>Identifies failure and shock state within 60 s</td></tr>
+      <tr><td>Airway / BVM</td><td>2</td><td>Adequate chest rise, no hyperventilation</td></tr>
+      <tr><td>CPR quality</td><td>2</td><td>Rate 100-120 · depth ≥1/3 AP · fraction ≥80%</td></tr>
+      <tr><td>Drug doses / timing</td><td>2</td><td>Correct epi q3-5 min, correct mg/kg</td></tr>
+      <tr><td>Reversibles / debrief</td><td>2</td><td>Identifies hypoxia, considers H&Ts</td></tr>
+    </tbody>
+  </table>
+  <p class="text-sm text-slate-500 mt-3"><strong>Pass:</strong> ≥ 9 points and zero critical errors.</p>
+</section>
+
+<section class="slide">
+  <h3>Debrief Guide</h3>
+  <h2>"Plus / Delta" Structure (15 min)</h2>
+  <div class="grid2 mt-3">
+    <div class="card"><h3 style="color:#0891B2">Plus — What worked?</h3>
+      <ul><li>Crisp role assignments</li><li>Recognition before arrest</li><li>Time-stamped recorder</li></ul></div>
+    <div class="card"><h3 style="color:#EF4444">Delta — What would you change?</h3>
+      <ul><li>BVM seal and rate</li><li>CPR pauses &gt; 10 s</li><li>Drug check-back missing</li></ul></div>
+  </div>
+  <p class="text-sm text-slate-500 mt-3">Allow learner self-reflection first; ask "what was your mental model?" before correcting.</p>
+</section>
+
+<section class="slide">
+  <div class="pearl">
+    <h3>Clinical Pearl</h3>
+    <h2 style="color:#0f3a26">"In peds, the chest leads — the heart follows."</h2>
+    <p class="mt-3">Most pediatric arrests are respiratory. Fix the airway and oxygenation early and the bradycardia often reverses without ever needing a shock.</p>
+  </div>
+</section>
+
+<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
+<script>
+const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
+const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
+function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
+function go(d){show(cur+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+</script>
+</body>
+</html>

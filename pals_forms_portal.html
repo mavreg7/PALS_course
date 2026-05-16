@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PALS 2025 Forms Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+  :root{--primary:#0891B2;--secondary:#34D399;--accent:#1E293B;--success:#22C55E;--warning:#F59E0B;--danger:#EF4444}
+  *{font-family:'Manrope',system-ui,sans-serif}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);min-height:100vh;color:#1E293B}
+  .card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(30,41,59,0.06);border:1px solid rgba(8,145,178,0.08)}
+  .btn{padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;transition:all .2s;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px}
+  .btn-prim{background:#0891B2;color:#fff}.btn-prim:hover{background:#0e7490}
+  .btn-ghost{background:#fff;color:#0891B2;border:1px solid #0891B2}.btn-ghost:hover{background:#f0f9ff}
+  .btn-sec{background:#34D399;color:#0f3a26}.btn-sec:hover{background:#22c281}
+  .btn-warn{background:#F59E0B;color:#fff}.btn-warn:hover{background:#d97706}
+  .btn-dan{background:#EF4444;color:#fff}.btn-dan:hover{background:#dc2626}
+  .field{display:block;width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;transition:all .15s}
+  .field:focus{outline:none;border-color:#0891B2;box-shadow:0 0 0 3px rgba(8,145,178,.15)}
+  label.lbl{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+  .tab{padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;color:#64748b;cursor:pointer;white-space:nowrap;transition:all .2s;border:1px solid transparent}
+  .tab.active{background:#0891B2;color:#fff;border-color:#0891B2}
+  .tab:not(.active):hover{background:#f0f9ff;color:#0891B2}
+  .panel{display:none}
+  .panel.active{display:block;animation:fadein .3s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600}
+  .pill-g{background:rgba(34,197,94,.15);color:#15803d}
+  .pill-r{background:rgba(239,68,68,.15);color:#b91c1c}
+  .pill-y{background:rgba(245,158,11,.15);color:#b45309}
+  .check{display:flex;align-items:flex-start;gap:10px;padding:8px;border-radius:8px;transition:background .15s}
+  .check:hover{background:#f8fafc}
+  .check input{margin-top:3px;width:18px;height:18px;accent-color:#0891B2}
+  .q-card{padding:14px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px;background:#fff}
+  .opts{display:grid;gap:6px;margin-top:8px}
+  .opt{padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:14px;transition:all .15s}
+  .opt:hover{background:#f0f9ff;border-color:#0891B2}
+  .opt input{margin-right:8px;accent-color:#0891B2}
+  .opt.correct{background:rgba(34,197,94,.1);border-color:#22C55E}
+  .opt.wrong{background:rgba(239,68,68,.1);border-color:#EF4444}
+  .toast{position:fixed;bottom:20px;right:20px;background:#22C55E;color:#fff;padding:12px 20px;border-radius:10px;font-weight:600;z-index:1000;box-shadow:0 6px 18px rgba(0,0,0,.2);animation:popin .3s}
+  @keyframes popin{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .cert{background:linear-gradient(135deg,#fff,#f0f9ff);border:6px double #0891B2;border-radius:8px;padding:40px;text-align:center;position:relative}
+  .cert::before{content:'';position:absolute;top:10px;left:10px;right:10px;bottom:10px;border:1px solid rgba(8,145,178,.3);border-radius:4px;pointer-events:none}
+  @media print{
+    .no-print{display:none!important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ccc}
+    .panel{display:block!important}
+    .tabbar{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+
+  <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 no-print">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">PALS 2025 Forms Portal</h1>
+      <p class="text-slate-500 text-sm">Student & instructor forms · auto-saved locally</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="index.html" class="btn btn-ghost">← Hub</a>
+      <button class="btn btn-prim" onclick="window.print()">🖨️ Print Active</button>
+    </div>
+  </header>
+
+  <div class="card p-2 mb-6 no-print tabbar">
+    <div class="flex flex-wrap gap-1" id="tabs"></div>
+  </div>
+
+  <div id="panels">
+
+    <!-- 1. PRE-REGISTRATION -->
+    <div class="panel active" data-panel="prereg">
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">Student Pre-Registration</h2>
+          <span class="pill pill-g" id="prereg_count">0 saved</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class="lbl">Full Name</label><input class="field" id="pr_name"></div>
+          <div><label class="lbl">Email</label><input class="field" id="pr_email" type="email"></div>
+          <div><label class="lbl">Phone</label><input class="field" id="pr_phone"></div>
+          <div><label class="lbl">License / Provider #</label><input class="field" id="pr_license"></div>
+          <div><label class="lbl">Role</label>
+            <select class="field" id="pr_role">
+              <option>RN</option><option>MD/DO</option><option>NP/PA</option><option>RT</option><option>Paramedic</option><option>Pharmacist</option><option>Other</option>
+            </select>
+          </div>
+          <div><label class="lbl">Specialty / Unit</label><input class="field" id="pr_unit"></div>
+          <div><label class="lbl">Employer</label><input class="field" id="pr_employer"></div>
+          <div><label class="lbl">Last PALS Date</label><input class="field" id="pr_last_pals" type="date"></div>
+          <div><label class="lbl">Course Type</label>
+            <select class="field" id="pr_type"><option>Initial</option><option>Renewal</option></select>
+          </div>
+          <div><label class="lbl">Dietary / Accommodations</label><input class="field" id="pr_diet"></div>
+          <div class="md:col-span-2"><label class="lbl">Notes</label><textarea class="field" id="pr_notes" rows="2"></textarea></div>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-5 no-print">
+          <button class="btn btn-prim" onclick="savePrereg()">💾 Save Registration</button>
+          <button class="btn btn-ghost" onclick="exportData('pals2025_preregistration','csv')">⬇ CSV</button>
+          <button class="btn btn-ghost" onclick="exportData('pals2025_preregistration','json')">⬇ JSON</button>
+          <button class="btn btn-ghost" onclick="genQR('prereg')">📱 QR Share</button>
+          <button class="btn btn-warn" onclick="clearForm('prereg')">↻ Clear</button>
+        </div>
+        <div id="prereg_qr" class="mt-4"></div>
+        <div id="prereg_list" class="mt-6"></div>
+      </div>
+    </div>
+
+    <!-- 2. PRE-TEST -->
+    <div class="panel" data-panel="pretest">
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">Entry Knowledge Pre-Test</h2>
+          <span class="pill pill-y">20 Questions · Auto-Graded</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <input class="field" id="pre_name" placeholder="Student name">
+          <input class="field" id="pre_email" placeholder="Email">
+          <input class="field" id="pre_date" type="date">
+        </div>
+        <div id="pretest_questions"></div>
+        <div class="flex flex-wrap gap-2 mt-5 no-print">
+          <button class="btn btn-prim" onclick="gradePreTest()">✓ Grade Pre-Test</button>
+          <button class="btn btn-ghost" onclick="exportData('pals2025_pretest','csv')">⬇ CSV</button>
+          <button class="btn btn-warn" onclick="clearForm('pretest')">↻ Reset</button>
+        </div>
+        <div id="pretest_result" class="mt-4"></div>
+      </div>
+    </div>
+
+    <!-- 3. ATTENDANCE -->
+    <div class="panel" data-panel="attendance">
+      <div class="card p-6">
+        <h2 class="text-xl font-bold mb-4">Attendance Report</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <input class="field" id="att_name" placeholder="Student name">
+          <select class="field" id="att_day"><option>Day 1</option><option>Day 2</option></select>
+          <input class="field" id="att_date" type="date">
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <div><label class="lbl">Arrival</label><input class="field" id="att_arrive" type="time"></div>
+          <div><label class="lbl">Departure</label><input class="field" id="att_depart" type="time"></div>
+          <div><label class="lbl">Breaks (min)</label><input class="field" id="att_breaks" type="number" value="60"></div>
+          <div><label class="lbl">Status</label>
+            <select class="field" id="att_status"><option>Present</option><option>Late</option><option>Partial</option><option>Absent</option></select>
+          </div>
+        </div>
+        <div><label class="lbl">Notes</label><textarea class="field" id="att_notes" rows="2"></textarea></div>
+        <div class="flex flex-wrap gap-2 mt-5 no-print">
+          <button class="btn btn-prim" onclick="saveAttendance()">💾 Save</button>
+          <button class="btn btn-ghost" onclick="exportData('pals2025_attendance','csv')">⬇ CSV</button>
+          <button class="btn btn-ghost" onclick="genQR('attendance')">📱 QR Share</button>
+        </div>
+        <div id="attendance_qr" class="mt-4"></div>
+        <div id="attendance_list" class="mt-6"></div>
+      </div>
+    </div>
+
+    <!-- 4. BLS SKILLS -->
+    <div class="panel" data-panel="bls">
+      <div class="card p-6">
+        <h2 class="text-xl font-bold mb-4">BLS Skills Checklist</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <input class="field" id="bls_name" placeholder="Student name">
+          <input class="field" id="bls_evaluator" placeholder="Evaluator">
+          <input class="field" id="bls_date" type="date">
+        </div>
+        <div id="bls_checks" class="grid grid-cols-1 md:grid-cols-2 gap-1"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+          <div><label class="lbl">Overall</label>
+            <select class="field" id="bls_overall"><option>Pass</option><option>Needs Remediation</option><option>Fail</option></select>
+          </div>
+          <div class="md:col-span-2"><label class="lbl">Evaluator Comments</label><input class="field" id="bls_comments"></div>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-5 no-print">
+          <button class="btn btn-prim" onclick="saveBLS()">💾 Save</button>
+          <button class="btn btn-ghost" onclick="exportData('pals2025_bls_skills','csv')">⬇ CSV</button>
+        </div>
+        <div id="bls_list" class="mt-6"></div>
+      </div>
+    </div>
+
+    <!-- 5. MEGACODE -->
+    <div class="panel" data-panel="megacode">
+      <div class="card p-6">
+        <h2 class="text-xl font-bold mb-4">Megacode Evaluation</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+          <input class="field" id="mc_name" placeholder="Student name">
+          <select class="field" id="mc_scenario">
+            <option>Respiratory Failure</option><option>Septic Shock</option><option>Cardiac Arrest (VF)</option><option>Bradycardia w/ Compromise</option><option>SVT</option><option>Cardiogenic Shock</option>
+          </select>
+          <input class="field" id="mc_evaluator" placeholder="Evaluator">
+          <input class="field" id="mc_date" type="date">
+        </div>
+        <div id="mc_checks" class="grid grid-cols-1 md:grid-cols-2 gap-1"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+          <div><label class="lbl">Critical Errors</label><input class="field" id="mc_errors" type="number" value="0"></div>
+          <div><label class="lbl">Overall Score (0-100)</label><input class="field" id="mc_score" type="number" value="0"></div>
+          <div><label class="lbl">Result</label>
+            <select class="field" id="mc_result"><option>Pass</option><option>Remediate</option><option>Fail</option></select>
+          </div>
+        </div>
+        <div class="mt-3"><label class="lbl">Debrief Notes</label><textarea class="field" id="mc_debrief" rows="2"></textarea></div>
+        <div class="flex flex-wrap gap-2 mt-5 no-print">
+          <button class="btn btn-prim" onclick="saveMega()">💾 Save</button>
+          <button class="btn btn-ghost" onclick="exportData('pals2025_megacode','csv')">⬇ CSV</button>
+        </div>
+        <div id="mega_list" class="mt-6"></div>
+      </div>
+    </div>
+
+    <!-- 6. FINAL EXAM -->
+    <div class="panel" data-panel="exam">
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">Final Written Exam</h2>
+          <span class="pill pill-y">25 Questions · Pass ≥ 84% · Open Resource (AHA 2025)</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <input class="field" id="ex_name" placeholder="Student name">
+          <input class="field" id="ex_email" placeholder="Email">
+          <input class="field" id="ex_date" type="date">
+        </div>
+        <div id="exam_questions"></div>
+        <div class="flex flex-wrap gap-2 mt-5 no-print">
+          <button class="btn btn-prim" onclick="gradeExam()">✓ Grade Exam</button>
+          <button class="btn btn-ghost" onclick="exportData('pals2025_final_exam','csv')">⬇ CSV</button>
+          <button class="btn btn-warn" onclick="clearForm('exam')">↻ Reset</button>
+        </div>
+        <div id="exam_result" class="mt-4"></div>
+      </div>
+    </div>
+
+    <!-- 7. FEEDBACK -->
+    <div class="panel" data-panel="feedback">
+      <div class="card p-6">
+        <h2 class="text-xl font-bold mb-4">Course Feedback</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <input class="field" id="fb_name" placeholder="Name (optional)">
+          <input class="field" id="fb_date" type="date">
+        </div>
+        <div id="fb_ratings" class="space-y-3"></div>
+        <div class="mt-4"><label class="lbl">What worked well?</label><textarea class="field" id="fb_good" rows="2"></textarea></div>
+        <div class="mt-3"><label class="lbl">Suggestions for improvement</label><textarea class="field" id="fb_improve" rows="2"></textarea></div>
+        <div class="mt-3"><label class="lbl">Would you recommend this course?</label>
+          <select class="field" id="fb_recommend"><option>Definitely</option><option>Probably</option><option>Unsure</option><option>No</option></select>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-5 no-print">
+          <button class="btn btn-prim" onclick="saveFeedback()">💾 Submit Feedback</button>
+          <button class="btn btn-ghost" onclick="exportData('pals2025_feedback','csv')">⬇ CSV</button>
+          <button class="btn btn-ghost" onclick="genQR('feedback')">📱 QR Share</button>
+        </div>
+        <div id="feedback_qr" class="mt-4"></div>
+      </div>
+    </div>
+
+    <!-- 8. CERTIFICATE -->
+    <div class="panel" data-panel="cert">
+      <div class="card p-6 no-print">
+        <h2 class="text-xl font-bold mb-4">Certificate Generator</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <input class="field" id="ct_name" placeholder="Student full name" oninput="renderCert()">
+          <input class="field" id="ct_date" type="date" oninput="renderCert()">
+          <input class="field" id="ct_instructor" placeholder="Instructor name" oninput="renderCert()">
+          <input class="field" id="ct_site" placeholder="Training site" oninput="renderCert()">
+          <input class="field" id="ct_expiry" type="date" oninput="renderCert()" placeholder="Expiry (2 years)">
+          <input class="field" id="ct_cardid" placeholder="Card ID / Serial" oninput="renderCert()">
+        </div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button class="btn btn-prim" onclick="saveCert()">💾 Save Certificate</button>
+          <button class="btn btn-ghost" onclick="window.print()">🖨️ Print Certificate</button>
+          <button class="btn btn-ghost" onclick="exportData('pals2025_certificates','csv')">⬇ CSV</button>
+        </div>
+      </div>
+      <div id="cert_view" class="cert">
+        <div style="font-size:13px;letter-spacing:3px;color:#0891B2;font-weight:700">AMERICAN HEART ASSOCIATION · 2025</div>
+        <div style="font-size:34px;font-weight:800;margin-top:8px;color:#1E293B">Certificate of Completion</div>
+        <div style="margin:20px 0;font-size:14px;color:#475569">This certifies that</div>
+        <div id="cv_name" style="font-size:30px;font-weight:700;color:#0891B2;border-bottom:1px solid #cbd5e1;padding-bottom:6px;margin:0 auto;max-width:500px">Student Name</div>
+        <div style="margin:20px 0;font-size:14px;color:#475569">has successfully completed the</div>
+        <div style="font-size:22px;font-weight:700;color:#1E293B">Pediatric Advanced Life Support (PALS)</div>
+        <div style="margin-top:6px;font-size:13px;color:#64748b">2025 AHA Provider Course · 2-Day Curriculum</div>
+        <div class="grid grid-cols-3 gap-4 mt-10 text-xs">
+          <div><div class="text-slate-400 uppercase tracking-wider">Date</div><div id="cv_date" class="font-bold mt-1">-</div></div>
+          <div><div class="text-slate-400 uppercase tracking-wider">Expires</div><div id="cv_expiry" class="font-bold mt-1">-</div></div>
+          <div><div class="text-slate-400 uppercase tracking-wider">Card ID</div><div id="cv_cardid" class="font-bold mt-1">-</div></div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mt-8 text-xs">
+          <div><div class="border-t border-slate-400 pt-1" id="cv_instructor">Instructor</div></div>
+          <div><div class="border-t border-slate-400 pt-1" id="cv_site">Training Site</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const TABS = [
+  {id:'prereg',label:'1. Pre-Registration'},
+  {id:'pretest',label:'2. Pre-Test'},
+  {id:'attendance',label:'3. Attendance'},
+  {id:'bls',label:'4. BLS Skills'},
+  {id:'megacode',label:'5. Megacode'},
+  {id:'exam',label:'6. Final Exam'},
+  {id:'feedback',label:'7. Feedback'},
+  {id:'cert',label:'8. Certificate'},
+];
+const tabsEl = document.getElementById('tabs');
+tabsEl.innerHTML = TABS.map(t=>`<div class="tab" data-tab="${t.id}" onclick="switchTab('${t.id}')">${t.label}</div>`).join('');
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===id));
+  history.replaceState(null,'','#'+id);
+}
+const initial = location.hash.replace('#','') || 'prereg';
+switchTab(initial);
+
+function toast(msg,color='#22C55E'){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;t.style.background=color;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2200);
+}
+function getStore(key){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}}
+function setStore(key,arr){localStorage.setItem(key,JSON.stringify(arr))}
+
+function exportData(key,fmt){
+  const data=getStore(key);
+  if(!data.length){toast('No data to export','#F59E0B');return}
+  let blob,name;
+  if(fmt==='json'){
+    blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    name=key+'.json';
+  } else {
+    const keys=[...new Set(data.flatMap(d=>Object.keys(d)))];
+    const rows=[keys.join(',')].concat(data.map(d=>keys.map(k=>{
+      const v=d[k]??'';return '"'+String(v).replace(/"/g,'""')+'"';
+    }).join(',')));
+    blob=new Blob([rows.join('\n')],{type:'text/csv'});
+    name=key+'.csv';
+  }
+  const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);
+  toast('Exported '+fmt.toUpperCase());
+}
+
+function genQR(form){
+  const target=document.getElementById(form+'_qr');
+  if(!target)return;
+  target.innerHTML='<div class="bg-white p-3 inline-block rounded-lg border border-slate-200"><div id="qr_'+form+'"></div><div class="text-xs text-slate-500 mt-2 text-center">Scan to view link</div></div>';
+  const url=location.href.split('#')[0]+'#'+form;
+  new QRCode(document.getElementById('qr_'+form),{text:url,width:160,height:160,colorDark:'#0891B2',colorLight:'#fff'});
+}
+
+function clearForm(name){
+  if(!confirm('Clear current form?'))return;
+  document.querySelectorAll('[data-panel="'+name+'"] input, [data-panel="'+name+'"] textarea').forEach(el=>{
+    if(el.type==='checkbox'||el.type==='radio')el.checked=false; else el.value='';
+  });
+  document.querySelectorAll('[data-panel="'+name+'"] .opt').forEach(o=>o.classList.remove('correct','wrong'));
+  const r=document.getElementById(name+'_result');if(r)r.innerHTML='';
+  toast('Cleared','#F59E0B');
+}
+
+/* ===== PRE-REGISTRATION ===== */
+function savePrereg(){
+  const name=document.getElementById('pr_name').value.trim();
+  if(!name){toast('Name required','#EF4444');return}
+  const entry={
+    timestamp:new Date().toISOString(),
+    name,email:document.getElementById('pr_email').value,phone:document.getElementById('pr_phone').value,
+    license:document.getElementById('pr_license').value,role:document.getElementById('pr_role').value,
+    unit:document.getElementById('pr_unit').value,employer:document.getElementById('pr_employer').value,
+    last_pals:document.getElementById('pr_last_pals').value,type:document.getElementById('pr_type').value,
+    diet:document.getElementById('pr_diet').value,notes:document.getElementById('pr_notes').value
+  };
+  const arr=getStore('pals2025_preregistration');arr.push(entry);setStore('pals2025_preregistration',arr);
+  toast('Registration saved');renderPrereg();
+}
+function renderPrereg(){
+  const arr=getStore('pals2025_preregistration');
+  document.getElementById('prereg_count').textContent=arr.length+' saved';
+  const list=document.getElementById('prereg_list');
+  if(!arr.length){list.innerHTML='<div class="text-sm text-slate-400 italic">No registrations yet.</div>';return}
+  list.innerHTML='<h3 class="font-bold mb-2 text-sm uppercase tracking-wider text-slate-600">Saved Registrations</h3>'+
+    '<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left text-xs uppercase text-slate-500 border-b"><th class="py-2">Name</th><th>Role</th><th>Type</th><th>Date</th></tr></thead><tbody>'+
+    arr.slice(-10).reverse().map(e=>`<tr class="border-b border-slate-100"><td class="py-2 font-medium">${e.name}</td><td>${e.role||''}</td><td>${e.type||''}</td><td>${(e.timestamp||'').slice(0,10)}</td></tr>`).join('')+'</tbody></table></div>';
+}
+renderPrereg();
+
+/* ===== PRE-TEST (20 Q) ===== */
+const PRETEST_QS=[
+  {q:'When should CPR begin in an infant with a heart rate < 60/min?',a:['Only if pulseless','When there are signs of poor perfusion','After 2 min of bag-mask','Never if pulse present'],c:1},
+  {q:'Minimum compression depth for a child?',a:['3 cm','4 cm','At least 5 cm (1/3 AP diameter)','7 cm'],c:2},
+  {q:'Compression rate per AHA 2025?',a:['80-100/min','100-120/min','120-140/min','60-100/min'],c:1},
+  {q:'Initial defibrillation dose in pediatric VF?',a:['1 J/kg','2 J/kg','4 J/kg','10 J/kg'],c:1},
+  {q:'Pediatric Assessment Triangle components?',a:['HR, BP, RR','Appearance, Breathing, Circulation','A-B-C-D-E','Pulse, Skin, AVPU'],c:1},
+  {q:'Epinephrine dose for cardiac arrest?',a:['0.1 mg/kg','0.01 mg/kg IV/IO','1 mg IV push','0.001 mg/kg'],c:1},
+  {q:'Initial fluid bolus for hypovolemic shock?',a:['5 mL/kg','10-20 mL/kg isotonic','40 mL/kg colloid','2 mL/kg D5W'],c:1},
+  {q:'Post-ROSC SpO2 target?',a:['100%','94-99%','>88%','85-92%'],c:1},
+  {q:'Post-ROSC PaCO2 target?',a:['25-30','35-45','45-55','<30'],c:1},
+  {q:'Adenosine first dose?',a:['0.05 mg/kg','0.1 mg/kg (max 6 mg)','0.5 mg/kg','1 mg/kg'],c:1},
+  {q:'ETCO2 target during effective CPR?',a:['<10','10-15','≥15-20','>40'],c:2},
+  {q:'Atropine dose for symptomatic bradycardia?',a:['0.01 mg/kg','0.02 mg/kg (min 0.1 mg)','0.1 mg/kg','0.5 mg fixed'],c:1},
+  {q:'Synchronized cardioversion start dose?',a:['0.1 J/kg','0.5-1 J/kg','2 J/kg','4 J/kg'],c:1},
+  {q:'Amiodarone dose for VF/pulseless VT?',a:['1 mg/kg','5 mg/kg IV/IO bolus','10 mg/kg','15 mg/kg'],c:1},
+  {q:'New 2025 endorsed agent for refractory SVT?',a:['Procainamide only','IV sotalol','Digoxin','Verapamil'],c:1},
+  {q:'2025 added reversible causes include?',a:['Trauma & toxin','Intracranial hypertension & heart block','Hypoxia only','Hypothermia only'],c:1},
+  {q:'DBP CPR target in older children (invasive line)?',a:['≥15 mmHg','≥25 mmHg','≥30 mmHg','≥45 mmHg'],c:2},
+  {q:'AED pediatric pads indicated for?',a:['Any age','Under 8 years / <25 kg','Adults only','Neonates only'],c:1},
+  {q:'Initial action for unresponsive child?',a:['Start compressions immediately','Simultaneous pulse + breathing check ≤10 s, activate ERS','Give 2 breaths','Defibrillate'],c:1},
+  {q:'Septic shock first hour priority?',a:['Diuretics','Early antibiotics + fluid bolus + reassess','High-dose steroids','Vasopressor only'],c:1}
+];
+function renderPreTest(){
+  document.getElementById('pretest_questions').innerHTML = PRETEST_QS.map((q,i)=>`
+    <div class="q-card"><div class="font-semibold text-sm">${i+1}. ${q.q}</div>
+    <div class="opts">${q.a.map((a,j)=>`<label class="opt"><input type="radio" name="pre_q${i}" value="${j}">${a}</label>`).join('')}</div>
+    </div>`).join('');
+}
+renderPreTest();
+function gradePreTest(){
+  let correct=0;
+  PRETEST_QS.forEach((q,i)=>{
+    const sel=document.querySelector('input[name="pre_q'+i+'"]:checked');
+    const opts=document.querySelectorAll('[data-panel="pretest"] .q-card')[i].querySelectorAll('.opt');
+    opts.forEach((o,j)=>{o.classList.remove('correct','wrong');if(j===q.c)o.classList.add('correct');if(sel&&parseInt(sel.value)===j&&j!==q.c)o.classList.add('wrong')});
+    if(sel && parseInt(sel.value)===q.c) correct++;
+  });
+  const pct=Math.round(correct/PRETEST_QS.length*100);
+  const entry={timestamp:new Date().toISOString(),name:document.getElementById('pre_name').value,email:document.getElementById('pre_email').value,date:document.getElementById('pre_date').value,score:correct,total:PRETEST_QS.length,percent:pct};
+  const arr=getStore('pals2025_pretest');arr.push(entry);setStore('pals2025_pretest',arr);
+  document.getElementById('pretest_result').innerHTML=`<div class="card p-4 ${pct>=70?'border-green-300 bg-green-50':'border-amber-300 bg-amber-50'}"><div class="text-xl font-bold">Pre-Test Score: ${correct}/${PRETEST_QS.length} (${pct}%)</div><div class="text-sm mt-1">${pct>=70?'Strong baseline. Saved.':'Review focus areas before day 1. Saved.'}</div></div>`;
+  toast('Pre-test graded · '+pct+'%');
+}
+
+/* ===== ATTENDANCE ===== */
+function saveAttendance(){
+  const name=document.getElementById('att_name').value.trim();if(!name){toast('Name required','#EF4444');return}
+  const e={timestamp:new Date().toISOString(),name,day:document.getElementById('att_day').value,date:document.getElementById('att_date').value,arrive:document.getElementById('att_arrive').value,depart:document.getElementById('att_depart').value,breaks:document.getElementById('att_breaks').value,status:document.getElementById('att_status').value,notes:document.getElementById('att_notes').value};
+  const arr=getStore('pals2025_attendance');arr.push(e);setStore('pals2025_attendance',arr);toast('Attendance saved');renderAttendance();
+}
+function renderAttendance(){
+  const arr=getStore('pals2025_attendance');const list=document.getElementById('attendance_list');
+  if(!arr.length){list.innerHTML='<div class="text-sm text-slate-400 italic">No records yet.</div>';return}
+  list.innerHTML='<h3 class="font-bold mb-2 text-sm uppercase tracking-wider text-slate-600">Recent Attendance</h3>'+
+    '<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left text-xs uppercase text-slate-500 border-b"><th class="py-2">Name</th><th>Day</th><th>Status</th><th>In</th><th>Out</th></tr></thead><tbody>'+
+    arr.slice(-10).reverse().map(e=>`<tr class="border-b border-slate-100"><td class="py-2 font-medium">${e.name}</td><td>${e.day}</td><td><span class="pill ${e.status==='Present'?'pill-g':e.status==='Absent'?'pill-r':'pill-y'}">${e.status}</span></td><td>${e.arrive||''}</td><td>${e.depart||''}</td></tr>`).join('')+'</tbody></table></div>';
+}
+renderAttendance();
+
+/* ===== BLS SKILLS CHECKLIST ===== */
+const BLS_ITEMS=[
+  'Scene safety check','Assess responsiveness','Simultaneously check breathing + pulse (≤10 s)','Activate emergency response / call for AED',
+  'Correct hand placement (infant/child)','Compression rate 100-120/min','Compression depth (infant ≥4cm, child ≥5cm or 1/3 AP)','Allows full chest recoil',
+  'Compression-ventilation ratio 30:2 (1-rescuer) / 15:2 (2-rescuer infant/child)','Breath delivered over ~1 second, visible chest rise','Minimal compression interruption (<10 s)','Compression fraction ≥80%',
+  'Switches roles every 2 minutes','Uses AED with pediatric pads (<8y or <25kg)','Resumes compressions immediately post-shock','Continues CPR until ROSC/handoff'
+];
+function renderBLSChecks(){
+  document.getElementById('bls_checks').innerHTML=BLS_ITEMS.map((it,i)=>`<label class="check"><input type="checkbox" id="bls_${i}"><span class="text-sm">${it}</span></label>`).join('');
+}
+renderBLSChecks();
+function saveBLS(){
+  const name=document.getElementById('bls_name').value.trim();if(!name){toast('Name required','#EF4444');return}
+  const items=BLS_ITEMS.map((it,i)=>({item:it,done:document.getElementById('bls_'+i).checked}));
+  const pct=Math.round(items.filter(x=>x.done).length/items.length*100);
+  const e={timestamp:new Date().toISOString(),name,evaluator:document.getElementById('bls_evaluator').value,date:document.getElementById('bls_date').value,items,percent:pct,overall:document.getElementById('bls_overall').value,comments:document.getElementById('bls_comments').value};
+  const arr=getStore('pals2025_bls_skills');arr.push(e);setStore('pals2025_bls_skills',arr);toast('BLS skills saved · '+pct+'%');renderBLSList();
+}
+function renderBLSList(){
+  const arr=getStore('pals2025_bls_skills');const list=document.getElementById('bls_list');
+  if(!arr.length){list.innerHTML='<div class="text-sm text-slate-400 italic">No evaluations yet.</div>';return}
+  list.innerHTML='<h3 class="font-bold mb-2 text-sm uppercase tracking-wider text-slate-600">Saved BLS Skills</h3>'+
+    arr.slice(-8).reverse().map(e=>`<div class="border-b border-slate-100 py-2 flex justify-between text-sm"><span class="font-medium">${e.name}</span><span><span class="pill ${e.overall==='Pass'?'pill-g':e.overall==='Fail'?'pill-r':'pill-y'}">${e.overall}</span> <span class="text-slate-500">${e.percent}%</span></span></div>`).join('');
+}
+renderBLSList();
+
+/* ===== MEGACODE ===== */
+const MC_ITEMS=[
+  'Identifies arrest / clinical state correctly','Calls for help / activates team','Assigns clear roles','Closed-loop communication',
+  'Initiates high-quality CPR with minimal pauses','Manages airway appropriately (O2/BVM/SGA/ETT)','Recognizes rhythm correctly',
+  'Defibrillates at correct dose (2 J/kg → 4 J/kg)','Gives epinephrine 0.01 mg/kg IV/IO every 3-5 min','Considers/treats reversible causes (H&Ts + ICH + heart block)',
+  'Appropriate fluid resuscitation (10-20 mL/kg)','Starts vasoactives when indicated','Uses ETCO2 for CPR feedback','Targets DBP ≥25/30 mmHg if invasive line','Targets ETCO2 ≥15-20 mmHg','Performs structured debrief'
+];
+function renderMC(){document.getElementById('mc_checks').innerHTML=MC_ITEMS.map((it,i)=>`<label class="check"><input type="checkbox" id="mc_${i}"><span class="text-sm">${it}</span></label>`).join('')}
+renderMC();
+function saveMega(){
+  const name=document.getElementById('mc_name').value.trim();if(!name){toast('Name required','#EF4444');return}
+  const items=MC_ITEMS.map((it,i)=>({item:it,done:document.getElementById('mc_'+i).checked}));
+  const e={timestamp:new Date().toISOString(),name,scenario:document.getElementById('mc_scenario').value,evaluator:document.getElementById('mc_evaluator').value,date:document.getElementById('mc_date').value,items,errors:document.getElementById('mc_errors').value,score:document.getElementById('mc_score').value,result:document.getElementById('mc_result').value,debrief:document.getElementById('mc_debrief').value};
+  const arr=getStore('pals2025_megacode');arr.push(e);setStore('pals2025_megacode',arr);toast('Megacode saved');renderMegaList();
+}
+function renderMegaList(){
+  const arr=getStore('pals2025_megacode');const list=document.getElementById('mega_list');
+  if(!arr.length){list.innerHTML='<div class="text-sm text-slate-400 italic">No megacode evals yet.</div>';return}
+  list.innerHTML='<h3 class="font-bold mb-2 text-sm uppercase tracking-wider text-slate-600">Recent Megacodes</h3>'+
+    arr.slice(-8).reverse().map(e=>`<div class="border-b border-slate-100 py-2 flex justify-between text-sm"><span><span class="font-medium">${e.name}</span> <span class="text-slate-500">· ${e.scenario}</span></span><span><span class="pill ${e.result==='Pass'?'pill-g':e.result==='Fail'?'pill-r':'pill-y'}">${e.result}</span> <span class="text-slate-500">${e.score}/100</span></span></div>`).join('');
+}
+renderMegaList();
+
+/* ===== FINAL EXAM (25 Q) ===== */
+const EXAM_QS=[
+  {q:'A 4-year-old has HR 38/min, weak pulses, mottled skin. First action?',a:['IV adenosine','Begin CPR (HR<60 with poor perfusion)','100% O2 only','Transcutaneous pacing immediately'],c:1},
+  {q:'Per 2025 AHA guidelines, breathing and pulse check should be performed:',a:['Sequentially over 30 s','Simultaneously ≤10 s','Pulse first, then breathing','Only by physicians'],c:1},
+  {q:'Defibrillation dose sequence in pediatric VF?',a:['1 → 2 → 4 J/kg','2 → 4 J/kg (and ≥4 thereafter, max 10)','5 → 10 J/kg','Adult AED at 200 J'],c:1},
+  {q:'Reversible causes per 2025 PALS include all EXCEPT:',a:['Hypoxia','Cardiac tamponade','Hyperlipidemia','Intracranial hypertension'],c:2},
+  {q:'During CPR with arterial line, target DBP for older children:',a:['≥10 mmHg','≥15 mmHg','≥25 mmHg','≥30 mmHg'],c:3},
+  {q:'During CPR with arterial line, target DBP for infants:',a:['≥10 mmHg','≥15 mmHg','≥25 mmHg','≥40 mmHg'],c:2},
+  {q:'Epinephrine IV dose for cardiac arrest?',a:['0.001 mg/kg','0.01 mg/kg (0.1 mL/kg of 1:10,000)','0.1 mg/kg','1 mg fixed'],c:1},
+  {q:'High-dose IM/IO epinephrine for anaphylaxis in child >30 kg?',a:['0.01 mg','0.15 mg','0.3 mg IM','1 mg IV'],c:2},
+  {q:'For refractory SVT (stable, failed adenosine + 1 antiarrhythmic), 2025 endorses:',a:['Verapamil','IV sotalol','Digoxin','Beta-blocker only'],c:1},
+  {q:'Amiodarone for pulseless VT/VF dose?',a:['1 mg/kg','5 mg/kg IV/IO bolus, may repeat','10 mg/kg','15 mg/kg'],c:1},
+  {q:'Adenosine first dose?',a:['0.05 mg/kg','0.1 mg/kg rapid IV push (max 6 mg)','0.2 mg/kg','0.5 mg/kg'],c:1},
+  {q:'Synchronized cardioversion start dose for unstable SVT/VT?',a:['0.1 J/kg','0.5-1 J/kg, escalate to 2 J/kg','2 J/kg','4 J/kg'],c:1},
+  {q:'Atropine dose for symptomatic bradycardia (vagal cause)?',a:['0.01 mg/kg','0.02 mg/kg, min 0.1 mg, max 0.5 mg','0.1 mg/kg','1 mg fixed'],c:1},
+  {q:'Post-ROSC oxygenation goal?',a:['100% SpO2','SpO2 94-99%','SpO2 88-92%','PaO2 >300'],c:1},
+  {q:'Post-ROSC PaCO2 goal?',a:['25-30','35-45 mmHg','45-55','<25'],c:1},
+  {q:'Post-ROSC temperature management?',a:['Induce hypothermia 32 C','Targeted normothermia, avoid fever >37.5 C','Allow fever','Cool to 28 C'],c:1},
+  {q:'Septic shock first hour priorities?',a:['Steroids alone','Recognize, antibiotics, fluid (10-20 mL/kg), reassess, vasoactives if persistent','Vasopressor only','Transfuse first'],c:1},
+  {q:'In suspected cardiogenic shock, initial fluid bolus should be:',a:['40 mL/kg colloid','5-10 mL/kg, reassess for overload','20 mL/kg pushed','No fluids ever'],c:1},
+  {q:'Effective CPR is reflected by ETCO2 ≥:',a:['5','10','15-20 mmHg','40'],c:2},
+  {q:'Pediatric Assessment Triangle components?',a:['Appearance, Work of Breathing, Circulation to skin','HR, BP, RR','A-B-C','AVPU, Pulse, Skin'],c:0},
+  {q:'A 6-month-old with stridor at rest, drooling, tripod posture. Likely?',a:['Croup','Upper airway obstruction — call for advanced airway team','Asthma','Pneumonia'],c:1},
+  {q:'ETT internal diameter (mm) cuffed for a 4-year-old?',a:['3.0','3.5','4.5 (age/4 + 3.5)','5.5'],c:2},
+  {q:'When is ECPR considered per 2025 PALS?',a:['Routinely for all arrests','In-hospital arrest with reversible cause + institutional ECMO expertise','Out-of-hospital only','Never'],c:1},
+  {q:'AED pediatric pads/attenuator indicated for?',a:['Any age','<8 years / <25 kg','Only neonates','Adults only'],c:1},
+  {q:'Open-resource policy for AHA written exam (2025) means:',a:['Test cancelled','Students may consult provider manual / 2025 guidelines during the exam','Test is take-home','Pass at 70%'],c:1}
+];
+function renderExam(){
+  document.getElementById('exam_questions').innerHTML = EXAM_QS.map((q,i)=>`
+    <div class="q-card"><div class="font-semibold text-sm">${i+1}. ${q.q}</div>
+    <div class="opts">${q.a.map((a,j)=>`<label class="opt"><input type="radio" name="ex_q${i}" value="${j}">${a}</label>`).join('')}</div>
+    </div>`).join('');
+}
+renderExam();
+function gradeExam(){
+  let correct=0;
+  EXAM_QS.forEach((q,i)=>{
+    const sel=document.querySelector('input[name="ex_q'+i+'"]:checked');
+    const opts=document.querySelectorAll('[data-panel="exam"] .q-card')[i].querySelectorAll('.opt');
+    opts.forEach((o,j)=>{o.classList.remove('correct','wrong');if(j===q.c)o.classList.add('correct');if(sel&&parseInt(sel.value)===j&&j!==q.c)o.classList.add('wrong')});
+    if(sel && parseInt(sel.value)===q.c) correct++;
+  });
+  const pct=Math.round(correct/EXAM_QS.length*100);
+  const pass = pct>=84;
+  const e={timestamp:new Date().toISOString(),name:document.getElementById('ex_name').value,email:document.getElementById('ex_email').value,date:document.getElementById('ex_date').value,score:correct,total:EXAM_QS.length,percent:pct,result:pass?'Pass':'Fail'};
+  const arr=getStore('pals2025_final_exam');arr.push(e);setStore('pals2025_final_exam',arr);
+  document.getElementById('exam_result').innerHTML=`<div class="card p-4" style="border-color:${pass?'#22C55E':'#EF4444'};background:${pass?'rgba(34,197,94,.08)':'rgba(239,68,68,.08)'}"><div class="text-xl font-bold">${pass?'✅ PASS':'❌ Below Passing'} — ${correct}/${EXAM_QS.length} (${pct}%)</div><div class="text-sm mt-1">${pass?'Meets AHA 2025 PALS provider course passing standard (≥84%).':'Remediation required. Review missed items with instructor.'}</div></div>`;
+  toast('Exam graded · '+pct+'%');
+}
+
+/* ===== FEEDBACK ===== */
+const FB_ITEMS=['Course organization','Instructor knowledge','Hands-on skills time','Megacode realism','Quality of slides','Pace of course','Materials provided','Likelihood to recommend'];
+function renderFB(){
+  document.getElementById('fb_ratings').innerHTML=FB_ITEMS.map((it,i)=>`
+    <div class="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-slate-50">
+      <div class="text-sm flex-1">${it}</div>
+      <div class="flex gap-1" data-fb="${i}">
+        ${[1,2,3,4,5].map(n=>`<button onclick="setFB(${i},${n})" class="w-8 h-8 rounded-full border border-slate-300 text-xs font-bold" data-fbn="${n}">${n}</button>`).join('')}
+      </div>
+    </div>`).join('');
+}
+renderFB();
+window._fb={};
+function setFB(i,n){
+  window._fb[i]=n;
+  document.querySelectorAll(`[data-fb="${i}"] button`).forEach(b=>{
+    const v=parseInt(b.dataset.fbn);b.style.background=v<=n?'#0891B2':'';b.style.color=v<=n?'#fff':'';b.style.borderColor=v<=n?'#0891B2':'';
+  });
+}
+function saveFeedback(){
+  const e={timestamp:new Date().toISOString(),name:document.getElementById('fb_name').value,date:document.getElementById('fb_date').value,ratings:FB_ITEMS.map((it,i)=>({item:it,score:window._fb[i]||0})),good:document.getElementById('fb_good').value,improve:document.getElementById('fb_improve').value,recommend:document.getElementById('fb_recommend').value};
+  const arr=getStore('pals2025_feedback');arr.push(e);setStore('pals2025_feedback',arr);toast('Feedback submitted · thank you');
+}
+
+/* ===== CERTIFICATE ===== */
+function renderCert(){
+  document.getElementById('cv_name').textContent=document.getElementById('ct_name').value||'Student Name';
+  document.getElementById('cv_date').textContent=document.getElementById('ct_date').value||'—';
+  document.getElementById('cv_expiry').textContent=document.getElementById('ct_expiry').value||'—';
+  document.getElementById('cv_cardid').textContent=document.getElementById('ct_cardid').value||'—';
+  document.getElementById('cv_instructor').textContent=(document.getElementById('ct_instructor').value||'Instructor');
+  document.getElementById('cv_site').textContent=(document.getElementById('ct_site').value||'Training Site');
+}
+function saveCert(){
+  const name=document.getElementById('ct_name').value.trim();if(!name){toast('Name required','#EF4444');return}
+  const e={timestamp:new Date().toISOString(),name,date:document.getElementById('ct_date').value,instructor:document.getElementById('ct_instructor').value,site:document.getElementById('ct_site').value,expiry:document.getElementById('ct_expiry').value,cardid:document.getElementById('ct_cardid').value};
+  const arr=getStore('pals2025_certificates');arr.push(e);setStore('pals2025_certificates',arr);toast('Certificate saved');
+}
+renderCert();
+</script>
+</body>
+</html>

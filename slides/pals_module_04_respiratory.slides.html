@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 4 — Respiratory Emergencies</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  *{font-family:'Manrope',system-ui,sans-serif}
+  html,body{height:100%;margin:0}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
+  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
+  .blob1{width:500px;height:500px;background:#0891B2;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
+  .blob2{width:450px;height:450px;background:#34D399;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
+  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 8vw;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
+  .slide.active{opacity:1;pointer-events:auto}
+  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#0891B2;letter-spacing:-1px}
+  .slide h2{font-size:clamp(22px,3vw,38px);font-weight:800;color:#1E293B;margin-bottom:16px}
+  .slide h3{font-size:clamp(15px,1.5vw,22px);font-weight:700;color:#0891B2;margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase}
+  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.3vw,18px);line-height:1.5;color:#334155}
+  .slide ul{padding-left:24px} .slide li{margin-bottom:6px}
+  .card{background:rgba(255,255,255,0.88);backdrop-filter:blur(6px);border:1px solid rgba(8,145,178,.12);border-radius:14px;padding:18px;box-shadow:0 4px 20px rgba(30,41,59,.05)}
+  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(8,145,178,.12);color:#0891B2;letter-spacing:.5px}
+  .nav{position:fixed;bottom:20px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:10}
+  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
+  .dot.active{background:#0891B2;transform:scale(1.4)}
+  .nav-btn{background:#0891B2;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;backdrop-filter:blur(8px)}
+  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none;backdrop-filter:blur(8px)}
+  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:18px 22px;border-radius:8px}
+  .pearl h3{color:#0f9b6c}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:7px 10px;text-align:left;border-bottom:1px solid #e2e8f0}
+  th{background:rgba(8,145,178,.08);font-weight:700;color:#0891B2;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+  .tag{display:inline-block;padding:2px 9px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.3px}
+  .tag-y{background:#FEF3C7;color:#92400e}
+  .tag-r{background:#FEE2E2;color:#b91c1c}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div><div class="blob blob2"></div>
+<a class="home" href="../index.html">← Hub</a>
+<div class="counter"><span id="cur">1</span>/<span id="tot">8</span></div>
+
+<section class="slide active">
+  <span class="pill">Module 04</span>
+  <h1 class="mt-3">Respiratory Emergencies</h1>
+  <p class="mt-6 text-slate-500">Distress vs failure · BVM · ETCO2 · intubation indications</p>
+</section>
+
+<section class="slide">
+  <h3>Objectives</h3>
+  <h2>You will be able to</h2>
+  <ul class="mt-4">
+    <li>Distinguish respiratory distress from respiratory failure.</li>
+    <li>Classify respiratory problems by anatomic site: upper, lower, lung tissue, control of breathing.</li>
+    <li>Choose appropriate oxygen delivery for the level of distress.</li>
+    <li>Perform effective BVM ventilation with proper technique.</li>
+    <li>Identify indications for advanced airway and avoid hyperventilation.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h3>Distress vs Failure</h3>
+  <h2>Recognize the Tipping Point</h2>
+  <div class="grid2 mt-3">
+    <div class="card"><span class="tag tag-y">DISTRESS</span><h3 class="mt-2" style="color:#F59E0B">Increased work, adequate gas exchange</h3>
+      <ul><li>Tachypnea, retractions, nasal flaring</li><li>Mild-moderate hypoxia, normal CO2</li><li>Alert, responsive</li></ul></div>
+    <div class="card"><span class="tag tag-r">FAILURE</span><h3 class="mt-2" style="color:#EF4444">Inadequate gas exchange</h3>
+      <ul><li>Bradypnea or agonal breathing, exhaustion</li><li>Severe hypoxia, rising CO2</li><li>Decreased LOC, cyanosis, bradycardia</li></ul></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Four Anatomic Categories</h3>
+  <h2>Type-Specific Management</h2>
+  <div class="grid4 mt-3">
+    <div class="card"><strong style="color:#0891B2">Upper airway</strong><p class="text-sm">Croup, FB, anaphylaxis, retropharyngeal abscess.<br><em>Mx:</em> position, racemic epi, dexamethasone, prepare difficult airway team.</p></div>
+    <div class="card"><strong style="color:#0891B2">Lower airway</strong><p class="text-sm">Asthma, bronchiolitis.<br><em>Mx:</em> albuterol, steroids, mag sulfate, HFNC.</p></div>
+    <div class="card"><strong style="color:#0891B2">Lung tissue</strong><p class="text-sm">Pneumonia, ARDS, pulmonary edema.<br><em>Mx:</em> O2, antibiotics, CPAP/BiPAP, lung-protective ventilation.</p></div>
+    <div class="card"><strong style="color:#0891B2">Control of breathing</strong><p class="text-sm">Sepsis, ICH, intoxication, seizure.<br><em>Mx:</em> treat cause, support ventilation, naloxone if opioid.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Oxygen & Support Ladder</h3>
+  <h2>Match Device to Severity</h2>
+  <table class="mt-3">
+    <thead><tr><th>Device</th><th>FiO₂</th><th>Use When</th></tr></thead>
+    <tbody>
+      <tr><td>Nasal cannula</td><td>~22-44% (1-6 L)</td><td>Mild hypoxia, awake child</td></tr>
+      <tr><td>Simple mask</td><td>~35-60% (6-10 L)</td><td>Moderate distress</td></tr>
+      <tr><td>Non-rebreather</td><td>~95% (10-15 L)</td><td>Severe distress, pre-oxygenation</td></tr>
+      <tr><td>HFNC</td><td>variable</td><td>Bronchiolitis, post-extubation</td></tr>
+      <tr><td>NIV (CPAP/BiPAP)</td><td>up to 100%</td><td>Failure imminent, lung tissue dz</td></tr>
+      <tr><td>BVM ± OPA/NPA</td><td>100%</td><td>Inadequate ventilation, apnea</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <h3>BVM Technique</h3>
+  <h2>The Most Important Pediatric Airway Skill</h2>
+  <div class="grid2 mt-3">
+    <div class="card">
+      <h3 style="color:#0891B2">E-C clamp · 1-rescuer</h3>
+      <ul><li>Mask size: bridge of nose to cleft of chin</li><li>Head-tilt/chin-lift (neutral in infants)</li><li>Squeeze bag <strong>just enough</strong> for chest rise</li><li>1 breath every 2-3 s (20-30/min) in arrest</li></ul>
+    </div>
+    <div class="card">
+      <h3 style="color:#0891B2">2-rescuer · 2-thumb method</h3>
+      <ul><li>One operator: mask seal with two hands</li><li>Second operator: squeezes the bag</li><li>Preferred when O2 sat is unsatisfactory or seal is difficult</li><li>Consider OPA (no gag) / NPA</li></ul>
+    </div>
+  </div>
+  <p class="mt-4 text-sm text-slate-500"><strong>Avoid hyperventilation</strong> — raises intrathoracic pressure, drops venous return and coronary perfusion.</p>
+</section>
+
+<section class="slide">
+  <h3>ETCO2 & Intubation</h3>
+  <h2>Confirm · Monitor · Decide</h2>
+  <div class="grid2 mt-3">
+    <div class="card">
+      <h3 style="color:#0891B2">ETCO2 targets</h3>
+      <ul><li>Normal: <strong>35-45 mmHg</strong></li><li>During CPR: aim ≥15-20 mmHg = adequate cardiac output</li><li>Sudden drop → loss of circulation or tube dislodged</li></ul>
+    </div>
+    <div class="card">
+      <h3 style="color:#EF4444">Intubation indications</h3>
+      <ul><li>Cannot oxygenate or ventilate with BVM/NIV</li><li>Loss of airway reflexes / GCS ≤ 8</li><li>Anticipated clinical course (e.g., severe burn, sepsis)</li><li>Anatomic threat (epiglottitis, severe angioedema)</li></ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="pearl">
+    <h3>Clinical Pearl</h3>
+    <h2 style="color:#0f3a26">"If the chest rises and the sats climb, you've already won."</h2>
+    <p class="mt-3">Most pediatric arrests start as respiratory. Excellent BVM averts the cardiac arrest. Don't rush to a tube if the mask is working — fix seal, suction, reposition first.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <h3>Summary</h3>
+  <ul class="mt-3">
+    <li>Distress vs failure — recognize the trajectory early.</li>
+    <li>Categorize: upper · lower · lung tissue · control of breathing.</li>
+    <li>BVM technique = the cornerstone skill. Avoid hyperventilation.</li>
+    <li>ETCO2 35-45 normal; ≥15-20 during effective CPR.</li>
+    <li>Intubate for failure of BVM/NIV, lost reflexes, or anticipated course.</li>
+  </ul>
+  <p class="text-sm text-slate-500 mt-8">Next → Module 5: Shock Recognition & Management</p>
+</section>
+
+<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
+<script>
+const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
+const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
+function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
+function go(d){show(cur+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+</script>
+</body>
+</html>
