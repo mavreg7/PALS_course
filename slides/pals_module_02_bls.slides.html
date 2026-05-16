@@ -24,12 +24,13 @@
   .slide ul{padding-left:24px} .slide li{margin-bottom:7px}
   .card{background:rgba(255,255,255,0.88);backdrop-filter:blur(6px);border:1px solid rgba(8,145,178,.12);border-radius:14px;padding:20px;box-shadow:0 4px 20px rgba(30,41,59,.05)}
   .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(8,145,178,.12);color:#0891B2;letter-spacing:.5px}
-  .nav{position:fixed;bottom:20px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:10}
+  .nav{position:fixed;bottom:20px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:100;pointer-events:none}
+  .nav > *{pointer-events:auto}
   .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
   .dot.active{background:#0891B2;transform:scale(1.4)}
-  .nav-btn{background:#0891B2;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer}
-  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;backdrop-filter:blur(8px)}
-  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none;backdrop-filter:blur(8px)}
+  .nav-btn{background:#0891B2;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;position:relative;z-index:101}
+  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;backdrop-filter:blur(8px);z-index:100}
+  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none;backdrop-filter:blur(8px);z-index:100;pointer-events:auto}
   .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:18px 22px;border-radius:8px}
   .pearl h3{color:#0f9b6c}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
