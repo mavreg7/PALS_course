@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PALS 2025 · Page Not Found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--p:#0891B2;--bg:#f0f9ff;--s:#fff;--b:#bae6fd;--t:#0f172a;--tm:#475569}
+[data-theme="dark"]{--bg:#07131f;--s:#0d2137;--b:#1a3a5c;--t:#e0f4fc;--tm:#7db8d4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.card{background:var(--s);border:1px solid var(--b);border-radius:20px;padding:3rem 2.5rem;max-width:480px;text-align:center;box-shadow:0 8px 32px rgba(8,145,178,.1)}
+.icon{font-size:3.5rem;margin-bottom:1rem}
+h1{font-family:'Instrument Serif',serif;font-size:2.2rem;margin-bottom:.5rem}
+p{font-size:.95rem;color:var(--tm);margin-bottom:1.5rem;line-height:1.6}
+.btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+a.btn{padding:.65rem 1.3rem;border-radius:11px;font-weight:800;font-size:.88rem;text-decoration:none;transition:all .18s}
+.primary{background:var(--p);color:#fff}.primary:hover{opacity:.88}
+.ghost{background:var(--bg);color:var(--t);border:1.5px solid var(--b)}.ghost:hover{background:var(--b)}
+</style>
+</head>
+<body>
+<script>
+const SK='pals_sess_v2';
+function getSession(){try{return JSON.parse(sessionStorage.getItem(SK)||'null')}catch(e){return null}}
+const SESSION=getSession();
+function hubHref(){if(!SESSION)return 'index.html';return SESSION.role==='instructor'?'hub_instructor.html':'hub_student.html'}
+</script>
+<div class="card">
+  <div class="icon">🔍</div>
+  <h1>Page not found</h1>
+  <p>The page you are looking for doesn't exist or may have moved. Head back to your hub to continue the course.</p>
+  <div class="btns">
+    <a id="hub-btn" href="index.html" class="btn primary">Go to Hub</a>
+    <a href="index.html" class="btn ghost">Sign In</a>
+  </div>
+</div>
+<script>document.getElementById('hub-btn').href=hubHref();</script>
+</body>
+</html>
