@@ -1,217 +1,396 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 6 — Rhythm Recognition</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Module 06 · Rhythm Recognition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  *{font-family:'Manrope',system-ui,sans-serif}
-  html,body{height:100%;margin:0}
-  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
-  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
-  .blob1{width:500px;height:500px;background:#1E293B;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
-  .blob2{width:450px;height:450px;background:#0891B2;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
-  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
-  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 6vw;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
-  .slide.active{opacity:1;pointer-events:auto}
-  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#0891B2}
-  .slide h2{font-size:clamp(20px,2.8vw,36px);font-weight:800;color:#1E293B;margin-bottom:14px}
-  .slide h3{font-size:clamp(14px,1.4vw,20px);font-weight:700;color:#0891B2;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
-  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.2vw,17px);line-height:1.5;color:#334155}
-  .slide ul{padding-left:24px} .slide li{margin-bottom:5px}
-  .card{background:rgba(255,255,255,0.9);backdrop-filter:blur(6px);border:1px solid rgba(8,145,178,.12);border-radius:14px;padding:14px;box-shadow:0 4px 20px rgba(30,41,59,.05)}
-  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(8,145,178,.12);color:#0891B2;letter-spacing:.5px}
-  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:100;pointer-events:none}
-  .nav > *{pointer-events:auto}
-  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
-  .dot.active{background:#0891B2;transform:scale(1.4)}
-  .nav-btn{background:#0891B2;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;position:relative;z-index:101}
-  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;z-index:100}
-  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none;z-index:100;pointer-events:auto}
-  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:16px 22px;border-radius:8px}
-  .pearl h3{color:#0f9b6c}
-  .strip{background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:8px}
-  .strip-grid{stroke:#fecaca;stroke-width:.5}
-  .strip-major{stroke:#fca5a5;stroke-width:1}
-  .ecg{stroke:#0891B2;stroke-width:2;fill:none}
-  .lbl{font-size:11px;fill:#475569}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:6px 9px;text-align:left;border-bottom:1px solid #e2e8f0}
-  th{background:rgba(8,145,178,.08);font-weight:700;color:#0891B2;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+:root{--bg:#07090f;--surface:#0e1117;--surface2:#141820;--border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#7c8494;--faint:#3a3f4a;--cyan:#00d4ff;--cyan-dim:#00aacc;--cyan-glow:rgba(0,212,255,0.15);--green:#00e676;--red:#ff4d6d;--amber:#ffb300;--purple:#b388ff;--purple-dim:#7c4dff;--font-head:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--r:12px;--r-lg:20px;--r-xl:28px;--transition:0.45s cubic-bezier(0.16,1,0.3,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.bg-blob{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;animation:drift 18s ease-in-out infinite alternate}
+.bb1{width:600px;height:600px;top:-200px;right:-200px;background:radial-gradient(circle,rgba(0,212,255,0.07),transparent 70%)}
+.bb2{width:500px;height:500px;bottom:-150px;left:-150px;background:radial-gradient(circle,rgba(124,77,255,0.05),transparent 70%);animation-delay:-9s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,20px) scale(1.05)}}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--purple));transition:width 0.5s ease;z-index:100;box-shadow:0 0 12px var(--cyan)}
+.nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,9,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:50}
+.nav-logo{font-family:var(--font-head);font-size:13px;font-weight:600;color:var(--cyan);letter-spacing:0.08em;text-transform:uppercase}.nav-info{font-size:12px;color:var(--muted)}
+.nav-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s}.nav-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.stage{position:fixed;inset:56px 0 64px;overflow:hidden}
+.slide{position:absolute;inset:0;padding:40px 48px;overflow-y:auto;display:flex;flex-direction:column;gap:20px;opacity:0;transform:translateX(60px);transition:opacity var(--transition),transform var(--transition);pointer-events:none}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:all}.slide.exit-left{opacity:0;transform:translateX(-60px)}
+.slide::-webkit-scrollbar{width:4px}.slide::-webkit-scrollbar-track{background:transparent}.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
+.hero-slide{justify-content:center;padding:60px 48px}
+.mod-eye{font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px;display:flex;align-items:center;gap:8px}.mod-eye::before{content:'';display:block;width:24px;height:2px;background:var(--cyan);border-radius:2px}
+h1.hero{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3.4rem);font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:#fff;max-width:860px}h1.hero span{color:var(--cyan)}
+.subt{font-size:1.05rem;color:var(--muted);max-width:700px;line-height:1.7}.ttags{display:flex;flex-wrap:wrap;gap:10px}.ttag{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;color:var(--muted)}
+.ey{font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--cyan);opacity:0.8}h2{font-family:var(--font-head);font-size:clamp(1.4rem,2.8vw,2rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-0.01em}h3{font-family:var(--font-head);font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:6px}h4{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:4px}p{font-size:0.92rem;color:var(--muted);line-height:1.65}li{font-size:0.9rem;color:var(--muted);line-height:1.6;margin-bottom:4px}strong{color:var(--text);font-weight:600}ul{padding-left:16px}
+.cards{display:grid;gap:16px}.c2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}.c3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}.c4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;transition:border-color 0.25s,box-shadow 0.25s}.card:hover{border-color:rgba(0,212,255,0.25);box-shadow:0 0 24px rgba(0,212,255,0.06)}
+.alt{border-radius:var(--r);padding:16px 18px;border-left:3px solid}.ar{background:rgba(255,77,109,0.08);border-color:var(--red)}.ar h4{color:var(--red);font-size:0.85rem;margin-bottom:4px}.aa{background:rgba(255,179,0,0.07);border-color:var(--amber)}.aa h4{color:var(--amber);font-size:0.85rem;margin-bottom:4px}.ac{background:rgba(0,212,255,0.07);border-color:var(--cyan)}.ac h4{color:var(--cyan);font-size:0.85rem;margin-bottom:4px}.ag{background:rgba(0,230,118,0.07);border-color:var(--green)}.ag h4{color:var(--green);font-size:0.85rem;margin-bottom:4px}
+/* ECG strip */
+.strip-wrap{background:#0a0f0a;border:1px solid rgba(0,200,80,0.2);border-radius:var(--r);padding:8px 12px;overflow:hidden;position:relative}
+.strip-wrap::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,180,60,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,60,0.07) 1px,transparent 1px);background-size:20px 20px}
+.strip-wrap svg{display:block;width:100%;position:relative;z-index:1}
+.ecg-line{stroke:#00e676;stroke-width:1.8;fill:none;filter:drop-shadow(0 0 4px rgba(0,230,118,0.6))}
+.ecg-vf{stroke:#ff4d6d;stroke-width:1.8;fill:none;filter:drop-shadow(0 0 4px rgba(255,77,109,0.5))}
+.ecg-vt{stroke:#ffb300;stroke-width:1.8;fill:none;filter:drop-shadow(0 0 4px rgba(255,179,0,0.5))}
+.ecg-flat{stroke:#7c8494;stroke-width:1.5;fill:none}
+.ecg-pea{stroke:#b388ff;stroke-width:1.8;fill:none;filter:drop-shadow(0 0 3px rgba(179,136,255,0.5))}
+.strip-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.compare{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch}.vs{display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:1.3rem;font-weight:700;color:var(--cyan);opacity:0.7}
+.pill{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:8px}.pr{background:rgba(255,77,109,0.15);color:var(--red)}.pg{background:rgba(0,230,118,0.12);color:var(--green)}.pc{background:rgba(0,212,255,0.12);color:var(--cyan)}.pa{background:rgba(255,179,0,0.12);color:var(--amber)}.ppu{background:rgba(179,136,255,0.15);color:var(--purple)}
+/* flip cards */
+.fg{display:grid;gap:16px}.fg3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.fc{perspective:1000px;cursor:pointer}.fi{width:100%;min-height:165px;position:relative;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1)}.fc.flipped .fi{transform:rotateY(180deg)}.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;justify-content:center}.ff{background:var(--surface);border:1px solid rgba(0,212,255,0.2)}.fb{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(179,136,255,0.08));border:1px solid rgba(0,212,255,0.3);transform:rotateY(180deg)}.ql{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}.fi h4{font-size:0.9rem;color:var(--text);line-height:1.4}.fb p{font-size:0.88rem;color:var(--text);line-height:1.6}.hi{font-size:11px;color:var(--faint);margin-top:10px}
+.tbl{width:100%;border-collapse:collapse;font-size:0.85rem}.tbl th{text-align:left;padding:10px 14px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--cyan);border-bottom:1px solid var(--border)}.tbl td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}.tbl tr:hover td{background:rgba(255,255,255,0.02)}.tbl td strong{color:var(--text)}
+.foot{position:fixed;bottom:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,9,15,0.85);backdrop-filter:blur(16px);border-top:1px solid var(--border);z-index:50}.slide-counter{font-size:12px;color:var(--muted)}.foot-btns{display:flex;gap:10px}.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:var(--font-head)}.foot-btn:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 16px rgba(0,212,255,0.15)}.foot-btn:disabled{opacity:0.25;cursor:not-allowed}.foot-btn.primary{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.3);color:var(--cyan)}.foot-btn.primary:hover:not(:disabled){background:rgba(0,212,255,0.18)}
+.nxt{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:12px 24px;background:linear-gradient(135deg,var(--cyan),var(--purple-dim));color:#07090f;font-family:var(--font-head);font-weight:700;font-size:0.9rem;border-radius:var(--r);text-decoration:none;transition:opacity 0.2s,transform 0.2s;align-self:flex-start}.nxt:hover{opacity:0.88;transform:translateY(-1px)}
+.shock-box{border-radius:var(--r-xl);padding:24px;display:flex;flex-direction:column;gap:12px}.shock-yes{background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.3)}.shock-no{background:rgba(124,132,148,0.08);border:1px solid var(--border)}
+@media(max-width:760px){.compare{grid-template-columns:1fr}.vs{display:none}}
+@media(max-width:640px){.slide{padding:24px 20px}.hero-slide{padding:36px 20px}h1.hero{font-size:1.8rem}}
 </style>
 </head>
 <body>
-<div class="blob blob1"></div><div class="blob blob2"></div>
-<a class="home" href="../index.html">← Hub</a>
-<div class="counter"><span id="cur">1</span>/<span id="tot">10</span></div>
+<div class="bg-grid"></div><div class="bg-blob bb1"></div><div class="bg-blob bb2"></div>
+<div id="progress-bar"></div>
+<nav class="nav">
+  <div class="nav-logo">PALS 2025</div>
+  <div class="nav-info">Module 06 · Rhythm Recognition</div>
+  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
+</nav>
+<div class="stage">
 
-<section class="slide active">
-  <span class="pill">Module 06</span>
-  <h1 class="mt-3">Rhythm Recognition</h1>
-  <p class="mt-6 text-slate-500">From sinus to asystole — pattern, rate, perfusion, action</p>
+<!-- SLIDE 1: Hero -->
+<section class="slide active hero-slide">
+  <div class="mod-eye">Module 06 · Rhythm Recognition</div>
+  <h1 class="hero">Read the Strip. <span>Treat the Patient.</span></h1>
+  <p class="subt">Rhythm identification only matters if it changes what you do. Know the branch points: shockable vs non-shockable, stable vs unstable.</p>
+  <div class="ttags">
+    <span class="ttag">📹 Sinus by Age</span>
+    <span class="ttag">💓 Brady & AV Block</span>
+    <span class="ttag">⚡ SVT vs Sinus Tach</span>
+    <span class="ttag">🔴 VT / VF</span>
+    <span class="ttag">⚪ Asystole / PEA</span>
+  </div>
 </section>
 
+<!-- SLIDE 2: Normal sinus by age -->
 <section class="slide">
-  <h3>Objectives</h3>
-  <h2>You will be able to</h2>
-  <ul class="mt-4">
-    <li>Identify normal pediatric sinus rhythm by age.</li>
-    <li>Recognize bradyarrhythmias including high-grade block.</li>
-    <li>Distinguish SVT from sinus tachycardia.</li>
-    <li>Recognize wide-complex VT and shockable rhythms.</li>
-    <li>Identify pulseless arrest rhythms: VF, pulseless VT, PEA, asystole.</li>
-  </ul>
-</section>
-
-<section class="slide">
-  <h3>Normal Sinus by Age</h3>
-  <h2>Sinus Rhythm Reference</h2>
-  <div class="strip"><svg viewBox="0 0 800 120" width="100%" height="120">
-    <g class="strip-grid">${''}</g>
-    <g>
-      <path class="ecg" d="M0,60 L40,60 L48,55 L56,50 L60,30 L64,80 L68,60 L72,60 L100,60 L108,55 L116,50 L120,30 L124,80 L128,60 L132,60 L200,60 L208,55 L216,50 L220,30 L224,80 L228,60 L232,60 L300,60 L308,55 L316,50 L320,30 L324,80 L328,60 L332,60 L400,60 L408,55 L416,50 L420,30 L424,80 L428,60 L432,60 L500,60 L508,55 L516,50 L520,30 L524,80 L528,60 L532,60 L600,60 L608,55 L616,50 L620,30 L624,80 L628,60 L632,60 L700,60 L708,55 L716,50 L720,30 L724,80 L728,60 L732,60 L800,60"/>
-    </g>
-  </svg></div>
-  <table class="mt-3">
-    <thead><tr><th>Age</th><th>Awake HR</th></tr></thead>
+  <div class="ey">Baseline</div>
+  <h2>Know normal before you call abnormal</h2>
+  <div class="strip-label" style="color:var(--green)">Normal Sinus Rhythm</div>
+  <div class="strip-wrap">
+    <svg viewBox="0 0 800 80" height="80">
+      <path class="ecg-line" d="M0,40 L60,40 L68,36 L74,32 L78,14 L82,68 L86,40 L90,40
+        L150,40 L158,36 L164,32 L168,14 L172,68 L176,40 L180,40
+        L240,40 L248,36 L254,32 L258,14 L262,68 L266,40 L270,40
+        L330,40 L338,36 L344,32 L348,14 L352,68 L356,40 L360,40
+        L420,40 L428,36 L434,32 L438,14 L442,68 L446,40 L450,40
+        L510,40 L518,36 L524,32 L528,14 L532,68 L536,40 L540,40
+        L600,40 L608,36 L614,32 L618,14 L622,68 L626,40 L630,40
+        L690,40 L698,36 L704,32 L708,14 L712,68 L716,40 L800,40"/>
+    </svg>
+  </div>
+  <table class="tbl" style="margin-top:8px">
+    <thead><tr><th>Age Group</th><th>Awake HR (bpm)</th><th>Sleeping HR (bpm)</th></tr></thead>
     <tbody>
-      <tr><td>Newborn</td><td>85-205</td></tr>
-      <tr><td>Infant</td><td>100-180</td></tr>
-      <tr><td>Toddler</td><td>90-150</td></tr>
-      <tr><td>School age</td><td>70-120</td></tr>
-      <tr><td>Adolescent</td><td>60-100</td></tr>
+      <tr><td><strong>Newborn (&lt;1 mo)</strong></td><td>85–205</td><td>80–160</td></tr>
+      <tr><td><strong>Infant (1–12 mo)</strong></td><td>100–180</td><td>75–160</td></tr>
+      <tr><td><strong>Toddler (1–3 y)</strong></td><td>90–150</td><td>70–120</td></tr>
+      <tr><td><strong>School age (6–12 y)</strong></td><td>70–120</td><td>60–100</td></tr>
+      <tr><td><strong>Adolescent (&gt;12 y)</strong></td><td>60–100</td><td>50–90</td></tr>
     </tbody>
   </table>
 </section>
 
+<!-- SLIDE 3: Bradyarrhythmias -->
 <section class="slide">
-  <h3>Bradyarrhythmias</h3>
-  <h2>Sinus Brady · AV Block</h2>
-  <div class="grid2 mt-2">
+  <div class="ey">Bradyarrhythmias</div>
+  <h2>HR &lt; 60 with poor perfusion → start CPR</h2>
+  <div class="cards c2">
     <div>
-      <p class="text-sm font-semibold mb-1">Sinus Bradycardia</p>
-      <div class="strip"><svg viewBox="0 0 800 90" width="100%" height="90">
-        <path class="ecg" d="M0,50 L100,50 L108,45 L116,40 L120,20 L124,70 L128,50 L132,50 L300,50 L308,45 L316,40 L320,20 L324,70 L328,50 L332,50 L500,50 L508,45 L516,40 L520,20 L524,70 L528,50 L532,50 L700,50 L708,45 L716,40 L720,20 L724,70 L728,50 L732,50 L800,50"/>
-      </svg></div>
-      <p class="text-xs text-slate-500 mt-1">Slow but regular; treat if signs of compromise.</p>
+      <div class="strip-label" style="color:var(--amber)">Sinus Bradycardia</div>
+      <div class="strip-wrap">
+        <svg viewBox="0 0 800 80" height="70">
+          <path class="ecg-line" d="M0,40 L140,40 L148,36 L154,32 L158,14 L162,68 L166,40 L170,40
+            L400,40 L408,36 L414,32 L418,14 L422,68 L426,40 L430,40
+            L680,40 L688,36 L694,32 L698,14 L702,68 L706,40 L800,40"/>
+        </svg>
+      </div>
+      <p style="font-size:0.82rem;margin-top:8px">Regular, slow, P before every QRS. Treat if perfusion is poor or HR &lt;60.</p>
     </div>
     <div>
-      <p class="text-sm font-semibold mb-1">Complete (3°) AV Block</p>
-      <div class="strip"><svg viewBox="0 0 800 90" width="100%" height="90">
-        <path class="ecg" d="M0,50 L50,50 L58,45 L66,40 L70,55 L75,50 L150,50 L155,50 L160,30 L164,70 L168,50 L240,50 L248,45 L256,40 L260,55 L270,50 L400,50 L408,30 L412,70 L416,50 L500,50 L508,45 L516,40 L520,55 L530,50 L650,50 L658,30 L662,70 L666,50 L750,50 L758,45 L766,40 L770,55 L780,50 L800,50"/>
-      </svg></div>
-      <p class="text-xs text-slate-500 mt-1">P-waves and QRS dissociated. Consider pacing.</p>
+      <div class="strip-label" style="color:var(--red)">Complete (3°) AV Block</div>
+      <div class="strip-wrap">
+        <svg viewBox="0 0 800 80" height="70">
+          <!-- P waves (fast, atrial) -->
+          <path class="ecg-line" style="stroke:var(--cyan);opacity:0.5" d="M30,40 L38,34 L44,40 L110,40 L118,34 L124,40 L190,40 L198,34 L204,40 L270,40 L278,34 L284,40 L350,40 L358,34 L364,40 L430,40 L438,34 L444,40 L510,40 L518,34 L524,40 L590,40 L598,34 L604,40 L670,40 L678,34 L684,40 L750,40 L758,34 L764,40 L800,40"/>
+          <!-- QRS complexes (slow, ventricular, dissociated) -->
+          <path class="ecg-line" style="stroke:var(--red)" d="M0,40 L60,40 L66,38 L68,15 L72,72 L76,40 L200,40 L206,38 L208,15 L212,72 L216,40 L360,40 L366,38 L368,15 L372,72 L376,40 L530,40 L536,38 L538,15 L542,72 L546,40 L700,40 L706,38 L708,15 L712,72 L716,40 L800,40"/>
+        </svg>
+      </div>
+      <p style="font-size:0.82rem;margin-top:8px"><span style="color:var(--cyan)">Cyan — P-waves</span>. <span style="color:var(--red)">Red — QRS</span>. Completely dissociated. Treat cause, consider pacing.</p>
+    </div>
+  </div>
+  <div class="alt ar"><h4>🚨 PALS Bradycardia Rule</h4><p>If HR &lt;60 <strong>and</strong> signs of poor perfusion despite oxygenation &amp; ventilation → <strong>start CPR, give epinephrine</strong>. Don’t wait for asystole.</p></div>
+</section>
+
+<!-- SLIDE 4: SVT vs Sinus Tach -->
+<section class="slide">
+  <div class="ey">Tachyarrhythmias</div>
+  <h2>SVT vs Sinus Tachycardia</h2>
+  <div class="compare">
+    <div>
+      <div class="strip-label" style="color:var(--cyan)">Sinus Tachycardia</div>
+      <div class="strip-wrap">
+        <svg viewBox="0 0 800 80" height="70">
+          <path class="ecg-line" d="M0,40 L30,40 L36,36 L40,33 L44,14 L48,70 L52,40 L56,40
+            L90,40 L96,36 L100,33 L104,14 L108,70 L112,40 L116,40
+            L150,40 L156,36 L160,33 L164,14 L168,70 L172,40 L176,40
+            L210,40 L216,36 L220,33 L224,14 L228,70 L232,40 L236,40
+            L270,40 L276,36 L280,33 L284,14 L288,70 L292,40 L296,40
+            L330,40 L336,36 L340,33 L344,14 L348,70 L352,40 L356,40
+            L390,40 L396,36 L400,33 L404,14 L408,70 L412,40 L416,40
+            L450,40 L456,36 L460,33 L464,14 L468,70 L472,40 L476,40
+            L510,40 L516,36 L520,33 L524,14 L528,70 L532,40 L536,40
+            L570,40 L576,36 L580,33 L584,14 L588,70 L592,40 L596,40
+            L630,40 L636,36 L640,33 L644,14 L648,70 L652,40 L800,40"/>
+        </svg>
+      </div>
+      <ul style="margin-top:10px">
+        <li>Rate varies — R-R interval changes</li>
+        <li>P-wave before every QRS</li>
+        <li>Usually &lt;220 bpm (infant) / &lt;180 (child)</li>
+        <li>History: fever, pain, dehydration, SVT history absent</li>
+        <li>Responds to treating the cause</li>
+      </ul>
+    </div>
+    <div class="vs">VS</div>
+    <div>
+      <div class="strip-label" style="color:var(--purple)">SVT</div>
+      <div class="strip-wrap">
+        <svg viewBox="0 0 800 80" height="70">
+          <path class="ecg-line" style="stroke:var(--purple);filter:drop-shadow(0 0 4px rgba(179,136,255,0.6))"
+            d="M0,40 L18,40 L22,38 L24,12 L28,70 L32,40 L50,40 L54,38 L56,12 L60,70 L64,40
+               L82,40 L86,38 L88,12 L92,70 L96,40 L114,40 L118,38 L120,12 L124,70 L128,40
+               L146,40 L150,38 L152,12 L156,70 L160,40 L178,40 L182,38 L184,12 L188,70 L192,40
+               L210,40 L214,38 L216,12 L220,70 L224,40 L242,40 L246,38 L248,12 L252,70 L256,40
+               L274,40 L278,38 L280,12 L284,70 L288,40 L306,40 L310,38 L312,12 L316,70 L320,40
+               L338,40 L342,38 L344,12 L348,70 L352,40 L370,40 L374,38 L376,12 L380,70 L384,40
+               L402,40 L406,38 L408,12 L412,70 L416,40 L434,40 L438,38 L440,12 L444,70 L448,40
+               L466,40 L470,38 L472,12 L476,70 L480,40 L498,40 L502,38 L504,12 L508,70 L512,40
+               L530,40 L534,38 L536,12 L540,70 L544,40 L562,40 L566,38 L568,12 L572,70 L576,40
+               L594,40 L598,38 L600,12 L604,70 L608,40 L626,40 L630,38 L632,12 L636,70 L640,40
+               L658,40 L662,38 L664,12 L668,70 L672,40 L690,40 L694,38 L696,12 L700,70 L800,40"/>
+        </svg>
+      </div>
+      <ul style="margin-top:10px">
+        <li><strong>Rate fixed</strong> — R-R interval constant</li>
+        <li>P-waves absent or abnormal (retrograde)</li>
+        <li>≥220 bpm (infant) / ≥180 (child)</li>
+        <li>Abrupt onset and termination</li>
+        <li>No history of fever/illness</li>
+      </ul>
     </div>
   </div>
 </section>
 
+<!-- SLIDE 5: SVT management -->
 <section class="slide">
-  <h3>SVT vs Sinus Tachycardia</h3>
-  <h2>Pattern Over Number</h2>
-  <div class="grid2 mt-2">
+  <div class="ey">SVT Management</div>
+  <h2>Stable → Vagal → Adenosine → Cardiovert</h2>
+  <div class="cards c3">
+    <div class="card">
+      <div class="pill pc">Step 1 — Stable</div>
+      <h3>Vagal Manoeuvres</h3>
+      <ul>
+        <li>Ice water to face (infant) — diver’s reflex</li>
+        <li>Valsalva (older child: blow through narrow straw)</li>
+        <li>Do NOT use ocular pressure in children</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="pill pa">Step 2 — Stable/Unstable</div>
+      <h3>Adenosine IV/IO</h3>
+      <ul>
+        <li><strong>0.1 mg/kg</strong> rapid IV push (max 6 mg)</li>
+        <li>Second dose: <strong>0.2 mg/kg</strong> (max 12 mg)</li>
+        <li>Use proximal large vein + rapid flush</li>
+        <li>Expect brief asystole; warn family</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="pill pr">Step 3 — Unstable</div>
+      <h3>Synchronised Cardioversion</h3>
+      <ul>
+        <li><strong>0.5–1 J/kg</strong> (sync on R-wave)</li>
+        <li>Second shock: <strong>2 J/kg</strong></li>
+        <li>Sedate if possible but don’t delay if unstable</li>
+        <li>Never use unsynchronised for a perfusing rhythm</li>
+      </ul>
+    </div>
+  </div>
+  <div class="alt ac"><h4>⚡ Adenosine Tip</h4><p>Give with a 3-way tap: adenosine in one port, large flush in another. Push both simultaneously for fastest delivery to the SA node. A slow push won’t work — its half-life is &lt;10 seconds.</p></div>
+</section>
+
+<!-- SLIDE 6: VT and VF -->
+<section class="slide">
+  <div class="ey">Ventricular Arrhythmias</div>
+  <h2>Wide complex = worry until proven otherwise</h2>
+  <div class="cards c2">
     <div>
-      <p class="text-sm font-semibold mb-1">Sinus Tachycardia</p>
-      <div class="strip"><svg viewBox="0 0 800 90" width="100%" height="90">
-        <path class="ecg" d="M0,50 L40,50 L48,45 L56,40 L60,20 L64,70 L68,50 L72,50 L130,50 L138,45 L146,40 L150,20 L154,70 L158,50 L162,50 L220,50 L228,45 L236,40 L240,20 L244,70 L248,50 L252,50 L310,50 L318,45 L326,40 L330,20 L334,70 L338,50 L342,50 L400,50 L408,45 L416,40 L420,20 L424,70 L428,50 L432,50 L490,50 L498,45 L506,40 L510,20 L514,70 L518,50 L522,50 L580,50 L588,45 L596,40 L600,20 L604,70 L608,50 L612,50 L670,50 L678,45 L686,40 L690,20 L694,70 L698,50 L702,50 L760,50 L768,45 L776,40 L780,20 L784,70 L788,50 L800,50"/>
-      </svg></div>
-      <p class="text-xs text-slate-500 mt-1">Variable, P before every QRS, HR usually &lt;220 infant / &lt;180 child, history fits.</p>
+      <div class="strip-label" style="color:var(--amber)">Monomorphic VT</div>
+      <div class="strip-wrap">
+        <svg viewBox="0 0 800 80" height="70">
+          <path class="ecg-vt" d="M0,40 L30,40 L44,10 L52,72 L66,38 L80,40
+            L110,40 L124,10 L132,72 L146,38 L160,40
+            L190,40 L204,10 L212,72 L226,38 L240,40
+            L270,40 L284,10 L292,72 L306,38 L320,40
+            L350,40 L364,10 L372,72 L386,38 L400,40
+            L430,40 L444,10 L452,72 L466,38 L480,40
+            L510,40 L524,10 L532,72 L546,38 L560,40
+            L590,40 L604,10 L612,72 L626,38 L640,40
+            L670,40 L684,10 L692,72 L706,38 L720,40 L800,40"/>
+        </svg>
+      </div>
+      <ul style="margin-top:8px">
+        <li>Wide QRS (&gt;0.09 sec in children)</li>
+        <li>Regular, monomorphic complexes</li>
+        <li>May have pulse (treat with cardioversion) or pulseless (defibrillate)</li>
+      </ul>
     </div>
     <div>
-      <p class="text-sm font-semibold mb-1">Supraventricular Tachycardia</p>
-      <div class="strip"><svg viewBox="0 0 800 90" width="100%" height="90">
-        <path class="ecg" d="M0,50 L25,50 L29,45 L33,40 L36,15 L40,75 L44,50 L48,50 L70,50 L74,45 L78,40 L81,15 L85,75 L89,50 L93,50 L115,50 L119,45 L123,40 L126,15 L130,75 L134,50 L138,50 L160,50 L164,45 L168,40 L171,15 L175,75 L179,50 L183,50 L205,50 L209,45 L213,40 L216,15 L220,75 L224,50 L228,50 L250,50 L254,45 L258,40 L261,15 L265,75 L269,50 L273,50 L295,50 L299,45 L303,40 L306,15 L310,75 L314,50 L318,50 L340,50 L344,45 L348,40 L351,15 L355,75 L359,50 L363,50 L385,50 L389,45 L393,40 L396,15 L400,75 L404,50 L408,50 L430,50 L434,45 L438,40 L441,15 L445,75 L449,50 L453,50 L475,50 L479,45 L483,40 L486,15 L490,75 L494,50 L498,50 L520,50 L524,45 L528,40 L531,15 L535,75 L539,50 L543,50 L565,50 L569,45 L573,40 L576,15 L580,75 L584,50 L588,50 L610,50 L614,45 L618,40 L621,15 L625,75 L629,50 L633,50 L655,50 L659,45 L663,40 L666,15 L670,75 L674,50 L678,50 L700,50 L704,45 L708,40 L711,15 L715,75 L719,50 L723,50 L745,50 L749,45 L753,40 L756,15 L760,75 L764,50 L800,50"/>
-      </svg></div>
-      <p class="text-xs text-slate-500 mt-1">Abrupt onset, fixed rate ≥220 infant / ≥180 child, P-waves abnormal or absent.</p>
+      <div class="strip-label" style="color:var(--red)">Ventricular Fibrillation</div>
+      <div class="strip-wrap">
+        <svg viewBox="0 0 800 80" height="70">
+          <path class="ecg-vf" d="M0,40 L15,25 L28,62 L40,18 L52,70 L62,30 L75,58 L88,15 L100,68 L112,32 L125,55 L138,20 L150,72 L162,35 L175,60 L188,22 L200,68 L212,38 L225,56 L238,18 L250,70 L262,34 L275,58 L288,24 L300,65 L312,38 L324,55 L336,20 L348,70 L360,35 L372,60 L384,22 L396,68 L408,38 L420,56 L432,18 L444,70 L456,34 L468,58 L480,24 L492,65 L504,38 L516,55 L528,20 L540,70 L552,35 L564,60 L576,22 L588,68 L600,38 L612,56 L624,18 L636,70 L648,34 L660,58 L672,24 L684,65 L696,38 L708,55 L720,20 L732,70 L744,35 L756,60 L768,22 L780,65 L800,40"/>
+        </svg>
+      </div>
+      <ul style="margin-top:8px">
+        <li>Chaotic, irregular, no recognisable QRS</li>
+        <li>No pulse — immediately shockable</li>
+        <li>Defibrillate 2 J/kg → 4 J/kg → ≥4 J/kg</li>
+      </ul>
     </div>
   </div>
 </section>
 
+<!-- SLIDE 7: Non-shockable rhythms -->
 <section class="slide">
-  <h3>Ventricular Tachycardia / VF</h3>
-  <h2>Wide & Dangerous</h2>
-  <div class="grid2 mt-2">
+  <div class="ey">Non-Shockable Rhythms</div>
+  <h2>No shock. CPR + epinephrine + reversible causes</h2>
+  <div class="cards c2">
     <div>
-      <p class="text-sm font-semibold mb-1">Monomorphic VT</p>
-      <div class="strip"><svg viewBox="0 0 800 90" width="100%" height="90">
-        <path class="ecg" d="M0,50 Q40,5 80,80 T160,50 Q200,5 240,80 T320,50 Q360,5 400,80 T480,50 Q520,5 560,80 T640,50 Q680,5 720,80 T800,50"/>
-      </svg></div>
-      <p class="text-xs text-slate-500 mt-1">Wide QRS, monomorphic, regular, can be pulseless or with pulse.</p>
+      <div class="strip-label" style="color:var(--muted)">Asystole</div>
+      <div class="strip-wrap">
+        <svg viewBox="0 0 800 80" height="70">
+          <path class="ecg-flat" d="M0,40 L800,40"/>
+        </svg>
+      </div>
+      <ul style="margin-top:8px">
+        <li>Flat line — no electrical activity</li>
+        <li>Confirm in ≥2 leads before calling</li>
+        <li>Most common arrest rhythm in infants</li>
+        <li>CPR + epinephrine + treat reversibles</li>
+      </ul>
     </div>
     <div>
-      <p class="text-sm font-semibold mb-1">Ventricular Fibrillation</p>
-      <div class="strip"><svg viewBox="0 0 800 90" width="100%" height="90">
-        <path class="ecg" d="M0,50 L20,30 L35,70 L50,20 L65,75 L80,35 L100,65 L120,25 L140,75 L160,40 L180,60 L200,20 L220,70 L240,30 L260,75 L280,35 L300,65 L320,15 L340,80 L360,35 L380,70 L400,25 L420,75 L440,40 L460,60 L480,20 L500,70 L520,30 L540,75 L560,40 L580,60 L600,25 L620,75 L640,30 L660,65 L680,20 L700,70 L720,35 L740,65 L760,25 L780,75 L800,40"/>
-      </svg></div>
-      <p class="text-xs text-slate-500 mt-1">Chaotic, no QRS, no pulse. Shock immediately.</p>
-    </div>
-  </div>
-</section>
-
-<section class="slide">
-  <h3>Pulseless: Asystole · PEA</h3>
-  <h2>Non-Shockable Rhythms</h2>
-  <div class="grid2 mt-2">
-    <div>
-      <p class="text-sm font-semibold mb-1">Asystole</p>
-      <div class="strip"><svg viewBox="0 0 800 80" width="100%" height="80">
-        <path class="ecg" d="M0,40 L800,40"/>
-      </svg></div>
-      <p class="text-xs text-slate-500 mt-1">Flat line, no electrical activity. Confirm in 2 leads.</p>
-    </div>
-    <div>
-      <p class="text-sm font-semibold mb-1">PEA</p>
-      <div class="strip"><svg viewBox="0 0 800 80" width="100%" height="80">
-        <path class="ecg" d="M0,40 L80,40 L90,30 L100,50 L120,20 L130,55 L140,40 L240,40 L250,30 L260,50 L280,20 L290,55 L300,40 L400,40 L410,30 L420,50 L440,20 L450,55 L460,40 L560,40 L570,30 L580,50 L600,20 L610,55 L620,40 L720,40 L730,30 L740,50 L760,20 L770,55 L780,40 L800,40"/>
-      </svg></div>
-      <p class="text-xs text-slate-500 mt-1">Organized rhythm but no pulse. Treat reversible causes.</p>
+      <div class="strip-label" style="color:var(--purple)">PEA (Pulseless Electrical Activity)</div>
+      <div class="strip-wrap">
+        <svg viewBox="0 0 800 80" height="70">
+          <path class="ecg-pea" d="M0,40 L80,40 L88,36 L94,32 L98,14 L102,68 L106,40 L110,40
+            L240,40 L248,36 L254,32 L258,14 L262,68 L266,40 L270,40
+            L400,40 L408,36 L414,32 L418,14 L422,68 L426,40 L430,40
+            L560,40 L568,36 L574,32 L578,14 L582,68 L586,40 L590,40
+            L720,40 L728,36 L734,32 L738,14 L742,68 L746,40 L800,40"/>
+        </svg>
+      </div>
+      <ul style="margin-top:8px">
+        <li>Organised electrical activity — no pulse</li>
+        <li>Always search for reversible cause (Hs &amp; Ts)</li>
+        <li>CPR + epinephrine q3–5 min</li>
+        <li>Treat underlying: tension PTX, tamponade, hypovolaemia</li>
+      </ul>
     </div>
   </div>
 </section>
 
+<!-- SLIDE 8: Branch point -->
 <section class="slide">
-  <h3>Shockable vs Non-Shockable</h3>
-  <h2>Branch Point at Every Arrest</h2>
-  <div class="grid2 mt-3">
-    <div class="card" style="border:2px solid #EF4444"><h3 style="color:#EF4444">Shockable</h3>
-      <ul><li>VF</li><li>Pulseless VT</li></ul>
-      <p class="text-xs text-slate-500 mt-2">Defib 2 → 4 J/kg, then ≥4 J/kg (max 10).</p></div>
-    <div class="card" style="border:2px solid #1E293B"><h3 style="color:#1E293B">Non-Shockable</h3>
-      <ul><li>Asystole</li><li>PEA</li></ul>
-      <p class="text-xs text-slate-500 mt-2">Epi 0.01 mg/kg q3-5 min · treat reversibles.</p></div>
+  <div class="ey">Branch Point</div>
+  <h2>The single most important question at every arrest</h2>
+  <div class="cards c2">
+    <div class="shock-box shock-yes">
+      <div class="pill pr">⚡ Shockable</div>
+      <h3 style="color:var(--red);font-size:1.2rem">VF · Pulseless VT</h3>
+      <ul>
+        <li>Defib <strong>2 J/kg</strong> → resume CPR immediately</li>
+        <li>After 2 min CPR, reassess → <strong>4 J/kg</strong></li>
+        <li>Subsequent shocks ≥<strong>4 J/kg</strong> (max 10 J/kg)</li>
+        <li>Epinephrine after 2nd shock, then q3–5 min</li>
+        <li>Amiodarone <strong>5 mg/kg</strong> after 3rd shock (or lidocaine)</li>
+      </ul>
+    </div>
+    <div class="shock-box shock-no">
+      <div class="pill ppu">⚪ Non-Shockable</div>
+      <h3 style="color:var(--purple);font-size:1.2rem">Asystole · PEA</h3>
+      <ul>
+        <li>High-quality CPR immediately</li>
+        <li>Epinephrine <strong>0.01 mg/kg</strong> (0.1 mL/kg of 1:10,000) q3–5 min</li>
+        <li>Search and treat reversible causes (Hs &amp; Ts)</li>
+        <li>Reassess rhythm every 2 minutes</li>
+      </ul>
+    </div>
+  </div>
+  <div class="alt aa"><h4>⏱ Minimise Interruptions</h4><p>Rhythm checks should be &lt;10 seconds. Deliver shocks during compressions if a biphasic defibrillator is available. Every second of no-flow time reduces survival.</p></div>
+</section>
+
+<!-- SLIDE 9: Knowledge check -->
+<section class="slide">
+  <div class="ey">Knowledge Check</div>
+  <h2>Tap each card to reveal the answer</h2>
+  <div class="fg fg3">
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>Infant HR 280 bpm, fixed R-R interval, no P-waves. Diagnosis?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p><strong>SVT.</strong> Rate ≥220 in infants, fixed interval, absent P-waves = SVT. First try vagal manoeuvres, then adenosine 0.1 mg/kg rapid IV push.</p></div></div></div>
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>Organised QRS on monitor, no pulse. What rhythm, what action?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p><strong>PEA.</strong> CPR immediately, epinephrine 0.01 mg/kg q3-5 min, search Hs &amp; Ts (tension PTX, tamponade, hypovolaemia are most common in children).</p></div></div></div>
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>First defibrillation dose in a child with VF?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p><strong>2 J/kg.</strong> Second shock 4 J/kg. Subsequent ≥4 J/kg (max 10 J/kg or adult max dose). Resume CPR immediately after every shock — don’t pause to check rhythm.</p></div></div></div>
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>P-waves and QRS are completely dissociated. Diagnosis and key treatment?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p><strong>Complete (3°) AV block.</strong> Treat cause, consider transcutaneous pacing, epinephrine or isoproterenol infusion. Atropine is rarely effective.</p></div></div></div>
   </div>
 </section>
 
+<!-- SLIDE 10: Pearl + next -->
 <section class="slide">
-  <div class="pearl">
-    <h3>Clinical Pearl</h3>
-    <h2 style="color:#0f3a26">"Treat the patient, then the strip."</h2>
-    <p class="mt-3">A rhythm without perfusion is a clinical state, not an academic question. Check the patient — if no pulse, start CPR; if pulse, ask: stable or unstable?</p>
+  <div class="card" style="padding:32px;border-radius:var(--r-xl);background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(179,136,255,0.05));border:1px solid rgba(0,212,255,0.2);margin:auto 0">
+    <div class="pill pc">Clinical Pearl</div>
+    <h2 style="margin-bottom:12px">“Treat the patient, then the strip.”</h2>
+    <p>A rhythm on a monitor doesn’t tell you if the patient has a pulse, is perfusing, or is in pain. Always check the patient first. A 3° AV block with a happy child playing is managed very differently from the same rhythm in a grey, limp infant.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:32px;margin-top:20px">
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--cyan)">&lt;60</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">HR = CPR + Epi</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--green)">2 J/kg</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">First VF shock</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--purple)">0.1 mg/kg</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Adenosine (1st dose)</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--amber)">&lt;10 sec</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Max rhythm check</div></div>
+    </div>
   </div>
+  <a href="pals_module_07_algorithms.slides.html" class="nxt">Next → Module 07: Brady &amp; Tachy Algorithms →</a>
 </section>
 
-<section class="slide">
-  <h3>Summary</h3>
-  <ul class="mt-3">
-    <li>Sinus rhythm changes by age; know normal awake ranges.</li>
-    <li>Brady with compromise → CPR if HR &lt; 60 · epinephrine · pacing if block.</li>
-    <li>Sinus tach: variable, P-waves, history. SVT: abrupt, fixed, P-waves absent.</li>
-    <li>VT/VF = shockable. Asystole/PEA = non-shockable, reversibles.</li>
-  </ul>
-  <a href="pals_module_07_algorithms.slides.html" class="text-sm font-semibold mt-8 inline-block" style="color:#0891B2">Next → Module 7: Brady & Tachy Algorithms</a>
-</section>
-
-<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
+</div>
+<div class="foot">
+  <div class="slide-counter" id="counter">1 / 10</div>
+  <div class="foot-btns">
+    <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
+    <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
+  </div>
+</div>
 <script>
-const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
-const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
-function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
-function go(d){show(cur+d)}
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
-let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+const slides=document.querySelectorAll('.slide'),total=slides.length;let cur=0;
+function updateUI(){document.getElementById('counter').textContent=(cur+1)+' / '+total;document.getElementById('prev-btn').disabled=cur===0;document.getElementById('next-btn').disabled=cur===total-1;document.getElementById('progress-bar').style.width=((cur+1)/total*100)+'%';}
+function changeSlide(dir){const old=cur;cur=Math.max(0,Math.min(total-1,cur+dir));if(cur===old)return;slides[old].classList.remove('active');slides[old].classList.add(dir>0?'exit-left':'');setTimeout(()=>{slides[old].classList.remove('exit-left');},450);slides[cur].classList.add('active');updateUI();}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')changeSlide(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')changeSlide(-1);});
+let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});document.addEventListener('touchend',e=>{const dx=tx-e.changedTouches[0].clientX;if(Math.abs(dx)>50)changeSlide(dx>0?1:-1);},{passive:true});
+updateUI();
 </script>
-</body>
-</html>
+</body></html>
