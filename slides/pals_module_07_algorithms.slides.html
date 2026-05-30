@@ -1,183 +1,382 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 7 — Bradycardia & Tachycardia Algorithms</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Module 07 · Brady &amp; Tachy Algorithms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  *{font-family:'Manrope',system-ui,sans-serif}
-  html,body{height:100%;margin:0}
-  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
-  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
-  .blob1{width:500px;height:500px;background:#0891B2;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
-  .blob2{width:450px;height:450px;background:#34D399;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
-  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
-  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 6vw;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
-  .slide.active{opacity:1;pointer-events:auto}
-  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#0891B2}
-  .slide h2{font-size:clamp(20px,2.8vw,36px);font-weight:800;color:#1E293B;margin-bottom:14px}
-  .slide h3{font-size:clamp(14px,1.4vw,20px);font-weight:700;color:#0891B2;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
-  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.2vw,17px);line-height:1.5;color:#334155}
-  .slide ul{padding-left:24px} .slide li{margin-bottom:5px}
-  .card{background:rgba(255,255,255,0.9);backdrop-filter:blur(6px);border:1px solid rgba(8,145,178,.12);border-radius:14px;padding:16px}
-  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(8,145,178,.12);color:#0891B2;letter-spacing:.5px}
-  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:100;pointer-events:none}
-  .nav > *{pointer-events:auto}
-  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
-  .dot.active{background:#0891B2;transform:scale(1.4)}
-  .nav-btn{background:#0891B2;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;position:relative;z-index:101}
-  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;z-index:100}
-  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none;z-index:100;pointer-events:auto}
-  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:16px 22px;border-radius:8px}
-  .pearl h3{color:#0f9b6c}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid #e2e8f0}
-  th{background:rgba(8,145,178,.08);font-weight:700;color:#0891B2;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
-  .badge-new{display:inline-block;background:#34D399;color:#0f3a26;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;margin-left:6px}
+:root{--bg:#07090f;--surface:#0e1117;--surface2:#141820;--border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#7c8494;--faint:#3a3f4a;--cyan:#00d4ff;--cyan-dim:#00aacc;--cyan-glow:rgba(0,212,255,0.15);--green:#00e676;--red:#ff4d6d;--amber:#ffb300;--purple:#b388ff;--purple-dim:#7c4dff;--font-head:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--r:12px;--r-lg:20px;--r-xl:28px;--transition:0.45s cubic-bezier(0.16,1,0.3,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.bg-blob{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;animation:drift 18s ease-in-out infinite alternate}
+.bb1{width:600px;height:600px;top:-200px;right:-200px;background:radial-gradient(circle,rgba(0,212,255,0.07),transparent 70%)}
+.bb2{width:500px;height:500px;bottom:-150px;left:-150px;background:radial-gradient(circle,rgba(0,230,118,0.04),transparent 70%);animation-delay:-9s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,20px) scale(1.05)}}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width 0.5s ease;z-index:100;box-shadow:0 0 12px var(--cyan)}
+.nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,9,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:50}
+.nav-logo{font-family:var(--font-head);font-size:13px;font-weight:600;color:var(--cyan);letter-spacing:0.08em;text-transform:uppercase}.nav-info{font-size:12px;color:var(--muted)}
+.nav-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s}.nav-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.stage{position:fixed;inset:56px 0 64px;overflow:hidden}
+.slide{position:absolute;inset:0;padding:36px 48px;overflow-y:auto;display:flex;flex-direction:column;gap:20px;opacity:0;transform:translateX(60px);transition:opacity var(--transition),transform var(--transition);pointer-events:none}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:all}.slide.exit-left{opacity:0;transform:translateX(-60px)}
+.slide::-webkit-scrollbar{width:4px}.slide::-webkit-scrollbar-track{background:transparent}.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
+.hero-slide{justify-content:center;padding:60px 48px}
+.mod-eye{font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px;display:flex;align-items:center;gap:8px}.mod-eye::before{content:'';display:block;width:24px;height:2px;background:var(--cyan);border-radius:2px}
+h1.hero{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3.4rem);font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:#fff;max-width:860px}h1.hero span{color:var(--cyan)}
+.subt{font-size:1.05rem;color:var(--muted);max-width:700px;line-height:1.7}.ttags{display:flex;flex-wrap:wrap;gap:10px}.ttag{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;color:var(--muted)}
+.ey{font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--cyan);opacity:0.8}h2{font-family:var(--font-head);font-size:clamp(1.4rem,2.8vw,2rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-0.01em}h3{font-family:var(--font-head);font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:6px}h4{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:4px}p{font-size:0.92rem;color:var(--muted);line-height:1.65}li{font-size:0.9rem;color:var(--muted);line-height:1.6;margin-bottom:4px}strong{color:var(--text);font-weight:600}ul{padding-left:16px}
+.cards{display:grid;gap:16px}.c2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}.c3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;transition:border-color 0.25s,box-shadow 0.25s}.card:hover{border-color:rgba(0,212,255,0.25);box-shadow:0 0 24px rgba(0,212,255,0.06)}
+.alt{border-radius:var(--r);padding:16px 18px;border-left:3px solid}.ar{background:rgba(255,77,109,0.08);border-color:var(--red)}.ar h4{color:var(--red);font-size:0.85rem;margin-bottom:4px}.aa{background:rgba(255,179,0,0.07);border-color:var(--amber)}.aa h4{color:var(--amber);font-size:0.85rem;margin-bottom:4px}.ac{background:rgba(0,212,255,0.07);border-color:var(--cyan)}.ac h4{color:var(--cyan);font-size:0.85rem;margin-bottom:4px}.ag{background:rgba(0,230,118,0.07);border-color:var(--green)}.ag h4{color:var(--green);font-size:0.85rem;margin-bottom:4px}
+/* flowchart */
+.flow-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;overflow:hidden}
+.flow-wrap svg{display:block;width:100%;height:auto}
+/* interactive step algo */
+.algo{display:flex;flex-direction:column;gap:0}
+.astep{display:flex;cursor:pointer;position:relative}
+.aline{display:flex;flex-direction:column;align-items:center;width:44px;flex-shrink:0}
+.anum{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:0.85rem;flex-shrink:0;transition:all 0.25s}
+.aconn{flex:1;width:2px;margin:3px auto;min-height:24px;transition:background 0.25s}
+.astep:last-child .aconn{display:none}
+.abody{flex:1;padding:0 0 20px 14px}
+.abody h4{font-size:0.95rem;font-weight:600;transition:color 0.25s;margin-bottom:4px}
+.abody p{font-size:0.85rem;color:var(--muted);line-height:1.6}
+.abody .adrug{margin-top:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:0.83rem;color:var(--muted);display:none}
+.astep.done .anum{background:var(--green);color:#07090f;box-shadow:0 0 12px rgba(0,230,118,0.4)}
+.astep.done .aconn{background:linear-gradient(var(--green),var(--faint))}
+.astep.done .abody h4{color:var(--green)}
+.astep.active .anum{background:var(--cyan);color:#07090f;box-shadow:0 0 16px rgba(0,212,255,0.5)}
+.astep.active .aconn{background:linear-gradient(var(--cyan),var(--faint))}
+.astep.active .abody h4{color:var(--cyan)}
+.astep.active .adrug{display:block}
+.astep:not(.done):not(.active) .anum{background:var(--faint);color:var(--muted)}
+.astep:not(.done):not(.active) .aconn{background:var(--faint)}
+/* flip cards */
+.fg{display:grid;gap:16px}.fg3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.fg2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.fc{perspective:1000px;cursor:pointer}.fi{width:100%;min-height:165px;position:relative;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1)}.fc.flipped .fi{transform:rotateY(180deg)}
+.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;justify-content:center}.ff{background:var(--surface);border:1px solid rgba(0,212,255,0.2)}.fb{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(179,136,255,0.08));border:1px solid rgba(0,212,255,0.3);transform:rotateY(180deg)}
+.ql{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}.fi h4{font-size:0.9rem;color:var(--text);line-height:1.4}.fb p{font-size:0.88rem;color:var(--text);line-height:1.6}.hi{font-size:11px;color:var(--faint);margin-top:10px}
+.pill{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:8px}.pr{background:rgba(255,77,109,0.15);color:var(--red)}.pg{background:rgba(0,230,118,0.12);color:var(--green)}.pc{background:rgba(0,212,255,0.12);color:var(--cyan)}.pa{background:rgba(255,179,0,0.12);color:var(--amber)}.ppu{background:rgba(179,136,255,0.15);color:var(--purple)}
+.new25{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;vertical-align:middle;margin-left:6px}
+.tbl{width:100%;border-collapse:collapse;font-size:0.83rem}.tbl th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--cyan);border-bottom:1px solid var(--border)}.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}.tbl tr:hover td{background:rgba(255,255,255,0.02)}.tbl td strong{color:var(--text)}
+.foot{position:fixed;bottom:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,9,15,0.85);backdrop-filter:blur(16px);border-top:1px solid var(--border);z-index:50}.slide-counter{font-size:12px;color:var(--muted)}.foot-btns{display:flex;gap:10px}.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:var(--font-head)}.foot-btn:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 16px rgba(0,212,255,0.15)}.foot-btn:disabled{opacity:0.25;cursor:not-allowed}.foot-btn.primary{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.3);color:var(--cyan)}.foot-btn.primary:hover:not(:disabled){background:rgba(0,212,255,0.18)}
+.nxt{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:12px 24px;background:linear-gradient(135deg,var(--cyan),var(--purple-dim));color:#07090f;font-family:var(--font-head);font-weight:700;font-size:0.9rem;border-radius:var(--r);text-decoration:none;transition:opacity 0.2s,transform 0.2s;align-self:flex-start}.nxt:hover{opacity:0.88;transform:translateY(-1px)}
+@media(max-width:640px){.slide{padding:24px 20px}.hero-slide{padding:36px 20px}h1.hero{font-size:1.8rem}}
 </style>
 </head>
 <body>
-<div class="blob blob1"></div><div class="blob blob2"></div>
-<a class="home" href="../index.html">← Hub</a>
-<div class="counter"><span id="cur">1</span>/<span id="tot">8</span></div>
+<div class="bg-grid"></div><div class="bg-blob bb1"></div><div class="bg-blob bb2"></div>
+<div id="progress-bar"></div>
+<nav class="nav">
+  <div class="nav-logo">PALS 2025</div>
+  <div class="nav-info">Module 07 · Brady &amp; Tachy Algorithms</div>
+  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
+</nav>
+<div class="stage">
 
-<section class="slide active">
-  <span class="pill">Module 07</span>
-  <h1 class="mt-3">Brady & Tachy Algorithms</h1>
-  <p class="mt-6 text-slate-500">Atropine · pacing · adenosine · cardioversion · amiodarone · IV sotalol update</p>
+<!-- SLIDE 1: Hero -->
+<section class="slide active hero-slide">
+  <div class="mod-eye">Module 07 · Algorithms</div>
+  <h1 class="hero">Brady &amp; Tachy: <span>Find the Cause, Then Chase the Rhythm</span></h1>
+  <p class="subt">Step-through algorithms for bradycardia and tachycardia — from recognition to treatment, stable to unstable.</p>
+  <div class="ttags">
+    <span class="ttag">💚 Bradycardia Algorithm</span>
+    <span class="ttag">⚡ Stable vs Unstable Tachy</span>
+    <span class="ttag">💉 Adenosine Technique</span>
+    <span class="ttag">🔋 Cardiovert vs Defib</span>
+    <span class="ttag" style="border-color:rgba(0,230,118,0.4);color:var(--green)">IV Sotalol — 2025 Update</span>
+  </div>
 </section>
 
+<!-- SLIDE 2: Bradycardia algorithm interactive -->
 <section class="slide">
-  <h3>Objectives</h3>
-  <h2>You will be able to</h2>
-  <ul class="mt-4">
-    <li>Apply the pediatric bradycardia algorithm with cardiopulmonary compromise.</li>
-    <li>Treat stable and unstable tachycardia with appropriate drugs and energy.</li>
-    <li>Calculate epinephrine, atropine, adenosine, amiodarone, procainamide, IV sotalol doses.</li>
-    <li>Recognize when to cardiovert versus defibrillate.</li>
-  </ul>
+  <div class="ey">Bradycardia Algorithm</div>
+  <h2>Click each step to expand the treatment detail</h2>
+  <div class="algo" id="brady-algo">
+    <div class="astep active" onclick="stepClick(this,'brady-algo')">
+      <div class="aline"><div class="anum">1</div><div class="aconn"></div></div>
+      <div class="abody"><h4>Identify bradycardia with cardiopulmonary compromise</h4>
+        <p>Poor perfusion, hypotension, respiratory distress, altered consciousness — any of these in combination with HR below normal for age.</p>
+        <div class="adrug"><strong>Clinical markers:</strong> pallor, mottling, cap refill &gt;3 sec, irritability or decreased LOC, hypotension for age.</div>
+      </div>
+    </div>
+    <div class="astep" onclick="stepClick(this,'brady-algo')">
+      <div class="aline"><div class="anum">2</div><div class="aconn"></div></div>
+      <div class="abody"><h4>Support ABCs, O₂, monitoring, IV/IO access</h4>
+        <p>Open airway, give high-flow oxygen, attach cardiac monitor and pulse oximeter, establish vascular access.</p>
+        <div class="adrug"><strong>Don’t delay:</strong> these steps happen simultaneously in 30 seconds. One team member airway, one IV access, one monitor.</div>
+      </div>
+    </div>
+    <div class="astep" onclick="stepClick(this,'brady-algo')">
+      <div class="aline"><div class="anum">3</div><div class="aconn"></div></div>
+      <div class="abody"><h4>HR &lt; 60 + poor perfusion despite O₂ &amp; ventilation?</h4>
+        <p>This is the branch point. If the answer is YES — start CPR immediately.</p>
+        <div class="adrug"><strong>Yes → start CPR</strong> (100-120/min, 15:2 with 2 rescuers). <strong>No →</strong> observe and treat reversible cause; CPR not yet indicated.</div>
+      </div>
+    </div>
+    <div class="astep" onclick="stepClick(this,'brady-algo')">
+      <div class="aline"><div class="anum">4</div><div class="aconn"></div></div>
+      <div class="abody"><h4>Epinephrine</h4>
+        <p>First-line drug for bradycardia not responsive to oxygenation.</p>
+        <div class="adrug">Epinephrine <strong>0.01 mg/kg IV/IO</strong> (0.1 mL/kg of 1:10,000). Repeat q3–5 min. Max single dose 1 mg. If no IV/IO, ET route 0.1 mg/kg of 1:1,000 (10× concentration).</div>
+      </div>
+    </div>
+    <div class="astep" onclick="stepClick(this,'brady-algo')">
+      <div class="aline"><div class="anum">5</div><div class="aconn"></div></div>
+      <div class="abody"><h4>Atropine (if vagal tone or AV block)</h4>
+        <p>Second-line for bradycardia with high vagal tone or AV conduction block.</p>
+        <div class="adrug">Atropine <strong>0.02 mg/kg IV/IO</strong>. Min dose 0.1 mg (avoid paradoxical bradycardia), max single dose 0.5 mg. May repeat once. Not effective for complete AV block.</div>
+      </div>
+    </div>
+    <div class="astep" onclick="stepClick(this,'brady-algo')">
+      <div class="aline"><div class="anum">6</div><div class="aconn"></div></div>
+      <div class="abody"><h4>Treat reversible causes (Hs &amp; Ts)</h4>
+        <p>Hypoxia, hypothermia, hypovolaemia, hypo/hyperkalaemia, hydrogen ion — tension PTX, tamponade, toxins, thromboembolism.</p>
+        <div class="adrug"><strong>Most common in children:</strong> hypoxia (fix first), hypovolaemia (fluid), hypothermia (rewarm), toxins/drug ingestion (consider naloxone, atropine).</div>
+      </div>
+    </div>
+    <div class="astep" onclick="stepClick(this,'brady-algo')">
+      <div class="aline"><div class="anum">7</div><div class="aconn"></div></div>
+      <div class="abody"><h4>Consider transcutaneous pacing</h4>
+        <p>For high-degree AV block or sinus node dysfunction not responding to medications.</p>
+        <div class="adrug">Rate 100 bpm initially. Increase milliamps until capture (electrical + mechanical). Sedate for pain. Arrange transvenous pacing with expert consultation.</div>
+      </div>
+    </div>
+  </div>
 </section>
 
+<!-- SLIDE 3: Tachycardia decision tree SVG -->
 <section class="slide">
-  <h3>Bradycardia Algorithm</h3>
-  <h2>HR &lt; 60 with Cardiopulmonary Compromise → CPR</h2>
-  <svg viewBox="0 0 900 360" style="width:100%;max-width:960px" class="mt-2">
-    <defs><marker id="ar" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="#0891B2"/></marker></defs>
-    <rect x="350" y="10" width="200" height="50" rx="10" fill="#0891B2"/><text x="450" y="40" text-anchor="middle" fill="#fff" font-weight="700">Bradycardia + compromise</text>
-    <line x1="450" y1="60" x2="450" y2="80" stroke="#0891B2" stroke-width="3" marker-end="url(#ar)"/>
-    <rect x="320" y="85" width="260" height="55" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2"/><text x="450" y="108" text-anchor="middle" font-weight="700" fill="#1E293B">Support ABCs · O₂ · monitor · IV/IO</text><text x="450" y="128" text-anchor="middle" font-size="12" fill="#475569">Identify treatable cause (H&Ts)</text>
-    <line x1="450" y1="140" x2="450" y2="160" stroke="#0891B2" stroke-width="3" marker-end="url(#ar)"/>
-    <polygon points="350,165 550,165 480,225 420,225" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/><text x="450" y="195" text-anchor="middle" font-weight="700" fill="#92400e">HR &lt;60 + poor perfusion?</text>
-    <line x1="350" y1="195" x2="170" y2="195" stroke="#0891B2" stroke-width="3" marker-end="url(#ar)"/>
-    <text x="270" y="187" text-anchor="middle" font-size="12" fill="#475569">No</text>
-    <line x1="550" y1="195" x2="730" y2="195" stroke="#0891B2" stroke-width="3" marker-end="url(#ar)"/>
-    <text x="640" y="187" text-anchor="middle" font-size="12" fill="#475569">Yes</text>
-    <rect x="20" y="170" width="150" height="50" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2"/><text x="95" y="200" text-anchor="middle" font-weight="700" fill="#1E293B">Observe · Support</text>
-    <rect x="730" y="170" width="160" height="50" rx="10" fill="#FEE2E2" stroke="#EF4444" stroke-width="2"/><text x="810" y="200" text-anchor="middle" font-weight="700" fill="#b91c1c">Start CPR</text>
-    <line x1="810" y1="220" x2="810" y2="245" stroke="#0891B2" stroke-width="3" marker-end="url(#ar)"/>
-    <rect x="650" y="250" width="240" height="100" rx="10" fill="#fff" stroke="#0891B2" stroke-width="2"/>
-    <text x="770" y="275" text-anchor="middle" font-weight="700" fill="#0891B2">Epinephrine 0.01 mg/kg IV/IO q3-5 min</text>
-    <text x="770" y="295" text-anchor="middle" font-size="13" fill="#475569">Atropine 0.02 mg/kg if vagal/AV block</text>
-    <text x="770" y="313" text-anchor="middle" font-size="13" fill="#475569">Pacing for high-grade block</text>
-    <text x="770" y="330" text-anchor="middle" font-size="13" fill="#475569">Treat reversible causes</text>
-  </svg>
+  <div class="ey">Tachycardia Algorithm</div>
+  <h2>Stable or Unstable — that’s the first question</h2>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 880 340" style="font-family:var(--font-head);font-size:13px">
+      <defs>
+        <marker id="arc" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#00d4ff"/>
+        </marker>
+        <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#ff4d6d"/>
+        </marker>
+        <marker id="arg" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#00e676"/>
+        </marker>
+      </defs>
+      <!-- Entry box -->
+      <rect x="290" y="8" width="300" height="44" rx="10" fill="rgba(0,212,255,0.15)" stroke="#00d4ff" stroke-width="1.5"/>
+      <text x="440" y="26" text-anchor="middle" fill="#00d4ff" font-weight="700">Tachycardia + IV/IO Access</text>
+      <text x="440" y="44" text-anchor="middle" fill="#7c8494" font-size="11">O₂, monitor, identify rhythm</text>
+      <!-- Arrow down -->
+      <line x1="440" y1="52" x2="440" y2="74" stroke="#00d4ff" stroke-width="2" marker-end="url(#arc)"/>
+      <!-- Diamond: Stable? -->
+      <polygon points="440,76 560,120 440,164 320,120" fill="rgba(255,179,0,0.1)" stroke="#ffb300" stroke-width="1.5"/>
+      <text x="440" y="115" text-anchor="middle" fill="#ffb300" font-weight="700">Signs of poor</text>
+      <text x="440" y="133" text-anchor="middle" fill="#ffb300" font-weight="700">perfusion?</text>
+      <!-- NO branch left -->
+      <line x1="320" y1="120" x2="140" y2="120" stroke="#00e676" stroke-width="2" marker-end="url(#arg)"/>
+      <text x="235" y="112" text-anchor="middle" fill="#00e676" font-size="11" font-weight="700">NO — Stable</text>
+      <!-- YES branch right -->
+      <line x1="560" y1="120" x2="740" y2="120" stroke="#ff4d6d" stroke-width="2" marker-end="url(#arr)"/>
+      <text x="650" y="112" text-anchor="middle" fill="#ff4d6d" font-size="11" font-weight="700">YES — Unstable</text>
+      <!-- Stable box -->
+      <rect x="20" y="150" width="240" height="100" rx="10" fill="rgba(0,230,118,0.06)" stroke="#00e676" stroke-width="1.5"/>
+      <text x="140" y="172" text-anchor="middle" fill="#00e676" font-weight="700">Stable Tachycardia</text>
+      <text x="140" y="192" text-anchor="middle" fill="#7c8494" font-size="11">Narrow: Vagal → Adenosine</text>
+      <text x="140" y="208" text-anchor="middle" fill="#7c8494" font-size="11">→ Amiodarone / Sotalol★</text>
+      <text x="140" y="224" text-anchor="middle" fill="#7c8494" font-size="11">Wide: Amiodarone / Procainamide</text>
+      <text x="140" y="240" text-anchor="middle" fill="#7c8494" font-size="11">Expert consultation early</text>
+      <!-- Unstable box -->
+      <rect x="620" y="150" width="240" height="100" rx="10" fill="rgba(255,77,109,0.06)" stroke="#ff4d6d" stroke-width="1.5"/>
+      <text x="740" y="172" text-anchor="middle" fill="#ff4d6d" font-weight="700">Unstable Tachycardia</text>
+      <text x="740" y="192" text-anchor="middle" fill="#7c8494" font-size="11">Narrow (SVT): Adenosine if ready,</text>
+      <text x="740" y="208" text-anchor="middle" fill="#7c8494" font-size="11">else sync cardiovert 0.5–1 J/kg</text>
+      <text x="740" y="224" text-anchor="middle" fill="#7c8494" font-size="11">Wide (VT): sync cardiovert 0.5–1 J/kg</text>
+      <text x="740" y="240" text-anchor="middle" fill="#7c8494" font-size="11">Pulseless: defibrillate 2 J/kg</text>
+      <!-- Arrows down to sub-boxes -->
+      <line x1="140" y1="250" x2="140" y2="270" stroke="#00e676" stroke-width="1.5" marker-end="url(#arg)"/>
+      <line x1="740" y1="250" x2="740" y2="270" stroke="#ff4d6d" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Sub box stable -->
+      <rect x="20" y="272" width="240" height="56" rx="8" fill="rgba(0,212,255,0.06)" stroke="#00d4ff" stroke-width="1"/>
+      <text x="140" y="292" text-anchor="middle" fill="#00d4ff" font-size="11">Reassess after every intervention</text>
+      <text x="140" y="308" text-anchor="middle" fill="#7c8494" font-size="11">If deteriorates → cardiovert</text>
+      <text x="140" y="322" text-anchor="middle" fill="#7c8494" font-size="11">Identify underlying cause</text>
+      <!-- Sub box unstable -->
+      <rect x="620" y="272" width="240" height="56" rx="8" fill="rgba(255,77,109,0.06)" stroke="#ff4d6d" stroke-width="1"/>
+      <text x="740" y="292" text-anchor="middle" fill="#ff4d6d" font-size="11">Sedate if time permits</text>
+      <text x="740" y="308" text-anchor="middle" fill="#7c8494" font-size="11">DO NOT delay shock for IV access</text>
+      <text x="740" y="322" text-anchor="middle" fill="#7c8494" font-size="11">2nd shock: 2 J/kg; repeat q2 min</text>
+      <!-- 2025 star note -->
+      <text x="440" y="308" text-anchor="middle" fill="#00e676" font-size="11">★ IV Sotalol 1 mg/kg — 2025 addition for refractory SVT</text>
+    </svg>
+  </div>
 </section>
 
+<!-- SLIDE 4: Drug doses table -->
 <section class="slide">
-  <h3>Tachycardia — Unstable</h3>
-  <h2>Poor Perfusion / Hypotension / Altered LOC</h2>
-  <table class="mt-3">
-    <thead><tr><th>Rhythm</th><th>Action</th><th>Energy / Dose</th></tr></thead>
+  <div class="ey">Drug Doses</div>
+  <h2>Know these by weight — no calculator delays</h2>
+  <table class="tbl">
+    <thead><tr><th>Drug</th><th>Indication</th><th>Dose</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>Narrow regular (SVT)</td><td>Adenosine if IV ready, else synchronized cardioversion</td><td>0.1 mg/kg (max 6) → 0.2 mg/kg (max 12) · 0.5-1 J/kg → 2 J/kg</td></tr>
-      <tr><td>Wide regular (VT w/ pulse)</td><td>Synchronized cardioversion</td><td>0.5-1 J/kg → 2 J/kg</td></tr>
-      <tr><td>Wide irregular (polymorphic VT)</td><td><strong>Defibrillate</strong> (unsynchronized)</td><td>2 J/kg → 4 J/kg</td></tr>
-      <tr><td>Pulseless VT / VF</td><td>Defibrillation + CPR</td><td>2 → 4 → ≥4 J/kg (max 10)</td></tr>
+      <tr><td><strong>Epinephrine</strong></td><td>Brady with compromise</td><td>0.01 mg/kg IV/IO q3–5 min</td><td>Max 1 mg. ET: 0.1 mg/kg 1:1,000</td></tr>
+      <tr><td><strong>Atropine</strong></td><td>Vagal brady, AV block</td><td>0.02 mg/kg IV/IO</td><td>Min 0.1 mg, max 0.5 mg. Repeat once</td></tr>
+      <tr><td><strong>Adenosine</strong></td><td>SVT</td><td>0.1 mg/kg rapid push (max 6 mg)</td><td>2nd dose 0.2 mg/kg (max 12 mg)</td></tr>
+      <tr><td><strong>Amiodarone</strong></td><td>VF/VT (arrest); stable wide-complex</td><td>5 mg/kg IV/IO (arrest); 5 mg/kg over 20–60 min (stable)</td><td>Do not combine with procainamide</td></tr>
+      <tr><td><strong>Procainamide</strong></td><td>Stable SVT or VT</td><td>15 mg/kg IV over 30–60 min</td><td>Stop if QRS widens &gt;50% or hypotension</td></tr>
+      <tr><td><strong style="color:var(--green)">IV Sotalol</strong> <span class="new25">2025</span></td><td>Refractory SVT</td><td>1 mg/kg over 5 min</td><td>New 2025 addition. Monitor QTc. Expert consultation recommended</td></tr>
+      <tr><td><strong>Magnesium</strong></td><td>Torsades de pointes</td><td>25–50 mg/kg IV over 10–20 min</td><td>Max 2 g. Push faster if pulseless</td></tr>
     </tbody>
   </table>
 </section>
 
+<!-- SLIDE 5: Adenosine technique -->
 <section class="slide">
-  <h3>Tachycardia — Stable</h3>
-  <h2>Treat with Pharmacology</h2>
-  <div class="grid2 mt-3">
+  <div class="ey">Adenosine Technique</div>
+  <h2>Half-life 10 seconds — every second of delivery counts</h2>
+  <div class="cards c2">
     <div class="card">
-      <h3 style="color:#0891B2">Narrow (SVT)</h3>
+      <div class="pill pc">Setup</div>
       <ul>
-        <li>Vagal maneuvers (ice to face / Valsalva)</li>
-        <li><strong>Adenosine 0.1 mg/kg</strong> rapid IV push (max 6 mg) → 0.2 mg/kg (max 12 mg)</li>
-        <li>If refractory: amiodarone 5 mg/kg over 20-60 min OR procainamide 15 mg/kg over 30-60 min</li>
-        <li><strong>IV sotalol</strong> 1 mg/kg over 5 min — endorsed 2025 for refractory SVT <span class="badge-new">2025</span></li>
+        <li>Use the largest, most proximal IV (antecubital &gt; hand)</li>
+        <li>Prepare a <strong>3-way stopcock</strong> with adenosine in one port and 10 mL saline flush in the other</li>
+        <li>Both syringes drawn up and labelled before you start</li>
+        <li>Continuous rhythm strip running; team briefed on expected asystole</li>
       </ul>
     </div>
     <div class="card">
-      <h3 style="color:#0891B2">Wide regular (likely VT)</h3>
+      <div class="pill pa">Delivery</div>
       <ul>
-        <li>Expert consult; treat as VT</li>
-        <li><strong>Amiodarone</strong> 5 mg/kg over 20-60 min, OR</li>
-        <li><strong>Procainamide</strong> 15 mg/kg over 30-60 min</li>
-        <li>Avoid combining amiodarone + procainamide</li>
-        <li>Polymorphic / torsades → magnesium 25-50 mg/kg, defibrillate if pulseless</li>
+        <li>Push adenosine <strong>as fast as possible</strong> then immediately flush with the saline — close the stopcock to the patient port and push both simultaneously</li>
+        <li>Elevate the arm to speed delivery to central circulation</li>
+        <li>If no response after 1–2 min, give <strong>second dose 0.2 mg/kg</strong> (max 12 mg)</li>
+        <li>If IO route: same technique, equally effective</li>
       </ul>
+    </div>
+  </div>
+  <div class="alt ar"><h4>⚠️ What to expect</h4><p>Brief <strong>sinus pause or asystole</strong> on the monitor (seconds). Warn family. Have atropine and pacing ready. If pause is prolonged (&gt;10 sec), prepare to pace. The rhythm that follows reveals the diagnosis: if sinus tach returns, that was the mechanism; if different, reassess.</p></div>
+</section>
+
+<!-- SLIDE 6: Cardiovert vs Defibrillate -->
+<section class="slide">
+  <div class="ey">Energy Selection</div>
+  <h2>Sync or async — choosing the wrong one can kill</h2>
+  <div class="cards c2">
+    <div class="card" style="border-color:rgba(0,212,255,0.3)">
+      <div class="pill pc">⚡ Synchronized Cardioversion</div>
+      <h3>Shock delivered ON the R-wave</h3>
+      <ul>
+        <li>Use for: <strong>Unstable SVT</strong>, <strong>VT with pulse</strong></li>
+        <li>Starting dose: <strong>0.5–1 J/kg</strong></li>
+        <li>Second shock: <strong>2 J/kg</strong></li>
+        <li>Sedate/analgesia if time allows (midazolam + fentanyl)</li>
+        <li>Confirm “sync” mode is ON before charging</li>
+        <li>Sync marker should appear on each QRS peak on monitor</li>
+      </ul>
+      <div class="alt ac" style="margin-top:12px"><h4>🔍 Why sync?</h4><p style="font-size:0.82rem">An unsynchronised shock landing on the T-wave can induce VF. Always sync for organised rhythms with a pulse.</p></div>
+    </div>
+    <div class="card" style="border-color:rgba(255,77,109,0.3)">
+      <div class="pill pr">⚡ Defibrillation (Unsynchronised)</div>
+      <h3>Shock delivered immediately</h3>
+      <ul>
+        <li>Use for: <strong>VF</strong>, <strong>Pulseless VT</strong>, <strong>Polymorphic VT</strong></li>
+        <li>First dose: <strong>2 J/kg</strong></li>
+        <li>Second dose: <strong>4 J/kg</strong></li>
+        <li>Subsequent: <strong>≥4 J/kg</strong> (max 10 J/kg or adult max)</li>
+        <li>Resume CPR <strong>immediately</strong> after shock — no rhythm check pause</li>
+        <li>Epinephrine after 2nd shock, then q3–5 min</li>
+      </ul>
+      <div class="alt ar" style="margin-top:12px"><h4>⏱ Minimise no-flow time</h4><p style="font-size:0.82rem">Chest compressions should continue until the defibrillator is charged. Clear the patient for ≤1 second. Resume CPR within 5 seconds of shock delivery.</p></div>
     </div>
   </div>
 </section>
 
+<!-- SLIDE 7: 2025 sotalol update -->
 <section class="slide">
-  <h3>Adenosine Technique</h3>
-  <h2>Fast Push, Fast Flush</h2>
-  <div class="card mt-3">
-    <ul>
-      <li>Use the largest, most proximal IV; central preferred if available.</li>
-      <li>Stopcock with adenosine + 10 mL flush; both syringes preloaded.</li>
-      <li>Push adenosine rapidly, <strong>immediately</strong> flush with saline, raise arm.</li>
-      <li>Brief asystole expected — record continuous rhythm strip.</li>
-      <li>1st dose 0.1 mg/kg (max 6 mg). 2nd dose 0.2 mg/kg (max 12 mg).</li>
-    </ul>
+  <div class="ey">2025 Update</div>
+  <h2>IV Sotalol — New Addition for Refractory SVT</h2>
+  <div class="card" style="border-color:rgba(0,230,118,0.3);background:rgba(0,230,118,0.04)">
+    <div class="pill pg">2025 PALS Guidelines</div>
+    <h3 style="color:var(--green)">What changed?</h3>
+    <p>IV sotalol (1 mg/kg over 5 min) is now listed as an acceptable option for <strong>stable SVT that has not responded to adenosine</strong>, as an alternative to or alongside amiodarone and procainamide.</p>
+  </div>
+  <div class="cards c2">
+    <div class="card">
+      <h3>Clinical context</h3>
+      <ul>
+        <li>For SVT refractory to 2 doses of adenosine</li>
+        <li>May also be considered for atrial flutter/fibrillation in paediatric patients</li>
+        <li>Strong evidence base from paediatric electrophysiology</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Monitoring requirements</h3>
+      <ul>
+        <li>Continuous 12-lead or rhythm monitoring during infusion</li>
+        <li>Watch for QTc prolongation — stop if QTc &gt;500 ms</li>
+        <li>Blood pressure monitoring: sotalol has negative inotropic effect</li>
+        <li><strong>Expert consultation strongly recommended</strong></li>
+      </ul>
+    </div>
+  </div>
+  <div class="alt ag"><h4>🧠 Why it matters</h4><p>Previously, refractory SVT options were limited to amiodarone (slow infusion, phlebitis risk) or procainamide (hypotension). IV sotalol adds a class III option with good paediatric safety data and a faster onset.</p></div>
+</section>
+
+<!-- SLIDE 8: Knowledge check -->
+<section class="slide">
+  <div class="ey">Knowledge Check</div>
+  <h2>Tap each card to reveal the answer</h2>
+  <div class="fg fg2">
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>4-year-old, HR 240, no P-waves, poor perfusion. Adenosine not immediately available. What energy for cardioversion?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p><strong>0.5–1 J/kg synchronised.</strong> Unstable SVT with compromised perfusion — don’t wait for adenosine. Sync cardioversion immediately, sedate if time permits. Second shock 2 J/kg.</p></div></div></div>
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>Why is there a minimum dose of 0.1 mg for atropine in children?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p>Sub-therapeutic doses of atropine can cause <strong>paradoxical bradycardia</strong> by stimulating presynaptic muscarinic receptors. Always give at least 0.1 mg regardless of weight calculation.</p></div></div></div>
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>You try to cardiovert unstable VT but the defibrillator keeps delaying the shock. Why?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p>The defibrillator is in <strong>sync mode</strong>, waiting for an R-wave to trigger the shock. In polymorphic VT or VF there is no clear R-wave — <strong>switch to unsynchronised (defib) mode</strong> and shock immediately.</p></div></div></div>
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>What two antiarrhythmics must NEVER be combined in paediatric tachycardia management?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p><strong>Amiodarone + Procainamide.</strong> Both prolong the QT interval. Combining them dramatically increases the risk of torsades de pointes and lethal arrhythmia. Choose one or the other.</p></div></div></div>
   </div>
 </section>
 
+<!-- SLIDE 9: Pearl + summary -->
 <section class="slide">
-  <h3>Energy Selection</h3>
-  <h2>Cardiovert vs Defibrillate</h2>
-  <div class="grid2 mt-3">
-    <div class="card"><h3 style="color:#0891B2">Synchronized Cardioversion</h3>
-      <ul><li>Unstable SVT or VT with pulse</li><li>Start 0.5-1 J/kg → 2 J/kg</li><li>Sedate if time permits</li></ul></div>
-    <div class="card"><h3 style="color:#EF4444">Defibrillation</h3>
-      <ul><li>VF, pulseless VT, polymorphic VT</li><li>First shock 2 J/kg, then 4 J/kg</li><li>Subsequent shocks ≥ 4 J/kg, max 10 J/kg</li><li>Resume CPR immediately for 2 min</li></ul></div>
+  <div class="card" style="padding:32px;border-radius:var(--r-xl);background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(0,230,118,0.04));border:1px solid rgba(0,212,255,0.2)">
+    <div class="pill pc">Clinical Pearl</div>
+    <h2 style="margin-bottom:12px">“Find the cause, then chase the rhythm.”</h2>
+    <p>Sinus tachycardia from fever won’t respond to adenosine. Bradycardia from hypoxia won’t respond to atropine. Treating only the rhythm without addressing the driver is a recipe for recurrence. Always ask: <em>why is this heart beating like this?</em></p>
+    <div style="display:flex;flex-wrap:wrap;gap:28px;margin-top:20px">
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--cyan)">0.01 mg/kg</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Epinephrine (brady)</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--green)">0.1 mg/kg</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Adenosine (1st dose)</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--amber)">0.5–1 J/kg</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Sync cardioversion</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--purple)">1 mg/kg</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">IV Sotalol ★ 2025</div></div>
+    </div>
   </div>
+  <a href="pals_module_08_megacode_resp.slides.html" class="nxt">Next → Module 08: Megacode Station 1 →</a>
 </section>
 
-<section class="slide">
-  <div class="pearl">
-    <h3>Clinical Pearl</h3>
-    <h2 style="color:#0f3a26">"Find the cause, then chase the rhythm."</h2>
-    <p class="mt-3">Sinus tachycardia from fever or hypovolemia won't respond to adenosine. Bradycardia from hypoxia won't respond to atropine. Always treat the cause first.</p>
+</div>
+<div class="foot">
+  <div class="slide-counter" id="counter">1 / 9</div>
+  <div class="foot-btns">
+    <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
+    <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
   </div>
-</section>
-
-<section class="slide">
-  <h3>Summary</h3>
-  <ul class="mt-3">
-    <li>Brady with compromise: O2, support, <strong>CPR if HR &lt; 60</strong> + poor perfusion, epi q3-5 min, atropine for vagal/block, pace for high-grade.</li>
-    <li>Unstable tach: cardiovert (0.5-1 → 2 J/kg) or defib (2 → 4 J/kg).</li>
-    <li>Stable SVT: vagal → adenosine → amiodarone/procainamide → <strong>IV sotalol</strong> (2025).</li>
-    <li>Stable VT: amiodarone or procainamide (not together).</li>
-  </ul>
-  <a href="pals_module_08_megacode_resp.slides.html" class="text-sm font-semibold mt-8 inline-block" style="color:#0891B2">Next → Module 8: Megacode Station 1</a>
-</section>
-
-<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
+</div>
 <script>
-const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
-const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
-function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
-function go(d){show(cur+d)}
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
-let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+const slides=document.querySelectorAll('.slide'),total=slides.length;let cur=0;
+function updateUI(){document.getElementById('counter').textContent=(cur+1)+' / '+total;document.getElementById('prev-btn').disabled=cur===0;document.getElementById('next-btn').disabled=cur===total-1;document.getElementById('progress-bar').style.width=((cur+1)/total*100)+'%';}
+function changeSlide(dir){const old=cur;cur=Math.max(0,Math.min(total-1,cur+dir));if(cur===old)return;slides[old].classList.remove('active');slides[old].classList.add(dir>0?'exit-left':'');setTimeout(()=>{slides[old].classList.remove('exit-left');},450);slides[cur].classList.add('active');updateUI();}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')changeSlide(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')changeSlide(-1);});
+let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});document.addEventListener('touchend',e=>{const dx=tx-e.changedTouches[0].clientX;if(Math.abs(dx)>50)changeSlide(dx>0?1:-1);},{passive:true});
+// Brady algo click-through
+function stepClick(el,algoId){
+  const steps=[...document.querySelectorAll('#'+algoId+' .astep')];
+  const idx=steps.indexOf(el);
+  steps.forEach((s,i)=>{
+    s.classList.remove('active','done');
+    if(i<idx)s.classList.add('done');
+    else if(i===idx)s.classList.add('active');
+  });
+}
+updateUI();
 </script>
-</body>
-</html>
+</body></html>
