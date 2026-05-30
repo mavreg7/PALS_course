@@ -1,1 +1,400 @@
-CONTENT_M03
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Module 03 · Pediatric Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#07090f;--surface:#0e1117;--surface2:#141820;--border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#7c8494;--faint:#3a3f4a;--cyan:#00d4ff;--cyan-dim:#00aacc;--cyan-glow:rgba(0,212,255,0.15);--green:#00e676;--red:#ff4d6d;--amber:#ffb300;--purple:#b388ff;--purple-dim:#7c4dff;--font-head:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--r:12px;--r-lg:20px;--r-xl:28px;--transition:0.45s cubic-bezier(0.16,1,0.3,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.bg-blob{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;animation:drift 18s ease-in-out infinite alternate}
+.bb1{width:600px;height:600px;top:-200px;right:-200px;background:radial-gradient(circle,rgba(0,212,255,0.08),transparent 70%)}
+.bb2{width:500px;height:500px;bottom:-150px;left:-150px;background:radial-gradient(circle,rgba(179,136,255,0.06),transparent 70%);animation-delay:-9s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,20px) scale(1.05)}}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--purple));transition:width 0.5s ease;z-index:100;box-shadow:0 0 12px var(--cyan)}
+.nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,9,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:50}
+.nav-logo{font-family:var(--font-head);font-size:13px;font-weight:600;color:var(--cyan);letter-spacing:0.08em;text-transform:uppercase}
+.nav-info{font-size:12px;color:var(--muted)}
+.nav-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s}
+.nav-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.stage{position:fixed;inset:56px 0 64px;overflow:hidden}
+.slide{position:absolute;inset:0;padding:40px 48px;overflow-y:auto;display:flex;flex-direction:column;justify-content:flex-start;gap:20px;opacity:0;transform:translateX(60px);transition:opacity var(--transition),transform var(--transition);pointer-events:none}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:all}
+.slide.exit-left{opacity:0;transform:translateX(-60px)}
+.slide::-webkit-scrollbar{width:4px}.slide::-webkit-scrollbar-track{background:transparent}.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
+.hero-slide{justify-content:center;padding:60px 48px}
+.mod-eye{font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.mod-eye::before{content:'';display:block;width:24px;height:2px;background:var(--cyan);border-radius:2px}
+h1.hero{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3.4rem);font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:#fff;max-width:820px}
+h1.hero span{color:var(--cyan)}
+.subt{font-size:1.05rem;color:var(--muted);max-width:640px;line-height:1.7;margin-top:4px}
+.ttags{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.ttag{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;color:var(--muted)}
+.ey{font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--cyan);opacity:0.8}
+h2{font-family:var(--font-head);font-size:clamp(1.4rem,2.8vw,2rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-0.01em}
+h3{font-family:var(--font-head);font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:6px}
+h4{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:4px}
+p{font-size:0.92rem;color:var(--muted);line-height:1.65}
+li{font-size:0.9rem;color:var(--muted);line-height:1.6;margin-bottom:4px}
+strong{color:var(--text);font-weight:600}
+ul{padding-left:16px}
+.cards{display:grid;gap:16px}
+.c2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.c3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;transition:border-color 0.25s,box-shadow 0.25s}
+.card:hover{border-color:rgba(0,212,255,0.25);box-shadow:0 0 24px rgba(0,212,255,0.06)}
+.steps{display:flex;flex-direction:column}
+.step{display:flex;align-items:stretch}
+.sline{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:36px}
+.sdot{width:32px;height:32px;border-radius:50%;background:var(--cyan);color:#07090f;font-family:var(--font-head);font-weight:700;font-size:0.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 14px var(--cyan-glow)}
+.sdot-amber{background:var(--amber);color:#07090f}
+.sdot-green{background:var(--green);color:#07090f}
+.sconn{flex:1;width:2px;background:linear-gradient(var(--cyan-dim),var(--faint));margin:4px auto;min-height:20px}
+.step:last-child .sconn{display:none}
+.sbody{padding:0 0 24px 16px;flex:1}
+.sbody h4{color:var(--text);font-size:0.95rem;margin-bottom:4px}
+.sbody p{font-size:0.88rem}
+.fg{display:grid;gap:16px}
+.fg3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.fc{perspective:1000px;cursor:pointer}
+.fi{width:100%;min-height:160px;position:relative;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1)}
+.fc.flipped .fi{transform:rotateY(180deg)}
+.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;justify-content:center}
+.ff{background:var(--surface);border:1px solid rgba(0,212,255,0.2)}
+.fb{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(179,136,255,0.08));border:1px solid rgba(0,212,255,0.3);transform:rotateY(180deg)}
+.ql{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.fi h4{font-size:0.9rem;color:var(--text);line-height:1.4}
+.fb p{font-size:0.88rem;color:var(--text);line-height:1.6}
+.hi{font-size:11px;color:var(--faint);margin-top:10px}
+.alt{border-radius:var(--r);padding:16px 18px;border-left:3px solid}
+.ar{background:rgba(255,77,109,0.08);border-color:var(--red)}.ar h4{color:var(--red);font-size:0.85rem;margin-bottom:4px}
+.aa{background:rgba(255,179,0,0.07);border-color:var(--amber)}.aa h4{color:var(--amber);font-size:0.85rem;margin-bottom:4px}
+.ac{background:rgba(0,212,255,0.07);border-color:var(--cyan)}.ac h4{color:var(--cyan);font-size:0.85rem;margin-bottom:4px}
+.ag{background:rgba(0,230,118,0.07);border-color:var(--green)}.ag h4{color:var(--green);font-size:0.85rem;margin-bottom:4px}
+.pearl{background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(179,136,255,0.06));border:1px solid rgba(0,212,255,0.2);border-radius:var(--r-xl);padding:32px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;margin:auto 0}
+.plbl{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--cyan)}
+.pearl h3{font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:#fff;max-width:560px;line-height:1.3}
+.pearl p{max-width:520px;line-height:1.7}
+.pill{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:8px}
+.pr{background:rgba(255,77,109,0.15);color:var(--red)}.pg{background:rgba(0,230,118,0.12);color:var(--green)}.pc{background:rgba(0,212,255,0.12);color:var(--cyan)}.pa{background:rgba(255,179,0,0.12);color:var(--amber)}
+.nxt{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:12px 24px;background:linear-gradient(135deg,var(--cyan),var(--purple-dim));color:#07090f;font-family:var(--font-head);font-weight:700;font-size:0.9rem;border-radius:var(--r);text-decoration:none;transition:opacity 0.2s,transform 0.2s;align-self:flex-start}
+.nxt:hover{opacity:0.88;transform:translateY(-1px)}
+.foot{position:fixed;bottom:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,9,15,0.85);backdrop-filter:blur(16px);border-top:1px solid var(--border);z-index:50}
+.slide-counter{font-size:12px;color:var(--muted)}
+.foot-btns{display:flex;gap:10px}
+.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:var(--font-head)}
+.foot-btn:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 16px rgba(0,212,255,0.15)}
+.foot-btn:disabled{opacity:0.25;cursor:not-allowed}
+.foot-btn.primary{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.3);color:var(--cyan)}
+.foot-btn.primary:hover:not(:disabled){background:rgba(0,212,255,0.18)}
+/* Triangle PAT diagram */
+.pat-triangle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:8px 0}
+.pat-side{border-radius:var(--r-lg);padding:18px 14px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.pat-a{background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.25)}
+.pat-b{background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.25)}
+.pat-c{background:rgba(255,179,0,0.07);border:1px solid rgba(255,179,0,0.25)}
+.pat-ico{font-size:1.6rem}
+.pat-lbl{font-family:var(--font-head);font-size:0.85rem;font-weight:700;color:var(--text)}
+.pat-sub{font-size:0.78rem;color:var(--muted);line-height:1.4}
+/* AVPU scale */
+.avpu-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.avpu-cell{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 10px;text-align:center}
+.avpu-letter{font-family:var(--font-head);font-size:2rem;font-weight:700;line-height:1;margin-bottom:6px}
+.avpu-cell p{font-size:0.78rem;color:var(--muted);line-height:1.4;margin:0}
+/* Severity traffic light */
+.sev-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sev-cell{border-radius:var(--r-lg);padding:18px;text-align:center}
+.sev-g{background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.3)}
+.sev-a{background:rgba(255,179,0,0.08);border:1px solid rgba(255,179,0,0.3)}
+.sev-r{background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.3)}
+.sev-cell h3{font-size:0.9rem;margin-bottom:6px}
+.sev-cell p{font-size:0.8rem}
+@media(max-width:640px){.slide{padding:24px 20px}.hero-slide{padding:36px 20px}h1.hero{font-size:1.8rem}.nav-info{display:none}.pat-triangle,.avpu-row,.sev-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div><div class="bg-blob bb1"></div><div class="bg-blob bb2"></div>
+<div id="progress-bar"></div>
+<nav class="nav">
+  <div class="nav-logo">PALS 2025</div>
+  <div class="nav-info">Module 03 · Pediatric Assessment</div>
+  <button class="nav-btn" onclick="location.href='hub_student.html'">← Hub</button>
+</nav>
+<div class="stage">
+
+<!-- SLIDE 1: Hero -->
+<section class="slide active hero-slide">
+  <div class="mod-eye">Module 03 · Assessment</div>
+  <h1 class="hero">See It Before It<br/>Becomes a <span>Crisis</span></h1>
+  <p class="subt">The pediatric assessment framework — PAT → Primary → Secondary — lets you identify life threats in under 60 seconds and act before arrest occurs.</p>
+  <div class="ttags">
+    <span class="ttag">👁 Pediatric Assessment Triangle</span>
+    <span class="ttag">🔤 ABCDE Primary Survey</span>
+    <span class="ttag">📊 AVPU Scale</span>
+    <span class="ttag">🚦 Severity Classification</span>
+    <span class="ttag">🔁 Reassessment</span>
+  </div>
+</section>
+
+<!-- SLIDE 2: PAT Overview -->
+<section class="slide">
+  <div class="ey">The First 30 Seconds</div>
+  <h2>The Pediatric Assessment Triangle (PAT)</h2>
+  <p>The PAT is a <strong>hands-off, eyes-on</strong> tool. You assess all three sides simultaneously from the doorway — before you touch the child. It gives you an immediate gestalt of severity.</p>
+  <div class="pat-triangle">
+    <div class="pat-side pat-a">
+      <div class="pat-ico">🧠</div>
+      <div class="pat-lbl">Appearance</div>
+      <div class="pat-sub">Tone, interactivity, consolability, look/gaze, speech/cry</div>
+    </div>
+    <div class="pat-side pat-b">
+      <div class="pat-ico">🫁</div>
+      <div class="pat-lbl">Work of Breathing</div>
+      <div class="pat-sub">Sounds, position, retractions, nasal flaring, see-saw</div>
+    </div>
+    <div class="pat-side pat-c">
+      <div class="pat-ico">🩸</div>
+      <div class="pat-lbl">Circulation to Skin</div>
+      <div class="pat-sub">Pallor, mottling, cyanosis, skin colour &amp; pattern</div>
+    </div>
+  </div>
+  <div class="alt ac"><h4>⏱ The 30-Second Rule</h4><p>A complete PAT takes <strong>under 30 seconds</strong>. An abnormal PAT tells you to act immediately — before vitals, before monitors, before history. It buys you the time to do the rest properly.</p></div>
+</section>
+
+<!-- SLIDE 3: PAT — Appearance detail -->
+<section class="slide">
+  <div class="ey">PAT — Side 1</div>
+  <h2>Appearance: the most sensitive indicator of CNS perfusion</h2>
+  <div class="cards c2">
+    <div class="card">
+      <h3>TICLS Mnemonic</h3>
+      <div class="steps">
+        <div class="step"><div class="sline"><div class="sdot" style="background:var(--purple);font-size:0.75rem">T</div><div class="sconn"></div></div><div class="sbody"><h4>Tone</h4><p>Moving spontaneously? Limp or stiff? Resists exam?</p></div></div>
+        <div class="step"><div class="sline"><div class="sdot" style="background:var(--purple);font-size:0.75rem">I</div><div class="sconn"></div></div><div class="sbody"><h4>Interactivity</h4><p>Alert? Playing? Aware of surroundings? Tracking visually?</p></div></div>
+        <div class="step"><div class="sline"><div class="sdot" style="background:var(--purple);font-size:0.75rem">C</div><div class="sconn"></div></div><div class="sbody"><h4>Consolability</h4><p>Calmed by caregiver? Inconsolable crying = major red flag.</p></div></div>
+        <div class="step"><div class="sline"><div class="sdot" style="background:var(--purple);font-size:0.75rem">L</div><div class="sconn"></div></div><div class="sbody"><h4>Look / Gaze</h4><p>Eye contact? Fixed stare? Glazed appearance?</p></div></div>
+        <div class="step"><div class="sline"><div class="sdot" style="background:var(--purple);font-size:0.75rem">S</div></div><div class="sbody"><h4>Speech / Cry</h4><p>Age-appropriate vocalization? Weak, high-pitched, or absent cry?</p></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>What Abnormal Appearance Means</h3>
+      <div class="alt ar" style="margin-bottom:12px"><h4>🔴 Ominous Signs</h4><p>No eye contact, limp tone, inconsolable, absent cry — these signal <strong>severely impaired CNS perfusion</strong>. This child needs immediate intervention regardless of other findings.</p></div>
+      <div class="alt ag"><h4>✅ Reassuring Signs</h4><p>Crying vigorously, fixing gaze on parent, actively resisting exam — a child fighting you is rarely in imminent arrest.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4: Work of Breathing + Circulation -->
+<section class="slide">
+  <div class="ey">PAT — Sides 2 &amp; 3</div>
+  <h2>Work of Breathing &amp; Circulation to Skin</h2>
+  <div class="cards c2">
+    <div class="card">
+      <h3>🫁 Work of Breathing</h3>
+      <ul>
+        <li><strong>Abnormal sounds:</strong> Stridor (upper), wheeze (lower), grunting (auto-PEEP → severe), gurgling (secretions)</li>
+        <li><strong>Abnormal positioning:</strong> Tripod, sniffing position, refusal to lie flat</li>
+        <li><strong>Retractions:</strong> Subcostal, intercostal, suprasternal — depth ∝ severity</li>
+        <li><strong>Nasal flaring:</strong> Infant sign of increased respiratory effort</li>
+        <li><strong>See-saw breathing:</strong> Chest falls as abdomen rises = severe obstruction or failure</li>
+      </ul>
+      <div class="alt aa" style="margin-top:10px"><h4>⚠️ Silent Chest</h4><p>No wheeze + severe distress = near-total obstruction. <strong>More dangerous than loud wheeze.</strong></p></div>
+    </div>
+    <div class="card">
+      <h3>🩸 Circulation to Skin</h3>
+      <ul>
+        <li><strong>Pallor:</strong> Anaemia, poor perfusion, vasoconstriction</li>
+        <li><strong>Mottling:</strong> Irregular pale/purple pattern = distributive or obstructive shock</li>
+        <li><strong>Cyanosis:</strong> Central (lips/tongue) = hypoxaemia; peripheral only = poor perfusion or cold</li>
+        <li><strong>Flushed/warm:</strong> Early distributive (septic) shock — skin may look deceptively normal</li>
+      </ul>
+      <div class="alt ar" style="margin-top:10px"><h4>🔴 Central Cyanosis</h4><p>Central cyanosis with normal or increased work of breathing = <strong>critical hypoxaemia</strong>. Oxygen and airway management immediately.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5: Primary Survey ABCDE -->
+<section class="slide">
+  <div class="ey">Primary Survey</div>
+  <h2>ABCDE — systematic, head-to-toe, every time</h2>
+  <div class="steps">
+    <div class="step"><div class="sline"><div class="sdot">A</div><div class="sconn"></div></div><div class="sbody"><h4>Airway</h4><p>Patent? Maintainable? Assess for obstruction (stridor, secretions, foreign body). Position: sniffing for infants, neutral for older. Jaw thrust if cervical injury suspected.</p></div></div>
+    <div class="step"><div class="sline"><div class="sdot">B</div><div class="sconn"></div></div><div class="sbody"><h4>Breathing</h4><p>Rate, depth, effort. SpO₂. Auscultate. <strong>Normal RR by age:</strong> Infant 30–60 · Toddler 24–40 · Preschool 22–34 · School 18–30 · Adolescent 12–16/min.</p></div></div>
+    <div class="step"><div class="sline"><div class="sdot">C</div><div class="sconn"></div></div><div class="sbody"><h4>Circulation</h4><p>HR, BP, cap refill (&lt;2 sec normal), skin temp/color. Central vs peripheral pulses. <strong>Normal HR by age:</strong> Infant 100–160 · Toddler 90–150 · Preschool 80–140 · School 70–120 · Adolescent 60–100.</p></div></div>
+    <div class="step"><div class="sline"><div class="sdot">D</div><div class="sconn"></div></div><div class="sbody"><h4>Disability</h4><p>AVPU or GCS. Pupils (size, reactivity, symmetry). Blood glucose — <strong>always check</strong> in altered mental status. Posturing (decorticate/decerebrate = severe brain injury).</p></div></div>
+    <div class="step"><div class="sline"><div class="sdot">E</div></div><div class="sbody"><h4>Exposure</h4><p>Full skin inspection — rashes, petechiae, bruising, wounds. Temperature (core). Then cover to prevent hypothermia. <strong>Petechiae + fever = meningococcaemia until proven otherwise.</strong></p></div></div>
+  </div>
+</section>
+
+<!-- SLIDE 6: AVPU Scale -->
+<section class="slide">
+  <div class="ey">Disability — D in ABCDE</div>
+  <h2>AVPU: rapid neurological assessment</h2>
+  <div class="avpu-row">
+    <div class="avpu-cell">
+      <div class="avpu-letter" style="color:var(--green)">A</div>
+      <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:6px">Alert</div>
+      <p>Eyes open spontaneously. Responds appropriately to environment. Normal baseline for age.</p>
+    </div>
+    <div class="avpu-cell">
+      <div class="avpu-letter" style="color:var(--cyan)">V</div>
+      <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:6px">Voice</div>
+      <p>Only responds when spoken to or called by name. Does not open eyes spontaneously.</p>
+    </div>
+    <div class="avpu-cell">
+      <div class="avpu-letter" style="color:var(--amber)">P</div>
+      <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:6px">Pain</div>
+      <p>Only responds to painful stimulus. GCS equivalent ~8. Airway at risk — act now.</p>
+    </div>
+    <div class="avpu-cell">
+      <div class="avpu-letter" style="color:var(--red)">U</div>
+      <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:6px">Unresponsive</div>
+      <p>No response to any stimulus. GCS 3. Immediate airway management and resuscitation.</p>
+    </div>
+  </div>
+  <div class="cards c2" style="margin-top:4px">
+    <div class="alt aa"><h4>⚠️ P or U = Airway At Risk</h4><p>Any child responding only to Pain or Unresponsive requires immediate airway positioning, BVM readiness, and consideration for advanced airway. Do not leave unattended.</p></div>
+    <div class="alt ac"><h4>💡 Blood Glucose — Always</h4><p>Hypoglycaemia mimics every neurological emergency in children. Check BGL in <strong>every</strong> child with altered mental status before attributing to other causes.</p></div>
+  </div>
+</section>
+
+<!-- SLIDE 7: Severity Classification -->
+<section class="slide">
+  <div class="ey">Putting It Together</div>
+  <h2>PAT findings → clinical severity → action</h2>
+  <div class="sev-row">
+    <div class="sev-cell sev-g">
+      <div class="pill pg">Stable</div>
+      <h3 style="color:var(--green)">All PAT sides normal</h3>
+      <p>Complete secondary survey. Monitor. Investigate underlying cause. Not time-critical.</p>
+    </div>
+    <div class="sev-cell sev-a">
+      <div class="pill pa">Urgent</div>
+      <h3 style="color:var(--amber)">1–2 PAT sides abnormal</h3>
+      <p>Respiratory distress OR poor perfusion OR altered appearance alone. Intervene while assessing. O₂, IV access, monitoring.</p>
+    </div>
+    <div class="sev-cell sev-r">
+      <div class="pill pr">Immediate</div>
+      <h3 style="color:var(--red)">All 3 PAT sides abnormal</h3>
+      <p>Cardiopulmonary failure or arrest. Simultaneous resuscitation and assessment. Every second counts.</p>
+    </div>
+  </div>
+  <div class="cards c2" style="margin-top:4px">
+    <div class="alt ac"><h4>📋 Four Clinical States</h4><p><strong>Respiratory distress</strong> → <strong>Respiratory failure</strong> → <strong>Shock</strong> → <strong>Cardiopulmonary failure</strong>. Recognising the transition from distress to failure is the key PALS skill.</p></div>
+    <div class="alt ar"><h4>🔴 Compensated vs Decompensated Shock</h4><p>Compensated shock: BP normal, HR elevated, cap refill prolonged. Decompensated: BP falls. Don't wait for hypotension — it's a late, pre-arrest sign in children.</p></div>
+  </div>
+</section>
+
+<!-- SLIDE 8: Secondary Survey + SAMPLE -->
+<section class="slide">
+  <div class="ey">Secondary Survey</div>
+  <h2>SAMPLE history — once the child is stabilised</h2>
+  <div class="cards c2">
+    <div class="card">
+      <h3>SAMPLE Mnemonic</h3>
+      <div class="steps">
+        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">S</div><div class="sconn"></div></div><div class="sbody"><h4>Signs &amp; Symptoms</h4><p>Onset, duration, progression. What triggered the call?</p></div></div>
+        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">A</div><div class="sconn"></div></div><div class="sbody"><h4>Allergies</h4><p>Medications, foods, latex. Any anaphylaxis history?</p></div></div>
+        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">M</div><div class="sconn"></div></div><div class="sbody"><h4>Medications</h4><p>Current meds, recent changes, overdose possibility?</p></div></div>
+        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">P</div><div class="sconn"></div></div><div class="sbody"><h4>Past Medical History</h4><p>Prematurity, cardiac disease, immunocompromise, seizures.</p></div></div>
+        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">L</div><div class="sconn"></div></div><div class="sbody"><h4>Last Oral Intake</h4><p>Relevant for procedural sedation and surgical planning.</p></div></div>
+        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">E</div></div><div class="sbody"><h4>Events Leading Up</h4><p>Trauma? Ingestion? Witnessed event? Fever duration?</p></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Head-to-Toe Examination</h3>
+      <ul>
+        <li><strong>Head:</strong> Fontanelle (bulging = raised ICP, sunken = dehydration), scalp injuries</li>
+        <li><strong>Eyes:</strong> Pupils, scleral icterus, periorbital oedema</li>
+        <li><strong>ENT:</strong> Tympanic membranes, oropharynx, neck stiffness</li>
+        <li><strong>Chest:</strong> Auscultation (air entry symmetry), chest wall</li>
+        <li><strong>Abdomen:</strong> Distension, tenderness, organomegaly, bowel sounds</li>
+        <li><strong>Neuro:</strong> Tone, reflexes, cranial nerves, fontanelle</li>
+        <li><strong>Skin:</strong> Full exposure — petechiae, purpura, bruising patterns</li>
+      </ul>
+      <div class="alt ar" style="margin-top:10px"><h4>🔴 Non-Accidental Injury</h4><p>Bruising in non-mobile infants, unusual patterns, inconsistent history. Document carefully. Mandatory reporting obligations apply.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 9: Knowledge Check -->
+<section class="slide">
+  <div class="ey">Knowledge Check</div>
+  <h2>Tap each card to reveal the answer</h2>
+  <div class="fg fg3">
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi">
+      <div class="ff"><div class="ql">Q</div><h4>What are the 3 sides of the Pediatric Assessment Triangle?</h4><div class="hi">Tap to reveal →</div></div>
+      <div class="fb"><p><strong>Appearance, Work of Breathing, Circulation to Skin.</strong> All assessed simultaneously, hands-off, from the doorway — in under 30 seconds.</p></div>
+    </div></div>
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi">
+      <div class="ff"><div class="ql">Q</div><h4>What does a "P" on the AVPU scale mean clinically?</h4><div class="hi">Tap to reveal →</div></div>
+      <div class="fb"><p>Responds only to <strong>Pain</strong>. GCS equivalent ~8. The airway is at immediate risk — position, prepare BVM, consider advanced airway.</p></div>
+    </div></div>
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi">
+      <div class="ff"><div class="ql">Q</div><h4>A child is tachycardic with prolonged cap refill but normal BP. What stage of shock?</h4><div class="hi">Tap to reveal →</div></div>
+      <div class="fb"><p><strong>Compensated shock.</strong> BP is maintained by compensatory mechanisms. Act immediately — hypotension is a late pre-arrest sign. Don't wait for it.</p></div>
+    </div></div>
+    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi">
+      <div class="ff"><div class="ql">Q</div><h4>Silent chest in a child with severe respiratory distress — what does it mean?</h4><div class="hi">Tap to reveal →</div></div>
+      <div class="fb"><p><strong>Near-total airway obstruction.</strong> No air movement = no wheeze. More dangerous than audible wheeze. Immediate BVM ventilation and airway management.</p></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- SLIDE 10: Pearl -->
+<section class="slide">
+  <div class="pearl">
+    <div class="plbl">Clinical Pearl · Module 03</div>
+    <h3>"The child who looks sick IS sick — trust the PAT."</h3>
+    <p>Experienced clinicians often sense illness before they can name it. The PAT formalises that instinct into a reproducible, teachable 30-second framework. A child with abnormal appearance alone — even with normal vitals — deserves urgent assessment and cannot be safely triaged to a waiting room.</p>
+    <div style="display:flex;gap:24px;margin-top:8px">
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--cyan)">30s</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">PAT Assessment</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--cyan)">3 sides</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">PAT Triangle</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--cyan)">ABCDE</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Primary Survey</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 11: Summary -->
+<section class="slide">
+  <div class="ey">Module 03 — Summary</div>
+  <h2>Assess systematically. Act before arrest.</h2>
+  <div class="cards c2">
+    <div class="card"><h3>👁 PAT Framework</h3><ul>
+      <li>Appearance (TICLS) · Work of Breathing · Circulation to Skin</li>
+      <li>Hands-off, 30-second doorway assessment</li>
+      <li>All 3 sides abnormal = cardiopulmonary failure — act immediately</li>
+      <li>Abnormal appearance alone = serious illness regardless of vitals</li>
+    </ul></div>
+    <div class="card"><h3>🔤 Primary Survey</h3><ul>
+      <li>ABCDE: Airway → Breathing → Circulation → Disability → Exposure</li>
+      <li>AVPU: P or U = airway at risk, act now</li>
+      <li>Always check blood glucose in altered mental status</li>
+      <li>Compensated shock: normal BP does NOT mean safe — treat early</li>
+    </ul></div>
+  </div>
+  <a href="pals_module_04_respiratory.slides.html" class="nxt">Next → Module 04: Respiratory Emergencies →</a>
+</section>
+
+</div>
+<div class="foot">
+  <div class="slide-counter" id="counter">1 / 11</div>
+  <div class="foot-btns">
+    <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
+    <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
+  </div>
+</div>
+<script>
+const slides=document.querySelectorAll('.slide'),total=slides.length;let cur=0;
+function updateUI(){document.getElementById('counter').textContent=(cur+1)+' / '+total;document.getElementById('prev-btn').disabled=cur===0;document.getElementById('next-btn').disabled=cur===total-1;document.getElementById('progress-bar').style.width=((cur+1)/total*100)+'%';}
+function changeSlide(dir){const old=cur;cur=Math.max(0,Math.min(total-1,cur+dir));if(cur===old)return;slides[old].classList.remove('active');slides[old].classList.add(dir>0?'exit-left':'');setTimeout(()=>{slides[old].classList.remove('exit-left');},450);slides[cur].classList.add('active');updateUI();}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')changeSlide(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')changeSlide(-1);});
+let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});document.addEventListener('touchend',e=>{const dx=tx-e.changedTouches[0].clientX;if(Math.abs(dx)>50)changeSlide(dx>0?1:-1);},{passive:true});
+updateUI();
+</script>
+</body></html>
