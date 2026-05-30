@@ -45,15 +45,13 @@ strong{color:var(--text);font-weight:600}
 ul{padding-left:16px}
 .cards{display:grid;gap:16px}
 .c2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-.c3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.c3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;transition:border-color 0.25s,box-shadow 0.25s}
 .card:hover{border-color:rgba(0,212,255,0.25);box-shadow:0 0 24px rgba(0,212,255,0.06)}
 .steps{display:flex;flex-direction:column}
 .step{display:flex;align-items:stretch}
 .sline{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:36px}
 .sdot{width:32px;height:32px;border-radius:50%;background:var(--cyan);color:#07090f;font-family:var(--font-head);font-weight:700;font-size:0.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 14px var(--cyan-glow)}
-.sdot-amber{background:var(--amber);color:#07090f}
-.sdot-green{background:var(--green);color:#07090f}
 .sconn{flex:1;width:2px;background:linear-gradient(var(--cyan-dim),var(--faint));margin:4px auto;min-height:20px}
 .step:last-child .sconn{display:none}
 .sbody{padding:0 0 24px 16px;flex:1}
@@ -92,29 +90,20 @@ ul{padding-left:16px}
 .foot-btn:disabled{opacity:0.25;cursor:not-allowed}
 .foot-btn.primary{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.3);color:var(--cyan)}
 .foot-btn.primary:hover:not(:disabled){background:rgba(0,212,255,0.18)}
-/* Triangle PAT diagram */
-.pat-triangle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:8px 0}
-.pat-side{border-radius:var(--r-lg);padding:18px 14px;text-align:center;display:flex;flex-direction:column;gap:6px}
-.pat-a{background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.25)}
-.pat-b{background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.25)}
-.pat-c{background:rgba(255,179,0,0.07);border:1px solid rgba(255,179,0,0.25)}
-.pat-ico{font-size:1.6rem}
-.pat-lbl{font-family:var(--font-head);font-size:0.85rem;font-weight:700;color:var(--text)}
-.pat-sub{font-size:0.78rem;color:var(--muted);line-height:1.4}
-/* AVPU scale */
+.pat-triangle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.pat-side{border-radius:var(--r-lg);padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.pat-side .ico{font-size:2rem}
+.pat-side h3{font-size:0.95rem;margin-bottom:0}
+.pat-side p{font-size:0.82rem}
+.pat-a{background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.2)}
+.pat-b{background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.2)}
+.pat-c{background:rgba(255,179,0,0.07);border:1px solid rgba(255,179,0,0.2)}
 .avpu-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.avpu-cell{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 10px;text-align:center}
-.avpu-letter{font-family:var(--font-head);font-size:2rem;font-weight:700;line-height:1;margin-bottom:6px}
-.avpu-cell p{font-size:0.78rem;color:var(--muted);line-height:1.4;margin:0}
-/* Severity traffic light */
-.sev-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.sev-cell{border-radius:var(--r-lg);padding:18px;text-align:center}
-.sev-g{background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.3)}
-.sev-a{background:rgba(255,179,0,0.08);border:1px solid rgba(255,179,0,0.3)}
-.sev-r{background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.3)}
-.sev-cell h3{font-size:0.9rem;margin-bottom:6px}
-.sev-cell p{font-size:0.8rem}
-@media(max-width:640px){.slide{padding:24px 20px}.hero-slide{padding:36px 20px}h1.hero{font-size:1.8rem}.nav-info{display:none}.pat-triangle,.avpu-row,.sev-row{grid-template-columns:1fr 1fr}}
+.avpu-cell{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;text-align:center}
+.avpu-letter{font-family:var(--font-head);font-size:2rem;font-weight:700;color:var(--cyan);line-height:1}
+.avpu-word{font-size:0.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px}
+.avpu-desc{font-size:0.78rem;color:var(--muted);margin-top:6px;line-height:1.4}
+@media(max-width:640px){.slide{padding:24px 20px}.hero-slide{padding:36px 20px}h1.hero{font-size:1.8rem}.nav-info{display:none}.pat-triangle{grid-template-columns:1fr}.avpu-row{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -127,255 +116,183 @@ ul{padding-left:16px}
 </nav>
 <div class="stage">
 
-<!-- SLIDE 1: Hero -->
 <section class="slide active hero-slide">
   <div class="mod-eye">Module 03 · Assessment</div>
-  <h1 class="hero">See It Before It<br/>Becomes a <span>Crisis</span></h1>
-  <p class="subt">The pediatric assessment framework — PAT → Primary → Secondary — lets you identify life threats in under 60 seconds and act before arrest occurs.</p>
+  <h1 class="hero">See the Whole Child:<br/>The <span>Systematic</span> Assessment</h1>
+  <p class="subt">The difference between a good and a great clinician is a structured assessment that catches deterioration before arrest. PAT → Primary → Secondary — every time, every patient.</p>
   <div class="ttags">
-    <span class="ttag">👁 Pediatric Assessment Triangle</span>
-    <span class="ttag">🔤 ABCDE Primary Survey</span>
-    <span class="ttag">📊 AVPU Scale</span>
-    <span class="ttag">🚦 Severity Classification</span>
-    <span class="ttag">🔁 Reassessment</span>
+    <span class="ttag">👁 PAT Triangle</span>
+    <span class="ttag">🔍 Primary Survey</span>
+    <span class="ttag">📋 Secondary Survey</span>
+    <span class="ttag">🧠 AVPU Scale</span>
+    <span class="ttag">⚠️ Recognition Patterns</span>
   </div>
 </section>
 
-<!-- SLIDE 2: PAT Overview -->
 <section class="slide">
-  <div class="ey">The First 30 Seconds</div>
-  <h2>The Pediatric Assessment Triangle (PAT)</h2>
-  <p>The PAT is a <strong>hands-off, eyes-on</strong> tool. You assess all three sides simultaneously from the doorway — before you touch the child. It gives you an immediate gestalt of severity.</p>
+  <div class="ey">The Framework</div>
+  <h2>Three-phase assessment — from doorway to diagnosis</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="sline"><div class="sdot">1</div><div class="sconn"></div></div>
+      <div class="sbody"><h4>PAT — Pediatric Assessment Triangle (Doorway Assessment)</h4><p>A <strong>30-second visual assessment</strong> from across the room before you touch the child. Identifies sick vs not sick instantly. Uses Appearance, Work of Breathing, and Circulation to Skin.</p></div>
+    </div>
+    <div class="step">
+      <div class="sline"><div class="sdot">2</div><div class="sconn"></div></div>
+      <div class="sbody"><h4>Primary Survey — ABCDE</h4><p>Hands-on systematic evaluation: Airway, Breathing, Circulation, Disability (neuro), Exposure. Identify and treat <strong>life threats simultaneously</strong> as you find them — don't defer treatment.</p></div>
+    </div>
+    <div class="step">
+      <div class="sline"><div class="sdot">3</div><div class="sconn"></div></div>
+      <div class="sbody"><h4>Secondary Survey — Head-to-Toe</h4><p>Complete head-to-toe examination, history (SAMPLE), and focused diagnostics after life threats are managed. Identifies underlying cause and guides definitive treatment.</p></div>
+    </div>
+  </div>
+  <div class="alt ac"><h4>🔑 The Golden Rule</h4><p>Never move to the next phase if a life-threatening problem has been found but not addressed. The framework is iterative — reassess after every intervention.</p></div>
+</section>
+
+<section class="slide">
+  <div class="ey">Phase 1 — Doorway</div>
+  <h2>The Pediatric Assessment Triangle</h2>
   <div class="pat-triangle">
     <div class="pat-side pat-a">
-      <div class="pat-ico">🧠</div>
-      <div class="pat-lbl">Appearance</div>
-      <div class="pat-sub">Tone, interactivity, consolability, look/gaze, speech/cry</div>
+      <div class="ico">👁</div>
+      <h3 style="color:var(--cyan)">Appearance</h3>
+      <p>Tone, Interactiveness, Consolability, Look/Gaze, Speech/Cry<br/><br/><strong style="color:var(--cyan)">TICLS</strong> mnemonic</p>
     </div>
     <div class="pat-side pat-b">
-      <div class="pat-ico">🫁</div>
-      <div class="pat-lbl">Work of Breathing</div>
-      <div class="pat-sub">Sounds, position, retractions, nasal flaring, see-saw</div>
+      <div class="ico">🫁</div>
+      <h3 style="color:var(--green)">Work of Breathing</h3>
+      <p>Abnormal sounds, abnormal positioning, retractions, nasal flaring, head bobbing</p>
     </div>
     <div class="pat-side pat-c">
-      <div class="pat-ico">🩸</div>
-      <div class="pat-lbl">Circulation to Skin</div>
-      <div class="pat-sub">Pallor, mottling, cyanosis, skin colour &amp; pattern</div>
+      <div class="ico">🩸</div>
+      <h3 style="color:var(--amber)">Circulation to Skin</h3>
+      <p>Pallor, mottling, cyanosis — assessed visually before touching the child</p>
     </div>
   </div>
-  <div class="alt ac"><h4>⏱ The 30-Second Rule</h4><p>A complete PAT takes <strong>under 30 seconds</strong>. An abnormal PAT tells you to act immediately — before vitals, before monitors, before history. It buys you the time to do the rest properly.</p></div>
+  <div class="alt aa"><h4>⚡ Why PAT First?</h4><p>The PAT gives you a <strong>global picture in 30 seconds</strong> without touching the child — which avoids distress that changes your exam findings. A child who is well-appearing, no increased work of breathing, and normal skin colour is almost never critically ill.</p></div>
 </section>
 
-<!-- SLIDE 3: PAT — Appearance detail -->
 <section class="slide">
-  <div class="ey">PAT — Side 1</div>
-  <h2>Appearance: the most sensitive indicator of CNS perfusion</h2>
+  <div class="ey">PAT Interpretation</div>
+  <h2>What the PAT pattern tells you</h2>
   <div class="cards c2">
-    <div class="card">
-      <h3>TICLS Mnemonic</h3>
-      <div class="steps">
-        <div class="step"><div class="sline"><div class="sdot" style="background:var(--purple);font-size:0.75rem">T</div><div class="sconn"></div></div><div class="sbody"><h4>Tone</h4><p>Moving spontaneously? Limp or stiff? Resists exam?</p></div></div>
-        <div class="step"><div class="sline"><div class="sdot" style="background:var(--purple);font-size:0.75rem">I</div><div class="sconn"></div></div><div class="sbody"><h4>Interactivity</h4><p>Alert? Playing? Aware of surroundings? Tracking visually?</p></div></div>
-        <div class="step"><div class="sline"><div class="sdot" style="background:var(--purple);font-size:0.75rem">C</div><div class="sconn"></div></div><div class="sbody"><h4>Consolability</h4><p>Calmed by caregiver? Inconsolable crying = major red flag.</p></div></div>
-        <div class="step"><div class="sline"><div class="sdot" style="background:var(--purple);font-size:0.75rem">L</div><div class="sconn"></div></div><div class="sbody"><h4>Look / Gaze</h4><p>Eye contact? Fixed stare? Glazed appearance?</p></div></div>
-        <div class="step"><div class="sline"><div class="sdot" style="background:var(--purple);font-size:0.75rem">S</div></div><div class="sbody"><h4>Speech / Cry</h4><p>Age-appropriate vocalization? Weak, high-pitched, or absent cry?</p></div></div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>What Abnormal Appearance Means</h3>
-      <div class="alt ar" style="margin-bottom:12px"><h4>🔴 Ominous Signs</h4><p>No eye contact, limp tone, inconsolable, absent cry — these signal <strong>severely impaired CNS perfusion</strong>. This child needs immediate intervention regardless of other findings.</p></div>
-      <div class="alt ag"><h4>✅ Reassuring Signs</h4><p>Crying vigorously, fixing gaze on parent, actively resisting exam — a child fighting you is rarely in imminent arrest.</p></div>
-    </div>
+    <div class="card"><div class="pill pr">Abnormal Appearance Only</div><h3>Primary CNS / Metabolic</h3><p>Altered mental status without respiratory or circulatory signs. Think: <strong>hypoglycaemia, seizure, head injury, toxic ingestion, meningitis</strong>. Airway protective reflexes may be compromised.</p></div>
+    <div class="card"><div class="pill pc">Abnormal Work of Breathing Only</div><h3>Respiratory Problem</h3><p>Child is alert and compensating. Early respiratory distress — <strong>asthma, croup, bronchiolitis, foreign body</strong>. Act before fatigue causes decompensation.</p></div>
+    <div class="card"><div class="pill pa">Abnormal Circulation Only</div><h3>Compensated Shock</h3><p>Pale/mottled skin but alert and breathing normally — <strong>early hypovolaemic or distributive shock</strong>. Compensatory mechanisms are working but will fail.</p></div>
+    <div class="card"><div class="pill pr">All Three Abnormal</div><h3>Cardiopulmonary Failure</h3><p>Pre-arrest state. Immediate intervention required. <strong>Call for help now</strong>, prepare for CPR. Do not wait for the full survey.</p></div>
   </div>
 </section>
 
-<!-- SLIDE 4: Work of Breathing + Circulation -->
 <section class="slide">
-  <div class="ey">PAT — Sides 2 &amp; 3</div>
-  <h2>Work of Breathing &amp; Circulation to Skin</h2>
-  <div class="cards c2">
-    <div class="card">
-      <h3>🫁 Work of Breathing</h3>
-      <ul>
-        <li><strong>Abnormal sounds:</strong> Stridor (upper), wheeze (lower), grunting (auto-PEEP → severe), gurgling (secretions)</li>
-        <li><strong>Abnormal positioning:</strong> Tripod, sniffing position, refusal to lie flat</li>
-        <li><strong>Retractions:</strong> Subcostal, intercostal, suprasternal — depth ∝ severity</li>
-        <li><strong>Nasal flaring:</strong> Infant sign of increased respiratory effort</li>
-        <li><strong>See-saw breathing:</strong> Chest falls as abdomen rises = severe obstruction or failure</li>
-      </ul>
-      <div class="alt aa" style="margin-top:10px"><h4>⚠️ Silent Chest</h4><p>No wheeze + severe distress = near-total obstruction. <strong>More dangerous than loud wheeze.</strong></p></div>
-    </div>
-    <div class="card">
-      <h3>🩸 Circulation to Skin</h3>
-      <ul>
-        <li><strong>Pallor:</strong> Anaemia, poor perfusion, vasoconstriction</li>
-        <li><strong>Mottling:</strong> Irregular pale/purple pattern = distributive or obstructive shock</li>
-        <li><strong>Cyanosis:</strong> Central (lips/tongue) = hypoxaemia; peripheral only = poor perfusion or cold</li>
-        <li><strong>Flushed/warm:</strong> Early distributive (septic) shock — skin may look deceptively normal</li>
-      </ul>
-      <div class="alt ar" style="margin-top:10px"><h4>🔴 Central Cyanosis</h4><p>Central cyanosis with normal or increased work of breathing = <strong>critical hypoxaemia</strong>. Oxygen and airway management immediately.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 5: Primary Survey ABCDE -->
-<section class="slide">
-  <div class="ey">Primary Survey</div>
-  <h2>ABCDE — systematic, head-to-toe, every time</h2>
+  <div class="ey">Phase 2 — Primary Survey</div>
+  <h2>ABCDE — find and fix life threats immediately</h2>
   <div class="steps">
-    <div class="step"><div class="sline"><div class="sdot">A</div><div class="sconn"></div></div><div class="sbody"><h4>Airway</h4><p>Patent? Maintainable? Assess for obstruction (stridor, secretions, foreign body). Position: sniffing for infants, neutral for older. Jaw thrust if cervical injury suspected.</p></div></div>
-    <div class="step"><div class="sline"><div class="sdot">B</div><div class="sconn"></div></div><div class="sbody"><h4>Breathing</h4><p>Rate, depth, effort. SpO₂. Auscultate. <strong>Normal RR by age:</strong> Infant 30–60 · Toddler 24–40 · Preschool 22–34 · School 18–30 · Adolescent 12–16/min.</p></div></div>
-    <div class="step"><div class="sline"><div class="sdot">C</div><div class="sconn"></div></div><div class="sbody"><h4>Circulation</h4><p>HR, BP, cap refill (&lt;2 sec normal), skin temp/color. Central vs peripheral pulses. <strong>Normal HR by age:</strong> Infant 100–160 · Toddler 90–150 · Preschool 80–140 · School 70–120 · Adolescent 60–100.</p></div></div>
-    <div class="step"><div class="sline"><div class="sdot">D</div><div class="sconn"></div></div><div class="sbody"><h4>Disability</h4><p>AVPU or GCS. Pupils (size, reactivity, symmetry). Blood glucose — <strong>always check</strong> in altered mental status. Posturing (decorticate/decerebrate = severe brain injury).</p></div></div>
-    <div class="step"><div class="sline"><div class="sdot">E</div></div><div class="sbody"><h4>Exposure</h4><p>Full skin inspection — rashes, petechiae, bruising, wounds. Temperature (core). Then cover to prevent hypothermia. <strong>Petechiae + fever = meningococcaemia until proven otherwise.</strong></p></div></div>
+    <div class="step"><div class="sline"><div class="sdot">A</div><div class="sconn"></div></div><div class="sbody"><h4>Airway</h4><p>Is it open and maintainable? Look for stridor, gurgling, snoring. Position, suction, jaw thrust, airway adjunct, or definitive airway as indicated. <strong>Obstruction kills in minutes.</strong></p></div></div>
+    <div class="step"><div class="sline"><div class="sdot">B</div><div class="sconn"></div></div><div class="sbody"><h4>Breathing</h4><p>RR, SpO₂, auscultation, accessory muscle use, tidal volume. Normal RR is age-dependent. SpO₂ &lt;94% on room air requires supplemental O₂. Attach pulse ox immediately.</p></div></div>
+    <div class="step"><div class="sline"><div class="sdot">C</div><div class="sconn"></div></div><div class="sbody"><h4>Circulation</h4><p>HR, BP, cap refill, pulses (central vs peripheral), skin colour/temp. Normal cap refill ≤2 sec. Absent peripheral pulses = decompensated shock. Get IV/IO now.</p></div></div>
+    <div class="step"><div class="sline"><div class="sdot">D</div><div class="sconn"></div></div><div class="sbody"><h4>Disability (Neurological)</h4><p>Level of consciousness (AVPU or GCS), pupils, blood glucose (always). Any altered consciousness → check glucose immediately. Posturing = severe CNS pathology.</p></div></div>
+    <div class="step"><div class="sline"><div class="sdot">E</div><div class="sconn"></div></div><div class="sbody"><h4>Exposure</h4><p>Undress the child fully — rashes (petechiae/purpura = meningococcal until proven otherwise), trauma signs, abdominal distension, temperature. Cover after assessment to prevent hypothermia.</p></div></div>
   </div>
 </section>
 
-<!-- SLIDE 6: AVPU Scale -->
 <section class="slide">
-  <div class="ey">Disability — D in ABCDE</div>
-  <h2>AVPU: rapid neurological assessment</h2>
+  <div class="ey">Disability — Neuro Assessment</div>
+  <h2>AVPU — rapid consciousness scale</h2>
   <div class="avpu-row">
-    <div class="avpu-cell">
-      <div class="avpu-letter" style="color:var(--green)">A</div>
-      <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:6px">Alert</div>
-      <p>Eyes open spontaneously. Responds appropriately to environment. Normal baseline for age.</p>
-    </div>
-    <div class="avpu-cell">
-      <div class="avpu-letter" style="color:var(--cyan)">V</div>
-      <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:6px">Voice</div>
-      <p>Only responds when spoken to or called by name. Does not open eyes spontaneously.</p>
-    </div>
-    <div class="avpu-cell">
-      <div class="avpu-letter" style="color:var(--amber)">P</div>
-      <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:6px">Pain</div>
-      <p>Only responds to painful stimulus. GCS equivalent ~8. Airway at risk — act now.</p>
-    </div>
-    <div class="avpu-cell">
-      <div class="avpu-letter" style="color:var(--red)">U</div>
-      <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:6px">Unresponsive</div>
-      <p>No response to any stimulus. GCS 3. Immediate airway management and resuscitation.</p>
-    </div>
+    <div class="avpu-cell"><div class="avpu-letter">A</div><div class="avpu-word">Alert</div><div class="avpu-desc">Awake, aware, responds appropriately to environment</div></div>
+    <div class="avpu-cell"><div class="avpu-letter">V</div><div class="avpu-word">Voice</div><div class="avpu-desc">Responds only to verbal stimulation — eyes open or verbal response</div></div>
+    <div class="avpu-cell"><div class="avpu-letter">P</div><div class="avpu-word">Pain</div><div class="avpu-desc">Responds only to painful stimulus. Equivalent to GCS ~8. <strong style="color:var(--amber)">Airway at risk.</strong></div></div>
+    <div class="avpu-cell"><div class="avpu-letter">U</div><div class="avpu-word">Unresponsive</div><div class="avpu-desc">No response to any stimulus. <strong style="color:var(--red)">Airway unprotected — act immediately.</strong></div></div>
   </div>
   <div class="cards c2" style="margin-top:4px">
-    <div class="alt aa"><h4>⚠️ P or U = Airway At Risk</h4><p>Any child responding only to Pain or Unresponsive requires immediate airway positioning, BVM readiness, and consideration for advanced airway. Do not leave unattended.</p></div>
-    <div class="alt ac"><h4>💡 Blood Glucose — Always</h4><p>Hypoglycaemia mimics every neurological emergency in children. Check BGL in <strong>every</strong> child with altered mental status before attributing to other causes.</p></div>
+    <div class="alt ac"><h4>🩺 Always Check Glucose</h4><p>Hypoglycaemia is the single most common reversible cause of altered consciousness in children. Check it during every "D" — never assume it's normal.</p></div>
+    <div class="alt aa"><h4>👁 Pupils</h4><p>PERRL = reassuring. Unequal, fixed, or dilated pupils suggest herniation, toxidrome, or direct eye/nerve injury. Always document baseline.</p></div>
   </div>
 </section>
 
-<!-- SLIDE 7: Severity Classification -->
 <section class="slide">
-  <div class="ey">Putting It Together</div>
-  <h2>PAT findings → clinical severity → action</h2>
-  <div class="sev-row">
-    <div class="sev-cell sev-g">
-      <div class="pill pg">Stable</div>
-      <h3 style="color:var(--green)">All PAT sides normal</h3>
-      <p>Complete secondary survey. Monitor. Investigate underlying cause. Not time-critical.</p>
-    </div>
-    <div class="sev-cell sev-a">
-      <div class="pill pa">Urgent</div>
-      <h3 style="color:var(--amber)">1–2 PAT sides abnormal</h3>
-      <p>Respiratory distress OR poor perfusion OR altered appearance alone. Intervene while assessing. O₂, IV access, monitoring.</p>
-    </div>
-    <div class="sev-cell sev-r">
-      <div class="pill pr">Immediate</div>
-      <h3 style="color:var(--red)">All 3 PAT sides abnormal</h3>
-      <p>Cardiopulmonary failure or arrest. Simultaneous resuscitation and assessment. Every second counts.</p>
-    </div>
-  </div>
-  <div class="cards c2" style="margin-top:4px">
-    <div class="alt ac"><h4>📋 Four Clinical States</h4><p><strong>Respiratory distress</strong> → <strong>Respiratory failure</strong> → <strong>Shock</strong> → <strong>Cardiopulmonary failure</strong>. Recognising the transition from distress to failure is the key PALS skill.</p></div>
-    <div class="alt ar"><h4>🔴 Compensated vs Decompensated Shock</h4><p>Compensated shock: BP normal, HR elevated, cap refill prolonged. Decompensated: BP falls. Don't wait for hypotension — it's a late, pre-arrest sign in children.</p></div>
-  </div>
-</section>
-
-<!-- SLIDE 8: Secondary Survey + SAMPLE -->
-<section class="slide">
-  <div class="ey">Secondary Survey</div>
-  <h2>SAMPLE history — once the child is stabilised</h2>
+  <div class="ey">Phase 3 — Secondary Survey</div>
+  <h2>SAMPLE history + head-to-toe exam</h2>
   <div class="cards c2">
     <div class="card">
-      <h3>SAMPLE Mnemonic</h3>
-      <div class="steps">
-        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">S</div><div class="sconn"></div></div><div class="sbody"><h4>Signs &amp; Symptoms</h4><p>Onset, duration, progression. What triggered the call?</p></div></div>
-        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">A</div><div class="sconn"></div></div><div class="sbody"><h4>Allergies</h4><p>Medications, foods, latex. Any anaphylaxis history?</p></div></div>
-        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">M</div><div class="sconn"></div></div><div class="sbody"><h4>Medications</h4><p>Current meds, recent changes, overdose possibility?</p></div></div>
-        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">P</div><div class="sconn"></div></div><div class="sbody"><h4>Past Medical History</h4><p>Prematurity, cardiac disease, immunocompromise, seizures.</p></div></div>
-        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">L</div><div class="sconn"></div></div><div class="sbody"><h4>Last Oral Intake</h4><p>Relevant for procedural sedation and surgical planning.</p></div></div>
-        <div class="step"><div class="sline"><div class="sdot sdot-amber" style="font-size:0.75rem">E</div></div><div class="sbody"><h4>Events Leading Up</h4><p>Trauma? Ingestion? Witnessed event? Fever duration?</p></div></div>
-      </div>
+      <h3>SAMPLE History</h3>
+      <ul>
+        <li><strong>S</strong>ymptoms — onset, duration, progression</li>
+        <li><strong>A</strong>llergies — medications, foods, environment</li>
+        <li><strong>M</strong>edications — doses, last given, new meds</li>
+        <li><strong>P</strong>ast medical history — prior admissions, chronic illness</li>
+        <li><strong>L</strong>ast oral intake — timing matters for airway management</li>
+        <li><strong>E</strong>vents leading up — trauma, fever, exposures, ingestions</li>
+      </ul>
     </div>
     <div class="card">
-      <h3>Head-to-Toe Examination</h3>
+      <h3>Head-to-Toe Exam Focus Points</h3>
       <ul>
-        <li><strong>Head:</strong> Fontanelle (bulging = raised ICP, sunken = dehydration), scalp injuries</li>
-        <li><strong>Eyes:</strong> Pupils, scleral icterus, periorbital oedema</li>
-        <li><strong>ENT:</strong> Tympanic membranes, oropharynx, neck stiffness</li>
-        <li><strong>Chest:</strong> Auscultation (air entry symmetry), chest wall</li>
-        <li><strong>Abdomen:</strong> Distension, tenderness, organomegaly, bowel sounds</li>
-        <li><strong>Neuro:</strong> Tone, reflexes, cranial nerves, fontanelle</li>
-        <li><strong>Skin:</strong> Full exposure — petechiae, purpura, bruising patterns</li>
+        <li><strong>Head:</strong> fontanelle (infants), scalp trauma, Battle's sign</li>
+        <li><strong>Eyes:</strong> pupils, periorbital bruising, conjunctival pallor</li>
+        <li><strong>Neck:</strong> JVD, tracheal deviation, lymphadenopathy</li>
+        <li><strong>Chest:</strong> symmetry, auscultation, rib tenderness</li>
+        <li><strong>Abdomen:</strong> tenderness, rigidity, organomegaly, distension</li>
+        <li><strong>Extremities:</strong> perfusion, deformity, oedema</li>
+        <li><strong>Skin:</strong> petechiae, purpura, burns, bruising patterns</li>
       </ul>
-      <div class="alt ar" style="margin-top:10px"><h4>🔴 Non-Accidental Injury</h4><p>Bruising in non-mobile infants, unusual patterns, inconsistent history. Document carefully. Mandatory reporting obligations apply.</p></div>
     </div>
   </div>
+  <div class="alt ar"><h4>🚨 Non-Accidental Trauma Flag</h4><p>Bruising in pre-mobile infants, patterned bruises, retinal haemorrhages, and inconsistent histories must trigger child protection pathways immediately.</p></div>
 </section>
 
-<!-- SLIDE 9: Knowledge Check -->
 <section class="slide">
   <div class="ey">Knowledge Check</div>
   <h2>Tap each card to reveal the answer</h2>
   <div class="fg fg3">
     <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi">
-      <div class="ff"><div class="ql">Q</div><h4>What are the 3 sides of the Pediatric Assessment Triangle?</h4><div class="hi">Tap to reveal →</div></div>
-      <div class="fb"><p><strong>Appearance, Work of Breathing, Circulation to Skin.</strong> All assessed simultaneously, hands-off, from the doorway — in under 30 seconds.</p></div>
+      <div class="ff"><div class="ql">Q</div><h4>What does the PAT assess and how long should it take?</h4><div class="hi">Tap to reveal →</div></div>
+      <div class="fb"><p><strong>Appearance, Work of Breathing, Circulation to Skin.</strong> Done visually in ~30 seconds from the doorway before touching the child. TICLS for Appearance.</p></div>
     </div></div>
     <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi">
-      <div class="ff"><div class="ql">Q</div><h4>What does a "P" on the AVPU scale mean clinically?</h4><div class="hi">Tap to reveal →</div></div>
-      <div class="fb"><p>Responds only to <strong>Pain</strong>. GCS equivalent ~8. The airway is at immediate risk — position, prepare BVM, consider advanced airway.</p></div>
+      <div class="ff"><div class="ql">Q</div><h4>PAT shows abnormal appearance only — what's the likely problem category?</h4><div class="hi">Tap to reveal →</div></div>
+      <div class="fb"><p><strong>Primary CNS or metabolic problem</strong> — hypoglycaemia, seizure, toxic ingestion, meningitis. No respiratory or circulatory abnormality but brain function is impaired.</p></div>
     </div></div>
     <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi">
-      <div class="ff"><div class="ql">Q</div><h4>A child is tachycardic with prolonged cap refill but normal BP. What stage of shock?</h4><div class="hi">Tap to reveal →</div></div>
-      <div class="fb"><p><strong>Compensated shock.</strong> BP is maintained by compensatory mechanisms. Act immediately — hypotension is a late pre-arrest sign. Don't wait for it.</p></div>
+      <div class="ff"><div class="ql">Q</div><h4>At what AVPU level is the airway at risk?</h4><div class="hi">Tap to reveal →</div></div>
+      <div class="fb"><p><strong>P (Pain) and below.</strong> P is approximately GCS 8 — protective airway reflexes are unreliable. U (Unresponsive) requires immediate airway intervention.</p></div>
     </div></div>
     <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi">
-      <div class="ff"><div class="ql">Q</div><h4>Silent chest in a child with severe respiratory distress — what does it mean?</h4><div class="hi">Tap to reveal →</div></div>
-      <div class="fb"><p><strong>Near-total airway obstruction.</strong> No air movement = no wheeze. More dangerous than audible wheeze. Immediate BVM ventilation and airway management.</p></div>
+      <div class="ff"><div class="ql">Q</div><h4>What must you ALWAYS check during "D" of the primary survey?</h4><div class="hi">Tap to reveal →</div></div>
+      <div class="fb"><p><strong>Blood glucose.</strong> Hypoglycaemia is the most common reversible cause of altered consciousness in children and is missed if not specifically checked.</p></div>
     </div></div>
   </div>
 </section>
 
-<!-- SLIDE 10: Pearl -->
 <section class="slide">
   <div class="pearl">
     <div class="plbl">Clinical Pearl · Module 03</div>
-    <h3>"The child who looks sick IS sick — trust the PAT."</h3>
-    <p>Experienced clinicians often sense illness before they can name it. The PAT formalises that instinct into a reproducible, teachable 30-second framework. A child with abnormal appearance alone — even with normal vitals — deserves urgent assessment and cannot be safely triaged to a waiting room.</p>
+    <h3>"The child who looks well — is well. Trust the PAT."</h3>
+    <p>A child with a normal appearance (interactive, appropriate tone, consolable), no increased work of breathing, and normal skin colour has an enormous physiological reserve. The PAT that's all normal lets you slow down and think. The PAT with all three abnormal means you act before you assess further.</p>
     <div style="display:flex;gap:24px;margin-top:8px">
-      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--cyan)">30s</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">PAT Assessment</div></div>
-      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--cyan)">3 sides</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">PAT Triangle</div></div>
-      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--cyan)">ABCDE</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Primary Survey</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--cyan)">30s</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">PAT Duration</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--cyan)">3</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">PAT Sides</div></div>
+      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--cyan)">ABCDE</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Primary Survey</div></div>
     </div>
   </div>
 </section>
 
-<!-- SLIDE 11: Summary -->
 <section class="slide">
   <div class="ey">Module 03 — Summary</div>
-  <h2>Assess systematically. Act before arrest.</h2>
+  <h2>Structured assessment saves lives</h2>
   <div class="cards c2">
-    <div class="card"><h3>👁 PAT Framework</h3><ul>
-      <li>Appearance (TICLS) · Work of Breathing · Circulation to Skin</li>
-      <li>Hands-off, 30-second doorway assessment</li>
-      <li>All 3 sides abnormal = cardiopulmonary failure — act immediately</li>
-      <li>Abnormal appearance alone = serious illness regardless of vitals</li>
+    <div class="card"><h3>👁 PAT Triangle</h3><ul>
+      <li><strong>Appearance</strong> — TICLS (Tone, Interact, Consolable, Look, Speech)</li>
+      <li><strong>Work of Breathing</strong> — sounds, position, retractions, flaring</li>
+      <li><strong>Circulation to Skin</strong> — pallor, mottling, cyanosis</li>
+      <li>All 3 abnormal = pre-arrest → act immediately</li>
     </ul></div>
-    <div class="card"><h3>🔤 Primary Survey</h3><ul>
-      <li>ABCDE: Airway → Breathing → Circulation → Disability → Exposure</li>
-      <li>AVPU: P or U = airway at risk, act now</li>
-      <li>Always check blood glucose in altered mental status</li>
-      <li>Compensated shock: normal BP does NOT mean safe — treat early</li>
+    <div class="card"><h3>🔍 Primary Survey ABCDE</h3><ul>
+      <li><strong>A</strong>irway — open? maintainable?</li>
+      <li><strong>B</strong>reathing — RR, SpO₂, auscultation</li>
+      <li><strong>C</strong>irculation — HR, BP, cap refill, pulses</li>
+      <li><strong>D</strong>isability — AVPU, pupils, <strong>glucose always</strong></li>
+      <li><strong>E</strong>xposure — undress fully, prevent hypothermia</li>
     </ul></div>
   </div>
   <a href="pals_module_04_respiratory.slides.html" class="nxt">Next → Module 04: Respiratory Emergencies →</a>
@@ -383,7 +300,7 @@ ul{padding-left:16px}
 
 </div>
 <div class="foot">
-  <div class="slide-counter" id="counter">1 / 11</div>
+  <div class="slide-counter" id="counter">1 / 10</div>
   <div class="foot-btns">
     <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
     <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
