@@ -1,170 +1,479 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 1 — Course Intro & 2025 Updates</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Module 01 · Course Intro &amp; 2025 Updates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  *{font-family:'Manrope',system-ui,sans-serif}
-  html,body{height:100%;margin:0}
-  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
-  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
-  .blob1{width:500px;height:500px;background:#0891B2;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
-  .blob2{width:450px;height:450px;background:#34D399;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
-  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
-  .deck{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column}
-  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 8vw;opacity:0;pointer-events:none;transition:opacity .5s ease}
-  .slide.active{opacity:1;pointer-events:auto}
-  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#0891B2;letter-spacing:-1px}
-  .slide h2{font-size:clamp(22px,3vw,38px);font-weight:800;color:#1E293B;margin-bottom:18px}
-  .slide h3{font-size:clamp(15px,1.5vw,22px);font-weight:700;color:#0891B2;margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase}
-  .slide p,.slide li{font-size:clamp(14px,1.4vw,20px);line-height:1.55;color:#334155}
-  .slide ul{padding-left:24px}
-  .slide li{margin-bottom:8px}
-  .card{background:rgba(255,255,255,0.85);backdrop-filter:blur(6px);border:1px solid rgba(8,145,178,.12);border-radius:14px;padding:22px;box-shadow:0 4px 20px rgba(30,41,59,.05)}
-  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(8,145,178,.12);color:#0891B2;letter-spacing:.5px}
-  .nav{position:fixed;bottom:20px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:100;pointer-events:none}
-  .nav > *{pointer-events:auto}
-  .dots{display:flex;gap:8px}
-  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer;transition:all .2s}
-  .dot.active{background:#0891B2;transform:scale(1.4)}
-  .nav-btn{background:#0891B2;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;position:relative;z-index:101}
-  .nav-btn:hover{background:#0e7490}
-  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;backdrop-filter:blur(8px);z-index:100}
-  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none;backdrop-filter:blur(8px);z-index:100;pointer-events:auto}
-  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:18px 22px;border-radius:8px}
-  .pearl h3{color:#0f9b6c}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-  .change-row{display:flex;gap:14px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed #e2e8f0}
-  .change-row:last-child{border-bottom:none}
-  .num-circle{width:34px;height:34px;border-radius:50%;background:#0891B2;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;font-size:14px}
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS — Module 01 · Course Intro & 2025 Updates
+   Accent: Sky-Blue (orientation / overview theme)
+   ═══════════════════════════════════════════════ */
+:root{
+  --bg:#07080e;--surface:#0d0f18;--surface2:#121520;--surface3:#181b27;
+  --border:rgba(255,255,255,0.06);
+  --text:#e8eaf0;--muted:#7c8494;--faint:#2a2e3e;
+  --sky:#38bdf8;--sky-glow:rgba(56,189,248,0.18);--sky-dim:rgba(56,189,248,0.10);
+  --blue:#60a5fa;--blue-dim:rgba(96,165,250,0.10);
+  --cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.10);
+  --green:#00e676;--green-dim:rgba(0,230,118,0.10);
+  --amber:#ffb300;--amber-dim:rgba(255,179,0,0.10);
+  --red:#ff3d5a;--red-dim:rgba(255,61,90,0.10);
+  --violet:#8b5cf6;
+  --font-head:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --r:10px;--r-lg:16px;--r-xl:22px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --trans:0.5s var(--ease);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+
+/* ── Atmospheric background ── */
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,0.016) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.016) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0}
+.bg-blob{position:fixed;border-radius:50%;filter:blur(140px);pointer-events:none;z-index:0;animation:drift 22s ease-in-out infinite alternate}
+.bb1{width:800px;height:800px;top:-300px;right:-250px;background:radial-gradient(circle,rgba(56,189,248,0.07),transparent 70%)}
+.bb2{width:600px;height:600px;bottom:-200px;left:-200px;background:radial-gradient(circle,rgba(0,230,118,0.03),transparent 70%);animation-delay:-11s}
+.bb3{width:450px;height:450px;top:35%;left:40%;background:radial-gradient(circle,rgba(255,179,0,0.025),transparent 70%);animation-delay:-6s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,28px) scale(1.07)}}
+
+/* ── Progress bar ── */
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--sky),var(--blue),var(--cyan));transition:width 0.55s var(--ease);z-index:100;box-shadow:0 0 16px rgba(56,189,248,0.6)}
+
+/* ── Nav ── */
+.nav{position:fixed;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:50}
+.nav-logo{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--sky);letter-spacing:0.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.nav-logo-dot{width:7px;height:7px;background:var(--sky);border-radius:50%;box-shadow:0 0 10px var(--sky);animation:pulse-dot 3.5s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.6)}}
+.nav-title{font-size:12px;color:var(--muted);font-weight:500}
+.nav-btn{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.22);color:var(--muted);border-radius:8px;padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font-head);letter-spacing:0.05em;text-transform:uppercase}
+.nav-btn:hover{border-color:var(--sky);color:var(--sky);background:var(--sky-dim)}
+
+/* ── Stage & slides ── */
+.stage{position:fixed;inset:58px 0 72px;overflow:hidden}
+.slide{position:absolute;inset:0;padding:32px 52px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;opacity:0;transform:translateX(70px) scale(0.985);transition:opacity var(--trans),transform var(--trans);pointer-events:none;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}
+.slide::-webkit-scrollbar{width:3px}.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
+.slide.active{opacity:1;transform:translateX(0) scale(1);pointer-events:all}
+.slide.exit-left{opacity:0;transform:translateX(-70px) scale(0.985)}
+.hero-slide{justify-content:center;padding:72px 52px}
+@media(max-width:680px){.slide{padding:20px 18px 20px}.hero-slide{padding:40px 18px}}
+
+/* ── Eyebrow ── */
+.ey{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--sky);display:flex;align-items:center;gap:10px}
+.ey::before{content:'';display:block;width:24px;height:2px;background:linear-gradient(90deg,var(--sky),transparent);border-radius:2px}
+
+/* ── Typography ── */
+h1.hero{font-family:var(--font-head);font-size:clamp(2.1rem,4.5vw,3.4rem);font-weight:700;line-height:1.08;letter-spacing:-0.03em;color:#fff;max-width:860px}
+h1.hero .grad{background:linear-gradient(100deg,var(--sky),var(--blue) 55%,var(--cyan) 100%);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer-text 4s linear infinite}
+@keyframes shimmer-text{0%{background-position:0%}100%{background-position:200%}}
+h2{font-family:var(--font-head);font-size:clamp(1.25rem,2.4vw,1.78rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-0.018em}
+h3{font-family:var(--font-head);font-size:0.98rem;font-weight:600;color:var(--text);margin-bottom:6px}
+h4{font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:4px}
+p{font-size:0.88rem;color:var(--muted);line-height:1.7}
+li{font-size:0.86rem;color:var(--muted);line-height:1.65;margin-bottom:5px}
+strong{color:var(--text);font-weight:600}
+ul,ol{padding-left:18px}
+.subt{font-size:0.97rem;color:var(--muted);max-width:700px;line-height:1.75}
+.htags{display:flex;flex-wrap:wrap;gap:9px;margin-top:6px}
+.htag{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:500;color:var(--muted);transition:all 0.2s}
+.htag:hover{border-color:rgba(56,189,248,0.35);color:var(--text);background:var(--sky-dim)}
+
+/* ── Pills ── */
+.pill{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 11px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px}
+.pr{background:rgba(255,61,90,0.14);color:var(--red)}
+.pg{background:rgba(0,230,118,0.12);color:var(--green)}
+.pc{background:rgba(0,212,255,0.12);color:var(--cyan)}
+.pa{background:rgba(255,179,0,0.12);color:var(--amber)}
+.ps{background:rgba(56,189,248,0.14);color:var(--sky)}
+.pb{background:rgba(96,165,250,0.12);color:var(--blue)}
+
+/* ── Cards ── */
+.cards{display:grid;gap:13px}
+.c2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.c3{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;transition:border-color 0.3s,box-shadow 0.3s,transform 0.3s}
+.card:hover{border-color:rgba(56,189,248,0.25);box-shadow:0 6px 30px rgba(56,189,248,0.07);transform:translateY(-2px)}
+
+/* ── Alert strips ── */
+.alt{border-radius:var(--r);padding:13px 17px;border-left:3px solid}
+.ar{background:rgba(255,61,90,0.07);border-color:var(--red)}.ar h4{color:var(--red)}
+.aa{background:rgba(255,179,0,0.06);border-color:var(--amber)}.aa h4{color:var(--amber)}
+.ac{background:rgba(0,212,255,0.06);border-color:var(--cyan)}.ac h4{color:var(--cyan)}
+.ag{background:rgba(0,230,118,0.06);border-color:var(--green)}.ag h4{color:var(--green)}
+.as{background:rgba(56,189,248,0.07);border-color:var(--sky)}.as h4{color:var(--sky)}
+
+/* ── Objectives ── */
+.obj-list{display:flex;flex-direction:column;gap:10px}
+.obj-item{display:flex;align-items:flex-start;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 20px;transition:border-color 0.3s,transform 0.3s}
+.obj-item:hover{border-color:rgba(56,189,248,0.25);transform:translateX(4px)}
+.obj-num{width:30px;height:30px;border-radius:50%;background:var(--sky-dim);border:1px solid rgba(56,189,248,0.3);color:var(--sky);font-family:var(--font-head);font-weight:700;font-size:0.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.obj-text{font-size:0.85rem;color:var(--muted);line-height:1.6}
+.obj-text strong{color:var(--text)}
+
+/* ── Course map grid ── */
+.day-grid{display:grid;gap:18px}
+.day-label{font-family:var(--font-head);font-size:0.78rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:4px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;margin-bottom:10px}
+.day1-lbl{background:rgba(56,189,248,0.12);color:var(--sky)}
+.day2-lbl{background:rgba(0,230,118,0.10);color:var(--green)}
+.mod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:9px}
+.mod-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:11px 14px;transition:border-color 0.2s,background 0.2s}
+.mod-item:hover{border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.04)}
+.mod-num{font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--sky);margin-bottom:3px}
+.mod-name{font-size:0.78rem;color:var(--text);font-weight:500;line-height:1.3}
+
+/* ── Certification cards ── */
+.cert-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px}
+.cert-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 20px;display:flex;flex-direction:column;gap:8px;transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s}
+.cert-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(56,189,248,0.08)}
+.cert-icon{font-size:1.6rem;line-height:1}
+.cert-title{font-family:var(--font-head);font-weight:700;font-size:0.9rem;color:var(--text)}
+.cert-desc{font-size:0.79rem;color:var(--muted);line-height:1.55}
+
+/* ── 2025 Updates list ── */
+.update-list{display:flex;flex-direction:column;gap:9px}
+.update-item{display:flex;align-items:flex-start;gap:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;cursor:pointer;transition:border-color 0.25s,background 0.25s,transform 0.25s}
+.update-item:hover{border-color:rgba(56,189,248,0.28);background:rgba(56,189,248,0.03);transform:translateX(3px)}
+.update-item.new{border-color:rgba(0,230,118,0.28);background:rgba(0,230,118,0.03)}
+.update-item.new:hover{border-color:rgba(0,230,118,0.45)}
+.update-badge{font-family:var(--font-head);font-size:0.72rem;font-weight:700;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.badge-sky{background:var(--sky-dim);border:1px solid rgba(56,189,248,0.3);color:var(--sky)}
+.badge-green{background:var(--green-dim);border:1px solid rgba(0,230,118,0.28);color:var(--green)}
+.badge-amber{background:var(--amber-dim);border:1px solid rgba(255,179,0,0.28);color:var(--amber)}
+.update-text{font-size:0.83rem;color:var(--muted);line-height:1.6}
+.update-text strong{color:var(--text)}
+.new-tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(0,230,118,0.14);color:var(--green);border-radius:4px;padding:1px 6px;margin-left:7px;vertical-align:middle}
+
+/* ── Flip cards ── */
+.fg{display:grid;gap:13px}
+.fg2{grid-template-columns:repeat(auto-fit,minmax(295px,1fr))}
+.fc{perspective:1100px;cursor:pointer}
+.fc-inner{width:100%;min-height:158px;position:relative;transform-style:preserve-3d;transition:transform 0.68s var(--ease)}
+.fc.flipped .fc-inner{transform:rotateY(180deg)}
+.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--r-lg);padding:22px;display:flex;flex-direction:column;justify-content:center}
+.ff{background:var(--surface);border:1px solid rgba(56,189,248,0.22)}
+.fb{background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(0,212,255,0.04));border:1px solid rgba(56,189,248,0.25);transform:rotateY(180deg)}
+.ql{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--sky);margin-bottom:8px}
+.ff h4{font-size:0.87rem;color:var(--text);line-height:1.48}
+.fb p{font-size:0.85rem;color:var(--text);line-height:1.68}
+.hi{font-size:10px;color:var(--faint);margin-top:12px;font-style:italic}
+
+/* ── Pearl ── */
+.pearl{padding:30px 36px;border-radius:var(--r-xl);background:linear-gradient(135deg,rgba(56,189,248,0.07),rgba(0,212,255,0.04));border:1px solid rgba(56,189,248,0.22);position:relative;overflow:hidden}
+.pearl::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(56,189,248,0.1),transparent 70%);pointer-events:none}
+.pearl-quote{font-family:var(--font-head);font-size:clamp(1.1rem,2vw,1.5rem);font-weight:700;color:#fff;line-height:1.3;margin:10px 0 14px;letter-spacing:-0.01em}
+.pearl-quote .accent{color:var(--sky)}
+
+/* ── Stat summary ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden;transition:border-color 0.3s,transform 0.3s}
+.stat-card:hover{transform:translateY(-3px)}
+.stat-card::after{content:'';position:absolute;inset:0;border-radius:var(--r-lg);background:radial-gradient(circle at 100% 0%,var(--sg,rgba(56,189,248,0.06)),transparent 70%);pointer-events:none}
+.stat-val{font-family:var(--font-head);font-size:1.4rem;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.stat-note{font-size:0.72rem;color:var(--muted);line-height:1.5}
+
+/* ── CTA ── */
+.nxt{display:inline-flex;align-items:center;gap:10px;margin-top:6px;padding:13px 26px;background:linear-gradient(135deg,var(--sky),var(--blue));color:#07080e;font-family:var(--font-head);font-weight:700;font-size:0.87rem;border-radius:var(--r);text-decoration:none;transition:opacity 0.2s,transform 0.2s,box-shadow 0.2s;align-self:flex-start;letter-spacing:0.02em}
+.nxt:hover{opacity:0.88;transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,248,0.35)}
+.nxt-arrow{transition:transform 0.2s}.nxt:hover .nxt-arrow{transform:translateX(4px)}
+
+/* ── Footer ── */
+.foot{position:fixed;bottom:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,0.92);backdrop-filter:blur(24px);border-top:1px solid var(--border);z-index:50}
+.slide-counter{font-size:12px;color:var(--muted);font-family:var(--font-head);font-weight:600;min-width:50px}
+.slide-dots{display:flex;gap:5px;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--faint);transition:all 0.35s;cursor:pointer}
+.dot.active{background:var(--sky);box-shadow:0 0 8px var(--sky);width:20px;border-radius:4px}
+.dot:hover:not(.active){background:var(--muted)}
+.foot-btns{display:flex;gap:8px}
+.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:9px 22px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font-head);letter-spacing:0.04em}
+.foot-btn:hover:not(:disabled){border-color:rgba(56,189,248,0.4);color:var(--sky);box-shadow:0 0 20px rgba(56,189,248,0.12)}
+.foot-btn:disabled{opacity:0.2;cursor:not-allowed}
+.foot-btn.primary{background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.3);color:var(--sky)}
+.foot-btn.primary:hover:not(:disabled){background:rgba(56,189,248,0.16);box-shadow:0 0 24px rgba(56,189,248,0.2)}
 </style>
 </head>
 <body>
-<div class="blob blob1"></div><div class="blob blob2"></div>
-<a class="home" href="../index.html">← Hub</a>
-<div class="counter"><span id="cur">1</span>/<span id="tot">7</span></div>
+<div class="bg-grid"></div>
+<div class="bg-blob bb1"></div>
+<div class="bg-blob bb2"></div>
+<div class="bg-blob bb3"></div>
+<div id="progress-bar"></div>
 
-<div class="deck" id="deck">
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo"><div class="nav-logo-dot"></div>PALS 2025</div>
+  <div class="nav-title">Module 01 &nbsp;·&nbsp; Course Intro &amp; 2025 Updates</div>
+  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
+</nav>
 
-  <section class="slide active">
-    <span class="pill">Module 01</span>
-    <h1 class="mt-3">Course Introduction<br>& 2025 AHA Updates</h1>
-    <p class="mt-6 text-slate-500">Pediatric Advanced Life Support · 2-Day Provider Course</p>
-    <div class="mt-8 flex gap-6 text-sm text-slate-500">
-      <span>🩺 Provider Certification</span>
-      <span>📘 2025 Guidelines</span>
-      <span>⏱ Day 1 · 08:30</span>
+<div class="stage">
+
+<!-- ═══════════ SLIDE 1 · HERO ═══════════ -->
+<section class="slide active hero-slide">
+  <div class="ey">Module 01 &nbsp;·&nbsp; 2025 AHA Guidelines</div>
+  <h1 class="hero">Course Intro &amp;<br><span class="grad">2025 AHA Updates</span></h1>
+  <p class="subt">Pediatric Advanced Life Support · 2-Day Provider Course · Certification valid 2 years</p>
+  <div class="htags">
+    <span class="htag">📚 2-Day Structure</span>
+    <span class="htag">✅ Certification Requirements</span>
+    <span class="htag">🔁 Simultaneous Assessment</span>
+    <span class="htag">📊 Physiology-Directed CPR</span>
+    <span class="htag">🟢 IV Sotalol — New</span>
+    <span class="htag">🪥 ECPR Guidance</span>
+    <span class="htag">📝 Open-Resource Exam</span>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 2 · OBJECTIVES ═══════════ -->
+<section class="slide">
+  <div class="ey">Learning Objectives</div>
+  <h2>What you'll master in this module</h2>
+  <div class="obj-list">
+    <div class="obj-item">
+      <div class="obj-num">1</div>
+      <div class="obj-text">Describe the <strong>2-day PALS provider course structure</strong>: 12 modules, 4 megacodes, written exam, and skills testing</div>
     </div>
-  </section>
+    <div class="obj-item">
+      <div class="obj-num">2</div>
+      <div class="obj-text">Explain the AHA 2025 <strong>open-resource exam policy</strong> and the three certification requirements (exam ≥84% · skills sign-off · participation)</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-num">3</div>
+      <div class="obj-text">Summarize the <strong>seven key 2025 PALS updates</strong> including simultaneous assessment, physiology-directed CPR, IV sotalol, and ECPR guidance</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-num">4</div>
+      <div class="obj-text">Identify your responsibilities as a learner during <strong>megacode scenarios</strong> and understand how roles rotate throughout the two days</div>
+    </div>
+  </div>
+</section>
 
-  <section class="slide">
-    <h3>Learning Objectives</h3>
-    <h2>By the end of this module, you will be able to</h2>
-    <ul class="mt-4 space-y-2">
-      <li>Describe the structure and certification rules of the 2-day PALS provider course.</li>
-      <li>Outline the AHA 2025 <strong>open-resource exam policy</strong> and what it means for testing.</li>
-      <li>Summarize key 2025 PALS updates — physiology-directed CPR, simultaneous breathing/pulse check, new reversible causes, IV sotalol, DBP targets.</li>
-      <li>Identify your responsibilities as a learner and participant in megacodes.</li>
-    </ul>
-  </section>
-
-  <section class="slide">
-    <h3>Course Structure</h3>
-    <h2>Two Days · Twelve Modules · Four Megacodes</h2>
-    <div class="grid2 mt-4">
-      <div class="card">
-        <h3 style="color:#0891B2">Day 1</h3>
-        <ul class="text-sm">
-          <li>BLS & high-quality CPR</li>
-          <li>Pediatric assessment</li>
-          <li>Respiratory & shock</li>
-          <li>Rhythm recognition</li>
-          <li>Brady / tachy algorithms</li>
-          <li>Megacode 1 + 2</li>
-        </ul>
+<!-- ═══════════ SLIDE 3 · COURSE MAP ═══════════ -->
+<section class="slide">
+  <div class="ey">Course Structure</div>
+  <h2>Two Days · Twelve Modules · Four Megacodes</h2>
+  <div class="day-grid">
+    <div>
+      <div class="day-label day1-lbl">🗓 Day 1</div>
+      <div class="mod-grid">
+        <div class="mod-item"><div class="mod-num">Mod 01</div><div class="mod-name">Course Intro &amp; 2025 Updates</div></div>
+        <div class="mod-item"><div class="mod-num">Mod 02</div><div class="mod-name">Paediatric BLS &amp; High-Quality CPR</div></div>
+        <div class="mod-item"><div class="mod-num">Mod 03</div><div class="mod-name">Paediatric Assessment</div></div>
+        <div class="mod-item"><div class="mod-num">Mod 04</div><div class="mod-name">Respiratory Emergencies</div></div>
+        <div class="mod-item"><div class="mod-num">Mod 05</div><div class="mod-name">Shock Recognition &amp; Management</div></div>
+        <div class="mod-item"><div class="mod-num">Mod 06</div><div class="mod-name">Rhythm Recognition</div></div>
+        <div class="mod-item"><div class="mod-num">Mod 07</div><div class="mod-name">Bradycardia Algorithm</div></div>
+        <div class="mod-item"><div class="mod-num">Mod 08</div><div class="mod-name">Tachycardia Algorithm</div></div>
+        <div class="mod-item" style="border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.04)"><div class="mod-num" style="color:var(--sky)">Megacode 1+2</div><div class="mod-name">Respiratory &amp; Shock Stations</div></div>
       </div>
-      <div class="card">
-        <h3 style="color:#34D399">Day 2</h3>
-        <ul class="text-sm">
-          <li>Cardiac arrest algorithm</li>
-          <li>Post-arrest care</li>
-          <li>Advanced airway & pharmacology</li>
-          <li>Megacode 3 + 4</li>
-          <li>Written exam (open-resource)</li>
-          <li>Skills testing & certification</li>
-        </ul>
+    </div>
+    <div>
+      <div class="day-label day2-lbl">🗓 Day 2</div>
+      <div class="mod-grid">
+        <div class="mod-item"><div class="mod-num">Mod 09</div><div class="mod-name">Cardiac Arrest Algorithm</div></div>
+        <div class="mod-item"><div class="mod-num">Mod 10</div><div class="mod-name">ROSC &amp; Reversible Causes</div></div>
+        <div class="mod-item"><div class="mod-num">Mod 11</div><div class="mod-name">Post-Cardiac Arrest Care</div></div>
+        <div class="mod-item"><div class="mod-num">Mod 12</div><div class="mod-name">Advanced Airway &amp; Pharmacology</div></div>
+        <div class="mod-item" style="border-color:rgba(0,230,118,0.3);background:rgba(0,230,118,0.03)"><div class="mod-num" style="color:var(--green)">Megacode 3+4</div><div class="mod-name">Arrest &amp; Post-Arrest Stations</div></div>
+        <div class="mod-item" style="border-color:rgba(255,179,0,0.3);background:rgba(255,179,0,0.03)"><div class="mod-num" style="color:var(--amber)">Written Exam</div><div class="mod-name">25 questions · open-resource · ≥84%</div></div>
+        <div class="mod-item" style="border-color:rgba(255,179,0,0.3);background:rgba(255,179,0,0.03)"><div class="mod-num" style="color:var(--amber)">Skills Testing</div><div class="mod-name">BLS station + megacode sign-off</div></div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="slide">
-    <h3>Certification Requirements</h3>
-    <h2>What it takes to pass</h2>
-    <div class="grid3 mt-3">
-      <div class="card"><div class="num-circle mb-2">1</div><strong>Skills</strong><p class="text-sm mt-1">Pass BLS station + megacode sign-off.</p></div>
-      <div class="card"><div class="num-circle mb-2">2</div><strong>Written Exam</strong><p class="text-sm mt-1">≥84% · 25 questions · open-resource per AHA 2025.</p></div>
-      <div class="card"><div class="num-circle mb-2">3</div><strong>Participation</strong><p class="text-sm mt-1">Active engagement in all megacode roles.</p></div>
+<!-- ═══════════ SLIDE 4 · CERTIFICATION ═══════════ -->
+<section class="slide">
+  <div class="ey">Certification Requirements</div>
+  <h2>What It Takes to Pass</h2>
+  <div class="cert-grid">
+    <div class="cert-card" style="border-color:rgba(56,189,248,0.25)">
+      <div class="cert-icon">📝</div>
+      <div class="cert-title">Written Exam</div>
+      <div class="cert-desc"><strong>≥84%</strong> required (21 / 25 questions) · <strong>open-resource</strong> per 2025 AHA policy · provider manual and 2025 guidelines permitted · remediation available same day</div>
     </div>
-    <p class="text-sm text-slate-500 mt-6">Provider card valid <strong>2 years</strong>. Remediation available same day if needed.</p>
-  </section>
-
-  <section class="slide">
-    <h3>2025 AHA / ILCOR Highlights</h3>
-    <h2>Seven Changes Worth Memorizing</h2>
-    <div class="card mt-3">
-      <div class="change-row"><div class="num-circle">1</div><div><strong>Simultaneous</strong> breathing + pulse check ≤10 s (was sequential).</div></div>
-      <div class="change-row"><div class="num-circle">2</div><div><strong>Physiology-directed CPR:</strong> use ETCO2 (≥15-20 mmHg) and DBP (≥25 infants, ≥30 children) when available.</div></div>
-      <div class="change-row"><div class="num-circle">3</div><div>Expanded <strong>reversible causes</strong> include <em>intracranial hypertension</em> and <em>heart block</em>.</div></div>
-      <div class="change-row"><div class="num-circle">4</div><div><strong>IV sotalol</strong> endorsed for refractory SVT after adenosine + 1 antiarrhythmic.</div></div>
-      <div class="change-row"><div class="num-circle">5</div><div>Unified <strong>chain of survival</strong> integrating IHCA and OHCA flows.</div></div>
-      <div class="change-row"><div class="num-circle">6</div><div>Written exam is <strong>open-resource</strong> — provider manual & 2025 guidelines permitted.</div></div>
-      <div class="change-row"><div class="num-circle">7</div><div><strong>ECPR</strong> reasonable in IHCA with reversible cause + ECMO expertise.</div></div>
+    <div class="cert-card" style="border-color:rgba(0,230,118,0.22)">
+      <div class="cert-icon">🪷</div>
+      <div class="cert-title">Skills Sign-Off</div>
+      <div class="cert-desc">Pass the <strong>BLS station</strong> (compressions + AED) and <strong>megacode evaluation</strong> · demonstrate team leader and team member roles · assessed by AHA instructor</div>
     </div>
-  </section>
-
-  <section class="slide">
-    <div class="pearl">
-      <h3>Clinical Pearl</h3>
-      <h2 style="color:#0f3a26">"Compress hard, monitor what you can."</h2>
-      <p class="mt-3">When invasive monitoring is available, let the patient's physiology guide CPR quality — DBP and ETCO2 are real-time feedback that outperform a stopwatch alone.</p>
+    <div class="cert-card" style="border-color:rgba(255,179,0,0.22)">
+      <div class="cert-icon">🤝</div>
+      <div class="cert-title">Active Participation</div>
+      <div class="cert-desc">Engage in <strong>all four megacode scenarios</strong> in rotating roles · attendance both full days required · provider card issued immediately on completion</div>
     </div>
-  </section>
+    <div class="cert-card" style="border-color:rgba(139,92,246,0.22)">
+      <div class="cert-icon">🏅</div>
+      <div class="cert-title">Provider Card</div>
+      <div class="cert-desc">Valid <strong>2 years</strong> from date of course · renewal via PALS Provider or HeartCode PALS · eCard issued through AHA LMS within 24 hours</div>
+    </div>
+  </div>
+  <div class="alt as"><h4>🔵 Open-resource exam — 2025 change</h4><p>The 2025 AHA guidelines officially endorse an <strong>open-resource written exam</strong>. You may consult your provider manual, the 2025 guidelines reference card, and any printed notes. This reflects real clinical practice: looking up a dose in a reference is appropriate at the bedside.</p></div>
+</section>
 
-  <section class="slide">
-    <h3>Module 1 Summary</h3>
-    <h2>Take-Home Points</h2>
-    <ul class="mt-4 space-y-2">
-      <li>2-day course · 12 modules · 4 megacodes · written + skills testing.</li>
-      <li>Pass: ≥84% exam · skills sign-off · active participation.</li>
-      <li>2025 updates emphasize <strong>simultaneous</strong> assessment, <strong>physiology-directed</strong> CPR, and an <strong>expanded</strong> reversible-causes list.</li>
-      <li>Written exam is now <strong>open-resource</strong>.</li>
-    </ul>
-    <a href="pals_module_02_bls.slides.html" class="text-sm font-semibold mt-8 inline-block" style="color:#0891B2">Next → Module 2: Pediatric BLS & High-Quality CPR</a>
-  </section>
+<!-- ═══════════ SLIDE 5 · 2025 UPDATES ═══════════ -->
+<section class="slide">
+  <div class="ey">AHA / ILCOR 2025 Guidelines</div>
+  <h2>Seven Changes Worth Knowing</h2>
+  <div class="update-list">
+    <div class="update-item">
+      <div class="update-badge badge-sky">1</div>
+      <div class="update-text"><strong>Simultaneous breathing + pulse check ≥10 s</strong> — assess both at the same time rather than sequentially; reduces time to first compression</div>
+    </div>
+    <div class="update-item">
+      <div class="update-badge badge-sky">2</div>
+      <div class="update-text"><strong>Physiology-directed CPR:</strong> use <strong>ETCO₂ ≥15–20 mmHg</strong> and <strong>DBP ≥25 mmHg (infants) / ≥30 mmHg (children)</strong> when invasive monitoring is available to guide compression quality</div>
+    </div>
+    <div class="update-item">
+      <div class="update-badge badge-sky">3</div>
+      <div class="update-text">Expanded <strong>reversible causes (Hs &amp; Ts):</strong> added <em>intracranial hypertension</em> and <em>complete heart block</em> to the classic list</div>
+    </div>
+    <div class="update-item new">
+      <div class="update-badge badge-green">4</div>
+      <div class="update-text"><strong>IV sotalol<span class="new-tag">NEW</span></strong> is now endorsed for refractory SVT that persists after adenosine and a first antiarrhythmic agent — dose 1 mg/kg IV over 5 min</div>
+    </div>
+    <div class="update-item">
+      <div class="update-badge badge-sky">5</div>
+      <div class="update-text"><strong>Unified chain of survival</strong> — in-hospital (IHCA) and out-of-hospital (OHCA) paediatric chains are now integrated into a single continuous loop emphasising community + hospital response</div>
+    </div>
+    <div class="update-item new">
+      <div class="update-badge badge-green">6</div>
+      <div class="update-text"><strong>ECPR<span class="new-tag">NEW</span></strong> is considered reasonable for IHCA with a <em>reversible cause</em> in centres with ECMO expertise and rapid cannulation capability</div>
+    </div>
+    <div class="update-item">
+      <div class="update-badge badge-amber">7</div>
+      <div class="update-text"><strong>Open-resource written exam</strong> — AHA formally endorses use of printed reference materials during the certification exam, aligning testing with real clinical behaviour</div>
+    </div>
+  </div>
+</section>
 
-</div>
+<!-- ═══════════ SLIDE 6 · KNOWLEDGE CHECK ═══════════ -->
+<section class="slide">
+  <div class="ey">Knowledge Check</div>
+  <h2>Tap each card to reveal the answer</h2>
+  <div class="fg fg2">
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 1</div><h4>What score do you need to pass the PALS written exam, and what resource policy applies in 2025?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p><strong>≥84%</strong> (21 of 25 questions correct). Under 2025 AHA policy the exam is <strong>open-resource</strong> — provider manual, the 2025 guidelines reference card, and printed notes are all permitted. Remediation is available same-day if needed.</p></div>
+      </div>
+    </div>
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 2</div><h4>What two physiologic targets guide CPR quality when invasive monitoring is in place?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p><strong>ETCO₂ ≥15–20 mmHg</strong> and <strong>diastolic blood pressure (DBP) ≥25 mmHg in infants / ≥30 mmHg in children</strong>. If targets are not met, reassess compression rate, depth, recoil, and position rather than simply increasing rate.</p></div>
+      </div>
+    </div>
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 3</div><h4>Which drug was newly endorsed in 2025 for refractory paediatric SVT?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p><strong>IV sotalol</strong> — 1 mg/kg IV over 5 minutes — is endorsed for SVT that fails adenosine and a first antiarrhythmic agent. It is a class III antiarrhythmic that prolongs repolarisation. Monitoring for QT prolongation and hypotension during infusion is required.</p></div>
+      </div>
+    </div>
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 4</div><h4>Name two new reversible causes added to the expanded 2025 Hs &amp; Ts list.</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p><strong>Intracranial hypertension</strong> (e.g., TBI, CNS infection, shunted hydrocephalus causing Cushing response) and <strong>complete (third-degree) heart block</strong> are newly included. Both are potentially treatable causes of cardiovascular collapse that should be actively sought during arrest.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-<div class="nav">
-  <button class="nav-btn" onclick="go(-1)">◀ Prev</button>
-  <div class="dots" id="dots"></div>
-  <button class="nav-btn" onclick="go(1)">Next ▶</button>
+<!-- ═══════════ SLIDE 7 · PEARL + FINISH ═══════════ -->
+<section class="slide">
+  <div class="pearl">
+    <div class="pill ps">Clinical Pearl</div>
+    <div class="pearl-quote">&ldquo;Compress hard, monitor <span class="accent">what you can.</span>&rdquo;</div>
+    <p>When invasive monitoring is available, let the patient’s physiology guide CPR quality. A DBP of 22 mmHg in an infant tells you more about perfusion than a metronome does. Treat the numbers, not just the algorithm.</p>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card" style="--sg:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.22)">
+      <div class="stat-lbl">Written exam pass mark</div>
+      <div class="stat-val" style="color:var(--sky)">≥84%</div>
+      <div class="stat-note">21 / 25 questions · open-resource</div>
+    </div>
+    <div class="stat-card" style="--sg:rgba(0,212,255,0.07);border-color:rgba(0,212,255,0.22)">
+      <div class="stat-lbl">ETCO₂ CPR target</div>
+      <div class="stat-val" style="color:var(--cyan)">≥15</div>
+      <div class="stat-note">mmHg during CPR (aim ≥20)</div>
+    </div>
+    <div class="stat-card" style="--sg:rgba(255,179,0,0.07);border-color:rgba(255,179,0,0.22)">
+      <div class="stat-lbl">DBP target — children</div>
+      <div class="stat-val" style="color:var(--amber)">≥30</div>
+      <div class="stat-note">mmHg · infants ≥25 mmHg</div>
+    </div>
+    <div class="stat-card" style="--sg:rgba(0,230,118,0.06);border-color:rgba(0,230,118,0.22)">
+      <div class="stat-lbl">Provider card validity</div>
+      <div class="stat-val" style="color:var(--green)">2 yr</div>
+      <div class="stat-note">eCard via AHA LMS within 24 h</div>
+    </div>
+  </div>
+
+  <a href="pals_module_02_bls.slides.html" class="nxt">
+    Next — Module 02: Paediatric BLS &amp; High-Quality CPR
+    <span class="nxt-arrow">→</span>
+  </a>
+</section>
+
+</div><!-- /stage -->
+
+<!-- FOOTER -->
+<div class="foot">
+  <div class="slide-counter" id="counter">1 / 7</div>
+  <div class="slide-dots" id="dots"></div>
+  <div class="foot-btns">
+    <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
+    <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
+  </div>
 </div>
 
 <script>
-const slides=document.querySelectorAll('.slide');
-let cur=0;
-document.getElementById('tot').textContent=slides.length;
-const dotsEl=document.getElementById('dots');
-slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
-function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
-function go(d){show(cur+d)}
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1);if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1)});
-let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);
-document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let cur = 0;
+const dotsEl = document.getElementById('dots');
+slides.forEach((_,i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+function updateUI() {
+  document.getElementById('counter').textContent = (cur+1) + ' / ' + total;
+  document.getElementById('prev-btn').disabled = cur === 0;
+  document.getElementById('next-btn').disabled = cur === total - 1;
+  document.getElementById('progress-bar').style.width = ((cur+1)/total*100) + '%';
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === cur));
+}
+function goTo(idx) {
+  if (idx === cur || idx < 0 || idx >= total) return;
+  const dir = idx > cur ? 1 : -1;
+  slides[cur].classList.remove('active');
+  if (dir > 0) slides[cur].classList.add('exit-left');
+  const prev = cur;
+  cur = idx;
+  setTimeout(() => slides[prev].classList.remove('exit-left'), 520);
+  slides[cur].classList.add('active');
+  updateUI();
+}
+function changeSlide(dir) { goTo(cur + dir); }
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key==='ArrowDown') changeSlide(1);
+  if (e.key==='ArrowLeft'||e.key==='ArrowUp') changeSlide(-1);
+  if (e.key==='Home') goTo(0);
+  if (e.key==='End') goTo(total-1);
+});
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = tx - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > 48) changeSlide(dx > 0 ? 1 : -1);
+}, {passive:true});
+updateUI();
 </script>
 </body>
 </html>
