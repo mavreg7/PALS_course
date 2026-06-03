@@ -1,160 +1,571 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 11 — Post-Cardiac Arrest Care</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Module 11 · Post-Cardiac Arrest Care</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  *{font-family:'Manrope',system-ui,sans-serif}
-  html,body{height:100%;margin:0}
-  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
-  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
-  .blob1{width:500px;height:500px;background:#34D399;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
-  .blob2{width:450px;height:450px;background:#0891B2;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
-  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
-  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 6vw;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
-  .slide.active{opacity:1;pointer-events:auto}
-  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#0891B2}
-  .slide h2{font-size:clamp(20px,2.8vw,36px);font-weight:800;color:#1E293B;margin-bottom:14px}
-  .slide h3{font-size:clamp(14px,1.4vw,20px);font-weight:700;color:#0891B2;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
-  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.2vw,17px);line-height:1.5;color:#334155}
-  .slide ul{padding-left:24px} .slide li{margin-bottom:5px}
-  .card{background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);border:1px solid rgba(8,145,178,.12);border-radius:14px;padding:16px}
-  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(52,211,153,.15);color:#0f9b6c;letter-spacing:.5px}
-  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:100;pointer-events:none}
-  .nav > *{pointer-events:auto}
-  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
-  .dot.active{background:#34D399;transform:scale(1.4)}
-  .nav-btn{background:#34D399;color:#0f3a26;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;position:relative;z-index:101}
-  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;z-index:100}
-  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none;z-index:100;pointer-events:auto}
-  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:16px 22px;border-radius:8px}
-  .pearl h3{color:#0f9b6c}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid #e2e8f0}
-  th{background:rgba(8,145,178,.08);font-weight:700;color:#0891B2;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
-  .target{background:#fff;border:2px solid #0891B2;border-radius:14px;padding:18px;text-align:center}
-  .target-num{font-size:42px;font-weight:800;color:#0891B2;line-height:1}
-  .target-lbl{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:8px}
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS — Module 11 · Post-Cardiac Arrest Care
+   Accent: Teal-Cyan (recovery / physiology theme)
+   ═══════════════════════════════════════════════ */
+:root{
+  --bg:#06090e;--surface:#0d1017;--surface2:#121620;--surface3:#171b27;
+  --border:rgba(255,255,255,0.06);
+  --text:#e8eaf0;--muted:#7c8494;--faint:#2e3240;
+  --teal:#00bcd4;--teal-glow:rgba(0,188,212,0.18);--teal-dim:rgba(0,188,212,0.10);
+  --cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.10);
+  --green:#00e676;--green-dim:rgba(0,230,118,0.10);
+  --amber:#ffb300;--amber-dim:rgba(255,179,0,0.10);
+  --red:#ff3d5a;--red-dim:rgba(255,61,90,0.10);
+  --purple:#b388ff;
+  --font-head:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --r:10px;--r-lg:16px;--r-xl:22px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --trans:0.5s var(--ease);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+
+/* ── Atmospheric background ── */
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,188,212,0.016) 1px,transparent 1px),linear-gradient(90deg,rgba(0,188,212,0.016) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0}
+.bg-blob{position:fixed;border-radius:50%;filter:blur(140px);pointer-events:none;z-index:0;animation:drift 22s ease-in-out infinite alternate}
+.bb1{width:800px;height:800px;top:-300px;right:-250px;background:radial-gradient(circle,rgba(0,188,212,0.06),transparent 70%)}
+.bb2{width:600px;height:600px;bottom:-200px;left:-200px;background:radial-gradient(circle,rgba(0,230,118,0.035),transparent 70%);animation-delay:-11s}
+.bb3{width:450px;height:450px;top:35%;left:40%;background:radial-gradient(circle,rgba(0,212,255,0.025),transparent 70%);animation-delay:-6s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,28px) scale(1.07)}}
+
+/* ── Progress bar ── */
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--green),var(--cyan));transition:width 0.55s var(--ease);z-index:100;box-shadow:0 0 16px rgba(0,188,212,0.6)}
+
+/* ── Navigation bar ── */
+.nav{position:fixed;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(6,9,14,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:50}
+.nav-logo{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--teal);letter-spacing:0.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.nav-logo-dot{width:7px;height:7px;background:var(--teal);border-radius:50%;box-shadow:0 0 10px var(--teal);animation:pulse-dot 2.5s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.45;transform:scale(0.65)}}
+.nav-title{font-size:12px;color:var(--muted);font-weight:500}
+.nav-btn{background:rgba(0,188,212,0.08);border:1px solid rgba(0,188,212,0.22);color:var(--muted);border-radius:8px;padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font-head);letter-spacing:0.05em;text-transform:uppercase}
+.nav-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
+
+/* ── Stage & slides ── */
+.stage{position:fixed;inset:58px 0 72px;overflow:hidden}
+.slide{position:absolute;inset:0;padding:32px 52px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;opacity:0;transform:translateX(70px) scale(0.985);transition:opacity var(--trans),transform var(--trans);pointer-events:none;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}
+.slide::-webkit-scrollbar{width:3px}.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
+.slide.active{opacity:1;transform:translateX(0) scale(1);pointer-events:all}
+.slide.exit-left{opacity:0;transform:translateX(-70px) scale(0.985)}
+.hero-slide{justify-content:center;padding:72px 52px}
+@media(max-width:680px){.slide{padding:20px 18px 20px}.hero-slide{padding:40px 18px}}
+
+/* ── Eyebrow ── */
+.ey{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:10px}
+.ey::before{content:'';display:block;width:24px;height:2px;background:linear-gradient(90deg,var(--teal),transparent);border-radius:2px}
+
+/* ── Typography ── */
+h1.hero{font-family:var(--font-head);font-size:clamp(2.1rem,4.5vw,3.4rem);font-weight:700;line-height:1.08;letter-spacing:-0.03em;color:#fff;max-width:860px}
+h1.hero .grad{background:linear-gradient(100deg,var(--teal),var(--green) 55%,var(--cyan) 100%);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer-text 4s linear infinite}
+@keyframes shimmer-text{0%{background-position:0%}100%{background-position:200%}}
+h2{font-family:var(--font-head);font-size:clamp(1.25rem,2.4vw,1.78rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-0.018em}
+h3{font-family:var(--font-head);font-size:0.98rem;font-weight:600;color:var(--text);margin-bottom:6px}
+h4{font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:4px}
+p{font-size:0.88rem;color:var(--muted);line-height:1.7}
+li{font-size:0.86rem;color:var(--muted);line-height:1.65;margin-bottom:5px}
+strong{color:var(--text);font-weight:600}
+ul{padding-left:16px}
+.subt{font-size:0.97rem;color:var(--muted);max-width:700px;line-height:1.75}
+.htags{display:flex;flex-wrap:wrap;gap:9px;margin-top:6px}
+.htag{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:500;color:var(--muted);transition:all 0.2s}
+.htag:hover{border-color:rgba(0,188,212,0.35);color:var(--text);background:var(--teal-dim)}
+
+/* ── Pills ── */
+.pill{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 11px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px}
+.pr{background:rgba(255,61,90,0.14);color:var(--red)}
+.pg{background:rgba(0,230,118,0.12);color:var(--green)}
+.pc{background:rgba(0,212,255,0.12);color:var(--cyan)}
+.pt{background:rgba(0,188,212,0.14);color:var(--teal)}
+.pa{background:rgba(255,179,0,0.12);color:var(--amber)}
+.pn{background:rgba(179,136,255,0.12);color:var(--purple)}
+.new-badge{font-size:9px;font-weight:700;background:rgba(0,230,118,0.2);color:var(--green);padding:2px 7px;border-radius:20px;letter-spacing:0.06em}
+
+/* ── Cards ── */
+.cards{display:grid;gap:13px}
+.c2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.c3{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;transition:border-color 0.3s,box-shadow 0.3s,transform 0.3s}
+.card:hover{border-color:rgba(0,188,212,0.25);box-shadow:0 6px 30px rgba(0,188,212,0.07);transform:translateY(-2px)}
+
+/* ── Alert strips ── */
+.alt{border-radius:var(--r);padding:13px 17px;border-left:3px solid}
+.ar{background:rgba(255,61,90,0.07);border-color:var(--red)}.ar h4{color:var(--red)}
+.aa{background:rgba(255,179,0,0.06);border-color:var(--amber)}.aa h4{color:var(--amber)}
+.ac{background:rgba(0,212,255,0.06);border-color:var(--cyan)}.ac h4{color:var(--cyan)}
+.ag{background:rgba(0,230,118,0.06);border-color:var(--green)}.ag h4{color:var(--green)}
+.at{background:rgba(0,188,212,0.06);border-color:var(--teal)}.at h4{color:var(--teal)}
+
+/* ── Objectives list ── */
+.obj-list{display:flex;flex-direction:column;gap:10px}
+.obj-item{display:flex;align-items:flex-start;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 20px;transition:border-color 0.3s,transform 0.3s}
+.obj-item:hover{border-color:rgba(0,188,212,0.25);transform:translateX(4px)}
+.obj-num{width:30px;height:30px;border-radius:50%;background:var(--teal-dim);border:1px solid rgba(0,188,212,0.3);color:var(--teal);font-family:var(--font-head);font-weight:700;font-size:0.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.obj-text{font-size:0.85rem;color:var(--muted);line-height:1.6}
+.obj-text strong{color:var(--text)}
+
+/* ── Target stat cards ── */
+.target-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
+.tcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 18px;text-align:center;transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s;position:relative;overflow:hidden}
+.tcard::after{content:'';position:absolute;inset:0;border-radius:var(--r-lg);background:radial-gradient(circle at 50% 0%,var(--tc-glow,rgba(0,188,212,0.07)),transparent 70%);pointer-events:none}
+.tcard:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,188,212,0.09)}
+.tcard-val{font-family:var(--font-head);font-size:clamp(1.4rem,2.5vw,2rem);font-weight:700;line-height:1;margin-bottom:6px}
+.tcard-lbl{font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted)}
+.tcard-note{font-size:0.72rem;color:var(--faint);margin-top:4px;line-height:1.4}
+
+/* ── TTM timeline ── */
+.ttm-wrap{display:flex;flex-direction:column;gap:0;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border)}
+.ttm-row{display:grid;grid-template-columns:110px 1fr;border-bottom:1px solid var(--border);transition:background 0.2s}
+.ttm-row:last-child{border-bottom:none}
+.ttm-row:hover{background:rgba(255,255,255,0.018)}
+.ttm-head{display:grid;grid-template-columns:110px 1fr;background:rgba(0,188,212,0.07);border-bottom:1px solid rgba(0,188,212,0.2)}
+.th{padding:8px 14px;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal)}
+.tc{padding:13px 14px;font-size:0.83rem;color:var(--muted);display:flex;align-items:center}
+.tc.phase{font-family:var(--font-head);font-weight:700;color:var(--teal);font-size:0.88rem}
+.tc strong{color:var(--text)}
+
+/* ── Drug mini-table ── */
+.tbl{width:100%;border-collapse:collapse;font-size:0.81rem}
+.tbl th{text-align:left;padding:9px 13px;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal);border-bottom:1px solid rgba(0,188,212,0.2);background:rgba(0,188,212,0.05)}
+.tbl td{padding:8px 13px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top;transition:background 0.15s}
+.tbl tr:hover td{background:rgba(255,255,255,0.018)}
+.tbl td strong{color:var(--text)}
+
+/* ── Flip cards ── */
+.fg{display:grid;gap:13px}
+.fg2{grid-template-columns:repeat(auto-fit,minmax(295px,1fr))}
+.fc{perspective:1100px;cursor:pointer}
+.fc-inner{width:100%;min-height:162px;position:relative;transform-style:preserve-3d;transition:transform 0.68s var(--ease)}
+.fc.flipped .fc-inner{transform:rotateY(180deg)}
+.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--r-lg);padding:22px;display:flex;flex-direction:column;justify-content:center}
+.ff{background:var(--surface);border:1px solid rgba(0,188,212,0.25)}
+.fb{background:linear-gradient(135deg,rgba(0,188,212,0.09),rgba(0,230,118,0.06));border:1px solid rgba(0,188,212,0.25);transform:rotateY(180deg)}
+.ql{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.ff h4{font-size:0.87rem;color:var(--text);line-height:1.48}
+.fb p{font-size:0.85rem;color:var(--text);line-height:1.68}
+.hi{font-size:10px;color:var(--faint);margin-top:12px;font-style:italic}
+
+/* ── Pearl ── */
+.pearl{padding:30px 36px;border-radius:var(--r-xl);background:linear-gradient(135deg,rgba(0,188,212,0.06),rgba(0,230,118,0.04));border:1px solid rgba(0,188,212,0.2);position:relative;overflow:hidden}
+.pearl::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(0,188,212,0.09),transparent 70%);pointer-events:none}
+.pearl::after{content:'';position:absolute;bottom:-30px;left:-30px;width:150px;height:150px;background:radial-gradient(circle,rgba(0,230,118,0.05),transparent 70%);pointer-events:none}
+.pearl-quote{font-family:var(--font-head);font-size:clamp(1.1rem,2vw,1.5rem);font-weight:700;color:#fff;line-height:1.3;margin:10px 0 14px;letter-spacing:-0.01em}
+.pearl-quote .accent{color:var(--teal)}
+
+/* ── Stat grid (summary) ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 18px;position:relative;overflow:hidden;transition:border-color 0.3s,transform 0.3s}
+.stat-card:hover{transform:translateY(-3px)}
+.stat-card::after{content:'';position:absolute;inset:0;border-radius:var(--r-lg);background:radial-gradient(circle at 100% 0%,var(--sg,rgba(0,188,212,0.06)),transparent 70%);pointer-events:none}
+.stat-val{font-family:var(--font-head);font-size:1.5rem;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.stat-note{font-size:0.72rem;color:var(--muted);line-height:1.5}
+
+/* ── CTA ── */
+.nxt{display:inline-flex;align-items:center;gap:10px;margin-top:6px;padding:13px 26px;background:linear-gradient(135deg,var(--teal),var(--green));color:#06090e;font-family:var(--font-head);font-weight:700;font-size:0.87rem;border-radius:var(--r);text-decoration:none;transition:opacity 0.2s,transform 0.2s,box-shadow 0.2s;align-self:flex-start;letter-spacing:0.02em}
+.nxt:hover{opacity:0.88;transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,188,212,0.35)}
+.nxt-arrow{transition:transform 0.2s}.nxt:hover .nxt-arrow{transform:translateX(4px)}
+
+/* ── Footer ── */
+.foot{position:fixed;bottom:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(6,9,14,0.92);backdrop-filter:blur(24px);border-top:1px solid var(--border);z-index:50}
+.slide-counter{font-size:12px;color:var(--muted);font-family:var(--font-head);font-weight:600;min-width:50px}
+.slide-dots{display:flex;gap:5px;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--faint);transition:all 0.35s;cursor:pointer}
+.dot.active{background:var(--teal);box-shadow:0 0 8px var(--teal);width:20px;border-radius:4px}
+.dot:hover:not(.active){background:var(--muted)}
+.foot-btns{display:flex;gap:8px}
+.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:9px 22px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font-head);letter-spacing:0.04em}
+.foot-btn:hover:not(:disabled){border-color:rgba(0,188,212,0.4);color:var(--teal);box-shadow:0 0 20px rgba(0,188,212,0.12)}
+.foot-btn:disabled{opacity:0.2;cursor:not-allowed}
+.foot-btn.primary{background:rgba(0,188,212,0.08);border-color:rgba(0,188,212,0.3);color:var(--teal)}
+.foot-btn.primary:hover:not(:disabled){background:rgba(0,188,212,0.16);box-shadow:0 0 24px rgba(0,188,212,0.2)}
 </style>
 </head>
 <body>
-<div class="blob blob1"></div><div class="blob blob2"></div>
-<a class="home" href="../index.html">← Hub</a>
-<div class="counter"><span id="cur">1</span>/<span id="tot">8</span></div>
+<div class="bg-grid"></div>
+<div class="bg-blob bb1"></div>
+<div class="bg-blob bb2"></div>
+<div class="bg-blob bb3"></div>
+<div id="progress-bar"></div>
 
-<section class="slide active">
-  <span class="pill">Module 11</span>
-  <h1 class="mt-3">Post-Cardiac Arrest Care</h1>
-  <p class="mt-6 text-slate-500">Optimize oxygenation, perfusion, temperature, and neuro outcome</p>
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo"><div class="nav-logo-dot"></div>PALS 2025</div>
+  <div class="nav-title">Module 11 &nbsp;·&nbsp; Post-Cardiac Arrest Care</div>
+  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
+</nav>
+
+<div class="stage">
+
+<!-- ═══════════ SLIDE 1 · HERO ═══════════ -->
+<section class="slide active hero-slide">
+  <div class="ey">Module 11 &nbsp;·&nbsp; 2025 Guidelines</div>
+  <h1 class="hero">Post-Cardiac<br><span class="grad">Arrest Care</span></h1>
+  <p class="subt">Optimise oxygenation, ventilation, perfusion, and temperature in the critical hours after ROSC — the first 72 hours decide the next 72 years.</p>
+  <div class="htags">
+    <span class="htag">🪫 SpO₂ 94–99%</span>
+    <span class="htag">💨 PaCO₂ 35–45 mmHg</span>
+    <span class="htag">🌡️ Avoid Fever ≤ 37.5°C</span>
+    <span class="htag">🩸 Haemodynamic Support</span>
+    <span class="htag">🧠 Neuro Monitoring</span>
+    <span class="htag">🌡️ TTM Protocol</span>
+    <span class="htag">💬 Handoff &amp; Family</span>
+  </div>
 </section>
 
+<!-- ═══════════ SLIDE 2 · OBJECTIVES ═══════════ -->
 <section class="slide">
-  <h3>Objectives</h3>
-  <ul class="mt-4">
-    <li>Apply post-ROSC oxygen and ventilation targets.</li>
-    <li>Manage hemodynamics with appropriate vasoactives and fluids.</li>
-    <li>Deliver targeted temperature management and avoid fever.</li>
-    <li>Coordinate transport, PICU handoff, and family communication.</li>
-  </ul>
+  <div class="ey">Learning Objectives</div>
+  <h2>What you'll master in this module</h2>
+  <div class="obj-list">
+    <div class="obj-item">
+      <div class="obj-num">1</div>
+      <div class="obj-text">Apply post-ROSC <strong>oxygenation and ventilation targets</strong> (SpO₂ 94–99%, PaCO₂ 35–45 mmHg) and explain why both hyperoxia and hypocapnia are harmful</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-num">2</div>
+      <div class="obj-text">Manage <strong>haemodynamics</strong> post-arrest — appropriate fluid bolus, vasoactive selection, and monitoring targets including age-specific SBP and MAP</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-num">3</div>
+      <div class="obj-text">Deliver <strong>targeted temperature management</strong> — avoid fever in all comatose patients, and apply normothermia or therapeutic hypothermia as per protocol</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-num">4</div>
+      <div class="obj-text">Conduct structured <strong>neurological monitoring</strong>, manage seizures aggressively, and execute a structured PICU handoff with appropriate family communication</div>
+    </div>
+  </div>
 </section>
 
+<!-- ═══════════ SLIDE 3 · CORE TARGETS ═══════════ -->
 <section class="slide">
-  <h3>Core Post-ROSC Targets</h3>
+  <div class="ey">2025 Targets</div>
   <h2>Don't Hurt the Brain You Just Saved</h2>
-  <div class="grid3 mt-3">
-    <div class="target"><div class="target-num">94-99%</div><div class="target-lbl">SpO₂</div></div>
-    <div class="target"><div class="target-num">35-45</div><div class="target-lbl">PaCO₂ (mmHg)</div></div>
-    <div class="target"><div class="target-num">≤37.5°C</div><div class="target-lbl">Core temp (avoid fever)</div></div>
-    <div class="target"><div class="target-num">≥5th %ile</div><div class="target-lbl">SBP for age</div></div>
-    <div class="target"><div class="target-num">80-180</div><div class="target-lbl">Glucose (mg/dL)</div></div>
-    <div class="target"><div class="target-num">Treat</div><div class="target-lbl">Seizures aggressively</div></div>
+  <div class="target-grid">
+    <div class="tcard" style="--tc-glow:rgba(0,188,212,0.09);border-color:rgba(0,188,212,0.28)">
+      <div class="tcard-val" style="color:var(--teal)" data-val="94" data-suffix="–99%">94–99%</div>
+      <div class="tcard-lbl">SpO₂</div>
+      <div class="tcard-note">Titrate FiO₂ down from 100%</div>
+    </div>
+    <div class="tcard" style="--tc-glow:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.25)">
+      <div class="tcard-val" style="color:var(--cyan)">35–45</div>
+      <div class="tcard-lbl">PaCO₂ mmHg</div>
+      <div class="tcard-note">Avoid hypocapnia ↓ CBF</div>
+    </div>
+    <div class="tcard" style="--tc-glow:rgba(255,61,90,0.07);border-color:rgba(255,61,90,0.22)">
+      <div class="tcard-val" style="color:var(--red)">≤37.5°C</div>
+      <div class="tcard-lbl">Core Temp</div>
+      <div class="tcard-note">Fever worsens neuro outcome</div>
+    </div>
+    <div class="tcard" style="--tc-glow:rgba(255,179,0,0.07);border-color:rgba(255,179,0,0.22)">
+      <div class="tcard-val" style="color:var(--amber)">≥5th %ile</div>
+      <div class="tcard-lbl">SBP for age</div>
+      <div class="tcard-note">Use age-specific norms</div>
+    </div>
+    <div class="tcard" style="--tc-glow:rgba(0,230,118,0.07);border-color:rgba(0,230,118,0.22)">
+      <div class="tcard-val" style="color:var(--green)">80–180</div>
+      <div class="tcard-lbl">Glucose mg/dL</div>
+      <div class="tcard-note">Avoid hypo and severe hyperglycaemia</div>
+    </div>
+    <div class="tcard" style="--tc-glow:rgba(179,136,255,0.07);border-color:rgba(179,136,255,0.22)">
+      <div class="tcard-val" style="color:var(--purple)">🟣</div>
+      <div class="tcard-lbl">Seizures</div>
+      <div class="tcard-note">Treat aggressively · continuous EEG if comatose</div>
+    </div>
   </div>
+  <div class="alt at"><h4>🟡 The unifying principle</h4><p>Every target above reduces <strong>secondary brain injury</strong> in the post-arrest period. ROSC is not the finish line — it is the starting gun for neurological rescue.</p></div>
 </section>
 
+<!-- ═══════════ SLIDE 4 · OXYGENATION & VENTILATION ═══════════ -->
 <section class="slide">
-  <h3>Oxygenation & Ventilation</h3>
+  <div class="ey">Respiratory Management</div>
   <h2>Avoid Hyperoxia and Hyperventilation</h2>
-  <div class="grid2 mt-3">
-    <div class="card"><h3 style="color:#0891B2">Oxygenation</h3>
-      <ul><li>Titrate FiO₂ to SpO₂ <strong>94-99%</strong></li><li>Wean from 100% as soon as ABG / SpO₂ allow</li><li>Hyperoxia worsens reperfusion injury</li></ul></div>
-    <div class="card"><h3 style="color:#0891B2">Ventilation</h3>
-      <ul><li>Target PaCO₂ <strong>35-45 mmHg</strong></li><li>Use ETCO₂ continuously</li><li>Permissive hypercapnia only for ARDS / specific contexts</li><li>Hypocapnia ↓ cerebral perfusion — avoid</li></ul></div>
+  <div class="cards c2">
+    <div class="card" style="border-color:rgba(0,188,212,0.25)">
+      <div class="pill pt">🪫 Oxygenation</div>
+      <ul>
+        <li>Titrate FiO₂ to achieve SpO₂ <strong>94–99%</strong> — wean from 100% as soon as ABG/SpO₂ allow</li>
+        <li><strong>Hyperoxia</strong> worsens reperfusion injury through reactive oxygen species</li>
+        <li>Use pulse oximetry continuously; confirm with ABG</li>
+        <li>Target PaO₂ <strong>75–100 mmHg</strong> on ABG if available</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(0,212,255,0.25)">
+      <div class="pill pc">💨 Ventilation</div>
+      <ul>
+        <li>Target PaCO₂ <strong>35–45 mmHg</strong> — use ETCO₂ continuously to guide</li>
+        <li><strong>Hypocapnia</strong> causes cerebral vasoconstriction and reduces cerebral blood flow</li>
+        <li>Avoid permissive hypercapnia unless specific indication (ARDS)</li>
+        <li>Normal rate for age; avoid breath-stacking and auto-PEEP</li>
+      </ul>
+    </div>
+  </div>
+  <div class="alt ar">
+    <h4>🔴 The hyperventilation trap</h4>
+    <p>After ROSC, providers instinctively ventilate fast. PaCO₂ of 28 feels safe but causes cerebral ischaemia. Use <strong>waveform ETCO₂ and ABG</strong> to keep the number between 35 and 45 — every time.</p>
   </div>
 </section>
 
+<!-- ═══════════ SLIDE 5 · HAEMODYNAMICS ═══════════ -->
 <section class="slide">
-  <h3>Hemodynamic Support</h3>
-  <h2>Maintain Mean Perfusion</h2>
-  <div class="card mt-3">
-    <ul>
-      <li>Targets: SBP <strong>≥ 5th percentile for age</strong>; MAP guided by age-specific norms.</li>
-      <li>Start with isotonic bolus 10 mL/kg if hypovolemic; reassess.</li>
-      <li>Vasoactive: epinephrine, norepinephrine, dopamine, or milrinone — match to cardiac vs vascular failure.</li>
-      <li>Consider central + arterial line for invasive monitoring (gives DBP feedback).</li>
-      <li>Echocardiogram early — look for myocardial dysfunction, effusion, congenital lesions.</li>
-      <li>Treat ongoing dysrhythmia; correct electrolytes (K⁺, Ca²⁺, Mg²⁺).</li>
-    </ul>
+  <div class="ey">Haemodynamic Support</div>
+  <h2>Maintain Mean Perfusion Pressure</h2>
+  <div class="cards c2" style="margin-bottom:4px">
+    <div class="card">
+      <div class="pill pt">Fluids</div>
+      <ul>
+        <li>Isotonic crystalloid <strong>10 mL/kg</strong> bolus if hypovolaemic — reassess after each</li>
+        <li>Avoid excessive fluid — target euvolaemia not hypervolaemia</li>
+        <li>Target SBP <strong>≥5th percentile for age</strong></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="pill pt">Monitoring</div>
+      <ul>
+        <li>Arterial line: continuous BP + diastolic feedback</li>
+        <li>Central venous access for vasoactives and CVP</li>
+        <li>Early <strong>echocardiogram</strong>: myocardial dysfunction, effusion, congenital lesions</li>
+        <li>Correct electrolytes: K⁺ · Ca²⁺ · Mg²⁺</li>
+      </ul>
+    </div>
+  </div>
+  <div style="overflow-x:auto;border-radius:var(--r-lg);border:1px solid var(--border)">
+    <table class="tbl">
+      <thead><tr><th>Vasoactive</th><th>Mechanism</th><th>Use when…</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Epinephrine</strong></td><td>α + β agonist</td><td>Cardiogenic shock · low CO + low SVR</td><td>Central line preferred</td></tr>
+        <tr><td><strong>Norepinephrine</strong></td><td>α dominant</td><td>Distributive / vasodilatory shock</td><td>May worsen cardiac output in LV failure</td></tr>
+        <tr><td><strong>Dopamine</strong></td><td>Dose-dependent</td><td>Moderate hypotension · renal dosing</td><td>5–10 μg/kg/min inotropic range</td></tr>
+        <tr><td><strong>Milrinone</strong></td><td>PDE-3 inhibitor</td><td>Post-arrest myocardial dysfunction</td><td>Watch for hypotension; reduce in renal failure</td></tr>
+      </tbody>
+    </table>
   </div>
 </section>
 
+<!-- ═══════════ SLIDE 6 · TTM ═══════════ -->
 <section class="slide">
-  <h3>Targeted Temperature Management</h3>
-  <h2>Avoid Fever — Active Normothermia</h2>
-  <div class="card mt-3">
-    <ul>
-      <li>Continuous core temperature monitoring (bladder/esophageal).</li>
-      <li>Avoid fever &gt; 37.5°C in all comatose post-arrest patients.</li>
-      <li>Options for unresponsive children: targeted normothermia (36-37.5°C) for at least 5 days, or therapeutic hypothermia (32-34°C × 2 days then rewarm to 36-37.5°C × 3 days) — institutional protocol.</li>
-      <li>Treat shivering — sedation, neuromuscular blockade per protocol.</li>
-    </ul>
+  <div class="ey">Temperature Management</div>
+  <h2>Targeted Temperature Management — Avoid Fever Always</h2>
+  <div class="ttm-wrap">
+    <div class="ttm-head">
+      <div class="th">Phase</div><div class="th">Protocol &amp; Duration</div>
+    </div>
+    <div class="ttm-row">
+      <div class="tc phase">🟡 Option A</div>
+      <div class="tc"><strong>Targeted Normothermia:</strong> maintain <strong>36–37.5°C</strong> for at least <strong>5 continuous days</strong> in unresponsive children</div>
+    </div>
+    <div class="ttm-row">
+      <div class="tc phase">🔵 Option B</div>
+      <div class="tc"><strong>Therapeutic Hypothermia:</strong> cool to <strong>32–34°C × 2 days</strong> → then rewarm to <strong>36–37.5°C × 3 days</strong> — institutional protocol applies</div>
+    </div>
+    <div class="ttm-row">
+      <div class="tc phase">🔴 All patients</div>
+      <div class="tc">Continuous <strong>core temperature monitoring</strong> (bladder or oesophageal probe) · Fever &gt; 37.5°C must be treated immediately</div>
+    </div>
+    <div class="ttm-row">
+      <div class="tc phase">⚪ Shivering</div>
+      <div class="tc">Treat with sedation, analgesia · NMB if refractory · Shivering increases metabolic demand and negates cooling</div>
+    </div>
+  </div>
+  <div class="alt ar">
+    <h4>🔴 Never allow fever post-arrest</h4>
+    <p>Even <strong>brief fever</strong> (&gt;37.5°C) in the first 72 hours after ROSC is independently associated with worse neurological outcome. Treat it aggressively — antipyretics, cooling blanket, IV paracetamol.</p>
   </div>
 </section>
 
+<!-- ═══════════ SLIDE 7 · NEURO MONITORING ═══════════ -->
 <section class="slide">
-  <h3>Neuro Monitoring</h3>
-  <h2>Anticipate Secondary Injury</h2>
-  <div class="grid2 mt-3">
-    <div class="card"><h3 style="color:#0891B2">Continuous</h3><ul><li>Pupillary check q1 h</li><li>Pediatric GCS / FOUR score</li><li>EEG when available — high seizure incidence</li><li>Glucose Q1-2 h, treat hypo aggressively</li></ul></div>
-    <div class="card"><h3 style="color:#0891B2">Imaging / interventions</h3><ul><li>Head CT / MRI per indication</li><li>Treat documented seizures with levetiracetam / phenytoin</li><li>Consult neurology, palliative care for prognosis discussion at 72 h</li></ul></div>
+  <div class="ey">Neurological Care</div>
+  <h2>Anticipate and Prevent Secondary Injury</h2>
+  <div class="cards c2">
+    <div class="card" style="border-color:rgba(0,188,212,0.25)">
+      <div class="pill pt">⚫ Continuous Monitoring</div>
+      <ul>
+        <li>Pupillary check <strong>q1 hour</strong> — document bilaterally</li>
+        <li>Paediatric GCS or FOUR score q1–2 h</li>
+        <li><strong>Continuous EEG</strong> when available — high subclinical seizure incidence post-arrest</li>
+        <li>Glucose <strong>Q1–2 h</strong> — treat hypoglycaemia immediately, avoid hyperglycaemia</li>
+        <li>Core temperature q1 h via invasive probe</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(179,136,255,0.25)">
+      <div class="pill pn">🧠 Imaging &amp; Interventions</div>
+      <ul>
+        <li>Head CT: early if traumatic cause, herniation signs, or focal neuro deficit</li>
+        <li>MRI brain: most reliable prognostic tool — after rewarming, Day 5+</li>
+        <li><strong>Treat seizures:</strong> levetiracetam first-line · phenytoin/fosphenytoin second</li>
+        <li>Consult neurology early</li>
+        <li>Prognostication discussion with family at <strong>72 hours</strong> minimum</li>
+      </ul>
+    </div>
+  </div>
+  <div class="alt ag">
+    <h4>🟢 Prognostication window</h4>
+    <p>Do not prognosticate neuro outcome <strong>before 72 hours</strong> after normothermia or rewarming. Sedation, hypothermia, and metabolic derangements confound all clinical and electrographic findings before this point.</p>
   </div>
 </section>
 
+<!-- ═══════════ SLIDE 8 · HANDOFF & FAMILY ═══════════ -->
 <section class="slide">
-  <h3>Communication & Transport</h3>
-  <h2>Handoff and Family</h2>
-  <div class="card mt-3">
-    <ul>
-      <li>Closed-loop handoff to PICU: timeline, doses, downtime, complications, family status, code status.</li>
-      <li>Use a structured tool (e.g., SBAR + I-PASS) — write it down.</li>
-      <li>Family presence during resuscitation is supported with appropriate facilitator.</li>
-      <li>Early, honest communication: outcome uncertainty, role of TTM, expected neuro re-evaluation at 72 h.</li>
-      <li>Activate social work, chaplaincy, palliative as needed.</li>
-    </ul>
+  <div class="ey">Communication</div>
+  <h2>Structured Handoff and Family Support</h2>
+  <div class="cards c2">
+    <div class="card" style="border-color:rgba(0,188,212,0.22)">
+      <div class="pill pt">📋 PICU Handoff</div>
+      <ul>
+        <li>Use <strong>SBAR + I-PASS</strong> structured tool — write it down before calling</li>
+        <li>Include: arrest timeline · downtime · CPR quality · shocks delivered · drugs given · total resus duration</li>
+        <li>State ROSC time, any re-arrests, code status, and family presence during CPR</li>
+        <li>Document all interventions with times in the medical record</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(0,230,118,0.22)">
+      <div class="pill pg">👨‍👩‍👧 Family Communication</div>
+      <ul>
+        <li><strong>Family presence</strong> during resuscitation is supported with a dedicated facilitator</li>
+        <li>Early, honest communication: outcome uncertainty, role of TTM, neuro re-evaluation at 72 h</li>
+        <li>Avoid definitive prognosis in the first 24–48 hours</li>
+        <li>Activate <strong>social work, chaplaincy, palliative care</strong> as needed — early, not late</li>
+      </ul>
+    </div>
+  </div>
+  <div class="alt aa">
+    <h4>⚠️ Documentation is treatment</h4>
+    <p>A complete, timestamped resuscitation record is essential for PICU handoff, quality review, and prognostication. If the arrest details aren't written down, they effectively didn't happen.</p>
   </div>
 </section>
 
+<!-- ═══════════ SLIDE 9 · KNOWLEDGE CHECK ═══════════ -->
+<section class="slide">
+  <div class="ey">Knowledge Check</div>
+  <h2>Tap each card to reveal the answer</h2>
+  <div class="fg fg2">
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 1</div><h4>Your post-arrest 6-year-old has SpO₂ 99% on FiO₂ 100%. What do you do?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p><strong>Wean FiO₂ immediately.</strong> Target SpO₂ <strong>94–99%</strong>. Maintaining 100% O₂ post-ROSC causes hyperoxia and worsens reperfusion injury through reactive oxygen species. Confirm with ABG (target PaO₂ 75–100 mmHg).</p></div>
+      </div>
+    </div>
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 2</div><h4>How long must targeted normothermia be maintained in a comatose post-arrest child?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p>At least <strong>5 continuous days</strong> at 36–37.5°C. Alternatively, therapeutic hypothermia 32–34°C × 2 days then normothermia × 3 days. Core temperature monitoring via bladder or oesophageal probe throughout.</p></div>
+      </div>
+    </div>
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 3</div><h4>When is it safe to give a family a neurological prognosis after paediatric cardiac arrest?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p>Not before <strong>72 hours</strong> after achieving normothermia or completing rewarming. Sedation, hypothermia, and metabolic derangements confound all clinical and electrographic findings before this window.</p></div>
+      </div>
+    </div>
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 4</div><h4>ETCO₂ reads 28 mmHg on the ventilator. PaCO₂ on ABG is 29. What's your priority?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p><strong>Reduce ventilation rate immediately.</strong> PaCO₂ 29 mmHg = hypocapnia = cerebral vasoconstriction = reduced cerebral blood flow. Target PaCO₂ <strong>35–45 mmHg</strong>. Use ETCO₂ for continuous guidance between ABGs.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 10 · PEARL + NEXT ═══════════ -->
 <section class="slide">
   <div class="pearl">
-    <h3>Clinical Pearl</h3>
-    <h2 style="color:#0f3a26">"The first 72 hours decide the next 72 years."</h2>
-    <p class="mt-3">Get oxygen, CO₂, perfusion, and temperature right — and the brain has its best shot. Prognostication before that window is unreliable.</p>
+    <div class="pill pt">Clinical Pearl</div>
+    <div class="pearl-quote">&ldquo;The first <span class="accent">72 hours</span> decide the next 72 years.&rdquo;</div>
+    <p>ROSC is not the finish line — it is the starting gun for neurological rescue. Get oxygen, CO₂, perfusion, and temperature right, and the brain has its best shot. Prognostication before the 72-hour window is unreliable and harmful.</p>
   </div>
-  <a href="pals_module_12_airway_pharm.slides.html" class="text-sm font-semibold mt-8 inline-block" style="color:#0891B2">Next → Module 12: Advanced Airway & Pharmacology</a>
+
+  <div class="stat-grid">
+    <div class="stat-card" style="--sg:rgba(0,188,212,0.08);border-color:rgba(0,188,212,0.22)">
+      <div class="stat-lbl">SpO₂ target</div>
+      <div class="stat-val" style="color:var(--teal)">94–99%</div>
+      <div class="stat-note">Wean FiO₂ from 100%</div>
+    </div>
+    <div class="stat-card" style="--sg:rgba(0,212,255,0.07);border-color:rgba(0,212,255,0.22)">
+      <div class="stat-lbl">PaCO₂ target</div>
+      <div class="stat-val" style="color:var(--cyan)">35–45</div>
+      <div class="stat-note">mmHg · avoid hypocapnia</div>
+    </div>
+    <div class="stat-card" style="--sg:rgba(255,61,90,0.07);border-color:rgba(255,61,90,0.22)">
+      <div class="stat-lbl">Max temp</div>
+      <div class="stat-val" style="color:var(--red)">≤37.5°C</div>
+      <div class="stat-note">Fever = harm</div>
+    </div>
+    <div class="stat-card" style="--sg:rgba(179,136,255,0.07);border-color:rgba(179,136,255,0.22)">
+      <div class="stat-lbl">Prognosis window</div>
+      <div class="stat-val" style="color:var(--purple)">72 h</div>
+      <div class="stat-note">Minimum post-rewarming</div>
+    </div>
+  </div>
+
+  <a href="pals_module_12_airway_pharm.slides.html" class="nxt">
+    Next → Module 12: Advanced Airway &amp; Pharmacology
+    <span class="nxt-arrow">→</span>
+  </a>
 </section>
 
-<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
+</div><!-- /stage -->
+
+<!-- FOOTER -->
+<div class="foot">
+  <div class="slide-counter" id="counter">1 / 10</div>
+  <div class="slide-dots" id="dots"></div>
+  <div class="foot-btns">
+    <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
+    <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
+  </div>
+</div>
+
 <script>
-const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
-const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
-function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
-function go(d){show(cur+d)}
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
-let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let cur = 0;
+const dotsEl = document.getElementById('dots');
+slides.forEach((_,i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+function updateUI() {
+  document.getElementById('counter').textContent = (cur+1) + ' / ' + total;
+  document.getElementById('prev-btn').disabled = cur === 0;
+  document.getElementById('next-btn').disabled = cur === total - 1;
+  document.getElementById('progress-bar').style.width = ((cur+1)/total*100) + '%';
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === cur));
+}
+function goTo(idx) {
+  if (idx === cur || idx < 0 || idx >= total) return;
+  const dir = idx > cur ? 1 : -1;
+  slides[cur].classList.remove('active');
+  if (dir > 0) slides[cur].classList.add('exit-left');
+  const prev = cur;
+  cur = idx;
+  setTimeout(() => slides[prev].classList.remove('exit-left'), 520);
+  slides[cur].classList.add('active');
+  updateUI();
+}
+function changeSlide(dir) { goTo(cur + dir); }
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key==='ArrowDown') changeSlide(1);
+  if (e.key==='ArrowLeft'||e.key==='ArrowUp') changeSlide(-1);
+});
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = tx - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > 48) changeSlide(dx > 0 ? 1 : -1);
+}, {passive:true});
+updateUI();
 </script>
 </body>
 </html>
