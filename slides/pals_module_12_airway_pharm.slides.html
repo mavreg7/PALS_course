@@ -1,197 +1,590 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 12 — Advanced Airway & Pharmacology</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Module 12 · Advanced Airway &amp; Pharmacology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  *{font-family:'Manrope',system-ui,sans-serif}
-  html,body{height:100%;margin:0}
-  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);color:#1E293B;overflow:hidden}
-  .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.2;z-index:0;pointer-events:none}
-  .blob1{width:500px;height:500px;background:#0891B2;top:-150px;left:-150px;animation:f 20s ease-in-out infinite}
-  .blob2{width:450px;height:450px;background:#34D399;bottom:-150px;right:-150px;animation:f 24s ease-in-out infinite reverse}
-  @keyframes f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
-  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 6vw;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:1}
-  .slide.active{opacity:1;pointer-events:auto}
-  .slide h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;color:#0891B2}
-  .slide h2{font-size:clamp(20px,2.8vw,36px);font-weight:800;color:#1E293B;margin-bottom:14px}
-  .slide h3{font-size:clamp(14px,1.4vw,20px);font-weight:700;color:#0891B2;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
-  .slide p,.slide li,.slide td,.slide th{font-size:clamp(13px,1.2vw,17px);line-height:1.5;color:#334155}
-  .slide ul{padding-left:24px} .slide li{margin-bottom:5px}
-  .card{background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);border:1px solid rgba(8,145,178,.12);border-radius:14px;padding:16px}
-  .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(8,145,178,.12);color:#0891B2;letter-spacing:.5px}
-  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:14px;z-index:100;pointer-events:none}
-  .nav > *{pointer-events:auto}
-  .dot{width:10px;height:10px;border-radius:50%;background:rgba(30,41,59,.18);cursor:pointer}
-  .dot.active{background:#0891B2;transform:scale(1.4)}
-  .nav-btn{background:#0891B2;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;position:relative;z-index:101}
-  .counter{position:fixed;top:18px;right:24px;font-size:13px;font-weight:600;color:#64748b;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;z-index:100}
-  .home{position:fixed;top:18px;left:24px;font-size:13px;font-weight:600;color:#0891B2;background:rgba(255,255,255,.7);padding:5px 12px;border-radius:999px;text-decoration:none;z-index:100;pointer-events:auto}
-  .pearl{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(8,145,178,.1));border-left:4px solid #34D399;padding:16px 22px;border-radius:8px}
-  .pearl h3{color:#0f9b6c}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid #e2e8f0}
-  th{background:rgba(8,145,178,.08);font-weight:700;color:#0891B2;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
-  .calc{background:#fff;border:2px solid #0891B2;border-radius:14px;padding:16px}
-  .calc input{padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;width:100%;font-size:14px}
-  .calc input:focus{outline:none;border-color:#0891B2;box-shadow:0 0 0 3px rgba(8,145,178,.15)}
-  .calc label{font-size:11px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
-  .result-row{display:flex;justify-content:space-between;padding:8px 12px;border-radius:8px;margin-top:6px;background:#F0F9FF;font-size:13px}
-  .result-row .v{font-weight:700;color:#0891B2}
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS — Module 12 · Advanced Airway & Pharmacology
+   Accent: Violet-Purple (pharmacology theme)
+   ═══════════════════════════════════════════════ */
+:root{
+  --bg:#07080e;--surface:#0d0f18;--surface2:#121520;--surface3:#181b27;
+  --border:rgba(255,255,255,0.06);
+  --text:#e8eaf0;--muted:#7c8494;--faint:#2a2e3e;
+  --violet:#8b5cf6;--violet-glow:rgba(139,92,246,0.18);--violet-dim:rgba(139,92,246,0.10);
+  --purple:#b388ff;--purple-dim:rgba(179,136,255,0.10);
+  --cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.10);
+  --green:#00e676;--green-dim:rgba(0,230,118,0.10);
+  --amber:#ffb300;--amber-dim:rgba(255,179,0,0.10);
+  --red:#ff3d5a;--red-dim:rgba(255,61,90,0.10);
+  --blue:#4d94ff;
+  --font-head:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --r:10px;--r-lg:16px;--r-xl:22px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --trans:0.5s var(--ease);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+
+/* ── Atmospheric background ── */
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(139,92,246,0.016) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,0.016) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0}
+.bg-blob{position:fixed;border-radius:50%;filter:blur(140px);pointer-events:none;z-index:0;animation:drift 22s ease-in-out infinite alternate}
+.bb1{width:800px;height:800px;top:-300px;right:-250px;background:radial-gradient(circle,rgba(139,92,246,0.07),transparent 70%)}
+.bb2{width:600px;height:600px;bottom:-200px;left:-200px;background:radial-gradient(circle,rgba(0,212,255,0.03),transparent 70%);animation-delay:-11s}
+.bb3{width:450px;height:450px;top:35%;left:40%;background:radial-gradient(circle,rgba(255,179,0,0.025),transparent 70%);animation-delay:-6s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,28px) scale(1.07)}}
+
+/* ── Progress bar ── */
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--violet),var(--purple),var(--cyan));transition:width 0.55s var(--ease);z-index:100;box-shadow:0 0 16px rgba(139,92,246,0.6)}
+
+/* ── Nav ── */
+.nav{position:fixed;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:50}
+.nav-logo{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--violet);letter-spacing:0.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.nav-logo-dot{width:7px;height:7px;background:var(--violet);border-radius:50%;box-shadow:0 0 10px var(--violet);animation:pulse-dot 3s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.6)}}
+.nav-title{font-size:12px;color:var(--muted);font-weight:500}
+.nav-btn{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.22);color:var(--muted);border-radius:8px;padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font-head);letter-spacing:0.05em;text-transform:uppercase}
+.nav-btn:hover{border-color:var(--violet);color:var(--violet);background:var(--violet-dim)}
+
+/* ── Stage & slides ── */
+.stage{position:fixed;inset:58px 0 72px;overflow:hidden}
+.slide{position:absolute;inset:0;padding:32px 52px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;opacity:0;transform:translateX(70px) scale(0.985);transition:opacity var(--trans),transform var(--trans);pointer-events:none;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}
+.slide::-webkit-scrollbar{width:3px}.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
+.slide.active{opacity:1;transform:translateX(0) scale(1);pointer-events:all}
+.slide.exit-left{opacity:0;transform:translateX(-70px) scale(0.985)}
+.hero-slide{justify-content:center;padding:72px 52px}
+@media(max-width:680px){.slide{padding:20px 18px 20px}.hero-slide{padding:40px 18px}}
+
+/* ── Eyebrow ── */
+.ey{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--violet);display:flex;align-items:center;gap:10px}
+.ey::before{content:'';display:block;width:24px;height:2px;background:linear-gradient(90deg,var(--violet),transparent);border-radius:2px}
+
+/* ── Typography ── */
+h1.hero{font-family:var(--font-head);font-size:clamp(2.1rem,4.5vw,3.4rem);font-weight:700;line-height:1.08;letter-spacing:-0.03em;color:#fff;max-width:860px}
+h1.hero .grad{background:linear-gradient(100deg,var(--violet),var(--purple) 55%,var(--cyan) 100%);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer-text 4s linear infinite}
+@keyframes shimmer-text{0%{background-position:0%}100%{background-position:200%}}
+h2{font-family:var(--font-head);font-size:clamp(1.25rem,2.4vw,1.78rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-0.018em}
+h3{font-family:var(--font-head);font-size:0.98rem;font-weight:600;color:var(--text);margin-bottom:6px}
+h4{font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:4px}
+p{font-size:0.88rem;color:var(--muted);line-height:1.7}
+li{font-size:0.86rem;color:var(--muted);line-height:1.65;margin-bottom:5px}
+strong{color:var(--text);font-weight:600}
+ul,ol{padding-left:18px}
+.subt{font-size:0.97rem;color:var(--muted);max-width:700px;line-height:1.75}
+.htags{display:flex;flex-wrap:wrap;gap:9px;margin-top:6px}
+.htag{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:500;color:var(--muted);transition:all 0.2s}
+.htag:hover{border-color:rgba(139,92,246,0.35);color:var(--text);background:var(--violet-dim)}
+
+/* ── Pills ── */
+.pill{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 11px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px}
+.pr{background:rgba(255,61,90,0.14);color:var(--red)}
+.pg{background:rgba(0,230,118,0.12);color:var(--green)}
+.pc{background:rgba(0,212,255,0.12);color:var(--cyan)}
+.pa{background:rgba(255,179,0,0.12);color:var(--amber)}
+.pv{background:rgba(139,92,246,0.14);color:var(--violet)}
+.pp{background:rgba(179,136,255,0.12);color:var(--purple)}
+
+/* ── Cards ── */
+.cards{display:grid;gap:13px}
+.c2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.c3{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;transition:border-color 0.3s,box-shadow 0.3s,transform 0.3s}
+.card:hover{border-color:rgba(139,92,246,0.25);box-shadow:0 6px 30px rgba(139,92,246,0.07);transform:translateY(-2px)}
+
+/* ── Alert strips ── */
+.alt{border-radius:var(--r);padding:13px 17px;border-left:3px solid}
+.ar{background:rgba(255,61,90,0.07);border-color:var(--red)}.ar h4{color:var(--red)}
+.aa{background:rgba(255,179,0,0.06);border-color:var(--amber)}.aa h4{color:var(--amber)}
+.ac{background:rgba(0,212,255,0.06);border-color:var(--cyan)}.ac h4{color:var(--cyan)}
+.ag{background:rgba(0,230,118,0.06);border-color:var(--green)}.ag h4{color:var(--green)}
+.av{background:rgba(139,92,246,0.07);border-color:var(--violet)}.av h4{color:var(--violet)}
+
+/* ── Objectives list ── */
+.obj-list{display:flex;flex-direction:column;gap:10px}
+.obj-item{display:flex;align-items:flex-start;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 20px;transition:border-color 0.3s,transform 0.3s}
+.obj-item:hover{border-color:rgba(139,92,246,0.25);transform:translateX(4px)}
+.obj-num{width:30px;height:30px;border-radius:50%;background:var(--violet-dim);border:1px solid rgba(139,92,246,0.3);color:var(--violet);font-family:var(--font-head);font-weight:700;font-size:0.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.obj-text{font-size:0.85rem;color:var(--muted);line-height:1.6}
+.obj-text strong{color:var(--text)}
+
+/* ── Tables ── */
+.tbl{width:100%;border-collapse:collapse;font-size:0.81rem}
+.tbl th{text-align:left;padding:9px 13px;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--violet);border-bottom:1px solid rgba(139,92,246,0.2);background:rgba(139,92,246,0.05)}
+.tbl td{padding:8px 13px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top;transition:background 0.15s}
+.tbl tr:hover td{background:rgba(255,255,255,0.018)}
+.tbl td strong{color:var(--text)}
+
+/* ── Confirmation checklist ── */
+.check-list{display:flex;flex-direction:column;gap:8px}
+.check-item{display:flex;align-items:flex-start;gap:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px 16px;transition:border-color 0.2s,background 0.2s;cursor:pointer}
+.check-item:hover{border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.03)}
+.check-box{width:22px;height:22px;border-radius:6px;border:2px solid rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;margin-top:1px}
+.check-item.checked .check-box{background:var(--violet);border-color:var(--violet);box-shadow:0 0 10px rgba(139,92,246,0.4)}
+.check-item.checked .check-box::after{content:'✓';color:#fff;font-size:13px;font-weight:700;line-height:1}
+.check-item.checked .check-text{color:var(--text)}
+.check-text{font-size:0.85rem;color:var(--muted);line-height:1.55}
+.check-text strong{color:var(--text)}
+.check-num{font-family:var(--font-head);font-size:0.72rem;font-weight:700;color:var(--violet);flex-shrink:0;margin-top:3px;width:18px}
+
+/* ── RSI 7Ps grid ── */
+.rsi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
+.rsi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s}
+.rsi-card:hover{border-color:rgba(139,92,246,0.3);transform:translateY(-2px);box-shadow:0 4px 20px rgba(139,92,246,0.08)}
+.rsi-letter{font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--violet);line-height:1;margin-bottom:4px}
+.rsi-name{font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.rsi-note{font-size:0.74rem;color:var(--muted);line-height:1.45}
+.rsi-card.wide{grid-column:1 / -1}
+
+/* ── Drug calculator ── */
+.calc-wrap{background:var(--surface);border:1px solid rgba(139,92,246,0.28);border-radius:var(--r-xl);padding:22px 24px}
+.calc-label{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block}
+.calc-input-row{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.calc-input{background:var(--surface2);border:1px solid rgba(139,92,246,0.25);border-radius:var(--r);padding:10px 14px;font-size:1.1rem;font-weight:700;color:var(--text);font-family:var(--font-head);width:130px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;-moz-appearance:textfield}
+.calc-input::-webkit-inner-spin-button,.calc-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.calc-input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(139,92,246,0.15)}
+.calc-unit{font-size:0.85rem;color:var(--muted);font-weight:600}
+.calc-results{display:grid;gap:6px}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-radius:var(--r);background:rgba(255,255,255,0.025);transition:background 0.15s}
+.calc-row:hover{background:rgba(139,92,246,0.07)}
+.calc-drug{font-size:0.79rem;color:var(--muted)}
+.calc-val{font-family:var(--font-head);font-size:0.88rem;font-weight:700;color:var(--violet);white-space:nowrap;margin-left:12px}
+.calc-empty{font-size:0.85rem;color:var(--faint);text-align:center;padding:20px}
+
+/* ── Flip cards ── */
+.fg{display:grid;gap:13px}
+.fg2{grid-template-columns:repeat(auto-fit,minmax(295px,1fr))}
+.fc{perspective:1100px;cursor:pointer}
+.fc-inner{width:100%;min-height:162px;position:relative;transform-style:preserve-3d;transition:transform 0.68s var(--ease)}
+.fc.flipped .fc-inner{transform:rotateY(180deg)}
+.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--r-lg);padding:22px;display:flex;flex-direction:column;justify-content:center}
+.ff{background:var(--surface);border:1px solid rgba(139,92,246,0.25)}
+.fb{background:linear-gradient(135deg,rgba(139,92,246,0.09),rgba(0,212,255,0.05));border:1px solid rgba(139,92,246,0.25);transform:rotateY(180deg)}
+.ql{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--violet);margin-bottom:8px}
+.ff h4{font-size:0.87rem;color:var(--text);line-height:1.48}
+.fb p{font-size:0.85rem;color:var(--text);line-height:1.68}
+.hi{font-size:10px;color:var(--faint);margin-top:12px;font-style:italic}
+
+/* ── Pearl ── */
+.pearl{padding:30px 36px;border-radius:var(--r-xl);background:linear-gradient(135deg,rgba(139,92,246,0.07),rgba(0,212,255,0.04));border:1px solid rgba(139,92,246,0.22);position:relative;overflow:hidden}
+.pearl::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(139,92,246,0.1),transparent 70%);pointer-events:none}
+.pearl-quote{font-family:var(--font-head);font-size:clamp(1.1rem,2vw,1.5rem);font-weight:700;color:#fff;line-height:1.3;margin:10px 0 14px;letter-spacing:-0.01em}
+.pearl-quote .accent{color:var(--violet)}
+
+/* ── Stat summary ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden;transition:border-color 0.3s,transform 0.3s}
+.stat-card:hover{transform:translateY(-3px)}
+.stat-card::after{content:'';position:absolute;inset:0;border-radius:var(--r-lg);background:radial-gradient(circle at 100% 0%,var(--sg,rgba(139,92,246,0.06)),transparent 70%);pointer-events:none}
+.stat-val{font-family:var(--font-head);font-size:1.4rem;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.stat-note{font-size:0.72rem;color:var(--muted);line-height:1.5}
+
+/* ── CTA ── */
+.nxt{display:inline-flex;align-items:center;gap:10px;margin-top:6px;padding:13px 26px;background:linear-gradient(135deg,var(--violet),var(--purple));color:#07080e;font-family:var(--font-head);font-weight:700;font-size:0.87rem;border-radius:var(--r);text-decoration:none;transition:opacity 0.2s,transform 0.2s,box-shadow 0.2s;align-self:flex-start;letter-spacing:0.02em}
+.nxt:hover{opacity:0.88;transform:translateY(-2px);box-shadow:0 8px 28px rgba(139,92,246,0.35)}
+.nxt-arrow{transition:transform 0.2s}.nxt:hover .nxt-arrow{transform:translateX(4px)}
+
+/* ── Footer ── */
+.foot{position:fixed;bottom:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,0.92);backdrop-filter:blur(24px);border-top:1px solid var(--border);z-index:50}
+.slide-counter{font-size:12px;color:var(--muted);font-family:var(--font-head);font-weight:600;min-width:50px}
+.slide-dots{display:flex;gap:5px;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--faint);transition:all 0.35s;cursor:pointer}
+.dot.active{background:var(--violet);box-shadow:0 0 8px var(--violet);width:20px;border-radius:4px}
+.dot:hover:not(.active){background:var(--muted)}
+.foot-btns{display:flex;gap:8px}
+.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:9px 22px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font-head);letter-spacing:0.04em}
+.foot-btn:hover:not(:disabled){border-color:rgba(139,92,246,0.4);color:var(--violet);box-shadow:0 0 20px rgba(139,92,246,0.12)}
+.foot-btn:disabled{opacity:0.2;cursor:not-allowed}
+.foot-btn.primary{background:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.3);color:var(--violet)}
+.foot-btn.primary:hover:not(:disabled){background:rgba(139,92,246,0.16);box-shadow:0 0 24px rgba(139,92,246,0.2)}
 </style>
 </head>
 <body>
-<div class="blob blob1"></div><div class="blob blob2"></div>
-<a class="home" href="../index.html">← Hub</a>
-<div class="counter"><span id="cur">1</span>/<span id="tot">9</span></div>
+<div class="bg-grid"></div>
+<div class="bg-blob bb1"></div>
+<div class="bg-blob bb2"></div>
+<div class="bg-blob bb3"></div>
+<div id="progress-bar"></div>
 
-<section class="slide active">
-  <span class="pill">Module 12</span>
-  <h1 class="mt-3">Advanced Airway<br>& Pharmacology</h1>
-  <p class="mt-6 text-slate-500">BVM · SGA · ETT · confirmation · live drug calculator</p>
-</section>
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo"><div class="nav-logo-dot"></div>PALS 2025</div>
+  <div class="nav-title">Module 12 &nbsp;·&nbsp; Advanced Airway &amp; Pharmacology</div>
+  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
+</nav>
 
-<section class="slide">
-  <h3>Objectives</h3>
-  <ul class="mt-4">
-    <li>Choose the appropriate airway adjunct for the clinical state.</li>
-    <li>Size and place an endotracheal tube correctly.</li>
-    <li>Confirm placement with multiple methods including ETCO₂.</li>
-    <li>Outline RSI components and rescue strategies.</li>
-    <li>Calculate doses for commonly used resuscitation drugs.</li>
-  </ul>
-</section>
+<div class="stage">
 
-<section class="slide">
-  <h3>Airway Adjunct Ladder</h3>
-  <h2>Choose Least Invasive First</h2>
-  <table class="mt-3">
-    <thead><tr><th>Device</th><th>Indication</th><th>Pearl</th></tr></thead>
-    <tbody>
-      <tr><td>OPA</td><td>Unconscious, no gag</td><td>Size: corner mouth → angle of jaw</td></tr>
-      <tr><td>NPA</td><td>Decreased LOC, gag present</td><td>Size: nares → tragus; avoid in basilar fx</td></tr>
-      <tr><td>BVM</td><td>Apnea / hypoventilation</td><td>2-person technique preferred</td></tr>
-      <tr><td>SGA (LMA)</td><td>Difficult BVM / failed intubation</td><td>Rescue device; not aspiration-proof</td></tr>
-      <tr><td>ETT</td><td>Definitive airway</td><td>Cuffed acceptable all ages &gt; neonate</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<section class="slide">
-  <h3>ETT Sizing & Depth</h3>
-  <h2>Formulas to Memorize</h2>
-  <div class="grid2 mt-3">
-    <div class="card"><h3 style="color:#0891B2">Internal diameter (mm)</h3>
-      <ul><li><strong>Cuffed:</strong> (age / 4) + 3.5</li><li><strong>Uncuffed:</strong> (age / 4) + 4</li><li>Newborn: 3.0-3.5 mm</li><li>Verify with Broselow tape if available</li></ul></div>
-    <div class="card"><h3 style="color:#0891B2">Insertion depth at lip (cm)</h3>
-      <ul><li>(age / 2) + 12  · or 3 × ETT size</li><li>Newborn: 6 + weight (kg)</li><li>Confirm equal breath sounds + CXR</li></ul></div>
+<!-- ═══════════ SLIDE 1 · HERO ═══════════ -->
+<section class="slide active hero-slide">
+  <div class="ey">Module 12 &nbsp;·&nbsp; 2025 Guidelines</div>
+  <h1 class="hero">Advanced Airway<br><span class="grad">&amp; Pharmacology</span></h1>
+  <p class="subt">BVM · SGA · ETT sizing &amp; confirmation · RSI 7 Ps · DOPES · live weight-based drug calculator — every tool you need at the bedside.</p>
+  <div class="htags">
+    <span class="htag">🪫 Airway Adjunct Ladder</span>
+    <span class="htag">📍 ETT Sizing &amp; Depth</span>
+    <span class="htag">✅ 5-Point Confirmation</span>
+    <span class="htag">⚡ RSI — 7 Ps</span>
+    <span class="htag">⚠️ DOPES Mnemonic</span>
+    <span class="htag">📊 Live Drug Calculator</span>
+    <span class="htag">💊 Full Drug Reference</span>
   </div>
 </section>
 
+<!-- ═══════════ SLIDE 2 · OBJECTIVES ═══════════ -->
 <section class="slide">
-  <h3>Confirming Placement</h3>
-  <h2>Five-Point Check</h2>
-  <div class="card mt-3">
-    <ol class="list-decimal pl-5">
-      <li>Visualize cords during intubation.</li>
-      <li><strong>Continuous waveform ETCO₂</strong> — gold standard.</li>
-      <li>Symmetric bilateral breath sounds, no epigastric sounds.</li>
-      <li>Symmetric chest rise; condensation in tube.</li>
-      <li>Chest x-ray after stabilization; tip 2 cm above carina.</li>
-    </ol>
-  </div>
-  <p class="text-sm text-slate-500 mt-3"><strong>DOPES</strong> for sudden deterioration: <em>Displacement · Obstruction · Pneumothorax · Equipment · Stacked breaths.</em></p>
-</section>
-
-<section class="slide">
-  <h3>RSI Overview</h3>
-  <h2>7 Ps</h2>
-  <div class="grid3 mt-3">
-    <div class="card"><strong>Preparation</strong><br><span class="text-xs text-slate-500">SOAP-ME, team brief, plan B</span></div>
-    <div class="card"><strong>Preoxygenation</strong><br><span class="text-xs text-slate-500">100% NRB ≥ 3 min, NC during apnea</span></div>
-    <div class="card"><strong>Pre-treatment</strong><br><span class="text-xs text-slate-500">Treat hypotension; consider atropine &lt;1 y</span></div>
-    <div class="card"><strong>Paralysis + Induction</strong><br><span class="text-xs text-slate-500">Etomidate / ketamine + rocuronium / succ</span></div>
-    <div class="card"><strong>Positioning</strong><br><span class="text-xs text-slate-500">Sniff position; shoulder roll infants</span></div>
-    <div class="card"><strong>Placement + Proof</strong><br><span class="text-xs text-slate-500">Visualize cords, ETCO₂ confirmation</span></div>
-    <div class="card md:col-span-3"><strong>Post-intubation management</strong><br><span class="text-xs text-slate-500">Sedation, analgesia, ventilator settings, CXR, NGT</span></div>
+  <div class="ey">Learning Objectives</div>
+  <h2>What you'll master in this module</h2>
+  <div class="obj-list">
+    <div class="obj-item">
+      <div class="obj-num">1</div>
+      <div class="obj-text">Select the <strong>appropriate airway adjunct</strong> (OPA · NPA · BVM · SGA · ETT) based on clinical state, and size each device correctly</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-num">2</div>
+      <div class="obj-text">Calculate <strong>ETT internal diameter and insertion depth</strong> using age-based and weight-based formulas, and confirm placement with the 5-point check</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-num">3</div>
+      <div class="obj-text">Execute the <strong>RSI 7 Ps</strong> sequence, identify the correct induction and paralytic agents, and manage sudden post-intubation deterioration using the DOPES mnemonic</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-num">4</div>
+      <div class="obj-text">Use the <strong>live drug calculator</strong> to generate weight-based doses for all critical resuscitation drugs and defibrillation energies in real time</div>
+    </div>
   </div>
 </section>
 
+<!-- ═══════════ SLIDE 3 · AIRWAY ADJUNCT LADDER ═══════════ -->
 <section class="slide">
-  <h3>Live Drug Calculator</h3>
-  <h2>Enter Patient Weight</h2>
-  <div class="calc mt-3 max-w-md">
-    <label>Weight (kg)</label>
-    <input id="wt" type="number" min="0.5" max="120" step="0.1" placeholder="e.g., 14" oninput="calc()" value="10">
+  <div class="ey">Airway Management</div>
+  <h2>Adjunct Ladder — Choose Least Invasive First</h2>
+  <div style="overflow-x:auto;border-radius:var(--r-lg);border:1px solid var(--border)">
+    <table class="tbl">
+      <thead><tr><th>Device</th><th>Indication</th><th>Sizing</th><th>Key Pearl</th></tr></thead>
+      <tbody>
+        <tr><td><strong>OPA</strong></td><td>Unconscious · no gag reflex</td><td>Corner of mouth → angle of jaw</td><td>Insert upside-down and rotate in adults; straight in children</td></tr>
+        <tr><td><strong>NPA</strong></td><td>Decreased LOC · gag present</td><td>Nares → tragus of ear</td><td>Avoid with suspected basilar skull fracture</td></tr>
+        <tr><td><strong>BVM</strong></td><td>Apnea / hypoventilation</td><td>Age-appropriate mask</td><td>2-person technique preferred · E-C clamp grip · 1 breath/3 s during CPR</td></tr>
+        <tr><td><strong>SGA / LMA</strong></td><td>Difficult BVM · failed intubation</td><td>By weight (see device chart)</td><td>Rescue device — not aspiration-proof · confirm with waveform ETCO₂</td></tr>
+        <tr><td><strong>ETT (cuffed)</strong></td><td>Definitive airway needed</td><td>(age/4) + 3.5 mm</td><td>Cuffed tubes acceptable at all paediatric ages including neonates ≥ 34 wk GA</td></tr>
+      </tbody>
+    </table>
   </div>
-  <div class="grid2 mt-4" id="calcResults"></div>
+  <div class="alt av"><h4>🟣 Cuffed vs uncuffed</h4><p>2025 PALS recommends <strong>cuffed ETTs</strong> for all age groups including infants. Maintain cuff pressure <strong>20–25 cmH₂O</strong>. Cuffed tubes reduce the need for repeated exchanges and provide better seal for positive pressure ventilation.</p></div>
 </section>
 
+<!-- ═══════════ SLIDE 4 · ETT SIZING ═══════════ -->
 <section class="slide">
-  <h3>Drug Quick Reference</h3>
-  <table class="mt-3">
-    <thead><tr><th>Drug</th><th>Dose</th><th>Max</th></tr></thead>
-    <tbody>
-      <tr><td>Epinephrine (arrest)</td><td>0.01 mg/kg IV/IO q3-5 min</td><td>1 mg</td></tr>
-      <tr><td>Epinephrine (anaphylaxis)</td><td>0.01 mg/kg IM (1:1,000)</td><td>0.3-0.5 mg</td></tr>
-      <tr><td>Atropine</td><td>0.02 mg/kg IV/IO (min 0.1)</td><td>0.5 mg</td></tr>
-      <tr><td>Adenosine (1st)</td><td>0.1 mg/kg rapid IV push</td><td>6 mg</td></tr>
-      <tr><td>Adenosine (2nd)</td><td>0.2 mg/kg rapid IV push</td><td>12 mg</td></tr>
-      <tr><td>Amiodarone</td><td>5 mg/kg IV/IO bolus</td><td>15 mg/kg total</td></tr>
-      <tr><td>Procainamide</td><td>15 mg/kg over 30-60 min</td><td>17 mg/kg max</td></tr>
-      <tr><td>Magnesium sulfate</td><td>25-50 mg/kg IV/IO</td><td>2 g</td></tr>
-      <tr><td>D10W (hypoglycemia)</td><td>2-5 mL/kg IV/IO</td><td>—</td></tr>
-      <tr><td>Sodium bicarbonate 8.4%</td><td>1 mEq/kg IV/IO</td><td>—</td></tr>
-      <tr><td>Calcium chloride 10%</td><td>20 mg/kg IV/IO</td><td>1 g</td></tr>
-    </tbody>
-  </table>
+  <div class="ey">Intubation</div>
+  <h2>ETT Sizing &amp; Insertion Depth</h2>
+  <div class="cards c2">
+    <div class="card" style="border-color:rgba(139,92,246,0.25)">
+      <div class="pill pv">📝 Internal Diameter (mm)</div>
+      <ul>
+        <li><strong>Cuffed ETT:</strong> (age ÷ 4) + 3.5 mm</li>
+        <li><strong>Uncuffed ETT:</strong> (age ÷ 4) + 4.0 mm</li>
+        <li>Neonate (term): <strong>3.0–3.5 mm</strong></li>
+        <li>Preterm &lt;34 wk: <strong>2.5 mm</strong></li>
+        <li>Verify with <strong>Broselow tape</strong> when available</li>
+        <li>Have one size larger and one smaller ready at all times</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(0,212,255,0.25)">
+      <div class="pill pc">📍 Insertion Depth at Lip (cm)</div>
+      <ul>
+        <li><strong>Age-based:</strong> (age ÷ 2) + 12 cm</li>
+        <li><strong>Tube-based:</strong> ETT size × 3</li>
+        <li>Neonate: <strong>6 + weight (kg)</strong> cm</li>
+        <li>Confirm with equal bilateral breath sounds</li>
+        <li>CXR after stabilisation: tip <strong>2 cm above carina</strong></li>
+      </ul>
+    </div>
+  </div>
+  <div class="cards c2">
+    <div class="alt av"><h4>🟣 Right mainstem trap</h4><p>The right mainstem bronchus angles more acutely — an ETT advanced too far will almost always go right. If left side is quiet post-intubation, withdraw tube 1 cm at a time until bilateral sounds are equal.</p></div>
+    <div class="alt ac"><h4>🔵 Cuff pressure</h4><p>Check cuff pressure with a manometer: target <strong>20–25 cmH₂O</strong>. Over-inflation compresses the tracheal mucosa and causes ischaemic injury within hours.</p></div>
+  </div>
 </section>
 
+<!-- ═══════════ SLIDE 5 · CONFIRMATION + DOPES ═══════════ -->
+<section class="slide">
+  <div class="ey">Placement Confirmation</div>
+  <h2>5-Point Check &amp; DOPES Mnemonic</h2>
+  <div class="check-list" id="checkList">
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-num">1</div>
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Visualise the cords</strong> during laryngoscopy — confirm tube passing between the vocal cords</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-num">2</div>
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Continuous waveform ETCO₂</strong> — gold standard; 3–5 consistent waveforms confirm tracheal placement</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-num">3</div>
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Equal bilateral breath sounds</strong> on auscultation; no epigastric gurgling with ventilation</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-num">4</div>
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Symmetric chest rise</strong> with each breath; condensation visible in the tube</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-num">5</div>
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Chest X-ray</strong> after stabilisation — tip should be 2 cm above the carina</div>
+    </div>
+  </div>
+  <div class="alt ar">
+    <h4>🔴 DOPES — sudden post-intubation deterioration</h4>
+    <p><strong>D</strong>isplacement (tube out or in mainstem) &nbsp;·&nbsp; <strong>O</strong>bstruction (secretions, kink) &nbsp;·&nbsp; <strong>P</strong>neumothorax &nbsp;·&nbsp; <strong>E</strong>quipment failure (vent disconnect, O₂ supply) &nbsp;·&nbsp; <strong>S</strong>tacked breaths / auto-PEEP. Always disconnect from vent and bag manually to differentiate patient from machine problem.</p>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 6 · RSI 7 Ps ═══════════ -->
+<section class="slide">
+  <div class="ey">Rapid Sequence Intubation</div>
+  <h2>The 7 Ps — Never Skip a Step</h2>
+  <div class="rsi-grid">
+    <div class="rsi-card">
+      <div class="rsi-letter">P</div>
+      <div class="rsi-name">Preparation</div>
+      <div class="rsi-note">SOAP-ME checklist · team briefing · Plan B and C defined before first attempt</div>
+    </div>
+    <div class="rsi-card">
+      <div class="rsi-letter">P</div>
+      <div class="rsi-name">Preoxygenation</div>
+      <div class="rsi-note">100% NRB mask ≥ 3 min · NC at 4–6 L/min during apnoeic phase extends safe apnoea time</div>
+    </div>
+    <div class="rsi-card">
+      <div class="rsi-letter">P</div>
+      <div class="rsi-name">Pre-treatment</div>
+      <div class="rsi-note">Treat hypotension first · atropine 0.02 mg/kg for children &lt;1 yr if using succinylcholine</div>
+    </div>
+    <div class="rsi-card">
+      <div class="rsi-letter">P</div>
+      <div class="rsi-name">Paralysis + Induction</div>
+      <div class="rsi-note"><strong>Induction:</strong> ketamine 1–2 mg/kg (haemodynamically unstable) or etomidate 0.3 mg/kg &nbsp;·&nbsp; <strong>Paralytic:</strong> rocuronium 1.2 mg/kg or succinylcholine 1–2 mg/kg</div>
+    </div>
+    <div class="rsi-card">
+      <div class="rsi-letter">P</div>
+      <div class="rsi-name">Positioning</div>
+      <div class="rsi-note">Sniffing position (head slightly extended) · shoulder roll for infants · ramp obese patients</div>
+    </div>
+    <div class="rsi-card">
+      <div class="rsi-letter">P</div>
+      <div class="rsi-name">Placement + Proof</div>
+      <div class="rsi-note">Visualise cords · tube passes between them · waveform ETCO₂ confirms · 5-point check</div>
+    </div>
+    <div class="rsi-card wide">
+      <div class="rsi-letter">P</div>
+      <div class="rsi-name">Post-intubation Management</div>
+      <div class="rsi-note">Sedation + analgesia infusion · ventilator settings (TV 6–8 mL/kg IBW) · confirm depth on CXR · NG/OG tube · document tube size and depth in notes</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 7 · LIVE DRUG CALCULATOR ═══════════ -->
+<section class="slide">
+  <div class="ey">Bedside Tool</div>
+  <h2>Live Weight-Based Drug Calculator</h2>
+  <div class="calc-wrap">
+    <label class="calc-label">Patient weight</label>
+    <div class="calc-input-row">
+      <input class="calc-input" id="wt" type="number" min="0.5" max="120" step="0.1" placeholder="14" value="10" oninput="calcDrugs()">
+      <span class="calc-unit">kg</span>
+    </div>
+    <div class="calc-results" id="calcResults"><div class="calc-empty">Enter weight above to generate doses</div></div>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 8 · DRUG REFERENCE ═══════════ -->
+<section class="slide">
+  <div class="ey">Pharmacology</div>
+  <h2>Critical Drug Quick Reference</h2>
+  <div style="overflow-x:auto;border-radius:var(--r-lg);border:1px solid var(--border)">
+    <table class="tbl">
+      <thead><tr><th>Drug</th><th>Dose</th><th>Max</th><th>Route / Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Epinephrine (arrest)</strong></td><td>0.01 mg/kg q3–5 min</td><td>1 mg</td><td>IV/IO · 1:10,000 conc.</td></tr>
+        <tr><td><strong>Epinephrine (anaphylaxis)</strong></td><td>0.01 mg/kg IM</td><td>0.5 mg</td><td>1:1,000 · anterolateral thigh</td></tr>
+        <tr><td><strong>Atropine</strong></td><td>0.02 mg/kg (min 0.1 mg)</td><td>0.5 mg</td><td>IV/IO · bradycardia / pre-RSI</td></tr>
+        <tr><td><strong>Adenosine 1st</strong></td><td>0.1 mg/kg rapid IV push</td><td>6 mg</td><td>Flush immediately · proximal access</td></tr>
+        <tr><td><strong>Adenosine 2nd</strong></td><td>0.2 mg/kg rapid IV push</td><td>12 mg</td><td>If 1st dose fails after 1–2 min</td></tr>
+        <tr><td><strong>Amiodarone</strong></td><td>5 mg/kg bolus × up to 3</td><td>15 mg/kg</td><td>VF/pVT after 3rd shock</td></tr>
+        <tr><td><strong>Procainamide</strong></td><td>15 mg/kg over 30–60 min</td><td>17 mg/kg</td><td>Do not combine with amiodarone</td></tr>
+        <tr><td><strong>Magnesium sulfate</strong></td><td>25–50 mg/kg</td><td>2 g</td><td>Torsades · dilute · 10–20 min</td></tr>
+        <tr><td><strong>Dextrose 10%</strong></td><td>2–5 mL/kg</td><td>—</td><td>Hypoglycaemia IV/IO</td></tr>
+        <tr><td><strong>Sodium bicarb 8.4%</strong></td><td>1 mEq/kg</td><td>—</td><td>Flush before &amp; after; ≠ calcium</td></tr>
+        <tr><td><strong>Calcium chloride 10%</strong></td><td>20 mg/kg</td><td>1 g</td><td>Hyper-K · hypoCa · CCB OD</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 9 · KNOWLEDGE CHECK ═══════════ -->
+<section class="slide">
+  <div class="ey">Knowledge Check</div>
+  <h2>Tap each card to reveal the answer</h2>
+  <div class="fg fg2">
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 1</div><h4>A 4-year-old needs intubation. What size cuffed ETT should you use, and at what lip depth?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p><strong>ETT size:</strong> (4÷4) + 3.5 = <strong>4.5 mm</strong> cuffed. &nbsp;·&nbsp; <strong>Insertion depth:</strong> (4÷2) + 12 = <strong>14 cm</strong> at lip, or 4.5 × 3 = 13.5 cm. Have 4.0 and 5.0 sizes ready. Confirm with waveform ETCO₂ and bilateral breath sounds.</p></div>
+      </div>
+    </div>
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 2</div><h4>Post-intubation, SpO₂ drops from 99% to 76%. ETCO₂ waveform disappears. First step?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p>Think <strong>DOPES</strong>. First: <strong>disconnect from ventilator and bag manually</strong> (rules out equipment failure). Then: check for Displacement (listen for sounds), Obstruction (suction), Pneumothorax (unequal sounds, hypotension). ETCO₂ loss = tube may be displaced or in oesophagus.</p></div>
+      </div>
+    </div>
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 3</div><h4>You're about to give succinylcholine to a 9-month-old for RSI. What pre-treatment should you consider?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p><strong>Atropine 0.02 mg/kg IV</strong> (minimum 0.1 mg) before succinylcholine in children &lt;1 year. Succinylcholine can trigger profound bradycardia via muscarinic stimulation in infants. Atropine prevents this vagal response.</p></div>
+      </div>
+    </div>
+    <div class="fc" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="ff"><div class="ql">Question 4</div><h4>For a first-dose adenosine in SVT, what is the dose and how must it be given?</h4><div class="hi">Tap to reveal →</div></div>
+        <div class="fb"><p><strong>0.1 mg/kg</strong> (max 6 mg) — given as a <strong>rapid IV push</strong> into the most proximal available access, immediately followed by a <strong>10 mL NS flush</strong>. Adenosine has a half-life of &lt;10 seconds — slow administration renders it ineffective before it reaches the AV node.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SLIDE 10 · PEARL + FINISH ═══════════ -->
 <section class="slide">
   <div class="pearl">
-    <h3>Clinical Pearl</h3>
-    <h2 style="color:#0f3a26">"Plan the airway, then plan the rescue."</h2>
-    <p class="mt-3">Always know your Plan B before you push the paralytic. A working LMA, a difficult-airway kit, and a clear surgical airway exit save lives when the first attempt fails.</p>
+    <div class="pill pv">Clinical Pearl</div>
+    <div class="pearl-quote">&ldquo;Plan the airway, then plan the <span class="accent">rescue</span>.&rdquo;</div>
+    <p>Always define your Plan B and Plan C <em>before</em> you push the paralytic. A working LMA at arm's reach, a surgeon aware of the situation, and a clear surgical airway exit plan are what separate a difficult intubation from a cannot-intubate-cannot-oxygenate crisis.</p>
   </div>
+
+  <div class="stat-grid">
+    <div class="stat-card" style="--sg:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.22)">
+      <div class="stat-lbl">Cuffed ETT formula</div>
+      <div class="stat-val" style="color:var(--violet)">÷4 +3.5</div>
+      <div class="stat-note">Age-based ID in mm</div>
+    </div>
+    <div class="stat-card" style="--sg:rgba(0,212,255,0.07);border-color:rgba(0,212,255,0.22)">
+      <div class="stat-lbl">Depth at lip</div>
+      <div class="stat-val" style="color:var(--cyan)">÷2 +12</div>
+      <div class="stat-note">cm, or tube size ×3</div>
+    </div>
+    <div class="stat-card" style="--sg:rgba(255,179,0,0.07);border-color:rgba(255,179,0,0.22)">
+      <div class="stat-lbl">Cuff pressure</div>
+      <div class="stat-val" style="color:var(--amber)">20–25</div>
+      <div class="stat-note">cmH₂O target</div>
+    </div>
+    <div class="stat-card" style="--sg:rgba(0,230,118,0.06);border-color:rgba(0,230,118,0.22)">
+      <div class="stat-lbl">Atropine min dose</div>
+      <div class="stat-val" style="color:var(--green)">0.1 mg</div>
+      <div class="stat-note">Minimum regardless of weight</div>
+    </div>
+  </div>
+
+  <a href="../hub_student.html" class="nxt">
+    ✅ Course Complete — Return to Hub
+    <span class="nxt-arrow">→</span>
+  </a>
 </section>
 
-<div class="nav"><button class="nav-btn" onclick="go(-1)">◀ Prev</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">Next ▶</button></div>
-<script>
-const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
-const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
-function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
-function go(d){show(cur+d)}
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(1);if(e.key==='ArrowLeft')go(-1)});
-let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
+</div><!-- /stage -->
 
-function calc(){
-  const w=parseFloat(document.getElementById('wt').value)||0;
-  if(!w){document.getElementById('calcResults').innerHTML='';return}
-  const cap=(v,max)=>Math.min(v,max);
-  const fmt=(v,units,frac=2)=>v.toFixed(frac)+' '+units;
-  const rows=[
-    {drug:'Epinephrine (arrest) 0.01 mg/kg IV/IO',v:fmt(cap(w*0.01,1),'mg')+' ('+fmt(cap(w*0.1,10),'mL of 1:10,000',2)+')'},
-    {drug:'Epinephrine IM (anaphylaxis) 0.01 mg/kg',v:fmt(cap(w*0.01,0.5),'mg of 1:1,000',3)},
-    {drug:'Atropine 0.02 mg/kg (min 0.1 mg)',v:fmt(Math.max(0.1,cap(w*0.02,0.5)),'mg')},
-    {drug:'Adenosine 1st 0.1 mg/kg',v:fmt(cap(w*0.1,6),'mg')},
-    {drug:'Adenosine 2nd 0.2 mg/kg',v:fmt(cap(w*0.2,12),'mg')},
-    {drug:'Amiodarone 5 mg/kg bolus',v:fmt(cap(w*5,300),'mg')},
-    {drug:'Magnesium 25-50 mg/kg',v:fmt(cap(w*25,2000),'mg',0)+' to '+fmt(cap(w*50,2000),'mg',0)},
-    {drug:'Dextrose 10% 2-5 mL/kg',v:fmt(w*2,'mL',0)+' to '+fmt(w*5,'mL',0)},
-    {drug:'Sodium bicarbonate 1 mEq/kg',v:fmt(w,'mEq',1)},
-    {drug:'Defib 1st 2 J/kg',v:fmt(w*2,'J',0)},
-    {drug:'Defib 2nd 4 J/kg',v:fmt(w*4,'J',0)},
-    {drug:'Cardioversion 1st 0.5-1 J/kg',v:fmt(w*0.5,'J',0)+' to '+fmt(w*1,'J',0)},
-    {drug:'Fluid bolus 20 mL/kg',v:fmt(w*20,'mL',0)},
-  ];
-  document.getElementById('calcResults').innerHTML=rows.map(r=>`<div class="result-row"><span>${r.drug}</span><span class="v">${r.v}</span></div>`).join('');
+<!-- FOOTER -->
+<div class="foot">
+  <div class="slide-counter" id="counter">1 / 10</div>
+  <div class="slide-dots" id="dots"></div>
+  <div class="foot-btns">
+    <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
+    <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
+  </div>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let cur = 0;
+const dotsEl = document.getElementById('dots');
+slides.forEach((_,i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+function updateUI() {
+  document.getElementById('counter').textContent = (cur+1) + ' / ' + total;
+  document.getElementById('prev-btn').disabled = cur === 0;
+  document.getElementById('next-btn').disabled = cur === total - 1;
+  document.getElementById('progress-bar').style.width = ((cur+1)/total*100) + '%';
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === cur));
 }
-calc();
+function goTo(idx) {
+  if (idx === cur || idx < 0 || idx >= total) return;
+  const dir = idx > cur ? 1 : -1;
+  slides[cur].classList.remove('active');
+  if (dir > 0) slides[cur].classList.add('exit-left');
+  const prev = cur;
+  cur = idx;
+  setTimeout(() => slides[prev].classList.remove('exit-left'), 520);
+  slides[cur].classList.add('active');
+  updateUI();
+}
+function changeSlide(dir) { goTo(cur + dir); }
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key==='ArrowDown') changeSlide(1);
+  if (e.key==='ArrowLeft'||e.key==='ArrowUp') changeSlide(-1);
+});
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = tx - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > 48) changeSlide(dx > 0 ? 1 : -1);
+}, {passive:true});
+
+// ── Live Drug Calculator ──
+function calcDrugs() {
+  const w = parseFloat(document.getElementById('wt').value) || 0;
+  const out = document.getElementById('calcResults');
+  if (!w || w <= 0) { out.innerHTML = '<div class="calc-empty">Enter weight above to generate doses</div>'; return; }
+  const cap = (v, mx) => Math.min(v, mx);
+  const f = (v, u, dp = 2) => v.toFixed(dp) + '\u00a0' + u;
+  const rows = [
+    { drug: 'Epinephrine arrest IV/IO · 0.01 mg/kg (1:10,000)', val: f(cap(w*0.01,1),'mg') + '  (' + f(cap(w*0.1,10),'mL') + ')' },
+    { drug: 'Epinephrine anaphylaxis IM · 0.01 mg/kg (1:1,000)', val: f(cap(w*0.01,0.5),'mg',3) },
+    { drug: 'Atropine · 0.02 mg/kg (min 0.1 mg)', val: f(Math.max(0.1,cap(w*0.02,0.5)),'mg') },
+    { drug: 'Adenosine 1st dose · 0.1 mg/kg', val: f(cap(w*0.1,6),'mg') },
+    { drug: 'Adenosine 2nd dose · 0.2 mg/kg', val: f(cap(w*0.2,12),'mg') },
+    { drug: 'Amiodarone · 5 mg/kg bolus', val: f(cap(w*5,300),'mg',0) },
+    { drug: 'Lidocaine · 1 mg/kg', val: f(cap(w*1,100),'mg',0) },
+    { drug: 'Magnesium 25–50 mg/kg', val: f(cap(w*25,2000),'mg',0) + ' – ' + f(cap(w*50,2000),'mg',0) },
+    { drug: 'Dextrose 10% · 2–5 mL/kg', val: f(w*2,'mL',0) + ' – ' + f(w*5,'mL',0) },
+    { drug: 'Sodium bicarbonate · 1 mEq/kg', val: f(w,'mEq',1) },
+    { drug: 'Calcium chloride 10% · 20 mg/kg', val: f(cap(w*20,1000),'mg',0) },
+    { drug: 'Fluid bolus isotonic · 20 mL/kg', val: f(w*20,'mL',0) },
+    { drug: 'Defibrillation 1st shock · 2 J/kg', val: f(w*2,'J',0) },
+    { drug: 'Defibrillation 2nd shock · 4 J/kg', val: f(w*4,'J',0) },
+    { drug: 'Defibrillation 3rd+ shock · ≥4 J/kg (max 10)', val: f(Math.min(w*4,w*10),'J',0) + ' – ' + f(Math.min(w*10,360),'J',0) },
+    { drug: 'Cardioversion (SVT/VT) · 0.5–2 J/kg', val: f(w*0.5,'J',0) + ' – ' + f(Math.min(w*2,200),'J',0) },
+    { drug: 'Ketamine (RSI induction) · 1–2 mg/kg', val: f(cap(w*1,200),'mg',0) + ' – ' + f(cap(w*2,200),'mg',0) },
+    { drug: 'Rocuronium (RSI paralytic) · 1.2 mg/kg', val: f(cap(w*1.2,120),'mg',1) },
+    { drug: 'Succinylcholine · 1–2 mg/kg', val: f(cap(w*1,100),'mg',0) + ' – ' + f(cap(w*2,100),'mg',0) },
+  ];
+  out.innerHTML = rows.map(r => `<div class="calc-row"><span class="calc-drug">${r.drug}</span><span class="calc-val">${r.val}</span></div>`).join('');
+}
+calcDrugs();
+updateUI();
 </script>
 </body>
 </html>
