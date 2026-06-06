@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<!-- Firebase -->
+<script src="firebase-config.js"></script>
+<script type="module" src="firebase-sync.js"></script>
 <style>
 :root{
   --p:#0891B2;--pd:#0e7490;--pl:rgba(8,145,178,.1);
@@ -25,55 +28,43 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100dvh;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;transition:background .3s,color .3s;overflow-x:hidden}
-/* Animated bg */
 .blob{position:fixed;border-radius:50%;filter:blur(100px);opacity:.15;z-index:0;pointer-events:none;animation:drift 18s ease-in-out infinite}
 .blob1{width:480px;height:480px;background:#0891B2;top:-140px;left:-100px}
 .blob2{width:400px;height:400px;background:#7C3AED;bottom:-100px;right:-80px;animation-duration:22s;animation-direction:reverse}
 .blob3{width:260px;height:260px;background:#34D399;bottom:20%;left:10%;opacity:.09;animation-duration:26s}
 @keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(35px,25px) scale(1.04)}}
-/* Content */
 .wrap{position:relative;z-index:1;width:100%;max-width:430px;display:flex;flex-direction:column;align-items:center}
-/* Logo */
 .logo-ring{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#0891B2,#34D399);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(8,145,178,.4),0 0 0 8px rgba(8,145,178,.1);margin-bottom:1.1rem;animation:pop .6s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
 .logo-ring svg{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
 .sub{font-family:'Instrument Serif',serif;font-size:.95rem;color:var(--tm);margin-bottom:2rem;font-style:italic}
-/* Card */
 .card{background:var(--s);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--b);width:100%;padding:1.75rem;animation:slideup .5s .15s cubic-bezier(.4,0,.2,1) both}
 @keyframes slideup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-/* Role tabs */
 .role-tabs{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.5rem}
 .rtab{padding:.85rem .5rem;border-radius:11px;border:2px solid var(--b2);background:var(--s2);cursor:pointer;font-weight:700;font-size:.83rem;color:var(--tm);transition:var(--tr);display:flex;flex-direction:column;align-items:center;gap:6px;line-height:1;font-family:'Inter',sans-serif}
 .rtab .ico{font-size:1.6rem}
 .rtab.active-s{border-color:var(--p);background:var(--pl);color:var(--p)}
 .rtab.active-i{border-color:var(--v);background:var(--vl);color:var(--v)}
 [data-theme="dark"] .rtab.active-i{color:#c4b5fd}
-/* Form */
 .fl{margin-bottom:1rem}
 .fl label{display:block;font-size:.72rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
 .field{width:100%;padding:.72rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);transition:var(--tr);font-family:'Inter',sans-serif}
 .field:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(8,145,178,.15)}
-/* Error */
 .err{background:rgba(239,68,68,.09);color:#dc2626;border:1px solid rgba(239,68,68,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none;align-items:center;gap:.5rem}
-/* Submit */
 .btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-family:'Inter',sans-serif;position:relative;overflow:hidden}
 .btn-go::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.12);opacity:0;transition:opacity .2s}
 .btn-go:hover::after{opacity:1}
 .btn-go:active{transform:scale(.98)}
 .btn-s{background:linear-gradient(135deg,#0891B2,#0284C7)}
 .btn-i{background:linear-gradient(135deg,#7C3AED,#6D28D9)}
-/* Divider */
 .div{height:1px;background:var(--b2);margin:1.3rem 0;position:relative}
 .div span{position:absolute;left:50%;transform:translateX(-50%) translateY(-50%);background:var(--s);padding:0 .75rem;font-size:.72rem;color:var(--tf);white-space:nowrap}
-/* Hints */
 .hints{display:flex;flex-direction:column;gap:.4rem}
 .hint{display:flex;align-items:center;gap:.6rem;font-size:.79rem;color:var(--tm);background:var(--s2);padding:.5rem .8rem;border-radius:8px;border:1px solid var(--b)}
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-/* Demo creds */
 .creds{font-size:.72rem;color:var(--tf);text-align:center;margin-top:1rem;line-height:1.8;background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:.65rem .9rem}
 .creds strong{color:var(--tm)}
-/* Theme toggle */
 .theme-btn{position:fixed;top:1rem;right:1rem;background:var(--s);border:1px solid var(--b);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh);z-index:10;transition:var(--tr)}
 .theme-btn:hover{background:var(--s2);transform:rotate(20deg)}
 @media(max-width:400px){.card{padding:1.3rem}h1{font-size:1.55rem}}
@@ -156,7 +147,7 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
 </div>
 
 <script>
-// ── Accounts (extend this array for real users) ─────────────
+// ── Accounts ─────────────────────────────────────────────────
 const ACCTS = [
   {u:'instructor',  p:'teach2025',  role:'instructor', name:'Lead Instructor', canAdmin:true},
   {u:'instructor2', p:'teach2025b', role:'instructor', name:'Co-Instructor',   canAdmin:false},
@@ -164,7 +155,7 @@ const ACCTS = [
   {u:'student2',    p:'pals2026',   role:'student',    name:'Alex Rivera'},
 ];
 
-// ── Session helpers ──────────────────────────────────────────
+// ── Session helpers ───────────────────────────────────────────
 const SK = 'pals_sess_v2';
 function saveSession(o){ window.__pals_sess = o; try{sessionStorage.setItem(SK, JSON.stringify(o))}catch(e){} }
 function getSession(){
@@ -172,13 +163,23 @@ function getSession(){
   try{ return JSON.parse(sessionStorage.getItem(SK)||'null'); }catch(e){ return null; }
 }
 
-// Auto-redirect if already signed in
+// Auto-redirect if already signed in — also sync Firebase data back into session
 (function(){
   const s = getSession();
-  if(s && s.role){ redir(s.role); }
+  if(s && s.role){
+    // Restore progress from Firebase before redirecting
+    const trySync = () => {
+      if (window.FB) {
+        window.FB.loadAndSync().finally(() => redir(s.role));
+      } else {
+        setTimeout(trySync, 80);
+      }
+    };
+    trySync();
+  }
 })();
 
-// ── Role toggle ──────────────────────────────────────────────
+// ── Role toggle ───────────────────────────────────────────────
 let role = 'student';
 function pick(r){
   role = r;
@@ -189,7 +190,7 @@ function pick(r){
   document.getElementById('err').style.display = 'none';
 }
 
-// ── Login ────────────────────────────────────────────────────
+// ── Login ─────────────────────────────────────────────────────
 function go(){
   const u = document.getElementById('un').value.trim().toLowerCase();
   const p = document.getElementById('pw').value;
@@ -211,12 +212,23 @@ function go(){
   }
 
   saveSession({ u: acct.u, role: acct.role, name: acct.name, canAdmin: !!acct.canAdmin, t: Date.now() });
-  redir(acct.role);
+
+  // Firebase: save profile, then load any existing progress before redirecting
+  const doLogin = () => {
+    if (window.FB) {
+      window.FB.saveProfile(acct.name, acct.role)
+        .then(() => window.FB.loadAndSync())
+        .finally(() => redir(acct.role));
+    } else {
+      setTimeout(doLogin, 80);
+    }
+  };
+  doLogin();
 }
 
 function redir(r){ window.location.href = r === 'instructor' ? 'hub_instructor.html' : 'hub_student.html'; }
 
-// ── Theme ────────────────────────────────────────────────────
+// ── Theme ─────────────────────────────────────────────────────
 let dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
 function applyTheme(){
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
