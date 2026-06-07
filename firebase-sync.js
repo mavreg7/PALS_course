@@ -1,170 +1,210 @@
 // firebase-sync.js
 // ───────────────────────────────────────────────
-// PALS 2025 — Shared Firebase Sync Layer
+// PALS 2025 — Shared Firebase Sync Layer  (Phase 1 — UID-based)
+//
 // Loaded by: hub_student.html, hub_instructor.html,
 //            pals_instructor_dashboard.html, all 12 slide modules
 //
-// REQUIRES: firebase-config.js loaded BEFORE this file
+// REQUIRES: firebase-config.js + auth.js loaded BEFORE this file
 // EXPOSES:  window.FB  (all async helpers)
+//
+// KEY CHANGE from v1: student identity is now auth.currentUser.uid
+// (not a session name string). All Firestore paths use UID.
 // ───────────────────────────────────────────────
 
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
-  getFirestore, doc, setDoc, getDoc,
+  getFirestore,
+  doc, setDoc, getDoc,
   onSnapshot, collection, getDocs
 }                            from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { getAuth, signInAnonymously }
-                             from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getAuth }           from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
-// ── Init ───────────────────────────────────────
-let _app, _db, _auth;
+// ── Init (reuses app already started by auth.js if present) ───
+let _db, _auth;
 function _ensureInit() {
   if (_db) return;
-  _app  = initializeApp(FIREBASE_CONFIG);
-  _db   = getFirestore(_app);
-  _auth = getAuth(_app);
+  if (window.PALS_AUTH && window.PALS_AUTH.db) {
+    _db   = window.PALS_AUTH.db;
+    _auth = window.PALS_AUTH.auth;
+  } else {
+    const app = initializeApp(FIREBASE_CONFIG);
+    _db       = getFirestore(app);
+    _auth     = getAuth(app);
+  }
 }
 
-// ── Anonymous auth ────────────────────────────
-async function _ensureAuth() {
+// ── Get current UID ─────────────────────────────────────────
+function _uid() {
   _ensureInit();
-  if (_auth.currentUser) return _auth.currentUser;
-  const cred = await signInAnonymously(_auth);
-  return cred.user;
+  const u = _auth.currentUser;
+  if (!u) { console.warn('[PALS FB] No authenticated user'); return null; }
+  return u.uid;
 }
 
-// ── Student doc ID ─────────────────────────────
-// Derived from session name: lowercase + spaces→underscores
-function _studentId() {
-  try {
-    const s = JSON.parse(sessionStorage.getItem('pals_sess_v2') || 'null');
-    if (s && s.name) return s.name.toLowerCase().replace(/\s+/g, '_');
-  } catch(e) {}
-  return null;
-}
-
-// ── Save progress ──────────────────────────────
-// progress = { "0": true, "1": true, ... }
+// ── STUDENT: Save module progress ───────────────────────────
 async function fbSaveProgress(progress) {
   try {
-    await _ensureAuth();
-    const sid = _studentId();
-    if (!sid) return;
-    await setDoc(doc(_db,'students',sid), { progress, updatedAt: Date.now() }, { merge:true });
+    _ensureInit();
+    const uid = _uid(); if (!uid) return;
+    await setDoc(doc(_db,'students',uid), { progress, updatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveProgress:', e.message); }
 }
 
-// ── Save flags ────────────────────────────────
+// ── STUDENT: Save course flags ───────────────────────────────
 async function fbSaveFlags(flags) {
   try {
-    await _ensureAuth();
-    const sid = _studentId();
-    if (!sid) return;
-    await setDoc(doc(_db,'students',sid), { flags, flagsUpdatedAt: Date.now() }, { merge:true });
+    _ensureInit();
+    const uid = _uid(); if (!uid) return;
+    await setDoc(doc(_db,'students',uid), { flags, flagsUpdatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveFlags:', e.message); }
 }
 
-// ── Save student profile (called at login) ───────
-async function fbSaveProfile(name, role) {
+// ── STUDENT: Load own record ─────────────────────────────────
+async function fbLoadMyData() {
   try {
-    await _ensureAuth();
-    const sid = name.toLowerCase().replace(/\s+/g, '_');
-    await setDoc(doc(_db,'students',sid), { name, role, lastLogin: Date.now() }, { merge:true });
-  } catch(e) { console.warn('[PALS FB] saveProfile:', e.message); }
-}
-
-// ── Load one student ────────────────────────────
-async function fbLoadStudent(sid) {
-  try {
-    await _ensureAuth();
-    const snap = await getDoc(doc(_db,'students',sid));
+    _ensureInit();
+    const uid = _uid(); if (!uid) return null;
+    const snap = await getDoc(doc(_db,'students',uid));
     return snap.exists() ? snap.data() : null;
-  } catch(e) { console.warn('[PALS FB] loadStudent:', e.message); return null; }
+  } catch(e) { console.warn('[PALS FB] loadMyData:', e.message); return null; }
 }
 
-// ── Load Firebase data → merge into sessionStorage ─
+// ── STUDENT: Load + sync (returns merged object, no sessionStorage) ─
 async function fbLoadAndSync() {
   try {
-    const sid = _studentId();
-    if (!sid) return;
-    const data = await fbLoadStudent(sid);
-    if (!data) return;
-    if (data.progress) {
-      sessionStorage.setItem('pals_progress', JSON.stringify(data.progress));
-    }
-    if (data.flags) {
-      let local = {};
-      try { local = JSON.parse(sessionStorage.getItem('pals_flags') || '{}'); } catch(e) {}
-      sessionStorage.setItem('pals_flags', JSON.stringify(Object.assign({}, local, data.flags)));
-    }
-  } catch(e) { console.warn('[PALS FB] loadAndSync:', e.message); }
+    const data = await fbLoadMyData();
+    if (!data) return {};
+    return { progress: data.progress || {}, flags: data.flags || {} };
+  } catch(e) { console.warn('[PALS FB] loadAndSync:', e.message); return {}; }
 }
 
-// ── Mark one module complete + sync ──────────────
-// moduleIndex: 0-based  (Module 01 → 0 … Module 12 → 11)
+// ── STUDENT: Mark one module complete ─────────────────────────
 async function fbMarkModuleComplete(moduleIndex) {
   try {
-    let prog = {};
-    try { prog = JSON.parse(sessionStorage.getItem('pals_progress') || '{}'); } catch(e) {}
-    prog[moduleIndex] = true;
-    sessionStorage.setItem('pals_progress', JSON.stringify(prog));
+    const data  = await fbLoadMyData();
+    const prog  = (data && data.progress) ? { ...data.progress } : {};
+    prog[String(moduleIndex)] = true;
     await fbSaveProgress(prog);
-  } catch(e) { console.warn('[PALS FB] markComplete:', e.message); }
+    return prog;
+  } catch(e) { console.warn('[PALS FB] markComplete:', e.message); return {}; }
 }
 
-// ── INSTRUCTOR: get all students ─────────────────
+// ── STUDENT: Save exam score ─────────────────────────────────
+async function fbSaveExamScore(examType, score, total) {
+  try {
+    _ensureInit();
+    const uid = _uid(); if (!uid) return;
+    const field = examType === 'final' ? 'finalExam' : 'preTest';
+    await setDoc(doc(_db,'students',uid), {
+      [field]: { score, total, pct: Math.round((score/total)*100), completedAt: Date.now() }
+    }, { merge:true });
+  } catch(e) { console.warn('[PALS FB] saveExamScore:', e.message); }
+}
+
+// ── STUDENT: Save certificate ────────────────────────────────
+async function fbSaveCertificate(issued) {
+  try {
+    _ensureInit();
+    const uid = _uid(); if (!uid) return;
+    await setDoc(doc(_db,'students',uid), {
+      certificate: { issued, issuedAt: issued ? Date.now() : null }
+    }, { merge:true });
+  } catch(e) { console.warn('[PALS FB] saveCertificate:', e.message); }
+}
+
+// ── INSTRUCTOR: get all students ─────────────────────────────
 async function fbGetAllStudents() {
   try {
-    await _ensureAuth();
+    _ensureInit();
     const snap = await getDocs(collection(_db, 'students'));
-    const out = [];
-    snap.forEach(d => out.push({ id: d.id, ...d.data() }));
+    const out  = [];
+    snap.forEach(d => out.push({ uid: d.id, ...d.data() }));
     return out;
   } catch(e) { console.warn('[PALS FB] getAllStudents:', e.message); return []; }
 }
 
-// ── INSTRUCTOR: push flags to one student ────────
-async function fbPushFlagsToStudent(sid, flags) {
+// ── INSTRUCTOR: get all user profiles ────────────────────────
+async function fbGetAllUsers() {
   try {
-    await _ensureAuth();
-    await setDoc(doc(_db,'students',sid), { flags, flagsUpdatedAt: Date.now() }, { merge:true });
+    _ensureInit();
+    const snap = await getDocs(collection(_db, 'users'));
+    const out  = [];
+    snap.forEach(d => out.push({ uid: d.id, ...d.data() }));
+    return out;
+  } catch(e) { console.warn('[PALS FB] getAllUsers:', e.message); return []; }
+}
+
+// ── INSTRUCTOR: load one student by UID ──────────────────────
+async function fbLoadStudent(uid) {
+  try {
+    _ensureInit();
+    const snap = await getDoc(doc(_db,'students',uid));
+    return snap.exists() ? { uid, ...snap.data() } : null;
+  } catch(e) { console.warn('[PALS FB] loadStudent:', e.message); return null; }
+}
+
+// ── INSTRUCTOR: push flags to one student ───────────────────
+async function fbPushFlagsToStudent(uid, flags) {
+  try {
+    _ensureInit();
+    await setDoc(doc(_db,'students',uid), { flags, flagsUpdatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] pushFlags:', e.message); }
 }
 
-// ── INSTRUCTOR: broadcast announcement to all ───
-async function fbBroadcastAnnouncement(msg) {
+// ── INSTRUCTOR: broadcast announcement ──────────────────────
+async function fbBroadcastAnnouncement(msg, expiresInMs) {
   try {
-    await _ensureAuth();
-    const students = await fbGetAllStudents();
-    const ann = { msg, ts: Date.now() };
-    await Promise.all(
-      students.map(s => setDoc(doc(_db,'students',s.id), { flags: { _announcement: ann } }, { merge:true }))
-    );
+    _ensureInit();
+    const expires = Date.now() + (expiresInMs || 7200000);
+    await setDoc(doc(_db,'courseFlags','current'), {
+      _announcement: { msg, ts: Date.now(), expires }
+    }, { merge:true });
   } catch(e) { console.warn('[PALS FB] broadcast:', e.message); }
 }
 
-// ── INSTRUCTOR: real-time listener for all students ─
-function fbWatchAllStudents(callback) {
+// ── INSTRUCTOR: set global course flag ──────────────────────
+// key: 'preTestUnlocked' | 'finalExamUnlocked' | 'certUnlocked'
+async function fbSetCourseFlag(key, value) {
+  try {
+    _ensureInit();
+    await setDoc(doc(_db,'courseFlags','current'), { [key]: value }, { merge:true });
+  } catch(e) { console.warn('[PALS FB] setCourseFlag:', e.message); }
+}
+
+// ── STUDENT: watch course flags ───────────────────────────────
+function fbWatchCourseFlags(callback) {
   _ensureInit();
-  _ensureAuth().then(() => {
-    onSnapshot(collection(_db, 'students'), snap => {
-      const students = [];
-      snap.forEach(d => students.push({ id: d.id, ...d.data() }));
-      callback(students);
-    });
+  return onSnapshot(doc(_db,'courseFlags','current'), snap => {
+    callback(snap.exists() ? snap.data() : {});
   });
 }
 
-// ── Expose everything on window.FB ────────────────
+// ── INSTRUCTOR: real-time listener for all students ────────────
+function fbWatchAllStudents(callback) {
+  _ensureInit();
+  return onSnapshot(collection(_db, 'students'), snap => {
+    const students = [];
+    snap.forEach(d => students.push({ uid: d.id, ...d.data() }));
+    callback(students);
+  });
+}
+
+// ── Expose on window.FB ───────────────────────────────────────
 window.FB = {
   saveProgress:          fbSaveProgress,
   saveFlags:             fbSaveFlags,
-  saveProfile:           fbSaveProfile,
-  loadStudent:           fbLoadStudent,
+  loadMyData:            fbLoadMyData,
   loadAndSync:           fbLoadAndSync,
   markModuleComplete:    fbMarkModuleComplete,
+  saveExamScore:         fbSaveExamScore,
+  saveCertificate:       fbSaveCertificate,
+  watchCourseFlags:      fbWatchCourseFlags,
   getAllStudents:         fbGetAllStudents,
+  getAllUsers:            fbGetAllUsers,
+  loadStudent:           fbLoadStudent,
   pushFlagsToStudent:    fbPushFlagsToStudent,
   broadcastAnnouncement: fbBroadcastAnnouncement,
+  setCourseFlag:         fbSetCourseFlag,
   watchAllStudents:      fbWatchAllStudents,
 };
