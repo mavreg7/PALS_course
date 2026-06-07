@@ -7,16 +7,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<!-- Firebase -->
 <script src="firebase-config.js"></script>
-<script type="module" src="firebase-sync.js"></script>
 <style>
 :root{
   --p:#0891B2;--pd:#0e7490;--pl:rgba(8,145,178,.1);
   --v:#7C3AED;--vl:rgba(124,58,237,.1);
   --bg:#f0f9ff;--s:#fff;--s2:#f8fafc;--b:#bae6fd;--b2:#e2e8f0;
   --t:#0f172a;--tm:#475569;--tf:#94a3b8;
-  --danger:#EF4444;
   --sh:0 4px 28px rgba(8,145,178,.13);--r:16px;
   --tr:all .22s cubic-bezier(.4,0,.2,1);
 }
@@ -41,36 +38,36 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
 .sub{font-family:'Instrument Serif',serif;font-size:.95rem;color:var(--tm);margin-bottom:2rem;font-style:italic}
 .card{background:var(--s);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--b);width:100%;padding:1.75rem;animation:slideup .5s .15s cubic-bezier(.4,0,.2,1) both}
 @keyframes slideup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.role-tabs{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.5rem}
-.rtab{padding:.85rem .5rem;border-radius:11px;border:2px solid var(--b2);background:var(--s2);cursor:pointer;font-weight:700;font-size:.83rem;color:var(--tm);transition:var(--tr);display:flex;flex-direction:column;align-items:center;gap:6px;line-height:1;font-family:'Inter',sans-serif}
-.rtab .ico{font-size:1.6rem}
-.rtab.active-s{border-color:var(--p);background:var(--pl);color:var(--p)}
-.rtab.active-i{border-color:var(--v);background:var(--vl);color:var(--v)}
-[data-theme="dark"] .rtab.active-i{color:#c4b5fd}
 .fl{margin-bottom:1rem}
 .fl label{display:block;font-size:.72rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
 .field{width:100%;padding:.72rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);transition:var(--tr);font-family:'Inter',sans-serif}
 .field:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(8,145,178,.15)}
 .err{background:rgba(239,68,68,.09);color:#dc2626;border:1px solid rgba(239,68,68,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none;align-items:center;gap:.5rem}
-.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-family:'Inter',sans-serif;position:relative;overflow:hidden}
-.btn-go::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.12);opacity:0;transition:opacity .2s}
-.btn-go:hover::after{opacity:1}
+.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-family:'Inter',sans-serif;position:relative;overflow:hidden;background:linear-gradient(135deg,#0891B2,#0284C7)}
+.btn-go:hover{background:linear-gradient(135deg,#0e7490,#0369a1)}
 .btn-go:active{transform:scale(.98)}
-.btn-s{background:linear-gradient(135deg,#0891B2,#0284C7)}
-.btn-i{background:linear-gradient(135deg,#7C3AED,#6D28D9)}
+.btn-go:disabled{opacity:.6;cursor:not-allowed}
 .div{height:1px;background:var(--b2);margin:1.3rem 0;position:relative}
 .div span{position:absolute;left:50%;transform:translateX(-50%) translateY(-50%);background:var(--s);padding:0 .75rem;font-size:.72rem;color:var(--tf);white-space:nowrap}
 .hints{display:flex;flex-direction:column;gap:.4rem}
 .hint{display:flex;align-items:center;gap:.6rem;font-size:.79rem;color:var(--tm);background:var(--s2);padding:.5rem .8rem;border-radius:8px;border:1px solid var(--b)}
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.creds{font-size:.72rem;color:var(--tf);text-align:center;margin-top:1rem;line-height:1.8;background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:.65rem .9rem}
-.creds strong{color:var(--tm)}
 .theme-btn{position:fixed;top:1rem;right:1rem;background:var(--s);border:1px solid var(--b);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh);z-index:10;transition:var(--tr)}
 .theme-btn:hover{background:var(--s2);transform:rotate(20deg)}
+/* Checking session overlay */
+#auth-checking{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s}
+#auth-checking.hidden{opacity:0;pointer-events:none}
+.spinner{width:36px;height:36px;border:3px solid var(--b);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:400px){.card{padding:1.3rem}h1{font-size:1.55rem}}
 </style>
 </head>
 <body>
+<!-- Session check overlay -->
+<div id="auth-checking">
+  <div class="spinner"></div>
+</div>
+
 <div class="blob blob1"></div>
 <div class="blob blob2"></div>
 <div class="blob blob3"></div>
@@ -84,7 +81,7 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
   </svg>
 </button>
 
-<div class="wrap">
+<div class="wrap" id="login-wrap" style="display:none">
   <div class="logo-ring">
     <svg width="36" height="36" viewBox="0 0 36 36">
       <path d="M18 4 L18 32 M4 18 L32 18" stroke-width="4"/>
@@ -96,34 +93,23 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
   <div class="sub">Pediatric Advanced Life Support — Provider Course</div>
 
   <div class="card">
-    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:.8rem">Sign in as</div>
-
-    <div class="role-tabs">
-      <button class="rtab active-s" id="tab-s" onclick="pick('student')">
-        <span class="ico">🎓</span>Student
-      </button>
-      <button class="rtab" id="tab-i" onclick="pick('instructor')">
-        <span class="ico">👨‍🏫</span>Instructor
-      </button>
-    </div>
-
     <div id="err" class="err">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span id="err-msg">Incorrect credentials. Please try again.</span>
     </div>
 
     <div class="fl">
-      <label for="un">Username</label>
-      <input class="field" id="un" type="text" autocomplete="username" placeholder="Enter your username" onkeydown="if(event.key==='Enter')go()">
+      <label for="em">Email address</label>
+      <input class="field" id="em" type="email" autocomplete="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')document.getElementById('pw').focus()">
     </div>
     <div class="fl">
       <label for="pw">Password</label>
-      <input class="field" id="pw" type="password" autocomplete="current-password" placeholder="Enter your password" onkeydown="if(event.key==='Enter')go()">
+      <input class="field" id="pw" type="password" autocomplete="current-password" placeholder="Your password" onkeydown="if(event.key==='Enter')go()">
     </div>
 
-    <button id="gbtn" class="btn-go btn-s" onclick="go()">
+    <button id="gbtn" class="btn-go" onclick="go()">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-      <span id="gbtn-txt">Sign In as Student</span>
+      <span id="gbtn-txt">Sign In</span>
     </button>
 
     <div class="div"><span>Access levels</span></div>
@@ -131,102 +117,112 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
     <div class="hints">
       <div class="hint">
         <div class="dot" style="background:#0891B2"></div>
-        <span><strong>Students</strong> — modules, quizzes, progress &amp; feedback</span>
+        <span><strong>Students</strong> — modules, quizzes, progress &amp; certificate</span>
       </div>
       <div class="hint">
         <div class="dot" style="background:#7C3AED"></div>
-        <span><strong>Instructors</strong> — roster, exams, eval tools, admin controls</span>
+        <span><strong>Instructors</strong> — roster, exams, eval tools &amp; admin controls</span>
       </div>
-    </div>
-
-    <div class="creds">
-      Demo student: <strong>student / pals2025</strong><br>
-      Demo instructor: <strong>instructor / teach2025</strong>
     </div>
   </div>
 </div>
 
-<script>
-// ── Accounts ─────────────────────────────────────────────────
-const ACCTS = [
-  {u:'instructor',  p:'teach2025',  role:'instructor', name:'Lead Instructor', canAdmin:true},
-  {u:'instructor2', p:'teach2025b', role:'instructor', name:'Co-Instructor',   canAdmin:false},
-  {u:'student',     p:'pals2025',   role:'student',    name:'Student'},
-  {u:'student2',    p:'pals2026',   role:'student',    name:'Alex Rivera'},
-];
+<script type="module">
+import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged
+}                           from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {
+  getFirestore, doc, getDoc, setDoc, serverTimestamp
+}                           from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-// ── Session helpers ───────────────────────────────────────────
-const SK = 'pals_sess_v2';
-function saveSession(o){ window.__pals_sess = o; try{sessionStorage.setItem(SK, JSON.stringify(o))}catch(e){} }
-function getSession(){
-  if(window.__pals_sess) return window.__pals_sess;
-  try{ return JSON.parse(sessionStorage.getItem(SK)||'null'); }catch(e){ return null; }
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const INSTRUCTOR_ROLES = ['admin', 'lead_instructor', 'instructor'];
+
+function redir(role) {
+  window.location.href = INSTRUCTOR_ROLES.includes(role)
+    ? 'hub_instructor.html'
+    : 'hub_student.html';
 }
 
-// Auto-redirect if already signed in — also sync Firebase data back into session
-(function(){
-  const s = getSession();
-  if(s && s.role){
-    // Restore progress from Firebase before redirecting
-    const trySync = () => {
-      if (window.FB) {
-        window.FB.loadAndSync().finally(() => redir(s.role));
-      } else {
-        setTimeout(trySync, 80);
+// ── Check if already signed in ────────────────────────────────
+onAuthStateChanged(auth, async (fbUser) => {
+  const overlay = document.getElementById('auth-checking');
+  if (fbUser) {
+    try {
+      const snap = await getDoc(doc(db, 'users', fbUser.uid));
+      if (snap.exists()) {
+        redir(snap.data().role || 'student');
+        return;
       }
-    };
-    trySync();
+    } catch(e) {}
   }
-})();
+  // Not signed in — show login form
+  overlay.classList.add('hidden');
+  setTimeout(() => overlay.remove(), 350);
+  document.getElementById('login-wrap').style.display = 'flex';
+});
 
-// ── Role toggle ───────────────────────────────────────────────
-let role = 'student';
-function pick(r){
-  role = r;
-  document.getElementById('tab-s').className = 'rtab' + (r==='student'?' active-s':'');
-  document.getElementById('tab-i').className = 'rtab' + (r==='instructor'?' active-i':'');
-  document.getElementById('gbtn').className  = 'btn-go ' + (r==='student'?'btn-s':'btn-i');
-  document.getElementById('gbtn-txt').textContent = 'Sign In as ' + (r==='student'?'Student':'Instructor');
-  document.getElementById('err').style.display = 'none';
-}
-
-// ── Login ─────────────────────────────────────────────────────
-function go(){
-  const u = document.getElementById('un').value.trim().toLowerCase();
-  const p = document.getElementById('pw').value;
+// ── Sign in ───────────────────────────────────────────────────
+window.go = async function() {
+  const email = document.getElementById('em').value.trim();
+  const pw    = document.getElementById('pw').value;
   const errEl = document.getElementById('err');
+  const btn   = document.getElementById('gbtn');
+  const btnTxt= document.getElementById('gbtn-txt');
   errEl.style.display = 'none';
 
-  if(!u || !p){
-    document.getElementById('err-msg').textContent = 'Please enter both username and password.';
+  if (!email || !pw) {
+    document.getElementById('err-msg').textContent = 'Please enter your email and password.';
     errEl.style.display = 'flex'; return;
   }
 
-  const acct = ACCTS.find(a => a.u === u && a.p === p && a.role === role);
-  if(!acct){
-    document.getElementById('err-msg').textContent = 'Incorrect credentials. Please try again.';
+  btn.disabled = true;
+  btnTxt.textContent = 'Signing in…';
+
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, pw);
+    // Get role from Firestore
+    let role = 'student';
+    try {
+      const snap = await getDoc(doc(db, 'users', cred.user.uid));
+      if (snap.exists()) {
+        role = snap.data().role || 'student';
+        // Write last login
+        await setDoc(doc(db, 'users', cred.user.uid), { lastLogin: serverTimestamp() }, { merge: true });
+      } else {
+        // Firebase Auth account exists but no Firestore profile
+        // Could be a newly created Firebase Auth user with no role assigned yet
+        document.getElementById('err-msg').textContent = 'Account found but no course profile exists. Contact your instructor.';
+        errEl.style.display = 'flex';
+        btn.disabled = false; btnTxt.textContent = 'Sign In';
+        return;
+      }
+    } catch(e) {
+      console.warn('Firestore read failed:', e.message);
+    }
+    redir(role);
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found':     'No account found with that email.',
+      'auth/wrong-password':     'Incorrect password. Please try again.',
+      'auth/invalid-email':      'Please enter a valid email address.',
+      'auth/user-disabled':      'This account has been disabled.',
+      'auth/too-many-requests':  'Too many attempts — please wait a moment.',
+      'auth/invalid-credential': 'Incorrect email or password.',
+    };
+    document.getElementById('err-msg').textContent = msgs[e.code] || 'Sign-in failed. Please try again.';
     errEl.style.display = 'flex';
     document.getElementById('pw').value = '';
     document.getElementById('pw').focus();
-    return;
+    btn.disabled = false; btnTxt.textContent = 'Sign In';
   }
-
-  saveSession({ u: acct.u, role: acct.role, name: acct.name, canAdmin: !!acct.canAdmin, t: Date.now() });
-
-  // Firebase: save profile, then load any existing progress before redirecting
-  const doLogin = () => {
-    if (window.FB) {
-      window.FB.saveProfile(acct.name, acct.role)
-        .then(() => window.FB.loadAndSync())
-        .finally(() => redir(acct.role));
-    } else {
-      setTimeout(doLogin, 80);
-    }
-  };
-  doLogin();
-}
-
-function redir(r){ window.location.href = r === 'instructor' ? 'hub_instructor.html' : 'hub_student.html'; }
+};
 
 // ── Theme ─────────────────────────────────────────────────────
 let dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
@@ -236,7 +232,7 @@ function applyTheme(){
     ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
     : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
 }
-function toggleTheme(){ dark = !dark; applyTheme(); }
+window.toggleTheme = function(){ dark = !dark; applyTheme(); };
 applyTheme();
 </script>
 </body>
