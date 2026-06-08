@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<!-- Firebase -->
 <script src="firebase-config.js"></script>
 <script type="module" src="firebase-sync.js"></script>
 <style>
@@ -96,17 +95,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
   <div class="t-right">
     <span class="badge-student" id="user-badge">🎓 STUDENT</span>
     <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle dark mode" id="thbtn">🌙</button>
-    <button class="btn-sm btn-logout" onclick="logout()">Sign Out</button>
+    <button class="btn-sm btn-logout" id="logout-btn">Sign Out</button>
   </div>
 </nav>
 
 <main class="main">
-
   <div class="announce-banner" id="announce-banner">
     <span class="announce-ico">📣</span>
     <div class="announce-txt" id="announce-txt"></div>
   </div>
-
   <div class="welcome">
     <div>
       <h2 id="welcome-name">Welcome back</h2>
@@ -114,7 +111,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
     </div>
     <span style="font-size:2.2rem">🎓</span>
   </div>
-
   <div class="progress-wrap">
     <div class="progress-top">
       <span class="progress-label">Course Progress</span>
@@ -123,7 +119,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
     <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
     <div class="progress-sub" id="prog-sub">Start with Module 1 to begin your journey.</div>
   </div>
-
   <div class="sec-hdr">Quick Access</div>
   <div class="quick-grid">
     <a href="pals_forms_portal.html" class="ql-card locked" id="ql-pretest">
@@ -145,26 +140,46 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
       <span class="lock-chip locked-state" id="chip-cert">🔒 Not yet available</span>
     </a>
   </div>
-
   <div class="sec-hdr">12 Learning Modules</div>
   <div class="mod-grid" id="mod-grid"></div>
-
 </main>
 
-<script>
-const SK='pals_sess_v2';
-function getSession(){if(window.__pals_sess)return window.__pals_sess;try{return JSON.parse(sessionStorage.getItem(SK)||'null')}catch(e){return null}}
-function logout(){window.__pals_sess=null;try{sessionStorage.removeItem(SK)}catch(e){}location.href='index.html';}
-function getFlags(){try{return JSON.parse(sessionStorage.getItem('pals_flags')||'{}')}catch(e){return{}}}
-function getProgress(){try{return JSON.parse(sessionStorage.getItem('pals_progress')||'{}')}catch(e){return{}}}
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+
+const SK = 'pals_sess_v2';
+
+function getSession() {
+  if (window.__pals_sess) return window.__pals_sess;
+  try { return JSON.parse(sessionStorage.getItem(SK) || 'null'); } catch(e) { return null; }
+}
+
+async function logout() {
+  window.__pals_sess = null;
+  try { sessionStorage.removeItem(SK); } catch(e) {}
+  try { await signOut(auth); } catch(e) {}
+  window.location.href = 'index.html';
+}
 
 // Auth guard: students only
-(function(){
-  const s=getSession();
-  if(!s||s.role!=='student'){location.href='index.html';return;}
-  document.getElementById('welcome-name').textContent='Welcome, '+s.name;
-  document.getElementById('user-badge').textContent='🎓 '+s.name.toUpperCase();
-})();
+const s = getSession();
+if (!s || s.role !== 'student') {
+  window.__pals_sess = null;
+  try { sessionStorage.removeItem(SK); } catch(e) {}
+  try { await signOut(auth); } catch(e) {}
+  window.location.href = 'index.html';
+} else {
+  document.getElementById('welcome-name').textContent = 'Welcome, ' + s.name;
+  document.getElementById('user-badge').textContent = '🎓 ' + s.name.toUpperCase();
+  document.getElementById('logout-btn').addEventListener('click', logout);
+}
+
+function getFlags(){try{return JSON.parse(sessionStorage.getItem('pals_flags')||'{}')}catch(e){return{}}}
+function getProgress(){try{return JSON.parse(sessionStorage.getItem('pals_progress')||'{}')}catch(e){return{}}}
 
 const MODULES=[
   {n:1,title:'Course Intro & 2025 Updates',sub:'Goals, cert, key changes',file:'slides/pals_module_01_intro.slides.html'},
@@ -185,7 +200,6 @@ function render(){
   const f=getFlags();
   const prog=getProgress();
   const allOpen=f.unlockedModules&&f.unlockedModules.length>=12;
-
   function gate(id,chipId,open){
     const el=document.getElementById(id);
     const chip=document.getElementById(chipId);
@@ -195,7 +209,6 @@ function render(){
   gate('ql-pretest','chip-pretest',!!f.pretestUnlocked);
   gate('ql-exam','chip-exam',!!f.testsUnlocked);
   gate('ql-cert','chip-cert',!!f.certUnlocked);
-
   const completed=MODULES.filter((_,i)=>prog[i]).length;
   const pct=Math.round(completed/12*100);
   document.getElementById('prog-pct').textContent=pct+'%';
@@ -204,7 +217,6 @@ function render(){
     pct===100?'🎉 All modules complete! You are ready for the final exam.'
     :completed===0?'Start with Module 1 to begin your journey.'
     :`${completed} of 12 modules completed — keep going!`;
-
   document.getElementById('mod-grid').innerHTML=MODULES.map((m,i)=>{
     const done=!!prog[i];
     const open=allOpen||i===0||(i>0&&prog[i-1]);
@@ -215,41 +227,31 @@ function render(){
       <span class="mod-end-ico">${done?'✅':open?'▶️':'🔒'}</span>
     </a>`;
   }).join('');
-
   const ann=f._announcement;
   const banner=document.getElementById('announce-banner');
   if(ann&&ann.msg&&(Date.now()-ann.ts)<7200000){
     document.getElementById('announce-txt').textContent='Instructor announcement: '+ann.msg;
     banner.style.display='flex';
   }else{banner.style.display='none';}
-
-  // Firebase: save current progress state on every render cycle
-  if (window.FB) window.FB.saveProgress(prog);
+  if(window.FB) window.FB.saveProgress(prog);
 }
 
-// Initial load: pull latest data from Firebase, then render
-function initHub() {
-  if (window.FB) {
-    window.FB.loadAndSync().then(() => render());
-  } else {
-    setTimeout(initHub, 100);
-  }
+function initHub(){
+  if(window.FB){window.FB.loadAndSync().then(()=>render());}
+  else{setTimeout(initHub,100);}
 }
-initHub();
-
-// Refresh every 7 seconds: pull from Firebase first, then render
-// This ensures instructor flag changes (unlock exam, announcement) appear promptly
-setInterval(() => {
-  if (window.FB) {
-    window.FB.loadAndSync().then(() => render());
-  } else {
-    render();
-  }
-}, 7000);
+if(s && s.role === 'student') {
+  initHub();
+  setInterval(()=>{
+    if(window.FB){window.FB.loadAndSync().then(()=>render());}
+    else{render();}
+  },7000);
+}
 
 let dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
 function applyTheme(){document.documentElement.setAttribute('data-theme',dark?'dark':'light');document.getElementById('thbtn').textContent=dark?'☀️':'🌙';}
 function toggleTheme(){dark=!dark;applyTheme();}
+window.toggleTheme=toggleTheme;
 applyTheme();
 </script>
 </body>

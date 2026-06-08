@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PALS 2025 · Instructor Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="firebase-config.js"></script>
 <style>
 :root{--primary:#0891B2;--primary-dark:#0e7490;--primary-light:#e0f2fe;--instructor:#7C3AED;--success:#22C55E;--warning:#F59E0B;--danger:#EF4444;--bg:#F0F9FF;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--faint:#94a3b8;--radius:14px;--shadow:0 4px 20px rgba(8,145,178,.09)}
 [data-theme="dark"]{--bg:#0f172a;--surface:#1e293b;--surface2:#273548;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--faint:#475569;--shadow:0 4px 24px rgba(0,0,0,.4)}
@@ -33,7 +34,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
       <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     </button>
-    <button class="btn-sm btn-danger" onclick="logout()">Sign Out</button>
+    <button class="btn-sm btn-danger" id="logout-btn">Sign Out</button>
   </div>
 </nav>
 <main class="main">
@@ -54,37 +55,48 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 
   <div class="section-title">Admin Controls</div>
   <div class="grid-2" style="margin-bottom:2rem">
-    <a href="pals_instructor_dashboard.html" class="card"><div class="card-body"><div class="card-icon" style="background:rgba(220,38,38,.1);color:#dc2626">🔐</div><div class="card-title">Student Access Manager</div><div class="card-desc">Use the Instructor Dashboard to manage roster records, review completions, export data, and oversee student access without sending instructors to a dead page.</div><div class="hint">Consolidated into the dashboard for a smoother workflow.</div></div><div class="grad-bar" style="background:linear-gradient(90deg,#dc2626,#F59E0B)"></div></a>
+    <a href="pals_instructor_dashboard.html" class="card"><div class="card-body"><div class="card-icon" style="background:rgba(220,38,38,.1);color:#dc2626">🔐</div><div class="card-title">Student Access Manager</div><div class="card-desc">Use the Instructor Dashboard to manage roster records, review completions, export data, and oversee student access.</div><div class="hint">Consolidated into the dashboard for a smoother workflow.</div></div><div class="grad-bar" style="background:linear-gradient(90deg,#dc2626,#F59E0B)"></div></a>
     <div class="card" style="cursor:default"><div class="card-body"><div class="card-icon" style="background:rgba(245,158,11,.1);color:#b45309">🔔</div><div class="card-title">Course Status</div><div class="card-desc" id="course-status-text">Manage live session state. Students currently see unlocked modules only.</div><div style="margin-top:.9rem;display:flex;gap:.5rem;flex-wrap:wrap"><span class="badge badge-ok" id="status-tests">● Tests: Managed in forms</span><span class="badge badge-neutral" id="status-roster">● Roster: Managed in dashboard</span></div></div><div class="grad-bar" style="background:linear-gradient(90deg,#F59E0B,#34D399)"></div></div>
   </div>
 
   <div class="section-title">12 Learning Modules</div>
   <div class="modules-grid" id="modules-grid"></div>
 </main>
-<script>
-// ── Session (must match index.html exactly) ──────────────────
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+
 const SK = 'pals_sess_v2';
-function getSession(){
-  if(window.__pals_sess) return window.__pals_sess;
-  try{ return JSON.parse(sessionStorage.getItem(SK)||'null'); }catch(e){ return null; }
+const INSTRUCTOR_ROLES = ['admin', 'lead_instructor', 'instructor'];
+
+function getSession() {
+  if (window.__pals_sess) return window.__pals_sess;
+  try { return JSON.parse(sessionStorage.getItem(SK) || 'null'); } catch(e) { return null; }
 }
-function logout(){
+
+async function logout() {
   window.__pals_sess = null;
-  try{ sessionStorage.removeItem(SK); }catch(e){}
+  try { sessionStorage.removeItem(SK); } catch(e) {}
+  try { await signOut(auth); } catch(e) {}
   window.location.href = 'index.html';
 }
 
-// Auth guard — all instructor-level roles
-const INSTRUCTOR_ROLES = ['admin', 'lead_instructor', 'instructor'];
-(function(){
-  const s = getSession();
-  if(!s || !INSTRUCTOR_ROLES.includes(s.role)){
-    window.location.href = 'index.html';
-    return;
-  }
+// Auth guard
+const s = getSession();
+if (!s || !INSTRUCTOR_ROLES.includes(s.role)) {
+  window.__pals_sess = null;
+  try { sessionStorage.removeItem(SK); } catch(e) {}
+  try { await signOut(auth); } catch(e) {}
+  window.location.href = 'index.html';
+} else {
   document.getElementById('welcome-name').textContent = 'Welcome, ' + s.name;
   document.getElementById('user-badge').textContent = s.role === 'admin' ? 'ADMIN' : s.name.toUpperCase();
-})();
+  document.getElementById('logout-btn').addEventListener('click', logout);
+}
 
 const MODULES=[
   {n:1,file:'slides/pals_module_01_intro.slides.html',title:'Course Intro & 2025 Updates',sub:'Goals, cert, key changes'},
@@ -104,7 +116,8 @@ document.getElementById('modules-grid').innerHTML=MODULES.map(m=>`<a href="${m.f
 
 let dark=window.matchMedia('(prefers-color-scheme: dark)').matches;
 applyTheme();
-function toggleTheme(){dark=!dark;applyTheme()}
+function toggleTheme(){dark=!dark;applyTheme();}
+window.toggleTheme = toggleTheme;
 function applyTheme(){
   document.documentElement.setAttribute('data-theme',dark?'dark':'light');
   document.getElementById('theme-icon').innerHTML=dark
