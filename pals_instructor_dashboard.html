@@ -16,6 +16,8 @@
   .btn-ghost{background:#fff;color:#0891B2;border:1px solid #0891B2}.btn-ghost:hover{background:#f0f9ff}
   .btn-sec{background:#34D399;color:#0f3a26}.btn-sec:hover{background:#22c281}
   .btn-warn{background:#F59E0B;color:#fff}.btn-warn:hover{background:#d97706}
+  .btn-edit{background:rgba(8,145,178,.08);color:#0891B2;border:1px solid rgba(8,145,178,.2);padding:4px 10px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:all .18s}
+  .btn-edit:hover{background:rgba(8,145,178,.16);border-color:#0891B2}
   .stat-num{font-size:28px;font-weight:800;line-height:1}
   .stat-label{font-size:11px;color:#64748b;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
   .pill{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600}
@@ -28,7 +30,7 @@
   .field:focus{outline:none;border-color:#0891B2;box-shadow:0 0 0 3px rgba(8,145,178,.15)}
   table{width:100%;font-size:13px;border-collapse:collapse}
   th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#64748b;padding:10px 8px;border-bottom:1px solid #e2e8f0;font-weight:700}
-  td{padding:10px 8px;border-bottom:1px solid #f1f5f9}
+  td{padding:10px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
   tr:hover td{background:#f8fafc}
   .bar{height:8px;background:#f1f5f9;border-radius:999px;overflow:hidden}
   .bar > div{height:100%;background:linear-gradient(90deg,#0891B2,#34D399);border-radius:999px;transition:width .4s}
@@ -36,6 +38,28 @@
   .badge-src{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.3px}
   .badge-fb{background:rgba(255,160,0,.15);color:#b45309}
   .badge-ls{background:rgba(100,116,139,.12);color:#475569}
+
+  /* ── Edit Student Modal ──────────────────────────────────────── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .22s}
+  .modal-overlay.open{opacity:1;pointer-events:all}
+  .modal-box{background:#fff;border-radius:18px;border:1px solid #e2e8f0;box-shadow:0 24px 64px rgba(0,0,0,.18);width:100%;max-width:460px;overflow:hidden;transform:translateY(16px) scale(.97);transition:transform .26s cubic-bezier(.16,1,.3,1)}
+  .modal-overlay.open .modal-box{transform:translateY(0) scale(1)}
+  .modal-head{padding:1.2rem 1.4rem 1rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+  .modal-head h3{font-size:1rem;font-weight:800;display:flex;align-items:center;gap:.45rem}
+  .modal-close{background:#f1f5f9;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.95rem;color:#64748b;transition:all .16s}
+  .modal-close:hover{background:#e2e8f0;color:#1e293b}
+  .modal-body{padding:1.3rem 1.4rem}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+  .fg{margin-bottom:.9rem}
+  .fg label{display:block;font-size:.75rem;font-weight:700;color:#64748b;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.4px}
+  .fg input,.fg select{width:100%;padding:.6rem .8rem;border-radius:8px;border:1.5px solid #cbd5e1;background:#f8fafc;color:#1e293b;font-size:.875rem;font-family:'Manrope',system-ui;transition:border-color .16s,box-shadow .16s;outline:none}
+  .fg input:focus,.fg select:focus{border-color:#0891B2;box-shadow:0 0 0 3px rgba(8,145,178,.12);background:#fff}
+  .btn-save{width:100%;padding:.72rem;border-radius:10px;background:linear-gradient(135deg,#0891B2,#34D399);color:#fff;font-weight:800;font-size:.875rem;border:none;cursor:pointer;transition:opacity .18s,transform .14s;margin-top:.2rem}
+  .btn-save:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
+  .btn-save:disabled{opacity:.5;cursor:not-allowed}
+  .edit-result{margin-top:.85rem;border-radius:9px;padding:.75rem 1rem;font-size:.8rem;font-weight:600;display:none;line-height:1.5}
+  .edit-result.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#15803d;display:block}
+  .edit-result.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#dc2626;display:block}
 </style>
 </head>
 <body>
@@ -76,7 +100,7 @@
     <div class="card p-4">
       <div class="stat-label">Enrolled</div>
       <div class="stat-num mt-2" id="s_enrolled">0</div>
-      <div class="text-xs text-slate-500 mt-2">Total accounts</div>
+      <div class="text-xs text-slate-500 mt-2">Students only</div>
     </div>
     <div class="card p-4">
       <div class="stat-label">Passed</div>
@@ -111,12 +135,12 @@
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
       <div>
         <h2 class="font-bold text-lg">Student Roster</h2>
-        <p class="text-xs text-slate-400 mt-0.5">🔵 Firebase account &nbsp;·&nbsp; ⚪ Pre-registration only</p>
+        <p class="text-xs text-slate-400 mt-0.5">🔵 Firebase account &nbsp;·&nbsp; ⚪ Pre-registration only &nbsp;·&nbsp; Click ✏️ to edit any row</p>
       </div>
       <div class="flex gap-2 flex-wrap">
         <input class="field" id="search" placeholder="Search name / email…" oninput="renderRoster()">
         <select class="field" id="filter" onchange="renderRoster()">
-          <option value="">All</option>
+          <option value="">All Students</option>
           <option value="Pass">Passed</option>
           <option value="Fail">Failed</option>
           <option value="Pending">Pending</option>
@@ -128,7 +152,7 @@
     <div class="overflow-x-auto">
       <table>
         <thead><tr>
-          <th>Name</th><th>Email</th><th>Role</th><th>Cohort</th><th>Source</th><th>Attend</th><th>Pre-Test</th><th>BLS</th><th>Megacode</th><th>Final Exam</th><th>Cert</th>
+          <th>Name</th><th>Email</th><th>Role</th><th>Cohort</th><th>Source</th><th>Attend</th><th>Pre-Test</th><th>BLS</th><th>Megacode</th><th>Final Exam</th><th>Cert</th><th class="no-print">Edit</th>
         </tr></thead>
         <tbody id="roster_body"></tbody>
       </table>
@@ -150,25 +174,73 @@
 
 </div>
 
+<!-- ── EDIT STUDENT MODAL ────────────────────────────────────────── -->
+<div class="modal-overlay" id="edit-overlay" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>✏️ Edit Student</h3>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-uid">
+      <div class="form-row">
+        <div class="fg">
+          <label for="edit-fname">First Name</label>
+          <input type="text" id="edit-fname" autocomplete="off">
+        </div>
+        <div class="fg">
+          <label for="edit-lname">Last Name</label>
+          <input type="text" id="edit-lname" autocomplete="off">
+        </div>
+      </div>
+      <div class="fg">
+        <label for="edit-cohort">Cohort / Group</label>
+        <input type="text" id="edit-cohort" placeholder="e.g. June 2026" autocomplete="off">
+      </div>
+      <div class="fg">
+        <label for="edit-role">Role</label>
+        <select id="edit-role">
+          <option value="student">Student</option>
+          <option value="instructor">Instructor</option>
+          <option value="lead_instructor">Lead Instructor</option>
+        </select>
+      </div>
+      <div class="fg" id="edit-email-wrap">
+        <label>Email (read-only)</label>
+        <input type="email" id="edit-email" disabled style="opacity:.6;cursor:not-allowed">
+      </div>
+      <button class="btn-save" id="edit-save-btn" onclick="saveEditStudent()">Save Changes</button>
+      <div class="edit-result" id="edit-result"></div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { getFirestore, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {
+  getFirestore,
+  collection, getDocs, doc, setDoc, query, orderBy
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const app  = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-// ── Firebase accounts cache ────────────────────────────────────────────
-let fbUsers = [];   // array of Firestore user docs
+const STUDENT_ROLES = ['student'];
+
+let fbUsers  = [];
 let fbLoaded = false;
 
 async function loadFirebaseUsers() {
   try {
     const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
-    fbUsers = snap.docs.map(d => ({ ...d.data(), uid: d.id }));
+    // ── FIX: only keep student-role accounts in the roster ──
+    fbUsers = snap.docs
+      .map(d => ({ ...d.data(), uid: d.id }))
+      .filter(u => !u.role || u.role === 'student');
     fbLoaded = true;
-    showBanner(`✓ Firebase roster loaded — ${fbUsers.length} account(s) found`, 'green');
+    showBanner(`✓ Firebase roster loaded — ${fbUsers.length} student(s) found`, 'green');
   } catch(e) {
     fbLoaded = true;
     showBanner(`⚠ Could not load Firebase accounts: ${e.message}`, 'yellow');
@@ -189,32 +261,19 @@ function showBanner(msg, color) {
   if (color === 'green') setTimeout(() => b.classList.add('hidden'), 4000);
 }
 
-// ── Kick off Firebase load once auth confirms we're allowed ────────────
 onAuthStateChanged(auth, (user) => {
   if (user) {
     loadFirebaseUsers();
   } else {
-    // Not signed in — still load page but note it
     fbLoaded = true;
-    showBanner('⚠ Not signed in — Firebase roster unavailable. Sign in to see all accounts.', 'yellow');
+    showBanner('⚠ Not signed in — Firebase roster unavailable.', 'yellow');
     refreshAll();
   }
 });
 
-// ── localStorage helpers ───────────────────────────────────────────────
 function get(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
 function pct(v){return Math.min(100,Math.max(0,v))+'%'}
 
-function uniqByKey(arr, keyFn){
-  const m = new Map();
-  arr.forEach(e => { const k = keyFn(e); if(k) m.set(k, e); });
-  return [...m.values()];
-}
-
-// ── Build merged roster ─────────────────────────────────────────────────
-// Source A: Firebase Firestore users collection
-// Source B: localStorage pals2025_preregistration
-// Merged by email (preferred) or name (fallback)
 function buildRoster() {
   const regs  = get('pals2025_preregistration');
   const att   = get('pals2025_attendance');
@@ -224,9 +283,9 @@ function buildRoster() {
   const ex    = get('pals2025_final_exam');
   const certs = get('pals2025_certificates');
 
-  // Start with Firebase accounts
-  const merged = new Map(); // key: email.lower or uid
+  const merged = new Map();
 
+  // fbUsers is already filtered to students-only (done in loadFirebaseUsers)
   fbUsers.forEach(u => {
     const key = (u.email || u.uid || '').toLowerCase();
     if (!key) return;
@@ -241,7 +300,6 @@ function buildRoster() {
     });
   });
 
-  // Merge localStorage pre-registrations (add if not already in Firebase)
   regs.forEach(r => {
     const key = (r.email || '').toLowerCase() || (r.name || '').toLowerCase();
     if (!key) return;
@@ -249,27 +307,24 @@ function buildRoster() {
       merged.set(key, {
         name:   r.name  || '—',
         email:  r.email || '—',
-        role:   r.role  || '',
+        role:   r.role  || 'student',
         cohort: r.cohort|| '—',
         source: 'local',
       });
     }
   });
 
-  // Also surface anyone who appears in form data but nowhere else
   [att, pre, bls, mc, ex, certs].forEach(arr => arr.forEach(e => {
     const nameKey = (e.name || '').toLowerCase().trim();
     if (!nameKey) return;
-    // Check if this name matches an existing entry
     const existing = [...merged.values()].find(m => m.name.toLowerCase().trim() === nameKey);
     if (!existing) {
       merged.set('__name__' + nameKey, {
-        name: e.name, email: '—', role: '', cohort: '—', source: 'local'
+        name: e.name, email: '—', role: 'student', cohort: '—', source: 'local'
       });
     }
   }));
 
-  // Enrich each entry with form data (match by name)
   return [...merged.values()].map(r => {
     const n = (r.name || '').toLowerCase().trim();
     const find = arr => arr.filter(x => (x.name||'').toLowerCase().trim() === n).slice(-1)[0];
@@ -335,8 +390,18 @@ function renderRoster(){
   if(f==='firebase') rows = rows.filter(x => x.source==='firebase');
   if(f==='local')    rows = rows.filter(x => x.source==='local');
   document.getElementById('roster_empty').classList.toggle('hidden', rows.length > 0);
-  document.getElementById('roster_body').innerHTML = rows.map(x => `
-    <tr>
+  document.getElementById('roster_body').innerHTML = rows.map(x => {
+    const uid   = x.uid || '';
+    const parts = (x.name || '').trim().split(' ');
+    const fname = encodeURIComponent(parts[0] || '');
+    const lname = encodeURIComponent(parts.slice(1).join(' ') || '');
+    const cohort= encodeURIComponent(x.cohort || '');
+    const role  = encodeURIComponent(x.role   || 'student');
+    const email = encodeURIComponent(x.email  || '');
+    const editBtn = uid
+      ? `<button class="btn-edit no-print" onclick="openEditModal('${uid}','${fname}','${lname}','${cohort}','${role}','${email}')'">✏️ Edit</button>`
+      : `<span class="text-xs text-slate-400 no-print">n/a</span>`;
+    return `<tr>
       <td class="font-semibold">${x.name}</td>
       <td class="text-slate-500 text-xs">${x.email}</td>
       <td>${roleTag(x.role)}</td>
@@ -348,8 +413,9 @@ function renderRoster(){
       <td>${pillFor(x.megacode)}</td>
       <td>${pillFor(x.exam)}</td>
       <td>${pillFor(x.cert)}</td>
-    </tr>
-  `).join('');
+      <td>${editBtn}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderFB(){
@@ -453,6 +519,65 @@ window.clearAll = function(){
   refreshAll();alert('Cleared.');
 };
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+
+/* ── EDIT STUDENT MODAL ── */
+window.openEditModal = function(uid, fname, lname, cohort, role, email) {
+  document.getElementById('edit-uid').value    = uid;
+  document.getElementById('edit-fname').value  = decodeURIComponent(fname);
+  document.getElementById('edit-lname').value  = decodeURIComponent(lname);
+  document.getElementById('edit-cohort').value = decodeURIComponent(cohort);
+  document.getElementById('edit-role').value   = decodeURIComponent(role);
+  document.getElementById('edit-email').value  = decodeURIComponent(email);
+  const res = document.getElementById('edit-result');
+  res.className = 'edit-result'; res.style.display = 'none'; res.textContent = '';
+  document.getElementById('edit-save-btn').disabled = false;
+  document.getElementById('edit-overlay').classList.add('open');
+};
+
+window.closeEditModal = function() {
+  document.getElementById('edit-overlay').classList.remove('open');
+};
+
+document.getElementById('edit-overlay').addEventListener('click', function(e) {
+  if (e.target === this) window.closeEditModal();
+});
+
+window.saveEditStudent = async function() {
+  const uid    = document.getElementById('edit-uid').value.trim();
+  const fname  = document.getElementById('edit-fname').value.trim();
+  const lname  = document.getElementById('edit-lname').value.trim();
+  const cohort = document.getElementById('edit-cohort').value.trim();
+  const role   = document.getElementById('edit-role').value;
+  const res    = document.getElementById('edit-result');
+  const btn    = document.getElementById('edit-save-btn');
+
+  if (!uid)   { showResult(res, 'err', 'No UID found — this account cannot be edited here.'); return; }
+  if (!fname) { showResult(res, 'err', 'First name is required.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    const fullName = (fname + ' ' + lname).trim();
+    await setDoc(doc(db, 'users', uid), { name: fullName, cohort, role }, { merge: true });
+    // Update local cache so roster re-renders immediately
+    const idx = fbUsers.findIndex(u => u.uid === uid);
+    if (idx !== -1) { fbUsers[idx].name = fullName; fbUsers[idx].cohort = cohort; fbUsers[idx].role = role; }
+    showResult(res, 'ok', `✅ Saved! "${fullName}" updated successfully.`);
+    refreshAll();
+    setTimeout(() => window.closeEditModal(), 1800);
+  } catch(e) {
+    showResult(res, 'err', 'Save failed: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Changes';
+  }
+};
+
+function showResult(el, type, msg) {
+  el.className = 'edit-result ' + type;
+  el.textContent = msg;
+}
 
 window.refreshAll = function(){renderStats();renderRoster();renderFB();renderSessions();};
 window.refreshAll();
