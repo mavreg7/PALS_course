@@ -74,15 +74,16 @@ function logout(){
   window.location.href = 'index.html';
 }
 
-// Auth guard — instructors only
+// Auth guard — all instructor-level roles
+const INSTRUCTOR_ROLES = ['admin', 'lead_instructor', 'instructor'];
 (function(){
   const s = getSession();
-  if(!s || s.role !== 'instructor'){
+  if(!s || !INSTRUCTOR_ROLES.includes(s.role)){
     window.location.href = 'index.html';
     return;
   }
   document.getElementById('welcome-name').textContent = 'Welcome, ' + s.name;
-  document.getElementById('user-badge').textContent = s.name.toUpperCase();
+  document.getElementById('user-badge').textContent = s.role === 'admin' ? 'ADMIN' : s.name.toUpperCase();
 })();
 
 const MODULES=[
