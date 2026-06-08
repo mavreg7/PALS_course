@@ -1,5 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Module 01 · Course Intro &amp; 2025 Updates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#07080e;--surface:#0d0f18;--surface2:#121520;--border:rgba(255,255,255,.06);--text:#e8eaf0;--muted:#7c8494;--faint:#2a2e3e;--sky:#38bdf8;--sky-dim:rgba(56,189,248,.1);--blue:#60a5fa;--cyan:#00d4ff;--green:#00e676;--amber:#ffb300;--red:#ff3d5a;--font-head:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--r:10px;--r-lg:16px;--ease:cubic-bezier(.16,1,.3,1)}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(circle at 80% 10%,rgba(56,189,248,.07),transparent 35%),radial-gradient(circle at 10% 85%,rgba(0,230,118,.04),transparent 32%),var(--bg)}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--sky),var(--blue),var(--cyan));transition:width .5s ease;z-index:100;box-shadow:0 0 14px rgba(56,189,248,.6)}
+.nav{position:fixed;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:50}.nav-logo{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--sky);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px}.nav-logo-dot{width:7px;height:7px;background:var(--sky);border-radius:50%;box-shadow:0 0 10px var(--sky);animation:pdot 3.5s ease-in-out infinite}@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.6)}}.nav-title{font-size:12px;color:var(--muted)}.nav-btn{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.22);color:var(--muted);border-radius:8px;padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-head);letter-spacing:.05em;text-transform:uppercase;transition:all .2s}.nav-btn:hover{border-color:var(--sky);color:var(--sky);background:var(--sky-dim)}
+.stage{position:fixed;inset:58px 0 72px;overflow:hidden}.slide{position:absolute;inset:0;padding:30px 48px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;opacity:0;transform:translateX(60px) scale(.985);transition:opacity .5s var(--ease),transform .5s var(--ease);pointer-events:none;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}.slide.active{opacity:1;transform:translateX(0) scale(1);pointer-events:all}.slide.exit-left{opacity:0;transform:translateX(-60px) scale(.985)}.hero-slide{justify-content:center;padding:66px 48px}@media(max-width:680px){.slide{padding:20px 18px}.hero-slide{padding:40px 18px}}
+.ey{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--sky);display:flex;align-items:center;gap:10px}.ey::before{content:'';display:block;width:24px;height:2px;background:linear-gradient(90deg,var(--sky),transparent);border-radius:2px}
+h1.hero{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3.3rem);font-weight:700;line-height:1.08;letter-spacing:-.03em;color:#fff;max-width:880px}h1.hero .grad{background:linear-gradient(100deg,var(--sky),var(--blue) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}h2{font-family:var(--font-head);font-size:clamp(1.25rem,2.4vw,1.75rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-.018em}h3{font-family:var(--font-head);font-size:.96rem;font-weight:600;color:var(--text);margin-bottom:6px}p{font-size:.88rem;color:var(--muted);line-height:1.7}li{font-size:.86rem;color:var(--muted);line-height:1.65;margin-bottom:5px}strong{color:var(--text)}ul,ol{padding-left:18px}.subt{font-size:.96rem;color:var(--muted);max-width:720px;line-height:1.75}
+.pill{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 11px;border-radius:20px;display:inline-flex;align-items:center;margin-bottom:10px}.ps{background:rgba(56,189,248,.12);color:var(--sky)}.pg{background:rgba(0,230,118,.12);color:var(--green)}.pa{background:rgba(255,179,0,.12);color:var(--amber)}.pr{background:rgba(255,61,90,.12);color:var(--red)}
+.cards{display:grid;gap:13px}.c2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}.c3{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;transition:border-color .3s,box-shadow .3s,transform .3s}.card:hover{border-color:rgba(56,189,248,.22);box-shadow:0 8px 28px rgba(56,189,248,.08);transform:translateY(-2px)}
+.alt{border-radius:var(--r);padding:13px 17px;border-left:3px solid}.as{background:rgba(56,189,248,.06);border-color:var(--sky)}.as h4{color:var(--sky)}.ag{background:rgba(0,230,118,.06);border-color:var(--green)}.ag h4{color:var(--green)}.aa{background:rgba(255,179,0,.06);border-color:var(--amber)}.aa h4{color:var(--amber)}.ar{background:rgba(255,61,90,.06);border-color:var(--red)}.ar h4{color:var(--red)}h4{font-size:.84rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.timeline{display:flex;flex-direction:column;gap:0}.tl-item{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05)}.tl-item:last-child{border-bottom:none}.tl-dot{width:32px;height:32px;border-radius:50%;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:var(--sky);font-family:var(--font-head);font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nxt{display:inline-flex;align-items:center;gap:10px;margin-top:4px;padding:12px 24px;background:linear-gradient(135deg,var(--sky),var(--cyan));color:#060c14;font-family:var(--font-head);font-weight:700;font-size:.86rem;border-radius:var(--r);text-decoration:none;transition:opacity .2s,transform .2s;align-self:flex-start}.nxt:hover{opacity:.88;transform:translateY(-2px)}
+.footer{position:fixed;left:0;right:0;bottom:0;height:72px;background:rgba(7,8,14,.92);backdrop-filter:blur(18px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:60}.counter{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}.foot-btns{display:flex;gap:10px}.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}.foot-btn:hover:not(:disabled){border-color:rgba(56,189,248,.25);transform:translateY(-1px)}.foot-btn:disabled{opacity:.35;cursor:not-allowed}.foot-btn.primary{background:linear-gradient(135deg,var(--sky),var(--cyan));border:none;color:#060c14;font-family:var(--font-head);font-weight:700}
+</style>
+</head>
+<body>
+<div id="progress-bar"></div>
+<header class="nav">
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="nav-logo"><span class="nav-logo-dot"></span>PALS 2025</div>
+    <div class="nav-title">Module 01 · Course Intro &amp; 2025 Updates</div>
+  </div>
+  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
+</header>
+<main class="stage" id="stage">
+  <section class="slide active hero-slide">
+    <div class="ey">Module 01</div>
+    <div class="pill ps">Orientation</div>
+    <h1 class="hero">Welcome to <span class="grad">PALS 2025</span> — Pediatric Advanced Life Support.</h1>
+    <p class="subt">This module covers what's new in the 2020/2025 AHA guidelines, how this course is structured, and what you will be able to do by the end of day two.</p>
+  </section>
+  <section class="slide">
+    <div class="pill ps">What is PALS?</div>
+    <h2>Pediatric Advanced Life Support</h2>
+    <div class="cards c2">
+      <div class="card"><h3>Who it's for</h3><p>Healthcare providers who respond to pediatric emergencies — nurses, physicians, paramedics, respiratory therapists, and anyone who may manage a critically ill child.</p></div>
+      <div class="card"><h3>What it teaches</h3><p>Systematic recognition of respiratory failure, shock, and cardiac arrest in children; team-based resuscitation; and algorithm-driven interventions.</p></div>
+      <div class="card"><h3>The goal</h3><p>Improve outcomes by preventing cardiac arrest through early recognition, and by delivering high-quality resuscitation when arrest occurs.</p></div>
+      <div class="card"><h3>This course</h3><p>Two-day provider course following the AHA 2020 guidelines. Skills stations, megacode scenarios, written exam, and provider card on completion.</p></div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="pill pg">2020/2025 Updates</div>
+    <h2>Key AHA guideline changes you need to know</h2>
+    <div class="cards c2">
+      <div class="alt as"><h4>CPR rate confirmed</h4><p>100–120 compressions per minute. Faster does not improve outcomes and reduces perfusion pressure between compressions.</p></div>
+      <div class="alt as"><h4>Compression depth</h4><p>At least one-third AP chest diameter. Approximately 1.5 inches (4 cm) in infants, 2 inches (5 cm) in children.</p></div>
+      <div class="alt as"><h4>Full recoil mandatory</h4><p>Allow complete chest recoil between compressions. Leaning on the chest reduces venous return and coronary perfusion.</p></div>
+      <div class="alt as"><h4>Minimize interruptions</h4><p>Pre-shock and post-shock pauses less than 10 seconds. Target CPR fraction &gt;80%.</p></div>
+      <div class="alt ag"><h4>IO access emphasis</h4><p>Intraosseous access is now a primary route — not a rescue route — when IV access is delayed in unstable patients.</p></div>
+      <div class="alt ag"><h4>SpO₂ targets</h4><p>Target SpO₂ 94–99% during resuscitation. Avoid hyperoxia — titrate oxygen after ROSC.</p></div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="pill pa">Course structure</div>
+    <h2>Two-day schedule overview</h2>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot">D1</div><div><h3>Day 1 — Didactic + Skills</h3><p>BLS review, systematic assessment, respiratory emergencies, shock recognition, cardiac rhythms, algorithms. Skills stations: airway, IO access, cardiac monitoring.</p></div></div>
+      <div class="tl-item"><div class="tl-dot">D2</div><div><h3>Day 2 — Scenarios + Exam</h3><p>Megacode respiratory case, megacode shock case, cardiac arrest scenarios, post-arrest care, pharmacology review. Written exam and skills sign-off.</p></div></div>
+      <div class="tl-item"><div class="tl-dot">✓</div><div><h3>Completion</h3><p>Pass written exam (≥84%) and demonstrate competency in megacode scenarios to receive AHA PALS Provider card valid for 2 years.</p></div></div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="pill ps">Learning objectives</div>
+    <h2>By the end of this course you will be able to:</h2>
+    <div class="cards c2">
+      <div class="card"><h3>Recognize emergencies early</h3><p>Apply the Pediatric Assessment Triangle and primary ABCDE survey to identify respiratory failure, shock, and cardiac arrest before decompensation.</p></div>
+      <div class="card"><h3>Apply algorithms correctly</h3><p>Use AHA PALS algorithms for bradycardia, tachycardia, pulseless arrest, and post-cardiac arrest care.</p></div>
+      <div class="card"><h3>Lead and participate in teams</h3><p>Demonstrate effective team dynamics — clear roles, closed-loop communication, constructive debriefing.</p></div>
+      <div class="card"><h3>Perform key skills</h3><p>High-quality CPR, bag-mask ventilation, cardiac monitoring interpretation, vascular access, medication administration.</p></div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="pill pr">Team dynamics</div>
+    <h2>Effective resuscitation is a team sport</h2>
+    <div class="cards c3">
+      <div class="card"><h3>Clear roles</h3><p>Every team member knows their assignment before the code starts. Ambiguity costs seconds.</p></div>
+      <div class="card"><h3>Closed-loop communication</h3><p>The sender gives a directive, the receiver confirms receipt, the sender acknowledges. Nothing is assumed.</p></div>
+      <div class="card"><h3>Constructive intervention</h3><p>Any team member may voice a safety concern. The team leader must be approachable. Hierarchy does not override safety.</p></div>
+      <div class="card"><h3>Shared mental model</h3><p>Everyone knows the working diagnosis, current treatment phase, and what comes next.</p></div>
+      <div class="card"><h3>Debriefing</h3><p>After every simulation and every real event — what went well, what to improve, how to improve it.</p></div>
+      <div class="card"><h3>Workload distribution</h3><p>The team leader monitors the whole picture. Do not pile tasks onto one person.</p></div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="pill pg">Ready</div>
+    <h2>You're set. Let's begin.</h2>
+    <div class="alt ag"><h4>Reminder</h4><p>Each module builds on the previous one. Progress is saved as you complete each module. If you leave and return, your place in the course is preserved.</p></div>
+    <div class="alt as"><h4>How to navigate</h4><p>Use the arrow buttons below, keyboard arrow keys, or swipe left/right on touch screens. Return to the Hub at any time using the ← Hub button above.</p></div>
+    <a href="pals_module_02_bls.slides.html" class="nxt">Next → Module 02: BLS Review →</a>
+  </section>
+</main>
+<footer class="footer">
+  <div class="counter" id="counter">1 / 7</div>
+  <div class="foot-btns"><button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button><button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button></div>
+</footer>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let cur=0,total=slides.length;
+function updateUI(){document.getElementById('counter').textContent=(cur+1)+' / '+total;document.getElementById('prev-btn').disabled=cur===0;document.getElementById('next-btn').disabled=cur===total-1;if(cur===total-1)markComplete('mod01');document.getElementById('progress-bar').style.width=((cur+1)/total*100)+'%';}
+function goTo(n){if(n<0||n>=total||n===cur)return;const old=slides[cur],nw=slides[n];old.classList.remove('active');old.classList.add(n>cur?'exit-left':'');setTimeout(()=>old.classList.remove('exit-left'),500);nw.classList.add('active');cur=n;updateUI();}
+function changeSlide(d){goTo(cur+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')changeSlide(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')changeSlide(-1)});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.changedTouches[0].clientX,{passive:true});document.addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>48)changeSlide(dx>0?-1:1)},{passive:true});
+updateUI();
+function markComplete(k){try{var r=sessionStorage.getItem('pals_progress');var p=r?JSON.parse(r):{};p[k]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}}
+</script>
+</body></html>
