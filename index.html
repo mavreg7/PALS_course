@@ -35,30 +35,46 @@ body{min-height:100dvh;font-family:'Inter',system-ui,sans-serif;background:var(-
 @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
 .logo-ring svg{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
-.sub{font-family:'Instrument Serif',serif;font-size:.95rem;color:var(--tm);margin-bottom:2rem;font-style:italic}
-.card{background:var(--s);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--b);width:100%;padding:1.75rem;animation:slideup .5s .15s cubic-bezier(.4,0,.2,1) both}
+.sub{font-family:'Instrument Serif',serif;font-size:.95rem;color:var(--tm);margin-bottom:1.5rem;font-style:italic}
+
+/* Tab switcher */
+.tabs{display:flex;background:var(--s2);border:1px solid var(--b2);border-radius:11px;padding:4px;gap:4px;width:100%;margin-bottom:1rem}
+.tab{flex:1;padding:.55rem;border-radius:8px;border:none;background:transparent;color:var(--tm);font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:var(--tr)}
+.tab.active{background:var(--s);color:var(--t);box-shadow:0 1px 6px rgba(8,145,178,.14)}
+.tab:hover:not(.active){color:var(--t)}
+
+.card{background:var(--s);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--b);width:100%;padding:1.75rem;animation:slideup .5s .1s cubic-bezier(.4,0,.2,1) both}
 @keyframes slideup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.panel{display:none}.panel.active{display:block}
 .fl{margin-bottom:1rem}
 .fl label{display:block;font-size:.72rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
 .field{width:100%;padding:.72rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);transition:var(--tr);font-family:'Inter',sans-serif}
 .field:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(8,145,178,.15)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 .err{background:rgba(239,68,68,.09);color:#dc2626;border:1px solid rgba(239,68,68,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none;align-items:center;gap:.5rem}
+.ok-msg{background:rgba(34,197,94,.09);color:#15803d;border:1px solid rgba(34,197,94,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none;align-items:center;gap:.5rem}
 .btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-family:'Inter',sans-serif;position:relative;overflow:hidden;background:linear-gradient(135deg,#0891B2,#0284C7)}
 .btn-go:hover{background:linear-gradient(135deg,#0e7490,#0369a1)}
 .btn-go:active{transform:scale(.98)}
 .btn-go:disabled{opacity:.6;cursor:not-allowed}
+.btn-reg{background:linear-gradient(135deg,#7C3AED,#0891B2)}
+.btn-reg:hover{background:linear-gradient(135deg,#6d28d9,#0e7490)}
 .div{height:1px;background:var(--b2);margin:1.3rem 0;position:relative}
 .div span{position:absolute;left:50%;transform:translateX(-50%) translateY(-50%);background:var(--s);padding:0 .75rem;font-size:.72rem;color:var(--tf);white-space:nowrap}
 .hints{display:flex;flex-direction:column;gap:.4rem}
 .hint{display:flex;align-items:center;gap:.6rem;font-size:.79rem;color:var(--tm);background:var(--s2);padding:.5rem .8rem;border-radius:8px;border:1px solid var(--b)}
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pw-wrap{position:relative}.pw-wrap .field{padding-right:2.8rem}
+.pw-toggle{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tm);padding:0;display:flex;align-items:center;transition:var(--tr)}
+.pw-toggle:hover{color:var(--t)}
 .theme-btn{position:fixed;top:1rem;right:1rem;background:var(--s);border:1px solid var(--b);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh);z-index:10;transition:var(--tr)}
 .theme-btn:hover{background:var(--s2);transform:rotate(20deg)}
 #auth-checking{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s}
 #auth-checking.hidden{opacity:0;pointer-events:none}
 .spinner{width:36px;height:36px;border:3px solid var(--b);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:400px){.card{padding:1.3rem}h1{font-size:1.55rem}}
+.reg-note{font-size:.74rem;color:var(--tf);text-align:center;margin-top:.9rem;line-height:1.5}
+@media(max-width:400px){.card{padding:1.3rem}h1{font-size:1.55rem}.field-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -88,38 +104,97 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
   <h1>PALS 2025</h1>
   <div class="sub">Pediatric Advanced Life Support — Provider Course</div>
 
+  <!-- Tab switcher -->
+  <div class="tabs" role="tablist">
+    <button class="tab active" id="tab-signin" role="tab" aria-selected="true"  aria-controls="panel-signin"  onclick="switchTab('signin')">Sign In</button>
+    <button class="tab"        id="tab-reg"    role="tab" aria-selected="false" aria-controls="panel-reg"     onclick="switchTab('reg')">New Here? Register</button>
+  </div>
+
   <div class="card">
-    <div id="err" class="err">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <span id="err-msg">Incorrect credentials. Please try again.</span>
-    </div>
 
-    <div class="fl">
-      <label for="em">Email address</label>
-      <input class="field" id="em" type="email" autocomplete="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')document.getElementById('pw').focus()">
-    </div>
-    <div class="fl">
-      <label for="pw">Password</label>
-      <input class="field" id="pw" type="password" autocomplete="current-password" placeholder="Your password" onkeydown="if(event.key==='Enter')go()">
-    </div>
-
-    <button id="gbtn" class="btn-go" onclick="go()">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-      <span id="gbtn-txt">Sign In</span>
-    </button>
-
-    <div class="div"><span>Access levels</span></div>
-
-    <div class="hints">
-      <div class="hint">
-        <div class="dot" style="background:#0891B2"></div>
-        <span><strong>Students</strong> — modules, quizzes, progress &amp; certificate</span>
+    <!-- ── SIGN IN PANEL ───────────────────────────────────── -->
+    <div class="panel active" id="panel-signin" role="tabpanel">
+      <div id="si-err" class="err">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="si-err-msg">Incorrect credentials. Please try again.</span>
       </div>
-      <div class="hint">
-        <div class="dot" style="background:#7C3AED"></div>
-        <span><strong>Instructors</strong> — roster, exams, eval tools &amp; admin controls</span>
+      <div class="fl">
+        <label for="si-em">Email address</label>
+        <input class="field" id="si-em" type="email" autocomplete="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')document.getElementById('si-pw').focus()">
+      </div>
+      <div class="fl">
+        <label for="si-pw">Password</label>
+        <div class="pw-wrap">
+          <input class="field" id="si-pw" type="password" autocomplete="current-password" placeholder="Your password" onkeydown="if(event.key==='Enter')signIn()">
+          <button class="pw-toggle" onclick="togglePw('si-pw','si-eye')" type="button" aria-label="Show/hide password">
+            <svg id="si-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <button id="si-btn" class="btn-go" onclick="signIn()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        <span id="si-btn-txt">Sign In</span>
+      </button>
+      <div class="div"><span>Access levels</span></div>
+      <div class="hints">
+        <div class="hint"><div class="dot" style="background:#0891B2"></div><span><strong>Students</strong> — modules, quizzes, progress &amp; certificate</span></div>
+        <div class="hint"><div class="dot" style="background:#7C3AED"></div><span><strong>Instructors</strong> — roster, exams, eval tools &amp; admin controls</span></div>
       </div>
     </div>
+
+    <!-- ── REGISTER PANEL ─────────────────────────────────── -->
+    <div class="panel" id="panel-reg" role="tabpanel">
+      <div id="reg-err" class="err">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="reg-err-msg">Please check your details and try again.</span>
+      </div>
+      <div id="reg-ok" class="ok-msg">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Account created! Redirecting…</span>
+      </div>
+      <div class="field-row">
+        <div class="fl">
+          <label for="reg-fn">First Name</label>
+          <input class="field" id="reg-fn" type="text" autocomplete="given-name" placeholder="Sarah">
+        </div>
+        <div class="fl">
+          <label for="reg-ln">Last Name</label>
+          <input class="field" id="reg-ln" type="text" autocomplete="family-name" placeholder="Cohen">
+        </div>
+      </div>
+      <div class="fl">
+        <label for="reg-em">Email Address</label>
+        <input class="field" id="reg-em" type="email" autocomplete="email" placeholder="sarah.cohen@hospital.org">
+      </div>
+      <div class="fl">
+        <label for="reg-pw">Password</label>
+        <div class="pw-wrap">
+          <input class="field" id="reg-pw" type="password" autocomplete="new-password" placeholder="Minimum 6 characters">
+          <button class="pw-toggle" onclick="togglePw('reg-pw','reg-eye')" type="button" aria-label="Show/hide password">
+            <svg id="reg-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="fl">
+        <label for="reg-pw2">Confirm Password</label>
+        <div class="pw-wrap">
+          <input class="field" id="reg-pw2" type="password" autocomplete="new-password" placeholder="Repeat your password" onkeydown="if(event.key==='Enter')register()">
+          <button class="pw-toggle" onclick="togglePw('reg-pw2','reg-eye2')" type="button" aria-label="Show/hide password">
+            <svg id="reg-eye2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="fl">
+        <label for="reg-cohort">Cohort / Group <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input class="field" id="reg-cohort" type="text" placeholder="e.g. June 2026">
+      </div>
+      <button id="reg-btn" class="btn-go btn-reg" onclick="register()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        <span id="reg-btn-txt">Create My Account</span>
+      </button>
+      <p class="reg-note">Student accounts only. Instructors are added by the administrator.</p>
+    </div>
+
   </div>
 </div>
 
@@ -128,6 +203,7 @@ import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/fire
 import {
   getAuth,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   onAuthStateChanged
 }                           from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
@@ -141,7 +217,6 @@ const db   = getFirestore(app);
 const SK = 'pals_sess_v2';
 const INSTRUCTOR_ROLES = ['admin', 'lead_instructor', 'instructor'];
 
-// Write session to sessionStorage so hub pages can read it
 function writeSession(uid, role, name, email) {
   const sess = { uid, role, name, email, ts: Date.now() };
   window.__pals_sess = sess;
@@ -149,12 +224,10 @@ function writeSession(uid, role, name, email) {
 }
 
 function redir(role) {
-  window.location.href = INSTRUCTOR_ROLES.includes(role)
-    ? 'hub_instructor.html'
-    : 'hub_student.html';
+  window.location.href = INSTRUCTOR_ROLES.includes(role) ? 'hub_instructor.html' : 'hub_student.html';
 }
 
-// Check if already signed in via Firebase
+// ── Auto-redirect if already signed in ───────────────────────
 onAuthStateChanged(auth, async (fbUser) => {
   const overlay = document.getElementById('auth-checking');
   if (fbUser) {
@@ -162,10 +235,8 @@ onAuthStateChanged(auth, async (fbUser) => {
       const snap = await getDoc(doc(db, 'users', fbUser.uid));
       if (snap.exists()) {
         const data = snap.data();
-        const role = data.role || 'student';
-        const name = data.displayName || data.name || fbUser.displayName || fbUser.email;
-        writeSession(fbUser.uid, role, name, fbUser.email);
-        redir(role);
+        writeSession(fbUser.uid, data.role || 'student', data.name || data.displayName || fbUser.email, fbUser.email);
+        redir(data.role || 'student');
         return;
       }
     } catch(e) {}
@@ -175,16 +246,39 @@ onAuthStateChanged(auth, async (fbUser) => {
   document.getElementById('login-wrap').style.display = 'flex';
 });
 
-window.go = async function() {
-  const email  = document.getElementById('em').value.trim();
-  const pw     = document.getElementById('pw').value;
-  const errEl  = document.getElementById('err');
-  const btn    = document.getElementById('gbtn');
-  const btnTxt = document.getElementById('gbtn-txt');
+// ── Tab switching ─────────────────────────────────────────────
+window.switchTab = function(tab) {
+  document.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'   + tab).classList.add('active');
+  document.getElementById('tab-'   + tab).setAttribute('aria-selected','true');
+  document.getElementById('panel-' + tab).classList.add('active');
+  // Clear errors on switch
+  ['si-err','reg-err','reg-ok'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
+};
+
+// ── Password visibility toggle ────────────────────────────────
+window.togglePw = function(inputId, eyeId) {
+  const inp = document.getElementById(inputId);
+  const eye = document.getElementById(eyeId);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  eye.innerHTML = show
+    ? '<line x1="1" y1="1" x2="23" y2="23"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>'
+    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+};
+
+// ── SIGN IN ───────────────────────────────────────────────────
+window.signIn = async function() {
+  const email  = document.getElementById('si-em').value.trim();
+  const pw     = document.getElementById('si-pw').value;
+  const errEl  = document.getElementById('si-err');
+  const btn    = document.getElementById('si-btn');
+  const btnTxt = document.getElementById('si-btn-txt');
   errEl.style.display = 'none';
 
   if (!email || !pw) {
-    document.getElementById('err-msg').textContent = 'Please enter your email and password.';
+    document.getElementById('si-err-msg').textContent = 'Please enter your email and password.';
     errEl.style.display = 'flex'; return;
   }
 
@@ -199,17 +293,14 @@ window.go = async function() {
       if (snap.exists()) {
         const data = snap.data();
         role = data.role || 'student';
-        name = data.displayName || data.name || name;
+        name = data.name || data.displayName || name;
         await setDoc(doc(db, 'users', cred.user.uid), { lastLogin: serverTimestamp() }, { merge: true });
       } else {
-        document.getElementById('err-msg').textContent = 'Account found but no course profile exists. Contact your instructor.';
+        document.getElementById('si-err-msg').textContent = 'Account found but no course profile exists. Contact your instructor.';
         errEl.style.display = 'flex';
-        btn.disabled = false; btnTxt.textContent = 'Sign In';
-        return;
+        btn.disabled = false; btnTxt.textContent = 'Sign In'; return;
       }
-    } catch(e) {
-      console.warn('Firestore read failed:', e.message);
-    }
+    } catch(e) { console.warn('Firestore read failed:', e.message); }
     writeSession(cred.user.uid, role, name, cred.user.email);
     redir(role);
   } catch(e) {
@@ -221,14 +312,83 @@ window.go = async function() {
       'auth/too-many-requests':  'Too many attempts — please wait a moment.',
       'auth/invalid-credential': 'Incorrect email or password.',
     };
-    document.getElementById('err-msg').textContent = msgs[e.code] || 'Sign-in failed. Please try again.';
+    document.getElementById('si-err-msg').textContent = msgs[e.code] || 'Sign-in failed. Please try again.';
     errEl.style.display = 'flex';
-    document.getElementById('pw').value = '';
-    document.getElementById('pw').focus();
+    document.getElementById('si-pw').value = '';
+    document.getElementById('si-pw').focus();
     btn.disabled = false; btnTxt.textContent = 'Sign In';
   }
 };
 
+// ── REGISTER ──────────────────────────────────────────────────
+window.register = async function() {
+  const fname   = document.getElementById('reg-fn').value.trim();
+  const lname   = document.getElementById('reg-ln').value.trim();
+  const email   = document.getElementById('reg-em').value.trim().toLowerCase();
+  const pw      = document.getElementById('reg-pw').value;
+  const pw2     = document.getElementById('reg-pw2').value;
+  const cohort  = document.getElementById('reg-cohort').value.trim();
+  const errEl   = document.getElementById('reg-err');
+  const okEl    = document.getElementById('reg-ok');
+  const btn     = document.getElementById('reg-btn');
+  const btnTxt  = document.getElementById('reg-btn-txt');
+
+  errEl.style.display = 'none';
+  okEl.style.display  = 'none';
+
+  // Validation
+  function showErr(msg) {
+    document.getElementById('reg-err-msg').textContent = msg;
+    errEl.style.display = 'flex';
+  }
+  if (!fname || !lname)          { showErr('Please enter your first and last name.');          return; }
+  if (!email || !email.includes('@')) { showErr('Please enter a valid email address.');        return; }
+  if (pw.length < 6)             { showErr('Password must be at least 6 characters.');          return; }
+  if (pw !== pw2)                { showErr('Passwords do not match. Please try again.');         return; }
+
+  btn.disabled = true;
+  btnTxt.textContent = 'Creating account…';
+
+  try {
+    // 1. Create Firebase Auth account
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
+    const uid  = cred.user.uid;
+
+    // 2. Write Firestore profile — role is ALWAYS student for self-registration
+    await setDoc(doc(db, 'users', uid), {
+      uid,
+      name:        `${fname} ${lname}`,
+      firstName:   fname,
+      lastName:    lname,
+      email,
+      role:        'student',          // hardcoded — cannot be changed by the student
+      cohort:      cohort || 'Unassigned',
+      createdAt:   serverTimestamp(),
+      selfRegistered: true,
+      progress:    {}
+    });
+
+    // 3. Show success briefly then redirect
+    okEl.style.display = 'flex';
+    btnTxt.textContent = '✓ Done!';
+    writeSession(uid, 'student', `${fname} ${lname}`, email);
+    setTimeout(() => redir('student'), 1200);
+
+  } catch(e) {
+    const msgs = {
+      'auth/email-already-in-use': 'That email is already registered. Try signing in instead.',
+      'auth/invalid-email':        'Please enter a valid email address.',
+      'auth/weak-password':        'Password is too weak. Use at least 6 characters.',
+      'auth/network-request-failed': 'Network error. Check your connection and try again.',
+      'auth/too-many-requests':    'Too many attempts. Please wait a moment.',
+    };
+    showErr(msgs[e.code] || `Registration failed (${e.code}). Please try again.`);
+    btn.disabled = false;
+    btnTxt.textContent = 'Create My Account';
+  }
+};
+
+// ── Theme ─────────────────────────────────────────────────────
 let dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
 function applyTheme(){
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
