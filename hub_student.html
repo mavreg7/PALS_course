@@ -181,6 +181,17 @@ if (!s || s.role !== 'student') {
 function getFlags(){try{return JSON.parse(sessionStorage.getItem('pals_flags')||'{}')}catch(e){return{}}}
 function getProgress(){try{return JSON.parse(sessionStorage.getItem('pals_progress')||'{}')}catch(e){return{}}}
 
+// ── Write Firestore data back into sessionStorage so render() can use it ──
+function applyRemoteData(data) {
+  if (!data) return;
+  if (data.progress && Object.keys(data.progress).length) {
+    try { sessionStorage.setItem('pals_progress', JSON.stringify(data.progress)); } catch(e) {}
+  }
+  if (data.flags && Object.keys(data.flags).length) {
+    try { sessionStorage.setItem('pals_flags', JSON.stringify(data.flags)); } catch(e) {}
+  }
+}
+
 const MODULES=[
   {n:1,title:'Course Intro & 2025 Updates',sub:'Goals, cert, key changes',file:'slides/pals_module_01_intro.slides.html'},
   {n:2,title:'Pediatric BLS & CPR Quality',sub:'C-A-B, depth, rate, AED',file:'slides/pals_module_02_bls.slides.html'},
@@ -236,15 +247,25 @@ function render(){
   if(window.FB) window.FB.saveProgress(prog);
 }
 
+// ── FIX: loadAndSync result is now applied to sessionStorage before render ──
 function initHub(){
-  if(window.FB){window.FB.loadAndSync().then(()=>render());}
-  else{setTimeout(initHub,100);}
+  if(window.FB){
+    window.FB.loadAndSync().then(data=>{
+      applyRemoteData(data);
+      render();
+    });
+  } else { setTimeout(initHub,100); }
 }
+
 if(s && s.role === 'student') {
   initHub();
   setInterval(()=>{
-    if(window.FB){window.FB.loadAndSync().then(()=>render());}
-    else{render();}
+    if(window.FB){
+      window.FB.loadAndSync().then(data=>{
+        applyRemoteData(data);
+        render();
+      });
+    } else { render(); }
   },7000);
 }
 
