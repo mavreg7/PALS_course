@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PALS 2025 · Instructor Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="firebase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <style>
   *{font-family:'Manrope',system-ui,sans-serif}
@@ -22,6 +23,7 @@
   .pill-r{background:rgba(239,68,68,.15);color:#b91c1c}
   .pill-y{background:rgba(245,158,11,.15);color:#b45309}
   .pill-b{background:rgba(8,145,178,.12);color:#0891B2}
+  .pill-v{background:rgba(124,58,237,.12);color:#7C3AED}
   .field{padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background:#fff}
   .field:focus{outline:none;border-color:#0891B2;box-shadow:0 0 0 3px rgba(8,145,178,.15)}
   table{width:100%;font-size:13px;border-collapse:collapse}
@@ -31,6 +33,9 @@
   .bar{height:8px;background:#f1f5f9;border-radius:999px;overflow:hidden}
   .bar > div{height:100%;background:linear-gradient(90deg,#0891B2,#34D399);border-radius:999px;transition:width .4s}
   @media print{.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}}
+  .badge-src{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.3px}
+  .badge-fb{background:rgba(255,160,0,.15);color:#b45309}
+  .badge-ls{background:rgba(100,116,139,.12);color:#475569}
 </style>
 </head>
 <body>
@@ -47,6 +52,9 @@
       <button class="btn btn-ghost" onclick="window.print()">🖨️ Print</button>
     </div>
   </header>
+
+  <!-- FIREBASE STATUS BANNER -->
+  <div id="fb-banner" class="mb-4 px-4 py-3 rounded-xl text-sm font-semibold hidden"></div>
 
   <!-- COUNTDOWN -->
   <section class="card p-4 mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -68,7 +76,7 @@
     <div class="card p-4">
       <div class="stat-label">Enrolled</div>
       <div class="stat-num mt-2" id="s_enrolled">0</div>
-      <div class="text-xs text-slate-500 mt-2">Pre-registrations saved</div>
+      <div class="text-xs text-slate-500 mt-2">Total accounts</div>
     </div>
     <div class="card p-4">
       <div class="stat-label">Passed</div>
@@ -101,23 +109,31 @@
   <!-- ROSTER -->
   <section class="card p-5 mb-6">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-      <h2 class="font-bold text-lg">Student Roster</h2>
+      <div>
+        <h2 class="font-bold text-lg">Student Roster</h2>
+        <p class="text-xs text-slate-400 mt-0.5">🔵 Firebase account &nbsp;·&nbsp; ⚪ Pre-registration only</p>
+      </div>
       <div class="flex gap-2 flex-wrap">
-        <input class="field" id="search" placeholder="Search name / role…" oninput="renderRoster()">
+        <input class="field" id="search" placeholder="Search name / email…" oninput="renderRoster()">
         <select class="field" id="filter" onchange="renderRoster()">
-          <option value="">All</option><option value="Pass">Passed</option><option value="Fail">Failed</option><option value="Pending">Pending</option>
+          <option value="">All</option>
+          <option value="Pass">Passed</option>
+          <option value="Fail">Failed</option>
+          <option value="Pending">Pending</option>
+          <option value="firebase">Firebase accounts</option>
+          <option value="local">Pre-reg only</option>
         </select>
       </div>
     </div>
     <div class="overflow-x-auto">
       <table>
         <thead><tr>
-          <th>Name</th><th>Role</th><th>Type</th><th>Attend</th><th>Pre-Test</th><th>BLS</th><th>Megacode</th><th>Final Exam</th><th>Cert</th>
+          <th>Name</th><th>Email</th><th>Role</th><th>Cohort</th><th>Source</th><th>Attend</th><th>Pre-Test</th><th>BLS</th><th>Megacode</th><th>Final Exam</th><th>Cert</th>
         </tr></thead>
         <tbody id="roster_body"></tbody>
       </table>
     </div>
-    <div id="roster_empty" class="text-sm text-slate-400 italic text-center py-6 hidden">No students yet. Pre-registrations will appear here.</div>
+    <div id="roster_empty" class="text-sm text-slate-400 italic text-center py-6 hidden">No students yet.</div>
   </section>
 
   <!-- FEEDBACK SUMMARY -->
@@ -134,47 +150,154 @@
 
 </div>
 
-<script>
+<script type="module">
+import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── Firebase accounts cache ────────────────────────────────────────────
+let fbUsers = [];   // array of Firestore user docs
+let fbLoaded = false;
+
+async function loadFirebaseUsers() {
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
+    fbUsers = snap.docs.map(d => ({ ...d.data(), uid: d.id }));
+    fbLoaded = true;
+    showBanner(`✓ Firebase roster loaded — ${fbUsers.length} account(s) found`, 'green');
+  } catch(e) {
+    fbLoaded = true;
+    showBanner(`⚠ Could not load Firebase accounts: ${e.message}`, 'yellow');
+  }
+  refreshAll();
+}
+
+function showBanner(msg, color) {
+  const b = document.getElementById('fb-banner');
+  const styles = {
+    green:  'background:rgba(34,197,94,.1);color:#15803d;border:1px solid rgba(34,197,94,.2)',
+    yellow: 'background:rgba(245,158,11,.1);color:#b45309;border:1px solid rgba(245,158,11,.2)',
+    red:    'background:rgba(239,68,68,.1);color:#b91c1c;border:1px solid rgba(239,68,68,.2)',
+  };
+  b.style.cssText = styles[color] || styles.yellow;
+  b.textContent = msg;
+  b.classList.remove('hidden');
+  if (color === 'green') setTimeout(() => b.classList.add('hidden'), 4000);
+}
+
+// ── Kick off Firebase load once auth confirms we're allowed ────────────
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loadFirebaseUsers();
+  } else {
+    // Not signed in — still load page but note it
+    fbLoaded = true;
+    showBanner('⚠ Not signed in — Firebase roster unavailable. Sign in to see all accounts.', 'yellow');
+    refreshAll();
+  }
+});
+
+// ── localStorage helpers ───────────────────────────────────────────────
 function get(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
 function pct(v){return Math.min(100,Math.max(0,v))+'%'}
 
-function uniqByName(arr){const m=new Map();arr.forEach(e=>m.set((e.name||'').toLowerCase().trim(),e));m.delete('');return [...m.values()]}
+function uniqByKey(arr, keyFn){
+  const m = new Map();
+  arr.forEach(e => { const k = keyFn(e); if(k) m.set(k, e); });
+  return [...m.values()];
+}
 
-function buildRoster(){
-  const regs=get('pals2025_preregistration');
-  const att=get('pals2025_attendance');
-  const pre=get('pals2025_pretest');
-  const bls=get('pals2025_bls_skills');
-  const mc=get('pals2025_megacode');
-  const ex=get('pals2025_final_exam');
-  const certs=get('pals2025_certificates');
-  const all=uniqByName(regs);
-  const allNames=new Set(all.map(r=>r.name.toLowerCase().trim()));
-  [att,pre,bls,mc,ex,certs].forEach(arr=>arr.forEach(e=>{const n=(e.name||'').toLowerCase().trim();if(n&&!allNames.has(n)){all.push({name:e.name,role:'',type:''});allNames.add(n)}}));
-  return all.map(r=>{
-    const n=(r.name||'').toLowerCase().trim();
-    const find=arr=>arr.filter(x=>(x.name||'').toLowerCase().trim()===n).slice(-1)[0];
-    const a=att.filter(x=>(x.name||'').toLowerCase().trim()===n);
-    const p=find(pre);const b=find(bls);const m=find(mc);const e=find(ex);const c=find(certs);
-    return{
-      name:r.name,role:r.role||'',type:r.type||'',
-      attendance:a.length?(a.every(x=>x.status==='Present')?'Full':a.length+' days'):'—',
-      pretest:p?p.percent+'%':'—',
-      bls:b?b.overall:'—',
-      megacode:m?m.result:'—',
-      exam:e?e.result+' ('+e.percent+'%)':'—',
-      examRaw:e?e.result:null,
-      cert:c?'Issued':'—'
+// ── Build merged roster ─────────────────────────────────────────────────
+// Source A: Firebase Firestore users collection
+// Source B: localStorage pals2025_preregistration
+// Merged by email (preferred) or name (fallback)
+function buildRoster() {
+  const regs  = get('pals2025_preregistration');
+  const att   = get('pals2025_attendance');
+  const pre   = get('pals2025_pretest');
+  const bls   = get('pals2025_bls_skills');
+  const mc    = get('pals2025_megacode');
+  const ex    = get('pals2025_final_exam');
+  const certs = get('pals2025_certificates');
+
+  // Start with Firebase accounts
+  const merged = new Map(); // key: email.lower or uid
+
+  fbUsers.forEach(u => {
+    const key = (u.email || u.uid || '').toLowerCase();
+    if (!key) return;
+    merged.set(key, {
+      name:      u.name || u.displayName || u.email || '—',
+      email:     u.email || '—',
+      role:      u.role  || 'student',
+      cohort:    u.cohort || '—',
+      source:    'firebase',
+      uid:       u.uid,
+      createdAt: u.createdAt,
+    });
+  });
+
+  // Merge localStorage pre-registrations (add if not already in Firebase)
+  regs.forEach(r => {
+    const key = (r.email || '').toLowerCase() || (r.name || '').toLowerCase();
+    if (!key) return;
+    if (!merged.has(key)) {
+      merged.set(key, {
+        name:   r.name  || '—',
+        email:  r.email || '—',
+        role:   r.role  || '',
+        cohort: r.cohort|| '—',
+        source: 'local',
+      });
+    }
+  });
+
+  // Also surface anyone who appears in form data but nowhere else
+  [att, pre, bls, mc, ex, certs].forEach(arr => arr.forEach(e => {
+    const nameKey = (e.name || '').toLowerCase().trim();
+    if (!nameKey) return;
+    // Check if this name matches an existing entry
+    const existing = [...merged.values()].find(m => m.name.toLowerCase().trim() === nameKey);
+    if (!existing) {
+      merged.set('__name__' + nameKey, {
+        name: e.name, email: '—', role: '', cohort: '—', source: 'local'
+      });
+    }
+  }));
+
+  // Enrich each entry with form data (match by name)
+  return [...merged.values()].map(r => {
+    const n = (r.name || '').toLowerCase().trim();
+    const find = arr => arr.filter(x => (x.name||'').toLowerCase().trim() === n).slice(-1)[0];
+    const a  = att.filter(x => (x.name||'').toLowerCase().trim() === n);
+    const p  = find(pre);
+    const b  = find(bls);
+    const m  = find(mc);
+    const e  = find(ex);
+    const c  = find(certs);
+    return {
+      ...r,
+      attendance: a.length ? (a.every(x => x.status==='Present') ? 'Full' : a.length+' days') : '—',
+      pretest:    p ? p.percent+'%' : '—',
+      bls:        b ? b.overall : '—',
+      megacode:   m ? m.result  : '—',
+      exam:       e ? e.result+' ('+e.percent+'%)' : '—',
+      examRaw:    e ? e.result  : null,
+      cert:       c ? 'Issued' : '—',
     };
   });
 }
 
 function renderStats(){
-  const r=buildRoster();
-  document.getElementById('s_enrolled').textContent=r.length;
-  document.getElementById('s_passed').textContent=r.filter(x=>x.examRaw==='Pass').length;
-  document.getElementById('s_failed').textContent=r.filter(x=>x.examRaw==='Fail').length;
-  document.getElementById('s_remed').textContent=r.filter(x=>x.bls==='Needs Remediation'||x.megacode==='Remediate').length;
+  const r = buildRoster();
+  document.getElementById('s_enrolled').textContent = r.length;
+  document.getElementById('s_passed').textContent   = r.filter(x => x.examRaw==='Pass').length;
+  document.getElementById('s_failed').textContent   = r.filter(x => x.examRaw==='Fail').length;
+  document.getElementById('s_remed').textContent    = r.filter(x => x.bls==='Needs Remediation'||x.megacode==='Remediate').length;
 }
 
 function pillFor(v){
@@ -187,24 +310,50 @@ function pillFor(v){
   return `<span class="pill pill-b">${v}</span>`;
 }
 
+function roleTag(role){
+  if(!role||role==='student') return `<span class="pill pill-b">Student</span>`;
+  if(role==='instructor')     return `<span class="pill pill-v">Instructor</span>`;
+  if(role==='lead_instructor')return `<span class="pill" style="background:rgba(239,68,68,.12);color:#b91c1c">Lead Instructor</span>`;
+  if(role==='admin')          return `<span class="pill pill-y">Admin</span>`;
+  return `<span class="pill pill-b">${role}</span>`;
+}
+
+function sourceTag(src){
+  return src==='firebase'
+    ? `<span class="badge-src badge-fb">🔵 Firebase</span>`
+    : `<span class="badge-src badge-ls">⚪ Pre-reg</span>`;
+}
+
 function renderRoster(){
-  const r=buildRoster();
-  const q=(document.getElementById('search').value||'').toLowerCase();
-  const f=document.getElementById('filter').value;
-  let rows=r.filter(x=>!q||(x.name+' '+x.role).toLowerCase().includes(q));
-  if(f==='Pass')rows=rows.filter(x=>x.examRaw==='Pass');
-  if(f==='Fail')rows=rows.filter(x=>x.examRaw==='Fail');
-  if(f==='Pending')rows=rows.filter(x=>!x.examRaw);
-  document.getElementById('roster_empty').classList.toggle('hidden',rows.length>0);
-  document.getElementById('roster_body').innerHTML=rows.map(x=>`
-    <tr><td class="font-semibold">${x.name}</td><td>${x.role||'—'}</td><td>${x.type||'—'}</td>
-    <td>${pillFor(x.attendance)}</td><td>${pillFor(x.pretest)}</td><td>${pillFor(x.bls)}</td>
-    <td>${pillFor(x.megacode)}</td><td>${pillFor(x.exam)}</td><td>${pillFor(x.cert)}</td></tr>
+  const r = buildRoster();
+  const q = (document.getElementById('search').value||'').toLowerCase();
+  const f = document.getElementById('filter').value;
+  let rows = r.filter(x => !q || (x.name+' '+x.email+' '+x.role).toLowerCase().includes(q));
+  if(f==='Pass')     rows = rows.filter(x => x.examRaw==='Pass');
+  if(f==='Fail')     rows = rows.filter(x => x.examRaw==='Fail');
+  if(f==='Pending')  rows = rows.filter(x => !x.examRaw);
+  if(f==='firebase') rows = rows.filter(x => x.source==='firebase');
+  if(f==='local')    rows = rows.filter(x => x.source==='local');
+  document.getElementById('roster_empty').classList.toggle('hidden', rows.length > 0);
+  document.getElementById('roster_body').innerHTML = rows.map(x => `
+    <tr>
+      <td class="font-semibold">${x.name}</td>
+      <td class="text-slate-500 text-xs">${x.email}</td>
+      <td>${roleTag(x.role)}</td>
+      <td class="text-xs text-slate-500">${x.cohort||'—'}</td>
+      <td>${sourceTag(x.source)}</td>
+      <td>${pillFor(x.attendance)}</td>
+      <td>${pillFor(x.pretest)}</td>
+      <td>${pillFor(x.bls)}</td>
+      <td>${pillFor(x.megacode)}</td>
+      <td>${pillFor(x.exam)}</td>
+      <td>${pillFor(x.cert)}</td>
+    </tr>
   `).join('');
 }
 
 function renderFB(){
-  const fb=get('pals2025_feedback');
+  const fb = get('pals2025_feedback');
   if(!fb.length){document.getElementById('fb_summary').innerHTML='<div class="text-sm text-slate-400 italic">No feedback submitted yet.</div>';return}
   const items={};
   fb.forEach(e=>(e.ratings||[]).forEach(r=>{
@@ -244,8 +393,8 @@ function renderSessions(){
 
 /* COUNTDOWN */
 const CK='pals2025_course_start';
-function setStart(v){if(v){localStorage.setItem(CK,v);tickCountdown()}}
-function clearStart(){localStorage.removeItem(CK);document.getElementById('course_start').value='';document.getElementById('countdown').textContent='—'}
+window.setStart = function(v){if(v){localStorage.setItem(CK,v);tickCountdown()}};
+window.clearStart = function(){localStorage.removeItem(CK);document.getElementById('course_start').value='';document.getElementById('countdown').textContent='—'};
 function tickCountdown(){
   const v=localStorage.getItem(CK);if(!v){document.getElementById('countdown').textContent='Set a course start time →';return}
   document.getElementById('course_start').value=v;
@@ -257,14 +406,14 @@ function tickCountdown(){
 setInterval(tickCountdown,1000);tickCountdown();
 
 /* BULK ACTIONS */
-function exportRoster(){
+window.exportRoster = function(){
   const r=buildRoster();
   if(!r.length){alert('No data');return}
-  const keys=Object.keys(r[0]);
+  const keys=['name','email','role','cohort','source','attendance','pretest','bls','megacode','exam','cert'];
   const csv=[keys.join(',')].concat(r.map(o=>keys.map(k=>'"'+String(o[k]??'').replace(/"/g,'""')+'"').join(','))).join('\n');
   download(new Blob([csv],{type:'text/csv'}),'pals_roster.csv');
-}
-function printAttendance(){
+};
+window.printAttendance = function(){
   const w=window.open('','_blank');
   const r=buildRoster();
   w.document.write(`<html><head><title>Attendance Sheet</title><style>body{font-family:Arial;padding:30px}h1{color:#0891B2}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:8px;text-align:left;font-size:12px}th{background:#f0f9ff}</style></head><body>
@@ -274,8 +423,8 @@ function printAttendance(){
   ${Array.from({length:Math.max(0,15-r.length)}).map(()=>'<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>').join('')}
   </tbody></table></body></html>`);
   w.print();
-}
-function generateAllCerts(){
+};
+window.generateAllCerts = function(){
   const r=buildRoster().filter(x=>x.examRaw==='Pass');
   if(!r.length){alert('No passing students yet');return}
   const arr=get('pals2025_certificates');
@@ -288,25 +437,26 @@ function generateAllCerts(){
   localStorage.setItem('pals2025_certificates',JSON.stringify(arr));
   alert('Generated '+r.length+' certificates. View in Forms Portal → Certificate.');
   refreshAll();
-}
-function exportAll(){
+};
+window.exportAll = function(){
   const all={};
   ['pals2025_preregistration','pals2025_pretest','pals2025_attendance','pals2025_bls_skills','pals2025_megacode','pals2025_final_exam','pals2025_feedback','pals2025_certificates','pals2025_course_meta','pals2025_planner'].forEach(k=>{
     try{all[k]=JSON.parse(localStorage.getItem(k)||'null')}catch(e){all[k]=null}
   });
+  all['firebase_users'] = fbUsers.map(u => ({ name:u.name, email:u.email, role:u.role, cohort:u.cohort, uid:u.uid }));
   download(new Blob([JSON.stringify(all,null,2)],{type:'application/json'}),'pals_full_export.json');
-}
-function clearAll(){
+};
+window.clearAll = function(){
   if(!confirm('This permanently clears ALL course data on this device. Continue?'))return;
   if(!confirm('Are you absolutely sure? This cannot be undone.'))return;
   ['pals2025_preregistration','pals2025_pretest','pals2025_attendance','pals2025_bls_skills','pals2025_megacode','pals2025_final_exam','pals2025_feedback','pals2025_certificates'].forEach(k=>localStorage.removeItem(k));
   refreshAll();alert('Cleared.');
-}
+};
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
 
-function refreshAll(){renderStats();renderRoster();renderFB();renderSessions()}
-refreshAll();
-setInterval(refreshAll,5000);
+window.refreshAll = function(){renderStats();renderRoster();renderFB();renderSessions();};
+window.refreshAll();
+setInterval(window.refreshAll, 8000);
 </script>
 </body>
 </html>
