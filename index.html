@@ -54,7 +54,6 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .theme-btn{position:fixed;top:1rem;right:1rem;background:var(--s);border:1px solid var(--b);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh);z-index:10;transition:var(--tr)}
 .theme-btn:hover{background:var(--s2);transform:rotate(20deg)}
-/* Checking session overlay */
 #auth-checking{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s}
 #auth-checking.hidden{opacity:0;pointer-events:none}
 .spinner{width:36px;height:36px;border:3px solid var(--b);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite}
@@ -63,10 +62,7 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
 </style>
 </head>
 <body>
-<!-- Session check overlay -->
-<div id="auth-checking">
-  <div class="spinner"></div>
-</div>
+<div id="auth-checking"><div class="spinner"></div></div>
 
 <div class="blob blob1"></div>
 <div class="blob blob2"></div>
@@ -142,7 +138,15 @@ const app  = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
+const SK = 'pals_sess_v2';
 const INSTRUCTOR_ROLES = ['admin', 'lead_instructor', 'instructor'];
+
+// Write session to sessionStorage so hub pages can read it
+function writeSession(uid, role, name, email) {
+  const sess = { uid, role, name, email, ts: Date.now() };
+  window.__pals_sess = sess;
+  try { sessionStorage.setItem(SK, JSON.stringify(sess)); } catch(e) {}
+}
 
 function redir(role) {
   window.location.href = INSTRUCTOR_ROLES.includes(role)
@@ -150,31 +154,33 @@ function redir(role) {
     : 'hub_student.html';
 }
 
-// ── Check if already signed in ────────────────────────────────
+// Check if already signed in via Firebase
 onAuthStateChanged(auth, async (fbUser) => {
   const overlay = document.getElementById('auth-checking');
   if (fbUser) {
     try {
       const snap = await getDoc(doc(db, 'users', fbUser.uid));
       if (snap.exists()) {
-        redir(snap.data().role || 'student');
+        const data = snap.data();
+        const role = data.role || 'student';
+        const name = data.displayName || data.name || fbUser.displayName || fbUser.email;
+        writeSession(fbUser.uid, role, name, fbUser.email);
+        redir(role);
         return;
       }
     } catch(e) {}
   }
-  // Not signed in — show login form
   overlay.classList.add('hidden');
   setTimeout(() => overlay.remove(), 350);
   document.getElementById('login-wrap').style.display = 'flex';
 });
 
-// ── Sign in ───────────────────────────────────────────────────
 window.go = async function() {
-  const email = document.getElementById('em').value.trim();
-  const pw    = document.getElementById('pw').value;
-  const errEl = document.getElementById('err');
-  const btn   = document.getElementById('gbtn');
-  const btnTxt= document.getElementById('gbtn-txt');
+  const email  = document.getElementById('em').value.trim();
+  const pw     = document.getElementById('pw').value;
+  const errEl  = document.getElementById('err');
+  const btn    = document.getElementById('gbtn');
+  const btnTxt = document.getElementById('gbtn-txt');
   errEl.style.display = 'none';
 
   if (!email || !pw) {
@@ -187,17 +193,15 @@ window.go = async function() {
 
   try {
     const cred = await signInWithEmailAndPassword(auth, email, pw);
-    // Get role from Firestore
-    let role = 'student';
+    let role = 'student', name = cred.user.displayName || cred.user.email;
     try {
       const snap = await getDoc(doc(db, 'users', cred.user.uid));
       if (snap.exists()) {
-        role = snap.data().role || 'student';
-        // Write last login
+        const data = snap.data();
+        role = data.role || 'student';
+        name = data.displayName || data.name || name;
         await setDoc(doc(db, 'users', cred.user.uid), { lastLogin: serverTimestamp() }, { merge: true });
       } else {
-        // Firebase Auth account exists but no Firestore profile
-        // Could be a newly created Firebase Auth user with no role assigned yet
         document.getElementById('err-msg').textContent = 'Account found but no course profile exists. Contact your instructor.';
         errEl.style.display = 'flex';
         btn.disabled = false; btnTxt.textContent = 'Sign In';
@@ -206,6 +210,7 @@ window.go = async function() {
     } catch(e) {
       console.warn('Firestore read failed:', e.message);
     }
+    writeSession(cred.user.uid, role, name, cred.user.email);
     redir(role);
   } catch(e) {
     const msgs = {
@@ -224,7 +229,6 @@ window.go = async function() {
   }
 };
 
-// ── Theme ─────────────────────────────────────────────────────
 let dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
 function applyTheme(){
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
