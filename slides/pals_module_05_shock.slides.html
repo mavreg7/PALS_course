@@ -1,1 +1,132 @@
-placeholder05
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Module 05 · Shock Recognition &amp; Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#07080e;--surface:#0d0f18;--surface2:#121520;--border:rgba(255,255,255,.06);--text:#e8eaf0;--muted:#7c8494;--faint:#2a2e3e;--cyan:#00d4ff;--amber:#ffb300;--red:#ff3d5a;--green:#00e676;--cyan-dim:rgba(0,212,255,.1);--amber-dim:rgba(255,179,0,.1);--red-dim:rgba(255,61,90,.1);--font-head:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--r:10px;--r-lg:16px;--ease:cubic-bezier(.16,1,.3,1)}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(circle at 75% 18%, rgba(255,179,0,.06), transparent 34%),radial-gradient(circle at 15% 82%, rgba(0,212,255,.05), transparent 32%),var(--bg)}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--amber));transition:width .5s ease;z-index:100;box-shadow:0 0 12px var(--cyan)}
+.nav{position:fixed;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);z-index:50}.nav-logo{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px}.nav-logo-dot{width:7px;height:7px;background:var(--cyan);border-radius:50%;box-shadow:0 0 10px var(--cyan)}.nav-title{font-size:12px;color:var(--muted)}.nav-btn{background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.22);color:var(--muted);border-radius:8px;padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-head);letter-spacing:.05em;text-transform:uppercase}.nav-btn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-dim)}
+.stage{position:fixed;inset:58px 0 72px;overflow:hidden}.slide{position:absolute;inset:0;padding:30px 48px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;opacity:0;transform:translateX(60px) scale(.985);transition:opacity .5s var(--ease),transform .5s var(--ease);pointer-events:none}.slide.active{opacity:1;transform:translateX(0) scale(1);pointer-events:all}.slide.exit-left{opacity:0;transform:translateX(-60px) scale(.985)}.hero-slide{justify-content:center;padding:66px 48px}@media(max-width:680px){.slide{padding:20px 18px}.hero-slide{padding:40px 18px}}
+.ey{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:10px}.ey::before{content:'';display:block;width:24px;height:2px;background:linear-gradient(90deg,var(--amber),transparent);border-radius:2px}h1.hero{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3.3rem);font-weight:700;line-height:1.08;letter-spacing:-.03em;color:#fff;max-width:880px}h1.hero .grad{background:linear-gradient(100deg,var(--amber),#ffd666 45%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}h2{font-family:var(--font-head);font-size:clamp(1.25rem,2.4vw,1.75rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-.018em}h3{font-family:var(--font-head);font-size:.96rem;font-weight:600;color:var(--text);margin-bottom:6px}h4{font-size:.84rem;font-weight:600;color:var(--text);margin-bottom:4px}p{font-size:.88rem;color:var(--muted);line-height:1.7}li{font-size:.86rem;color:var(--muted);line-height:1.65;margin-bottom:5px}strong{color:var(--text)}ul,ol{padding-left:18px}.subt{font-size:.96rem;color:var(--muted);max-width:720px;line-height:1.75}
+.pill{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 11px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px}.pa{background:rgba(255,179,0,.12);color:var(--amber)}.pc{background:rgba(0,212,255,.12);color:var(--cyan)}.pr{background:rgba(255,61,90,.12);color:var(--red)}.pg{background:rgba(0,230,118,.12);color:var(--green)}
+.cards{display:grid;gap:13px}.c2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}.c3{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;transition:border-color .3s,box-shadow .3s,transform .3s}.card:hover{border-color:rgba(255,179,0,.22);box-shadow:0 8px 28px rgba(255,179,0,.08);transform:translateY(-2px)}
+.alt{border-radius:var(--r);padding:13px 17px;border-left:3px solid}.aa{background:rgba(255,179,0,.06);border-color:var(--amber)}.aa h4{color:var(--amber)}.ac{background:rgba(0,212,255,.06);border-color:var(--cyan)}.ac h4{color:var(--cyan)}.ar{background:rgba(255,61,90,.06);border-color:var(--red)}.ar h4{color:var(--red)}.ag{background:rgba(0,230,118,.06);border-color:var(--green)}.ag h4{color:var(--green)}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.comp{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 15px}.comp h4{font-size:.83rem;text-transform:uppercase;letter-spacing:.08em;color:var(--amber);margin-bottom:8px}.comp p{font-size:.84rem}.shock-line{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06)}.shock-line:last-child{border-bottom:none}.sdot{width:30px;height:30px;border-radius:50%;background:var(--amber-dim);border:1px solid rgba(255,179,0,.24);color:var(--amber);font-family:var(--font-head);font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.flow{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}.vs{display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:1.2rem;font-weight:700;color:var(--amber);opacity:.7}.mini{font-size:.76rem;color:var(--muted)}
+.nxt{display:inline-flex;align-items:center;gap:10px;margin-top:4px;padding:12px 24px;background:linear-gradient(135deg,var(--amber),var(--cyan));color:#07080e;font-family:var(--font-head);font-weight:700;font-size:.86rem;border-radius:var(--r);text-decoration:none;transition:opacity .2s,transform .2s,box-shadow .2s;align-self:flex-start}.nxt:hover{opacity:.88;transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,179,0,.25)}
+.footer{position:fixed;left:0;right:0;bottom:0;height:72px;background:rgba(7,8,14,.92);backdrop-filter:blur(18px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:60}.counter{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}.foot-btns{display:flex;gap:10px}.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}.foot-btn:hover:not(:disabled){border-color:rgba(255,179,0,.25);transform:translateY(-1px)}.foot-btn:disabled{opacity:.35;cursor:not-allowed}.foot-btn.primary{background:linear-gradient(135deg,var(--amber),var(--cyan));border:none;color:#071018;font-family:var(--font-head);font-weight:700}
+</style>
+</head>
+<body>
+<div id="progress-bar"></div>
+<header class="nav">
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="nav-logo"><span class="nav-logo-dot"></span>PALS 2025</div>
+    <div class="nav-title">Module 05 · Shock Recognition &amp; Management</div>
+  </div>
+  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
+</header>
+<main class="stage" id="stage">
+  <section class="slide active hero-slide">
+    <div class="ey">Module 05</div>
+    <div class="pill pa">Shock</div>
+    <h1 class="hero">Recognize <span class="grad">shock early</span> and treat the cause before decompensation.</h1>
+    <p class="subt">Pediatric shock is usually compensated first. If clinicians wait for hypotension, the child is already in late shock. This module focuses on patterns, classification, and immediate stabilization priorities.</p>
+  </section>
+  <section class="slide">
+    <div class="pill pc">Definition</div>
+    <h2>Shock = inadequate oxygen delivery to tissues</h2>
+    <div class="cards c2">
+      <div class="card"><h3>Oxygen delivery fails</h3><p>Perfusion becomes insufficient for metabolic demand. Cells switch to anaerobic metabolism, lactate rises, organ dysfunction follows.</p></div>
+      <div class="card"><h3>Blood pressure can stay normal</h3><p>Children compensate with tachycardia and vasoconstriction. <strong>Hypotension is a late sign</strong>.</p></div>
+    </div>
+    <div class="alt aa"><h4>Clinical pearl</h4><p>A child with altered mental status, tachycardia, prolonged capillary refill, weak distal pulses, and cool extremities may already be in significant shock even if the blood pressure looks acceptable.</p></div>
+  </section>
+  <section class="slide">
+    <div class="pill pr">Types</div>
+    <h2>Main pediatric shock categories</h2>
+    <div class="comp-grid">
+      <div class="comp"><h4>Hypovolemic</h4><p>Fluid loss: vomiting, diarrhea, bleeding, burns, dehydration.</p></div>
+      <div class="comp"><h4>Distributive</h4><p>Maldistribution of flow: sepsis, anaphylaxis, neurogenic causes.</p></div>
+      <div class="comp"><h4>Cardiogenic</h4><p>Pump failure: myocarditis, cardiomyopathy, congenital heart disease, arrhythmia.</p></div>
+      <div class="comp"><h4>Obstructive</h4><p>Mechanical block: tamponade, tension pneumothorax, critical outflow obstruction, pulmonary embolism (rare).</p></div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="pill pa">Patterns</div>
+    <h2>Warm vs cold shock pattern</h2>
+    <div class="flow">
+      <div class="card"><h3>Warm shock</h3><p>Bounding pulses, flushed skin, wide pulse pressure, brisk cap refill, vasodilation.</p></div>
+      <div class="vs">VS</div>
+      <div class="card"><h3>Cold shock</h3><p>Weak pulses, cool extremities, delayed cap refill, narrow pulse pressure, vasoconstriction.</p></div>
+    </div>
+    <p class="mini">Either pattern may appear in septic shock depending on stage and physiology.</p>
+  </section>
+  <section class="slide">
+    <div class="pill pc">Assessment</div>
+    <h2>Rapid bedside shock assessment</h2>
+    <div class="card">
+      <div class="shock-line"><div class="sdot">1</div><div><h4>Mental status</h4><p>Irritability, lethargy, decreased interaction, poor eye contact, confusion.</p></div></div>
+      <div class="shock-line"><div class="sdot">2</div><div><h4>Perfusion</h4><p>Cap refill, skin temperature, pulse quality, urine output, mottling, central vs distal pulses.</p></div></div>
+      <div class="shock-line"><div class="sdot">3</div><div><h4>Breathing</h4><p>Tachypnoea is common as compensation. Work of breathing may rise with acidosis.</p></div></div>
+      <div class="shock-line"><div class="sdot">4</div><div><h4>Blood pressure</h4><p>Helpful, but not sensitive early. Do not wait for hypotension before intervention.</p></div></div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="pill ag">Treatment priorities</div>
+    <h2>Immediate management sequence</h2>
+    <div class="cards c3">
+      <div class="card"><h3>Airway and oxygen</h3><p>Support airway, oxygenate, ventilate if needed. Reduce oxygen demand.</p></div>
+      <div class="card"><h3>Vascular access</h3><p>IV if fast, IO if delayed. Do not lose time in unstable shock.</p></div>
+      <div class="card"><h3>Fluids if appropriate</h3><p>Use isotonic boluses when hypovolemia is likely; reassess after each bolus.</p></div>
+      <div class="card"><h3>Cause-directed therapy</h3><p>Antibiotics, epinephrine, blood, decompression, antiarrhythmics, or cardiology input depending on mechanism.</p></div>
+      <div class="card"><h3>Reassess constantly</h3><p>Heart rate, pulses, BP, lung exam, cap refill, mental status, urine output.</p></div>
+      <div class="card"><h3>Escalate early</h3><p>If shock persists, call PICU/transport/support early and start vasoactive support when indicated.</p></div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="pill ar">Avoid harm</div>
+    <h2>Common shock management mistakes</h2>
+    <div class="cards c2">
+      <div class="alt ar"><h4>Waiting for hypotension</h4><p>This delays recognition until the child is near decompensation.</p></div>
+      <div class="alt ar"><h4>Too much fluid in cardiogenic shock</h4><p>May worsen pulmonary oedema and respiratory failure.</p></div>
+      <div class="alt ar"><h4>No reassessment after bolus</h4><p>Every bolus needs a fresh exam before repeating.</p></div>
+      <div class="alt ar"><h4>Focusing on one number</h4><p>Shock is a bedside pattern, not just a blood pressure problem.</p></div>
+    </div>
+  </section>
+  <section class="slide">
+    <div class="pill pg">Takeaway</div>
+    <h2>Most important memory line</h2>
+    <div class="card"><p><strong>Tachycardia + abnormal perfusion + altered behavior = shock until proven otherwise.</strong> Treat early, reassess often, and tailor therapy to the underlying physiology.</p></div>
+    <a href="pals_module_06_rhythms.slides.html" class="nxt">Next → Module 06: Cardiac Rhythms →</a>
+  </section>
+</main>
+<footer class="footer">
+  <div class="counter" id="counter">1 / 8</div>
+  <div class="foot-btns"><button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button><button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button></div>
+</footer>
+<script>
+const slides=[...document.querySelectorAll('.slide')]; let cur=0,total=slides.length;
+function updateUI(){document.getElementById('counter').textContent=(cur+1)+' / '+total;document.getElementById('prev-btn').disabled=cur===0;document.getElementById('next-btn').disabled=cur===total-1; if(cur===total-1) markComplete('mod05');document.getElementById('progress-bar').style.width=((cur+1)/total*100)+'%';}
+function goTo(n){if(n<0||n>=total||n===cur)return;const old=slides[cur],nw=slides[n];old.classList.remove('active');old.classList.add(n>cur?'exit-left':'');setTimeout(()=>old.classList.remove('exit-left'),500);nw.classList.add('active');cur=n;updateUI();}
+function changeSlide(d){goTo(cur+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')changeSlide(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')changeSlide(-1)});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.changedTouches[0].clientX,{passive:true});document.addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>48)changeSlide(dx>0?-1:1)},{passive:true});
+updateUI();
+function markComplete(moduleKey) {
+  try {
+    var raw = sessionStorage.getItem('pals_progress');
+    var prog = raw ? JSON.parse(raw) : {};
+    prog[moduleKey] = true;
+    sessionStorage.setItem('pals_progress', JSON.stringify(prog));
+  } catch(e) {}
+}
+</script>
+</body></html>
