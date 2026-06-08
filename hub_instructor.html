@@ -79,10 +79,22 @@ function getSession() {
 }
 
 async function logout() {
+  // Disable button immediately to prevent double-clicks
+  const btn = document.getElementById('logout-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Signing out…'; }
+
+  // Clear local session first
   window.__pals_sess = null;
   try { sessionStorage.removeItem(SK); } catch(e) {}
+
+  // Mark that this is an intentional logout so index.html won't auto-redirect back
+  try { sessionStorage.setItem('pals_signed_out', '1'); } catch(e) {}
+
+  // Await Firebase sign-out fully before navigating — this prevents the race condition
+  // where onAuthStateChanged on index.html fires with a still-valid token
   try { await signOut(auth); } catch(e) {}
-  window.location.href = 'index.html';
+
+  window.location.replace('index.html');
 }
 
 // Auth guard
@@ -91,7 +103,7 @@ if (!s || !INSTRUCTOR_ROLES.includes(s.role)) {
   window.__pals_sess = null;
   try { sessionStorage.removeItem(SK); } catch(e) {}
   try { await signOut(auth); } catch(e) {}
-  window.location.href = 'index.html';
+  window.location.replace('index.html');
 } else {
   document.getElementById('welcome-name').textContent = 'Welcome, ' + s.name;
   document.getElementById('user-badge').textContent = s.role === 'admin' ? 'ADMIN' : s.name.toUpperCase();
