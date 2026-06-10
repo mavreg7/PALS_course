@@ -515,5 +515,30 @@ document.addEventListener('touchend', e => {
 }, {passive:true});
 updateUI();
 </script>
+<div id="complete-bar-9" style="position:fixed;bottom:0;left:0;right:0;padding:14px 24px;background:rgba(7,8,14,.96);border-top:1px solid rgba(255,255,255,.07);display:none;justify-content:flex-end;align-items:center;gap:12px;z-index:300;">
+  <span style="color:rgba(255,255,255,.4);font-size:12px;font-family:sans-serif;">End of module</span>
+  <button id="completeBtn9" onclick="markDone()" style="background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.35);color:#2dd4bf;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:sans-serif;letter-spacing:.04em;transition:all .2s;">✓ Mark Complete &amp; Continue →</button>
+</div>
+<script>
+function markDone() {
+  try {
+    var p = JSON.parse(sessionStorage.getItem('pals_progress') || '{}');
+    p[8] = true;
+    sessionStorage.setItem('pals_progress', JSON.stringify(p));
+  } catch(e) {}
+  var btn = document.getElementById('completeBtn9');
+  if(btn) { btn.textContent='✓ Completed!'; btn.style.background='rgba(0,230,118,.15)'; btn.style.color='#00e676'; }
+  setTimeout(function() { window.location.href='../slides/pals_module_10_cardiac_arrest.slides.html'; }, 900);
+}
+(function(){
+  setInterval(function(){
+    var bar = document.getElementById('complete-bar-9');
+    if(!bar) return;
+    var slides = document.querySelectorAll('section.slide, .slide');
+    var total = slides.length;
+    var isLast = (typeof cur!=='undefined' && cur===total-1);
+    bar.style.display = isLast ? 'flex' : 'none';
+  }, 300);
+})();</script>
 </body>
 </html>
