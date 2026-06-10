@@ -1,4 +1,9 @@
 // firebase-sync.js
+
+// ── FB_READY promise — modules await this before calling window.FB ──────────
+let _fbResolve;
+window.FB_READY = new Promise(res => { _fbResolve = res; });
+
 // ───────────────────────────────────────────────
 // PALS 2025 — Shared Firebase Sync Layer  (Phase 1 — UID-based)
 //
@@ -191,6 +196,8 @@ function fbWatchAllStudents(callback) {
 }
 
 // ── Expose on window.FB ───────────────────────────────────────
+// Resolve FB_READY
+if (_fbResolve) _fbResolve(window.FB);
 window.FB = {
   saveProgress:          fbSaveProgress,
   saveFlags:             fbSaveFlags,
