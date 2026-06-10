@@ -34,92 +34,502 @@ h1.hero{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3.3rem);font-wei
   <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
 </header>
 <main class="stage" id="stage">
+
+  <!-- SLIDE 1: Hero -->
   <section class="slide active hero-slide">
     <div class="ey">Module 04</div>
-    <div class="pill pt">Respiratory</div>
-    <h1 class="hero">Respiratory failure is the <span class="grad">leading cause</span> of pediatric cardiac arrest.</h1>
-    <p class="subt">Most pediatric arrests are respiratory in origin — not primarily cardiac. Recognizing and treating respiratory failure early is the single most impactful intervention available to any PALS provider.</p>
-  </section>
-  <section class="slide">
-    <div class="pill pt">The spectrum</div>
-    <h2>Respiratory distress → failure → arrest</h2>
-    <div class="cards c3">
-      <div class="card"><h3>Respiratory distress</h3><p>Increased work of breathing. Child is compensating. Airway open, oxygenating, but using accessory muscles, nasal flaring, or retracting.</p></div>
-      <div class="card"><h3>Respiratory failure</h3><p>Compensation is failing. Oxygenation or ventilation is impaired despite effort. Altered mental status, fatigue, cyanosis, decreasing respiratory rate may appear.</p></div>
-      <div class="card"><h3>Respiratory arrest</h3><p>No effective respiratory effort. Apnea or agonal breathing. Immediate intervention required or cardiac arrest follows within minutes.</p></div>
-    </div>
-    <div class="alt at"><h4>Key principle</h4><p>A child who was working hard to breathe and suddenly becomes quiet and limp is not improving — they are exhausting. Decreasing work of breathing with deteriorating mental status = impending failure.</p></div>
-  </section>
-  <section class="slide">
-    <div class="pill pb">Classification</div>
-    <h2>Types of respiratory problems</h2>
-    <div class="cards c2">
-      <div class="alt at"><h4>Upper airway obstruction</h4><p>Croup, epiglottitis, foreign body, anaphylaxis, peritonsillar abscess. Stridor is the hallmark. Maintain position of comfort, avoid agitation, prepare for definitive airway.</p></div>
-      <div class="alt ab"><h4>Lower airway obstruction</h4><p>Asthma, bronchiolitis, foreign body aspiration distal. Expiratory wheeze, prolonged expiration, air trapping. Bronchodilators, heliox in selected cases.</p></div>
-      <div class="alt ag"><h4>Lung tissue disease</h4><p>Pneumonia, pulmonary oedema, ARDS, contusion. Crackles, decreased breath sounds, hypoxia disproportionate to work of breathing. Oxygen, ventilation support.</p></div>
-      <div class="alt aa"><h4>Disordered control</h4><p>Neuromuscular disease, CNS depression (poisoning, seizure, head injury), apnoea of prematurity. Shallow/irregular rate, poor tone. Airway positioning, bag-mask ventilation.</p></div>
+    <div class="pill pt">Respiratory Emergencies</div>
+    <h1 class="hero">Recognizing &amp; Managing <span class="grad">Respiratory Failure</span> in Children.</h1>
+    <p class="subt">Respiratory failure is the single most common cause of pediatric cardiac arrest. Early recognition of the four categories of respiratory dysfunction — and targeted intervention before decompensation — is the core skill of this module.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+      <span class="badge badge-s">14 slides</span>
+      <span class="badge badge-a">~25 min</span>
+      <span class="badge badge-g">AHA 2025</span>
     </div>
   </section>
+
+  <!-- SLIDE 2: Why respiratory first -->
+  <section class="slide">
+    <div class="pill pt">Why It Matters</div>
+    <h2>Most pediatric arrests are respiratory in origin</h2>
+    <p>Unlike adults — where cardiac arrhythmia is the primary arrest mechanism — the majority of pediatric cardiac arrests are preceded by <strong>progressive respiratory failure or shock</strong>. By the time a child becomes pulseless, severe hypoxia and acidosis have already been present for minutes.</p>
+    <div class="cards c2" style="margin-top:4px">
+      <div class="alt ar"><h4>The cascade</h4><p>Respiratory distress → Respiratory failure → Hypoxia + Hypercarbia → Acidosis → Cardiac arrest</p></div>
+      <div class="alt ag"><h4>The opportunity</h4><p>Intervening at respiratory distress or failure — before arrest — dramatically improves survival. This is PALS's core prevention paradigm.</p></div>
+      <div class="alt as"><h4>SpO₂ target during resuscitation</h4><p>Target SpO₂ <strong>94–99%</strong>. Avoid hyperoxia after ROSC — titrate oxygen down once circulation is restored.</p></div>
+      <div class="alt aa"><h4>CO₂ matters too</h4><p>Hypercarbia causes pulmonary vasoconstriction, acidosis, and worsening respiratory mechanics. Hypocarbia causes cerebral vasoconstriction. Target normocapnia during stabilization.</p></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: Four categories -->
+  <section class="slide">
+    <div class="pill pa">Classification</div>
+    <h2>Four categories of respiratory dysfunction</h2>
+    <p>The AHA PALS framework organizes all pediatric respiratory problems into four mechanistic categories. Identifying the category guides treatment — the wrong intervention (e.g., bronchodilator for a child with disordered control of breathing) will not help.</p>
+    <div class="cards c2" style="margin-top:4px">
+      <div class="card">
+        <h3>1. Upper Airway Obstruction</h3>
+        <p><strong>Examples:</strong> croup, epiglottitis, foreign body aspiration, peritonsillar abscess, anaphylaxis, subglottic stenosis.</p>
+        <p style="margin-top:6px"><strong>Sound clue:</strong> Inspiratory stridor — turbulent flow through a narrowed upper airway.</p>
+      </div>
+      <div class="card">
+        <h3>2. Lower Airway Obstruction</h3>
+        <p><strong>Examples:</strong> asthma, bronchiolitis, foreign body in bronchus.</p>
+        <p style="margin-top:6px"><strong>Sound clue:</strong> Expiratory wheeze — air trapping and dynamic collapse during exhalation.</p>
+      </div>
+      <div class="card">
+        <h3>3. Lung Tissue Disease</h3>
+        <p><strong>Examples:</strong> pneumonia, pulmonary edema, ARDS, pulmonary contusion.</p>
+        <p style="margin-top:6px"><strong>Sound clue:</strong> Crackles (rales) — fluid or exudate in alveolar spaces. Grunting — patient auto-PEEPs to maintain FRC.</p>
+      </div>
+      <div class="card">
+        <h3>4. Disordered Control of Breathing</h3>
+        <p><strong>Examples:</strong> seizures, opioid/sedative overdose, raised ICP, neuromuscular disease.</p>
+        <p style="margin-top:6px"><strong>Sound clue:</strong> May be silent — irregular rate, apnea, bradypnea with normal-sounding lungs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: Severity spectrum -->
   <section class="slide">
     <div class="pill pa">Severity</div>
-    <h2>Mild, moderate, severe — rapid assessment</h2>
-    <div class="sev-grid">
-      <div class="sev sev-mild"><h4>Mild distress</h4><ul><li>Alert, interactive</li><li>Mild retractions</li><li>SpO₂ ≥94% on room air</li><li>Normal or slightly elevated RR</li><li>Speaking normally</li></ul></div>
-      <div class="sev sev-mod"><h4>Moderate distress</h4><ul><li>Anxious, less interactive</li><li>Moderate retractions</li><li>SpO₂ 90–93% on room air</li><li>Significant tachypnoea</li><li>Short sentences only</li></ul></div>
-      <div class="sev sev-sev"><h4>Severe / failure</h4><ul><li>Lethargic, agitated, or obtunded</li><li>Severe retractions or paradoxical breathing</li><li>SpO₂ &lt;90% despite oxygen</li><li>Bradypnoea or apnoea</li><li>Unable to speak or cry</li></ul></div>
+    <h2>Distress → Failure → Arrest — know where the child is</h2>
+    <div style="margin:4px 0 12px">
+      <div class="sev-bar"><div class="sev-s"></div><div class="sev-m"></div><div class="sev-sv"></div></div>
+      <div class="sev-labels"><span>Distress</span><span>Failure</span><span>Arrest Imminent</span></div>
     </div>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Feature</th><th style="color:var(--green)">Respiratory Distress</th><th style="color:var(--red)">Respiratory Failure</th></tr></thead>
+        <tbody>
+          <tr><td>Mental status</td><td>Anxious, alert</td><td>Altered, lethargic, agitated</td></tr>
+          <tr><td>Respiratory rate</td><td>Elevated — compensatory</td><td>Very high or declining (fatigue)</td></tr>
+          <tr><td>Work of breathing</td><td>Retractions, nasal flaring</td><td>Severe retractions, grunting, paradoxical movement</td></tr>
+          <tr><td>SpO₂</td><td>Normal or mildly ↓ with O₂</td><td>Hypoxia persists despite O₂</td></tr>
+          <tr><td>Skin colour</td><td>Possibly pale</td><td>Cyanosis, mottling, diaphoresis</td></tr>
+          <tr><td>Heart rate</td><td>Tachycardia</td><td>Extreme tachycardia or bradycardia (ominous)</td></tr>
+          <tr><td>Required action</td><td>Supplemental O₂ + category-specific Rx</td><td>Assisted ventilation — escalate immediately</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="alt ar" style="margin-top:8px"><h4>Red flag: Bradypnea in a previously tachypneic child</h4><p>A slowing respiratory rate is a pre-arrest sign — respiratory muscle fatigue. Do NOT interpret as improvement. Bradypnea + bradycardia = impending arrest. Act immediately.</p></div>
   </section>
+
+  <!-- SLIDE 5: Assessment -->
   <section class="slide">
-    <div class="pill pt">Assessment signs</div>
-    <h2>What to look for on exam</h2>
+    <div class="pill ps">Assessment</div>
+    <h2>Structured respiratory assessment</h2>
+    <p>Combine the <strong>Pediatric Assessment Triangle (PAT)</strong> with the primary ABCDE survey for a complete picture in under 60 seconds.</p>
     <div class="cards c2">
-      <div class="card"><h3>Work of breathing signs</h3><ul><li>Nasal flaring</li><li>Subcostal, intercostal, suprasternal retractions</li><li>Head bobbing (infants)</li><li>Seesaw breathing (paradoxical chest-abdomen)</li><li>Tripod positioning / sniffing position</li></ul></div>
-      <div class="card"><h3>Airway sounds</h3><ul><li>Stridor — upper airway narrowing</li><li>Wheeze — lower airway obstruction</li><li>Grunting — auto-PEEP, maintains alveolar patency</li><li>Gurgling — secretions, fluid in upper airway</li><li>Silence with distress — near-complete obstruction</li></ul></div>
-      <div class="card"><h3>Oxygenation</h3><ul><li>Central cyanosis (lips, mucous membranes)</li><li>SpO₂ — target ≥94%</li><li>Remember: SpO₂ may stay normal until significant hypoxia</li></ul></div>
-      <div class="card"><h3>Mental status changes</h3><ul><li>Irritability or agitation (early hypoxia)</li><li>Lethargy, poor eye contact (worsening)</li><li>Obtunded, unresponsive (critical)</li></ul></div>
+      <div class="card">
+        <h3>PAT — Appearance</h3>
+        <ul>
+          <li>Tone, interactivity, consolability</li>
+          <li>Gaze — does the child track you?</li>
+          <li>Speech or cry — strong, weak, absent</li>
+          <li>Movement — purposeful vs. limp</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>PAT — Work of Breathing</h3>
+        <ul>
+          <li>Retractions: suprasternal, subcostal, intercostal, tracheal tug</li>
+          <li>Nasal flaring (especially in infants)</li>
+          <li>Grunting — expiratory auto-PEEP to maintain FRC</li>
+          <li>Head bobbing in infants</li>
+          <li>Abnormal sounds: stridor, wheeze, gurgling</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>PAT — Circulation to Skin</h3>
+        <ul>
+          <li>Pallor, mottling, cyanosis</li>
+          <li>Central cyanosis (lips, tongue) = severe hypoxia</li>
+        </ul>
+        <h3 style="margin-top:12px">Primary ABCDE — Breathing (B)</h3>
+        <ul>
+          <li>Rate vs. age-normal</li>
+          <li>Depth — equal air entry?</li>
+          <li>SpO₂ on room air and with O₂</li>
+          <li>ETCO₂ if intubated</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Resistance vs. Compliance</h3>
+        <p><strong>Resistance ↑</strong> (obstruction): high peak pressures, noisy breathing, prolonged inspiratory or expiratory phase.</p>
+        <p style="margin-top:8px"><strong>Compliance ↓</strong> (stiff lung — parenchymal disease): needs higher pressure to inflate, reduced tidal volume for same effort, grunting.</p>
+        <p style="margin-top:8px">Identifying which mechanism predominates directs treatment: bronchodilators for resistance; PEEP/CPAP for compliance.</p>
+      </div>
     </div>
   </section>
+
+  <!-- SLIDE 6: Upper Airway -->
   <section class="slide">
-    <div class="pill ag">Management</div>
-    <h2>Immediate treatment priorities</h2>
-    <div class="cards c3">
-      <div class="card"><h3>Position</h3><p>Sniffing position for infants. Upright position of comfort for older children with UAO. Never force a child with epiglottitis to lie down.</p></div>
-      <div class="card"><h3>Oxygen</h3><p>High-flow O₂ for all significant distress. Target SpO₂ ≥94%. Use non-rebreather for severe cases. Humidified when possible.</p></div>
-      <div class="card"><h3>Bag-mask ventilation</h3><p>For inadequate breathing effort, apnoea, or failure to maintain SpO₂. Correct mask seal and airway positioning are essential.</p></div>
-      <div class="card"><h3>Suction</h3><p>Clear secretions from upper airway. Bulb syringe for infants. Suction catheter for older children. Gentle — avoid vagal stimulation in neonates.</p></div>
-      <div class="card"><h3>Cause-specific Rx</h3><p>Nebulised salbutamol (asthma/bronchiolitis), epinephrine (croup/anaphylaxis), dexamethasone (croup), antibiotics (bacterial pneumonia/epiglottitis).</p></div>
-      <div class="card"><h3>Advanced airway</h3><p>RSI and endotracheal intubation when bag-mask ventilation is inadequate or prolonged support is needed. Surgical airway if cannot intubate/oxygenate.</p></div>
-    </div>
-  </section>
-  <section class="slide">
-    <div class="pill ar">Avoid harm</div>
-    <h2>Common respiratory management mistakes</h2>
+    <div class="pill pa">Category 1</div>
+    <h2>Upper Airway Obstruction — Recognition &amp; Management</h2>
     <div class="cards c2">
-      <div class="alt ar"><h4>Agitating a child with UAO</h4><p>Crying increases oxygen demand and can precipitate complete obstruction in epiglottitis or severe croup. Keep calm, keep parent present, avoid unnecessary interventions.</p></div>
-      <div class="alt ar"><h4>Misreading improving RR</h4><p>A slowing respiratory rate with worsening consciousness is respiratory fatigue — it is not improvement. Intervene immediately.</p></div>
-      <div class="alt ar"><h4>Inadequate mask seal</h4><p>Poor BMV technique delivers far less tidal volume than intended. Practice the EC-clamp technique and confirm chest rise with every breath.</p></div>
-      <div class="alt ar"><h4>Delaying definitive airway</h4><p>If bag-mask ventilation is inadequate and the child is deteriorating, call for help and establish a definitive airway early — not after arrest.</p></div>
+      <div class="card">
+        <h3>Croup (Laryngotracheobronchitis)</h3>
+        <p><strong>Cause:</strong> Viral (parainfluenza) subglottic edema. Peak age 6 months–3 years.</p>
+        <ul style="margin-top:8px">
+          <li>Barky, seal-like cough; inspiratory stridor</li>
+          <li><strong>Nebulized epinephrine 1:1000</strong> — 0.5 mg/kg (max 5 mg) over 5 min</li>
+          <li><strong>Dexamethasone 0.6 mg/kg</strong> PO/IM/IV — reduces edema, prevents rebound</li>
+          <li>Observe ≥2 h after epinephrine for rebound stridor</li>
+          <li>Heliox may reduce turbulence in severe cases</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Anaphylaxis — Airway</h3>
+        <p>Oropharyngeal and laryngeal edema can close the airway within minutes.</p>
+        <ul style="margin-top:8px">
+          <li><strong>Epinephrine 1:1000 — 0.01 mg/kg IM</strong> (anterolateral thigh; max 0.5 mg) — first and most critical drug</li>
+          <li>EpiPen: 0.15 mg if &lt;30 kg · 0.3 mg if ≥30 kg</li>
+          <li>Repeat every 5–15 min if no response</li>
+          <li>Prepare for early intubation — progressive edema may prevent intubation if delayed</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Foreign Body — Partial Obstruction</h3>
+        <ul>
+          <li>Allow child to maintain preferred position (tripod / sniffing)</li>
+          <li>Minimize agitation — crying worsens obstruction</li>
+          <li>Blow-by oxygen; do NOT perform blind finger sweeps</li>
+          <li>ENT / bronchoscopy for retrieval</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Foreign Body — Complete Obstruction</h3>
+        <ul>
+          <li><strong>Infant (&lt;1 yr):</strong> 5 back blows + 5 chest thrusts, alternating</li>
+          <li><strong>Child (≥1 yr):</strong> Abdominal thrusts (Heimlich) until expelled</li>
+          <li>If child becomes unconscious → CPR; look for object before each rescue breath</li>
+        </ul>
+        <div style="margin-top:10px" class="alt as"><h4>Positioning first</h4><p>Head-tilt chin-lift or sniffing position. Trauma: jaw thrust without head tilt. These maneuvers alone may relieve partial obstruction.</p></div>
+      </div>
     </div>
   </section>
+
+  <!-- SLIDE 7: Lower Airway -->
   <section class="slide">
-    <div class="pill pg">Takeaway</div>
-    <h2>The single most important rule</h2>
-    <div class="card"><p><strong>If a child has signs of respiratory distress, act before failure develops.</strong> Oxygenate, position, support breathing, and treat the underlying cause. Early intervention prevents the respiratory → cardiac arrest spiral.</p></div>
-    <a href="pals_module_05_shock.slides.html" class="nxt">Next → Module 05: Shock Recognition →</a>
+    <div class="pill pa">Category 2</div>
+    <h2>Lower Airway Obstruction — Asthma &amp; Bronchiolitis</h2>
+    <div class="cards c2">
+      <div class="card">
+        <h3>Asthma — Mild to Moderate</h3>
+        <ul>
+          <li>Expiratory wheeze ± prolonged expiratory phase</li>
+          <li><strong>Albuterol (Salbutamol) 2.5 mg</strong> nebulized q20 min × 3 doses — first-line bronchodilator</li>
+          <li><strong>Ipratropium bromide 0.25 mg</strong> nebulized — add for moderate–severe episodes</li>
+          <li><strong>Methylprednisolone 2 mg/kg</strong> IV/PO — reduces airway inflammation</li>
+          <li>SpO₂ target ≥94% on supplemental O₂</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Asthma — Severe / Status Asthmaticus</h3>
+        <ul>
+          <li>Continuous nebulized albuterol</li>
+          <li><strong>Magnesium sulfate 20–50 mg/kg IV</strong> over 15–20 min (max 2 g) — smooth muscle relaxation</li>
+          <li>Epinephrine 0.01 mg/kg IM if critical</li>
+          <li>Consider CPAP / BiPAP before intubation</li>
+          <li><strong>Intubation is high risk</strong> in status asthmaticus — auto-PEEP can cause hemodynamic collapse. Have needle decompression ready.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Bronchiolitis (RSV)</h3>
+        <ul>
+          <li>Mostly infants under 2 years; RSV most common pathogen</li>
+          <li>Subcostal retractions, wheeze, crackles, apnea in young infants</li>
+          <li><strong>Supportive only:</strong> High-flow nasal cannula O₂ — target SpO₂ ≥94%</li>
+          <li>Bronchodilators NOT routinely recommended (poor response)</li>
+          <li>Suction secretions; CPAP if escalating</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Air Trapping — Key Ventilation Risk</h3>
+        <p>Dynamic hyperinflation during bag-mask or mechanical ventilation:</p>
+        <ul style="margin-top:6px">
+          <li>Use <strong>slow respiratory rate</strong> — allow full exhalation (I:E ratio 1:3 or longer)</li>
+          <li>Avoid high tidal volumes — barotrauma risk</li>
+          <li>Sudden hemodynamic collapse in ventilated asthmatic → suspect <strong>tension pneumothorax</strong></li>
+          <li>Needle thoracostomy: 2nd ICS midclavicular line</li>
+        </ul>
+      </div>
+    </div>
   </section>
+
+  <!-- SLIDE 8: Lung Tissue Disease -->
+  <section class="slide">
+    <div class="pill pa">Category 3</div>
+    <h2>Lung Tissue Disease — Pneumonia, Edema, ARDS</h2>
+    <p>Parenchymal disease impairs <strong>gas exchange at the alveolar membrane</strong>. Compliance is reduced — more pressure is required to inflate the lung. Classic sign: <strong>grunting</strong> (partial glottic closure on exhalation = patient-generated PEEP to prevent alveolar collapse).</p>
+    <div class="cards c3" style="margin-top:4px">
+      <div class="card">
+        <h3>Pneumonia</h3>
+        <ul>
+          <li>Fever, tachypnea, focal crackles</li>
+          <li>Dullness to percussion over consolidation</li>
+          <li>CXR: infiltrate or consolidation</li>
+          <li>Antibiotics per suspected pathogen</li>
+          <li>Viral (RSV, influenza): supportive O₂ only</li>
+          <li>CPAP if hypoxia persists despite O₂</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Pulmonary Edema</h3>
+        <ul>
+          <li>Bilateral crackles, frothy secretions, tachycardia</li>
+          <li>Cardiogenic: diuretics, CPAP, inotropes (dopamine/dobutamine)</li>
+          <li>Non-cardiogenic (ARDS): lung-protective ventilation</li>
+          <li>Gallop rhythm + hepatomegaly → heart failure origin</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>ARDS</h3>
+        <ul>
+          <li>Diffuse bilateral infiltrates, refractory hypoxemia</li>
+          <li>PaO₂/FiO₂ &lt;200 (severe) — requires ABG</li>
+          <li>Lung-protective ventilation: Vt 6 ml/kg IBW, titrate PEEP</li>
+          <li>Prone positioning in severe ARDS</li>
+          <li>Target SpO₂ 94–99%; avoid hyperoxia post-ROSC</li>
+        </ul>
+      </div>
+    </div>
+    <div class="alt aa" style="margin-top:8px"><h4>ABG quick interpretation</h4><p>pH &lt;7.35 = acidosis · PCO₂ &gt;45 = respiratory acidosis (hypoventilation) · PCO₂ &lt;35 = respiratory alkalosis (hyperventilation) · PO₂ &lt;60 on room air = significant hypoxia · Combined respiratory + metabolic acidosis = severe decompensation requiring immediate intervention.</p></div>
+  </section>
+
+  <!-- SLIDE 9: Disordered Control -->
+  <section class="slide">
+    <div class="pill pa">Category 4</div>
+    <h2>Disordered Control of Breathing</h2>
+    <p>These patients often have <strong>normal-sounding airways and lungs</strong> but are not breathing adequately — drive is impaired centrally or peripherally. The danger: low WOB appearance may be falsely reassuring.</p>
+    <div class="cards c2">
+      <div class="card">
+        <h3>Common causes</h3>
+        <ul>
+          <li><strong>CNS:</strong> seizures (post-ictal apnea), raised ICP, meningitis, encephalitis</li>
+          <li><strong>Toxins:</strong> opioids, benzodiazepines, anticonvulsants (carbamazepine, diazepam)</li>
+          <li><strong>Metabolic:</strong> severe hypoglycemia, electrolyte disturbance</li>
+          <li><strong>Neuromuscular:</strong> Guillain-Barré, botulism, spinal cord injury</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Clinical pattern</h3>
+        <ul>
+          <li>Irregular or slow respiratory rate (bradypnea)</li>
+          <li>Low or absent muscle tone</li>
+          <li>Reduced gag reflex — aspiration risk</li>
+          <li>Normal or quiet air entry — NOT wheezy</li>
+          <li>SpO₂ may drop silently without tachypnea</li>
+          <li>Altered consciousness disproportionate to WOB</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Management</h3>
+        <ul>
+          <li>BVM support immediately if effort is inadequate</li>
+          <li><strong>Treat reversible cause first:</strong></li>
+          <li>Hypoglycemia → dextrose (0.5–1 g/kg IV/IO)</li>
+          <li>Opioid overdose → naloxone 0.01 mg/kg IV/IO/IM (max 2 mg)</li>
+          <li>Active seizure → diazepam / lorazepam</li>
+          <li>Early intubation if cause is not rapidly reversible</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Key distinguisher</h3>
+        <p>A child with disordered control often <strong>does not appear to be working hard to breathe — because they are not.</strong> Their drive is absent or severely blunted.</p>
+        <p style="margin-top:8px">Do not be reassured by a calm, quiet, non-retracting child who is bradypneic and poorly responsive. Monitor SpO₂ and ETCO₂ continuously.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 10: O2 delivery devices -->
+  <section class="slide">
+    <div class="pill ps">Oxygen Delivery</div>
+    <h2>Choosing the right oxygen delivery device</h2>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Device</th><th>FiO₂ Range</th><th>Flow Rate</th><th>Best For</th></tr></thead>
+        <tbody>
+          <tr><td>Nasal Cannula</td><td>24–44%</td><td>0.25–4 L/min (infant) · 1–6 L/min (child)</td><td>Mild hypoxia; awake cooperative child</td></tr>
+          <tr><td>Simple Face Mask</td><td>35–55%</td><td>6–10 L/min</td><td>Moderate distress; won't tolerate NC</td></tr>
+          <tr><td>Non-Rebreather Mask</td><td>60–95%</td><td>10–15 L/min (keep reservoir bag inflated)</td><td>Moderate-severe hypoxia; spontaneous breathing</td></tr>
+          <tr><td>High-Flow NC (HFNC)</td><td>Up to 100%</td><td>Up to 2 L/kg/min (infant) · up to 60 L/min (child)</td><td>Bronchiolitis, mild ARDS; provides CPAP effect</td></tr>
+          <tr><td>CPAP / BiPAP</td><td>Up to 100%</td><td>Titrated to response</td><td>Moderate respiratory failure; maintains FRC, reduces WOB</td></tr>
+          <tr><td>BVM (Bag-Mask)</td><td>60–100% with reservoir</td><td>10–15 L/min</td><td>Apnea or severe failure; active assisted ventilation</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="alt ag" style="margin-top:8px"><h4>Blow-by oxygen</h4><p>Blow-by (holding mask near face) delivers unpredictable FiO₂ and is not recommended. A non-rebreather mask held loosely by a parent is more effective and less frightening for a young child.</p></div>
+    <div class="alt as" style="margin-top:6px"><h4>HFNC in bronchiolitis</h4><p>High-flow nasal cannula provides modest continuous distending pressure, reduces nasopharyngeal dead space, and improves mucociliary clearance. It is now first-line escalation for bronchiolitis with moderate hypoxia.</p></div>
+  </section>
+
+  <!-- SLIDE 11: BVM technique -->
+  <section class="slide">
+    <div class="pill ps">BVM Ventilation</div>
+    <h2>Bag-Mask Ventilation — technique and pitfalls</h2>
+    <p>BVM is the most important airway skill in PALS. AHA 2025 guidelines confirm that for <strong>out-of-hospital cardiac arrest</strong>, BVM achieves similar neurologic outcomes to advanced airway insertion and is preferable for most prehospital providers (COR 2a, LOE C-LD).</p>
+    <div class="cards c2">
+      <div class="card">
+        <h3>Correct technique</h3>
+        <ul>
+          <li><strong>Position:</strong> neutral/sniffing — ear canal level with anterior shoulder</li>
+          <li><strong>E-C clamp:</strong> thumb + index form C around mask; remaining 3 fingers lift jaw (E)</li>
+          <li><strong>2-person technique</strong> preferred for difficult airways</li>
+          <li>Rate: <strong>12–20/min</strong> with spontaneous rhythm · <strong>20–30/min</strong> with advanced airway during CPR</li>
+          <li>Tidal volume: visible chest rise — do not over-inflate</li>
+          <li>Mask size: covers nose and mouth only — not eyes, not under chin</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Pitfalls to avoid</h3>
+        <ul>
+          <li><strong>Overventilation:</strong> high rate/volume → air trapping, ↓ venous return, hemodynamic compromise</li>
+          <li><strong>Poor seal:</strong> check finger position; facial hair and infant anatomy challenge seal</li>
+          <li><strong>Gastric inflation:</strong> vomiting and aspiration risk; use cricoid pressure cautiously in children</li>
+          <li><strong>Head hyperextension in infants:</strong> closes the airway — use neutral sniffing position</li>
+          <li><strong>Neck flexion:</strong> also closes airway — roll under shoulders in infants to achieve neutral alignment</li>
+        </ul>
+      </div>
+    </div>
+    <div class="alt ar" style="margin-top:8px"><h4>DOPE — for the intubated patient who suddenly deteriorates</h4><p><strong>D</strong>isplacement of tube · <strong>O</strong>bstruction (secretions, kinking, biting) · <strong>P</strong>neumothorax · <strong>E</strong>quipment failure. Check in this order. Sudden high-pressure alarm + absent breath sounds + hemodynamic collapse = tension pneumothorax until proven otherwise.</p></div>
+  </section>
+
+  <!-- SLIDE 12: ETT & advanced airway -->
+  <section class="slide">
+    <div class="pill ps">Advanced Airway</div>
+    <h2>Endotracheal intubation — indications, sizing, confirmation</h2>
+    <div class="cards c2">
+      <div class="card">
+        <h3>Indications</h3>
+        <ul>
+          <li>Respiratory failure not responding to non-invasive support</li>
+          <li>Inability to protect airway (absent gag, GCS &lt;8)</li>
+          <li>Impending airway loss (progressive angioedema, epiglottitis)</li>
+          <li>Anticipated deterioration during transport</li>
+          <li>Ongoing cardiac arrest requiring CPR</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>ETT sizing</h3>
+        <ul>
+          <li><strong>Cuffed (preferred ≥age 2):</strong> ID (mm) = (age ÷ 4) + 3.5</li>
+          <li><strong>Uncuffed:</strong> ID (mm) = (age ÷ 4) + 4.0</li>
+          <li>Newborn: 3.0–3.5 mm · Infant: 3.5–4.0 mm</li>
+          <li>Insertion depth (cm at lip) ≈ ID × 3</li>
+          <li>Have one size larger and one size smaller available</li>
+          <li>Cuffed tubes preferred — reduce reintubation and improve ventilation control</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Confirming placement</h3>
+        <ul>
+          <li><strong>Primary: ETCO₂</strong> — colorimetric or continuous waveform capnography (mandatory in all settings)</li>
+          <li>Clinical: bilateral equal breath sounds, symmetric chest rise, no epigastric sounds</li>
+          <li>CXR: tip at mid-trachea (T2–T3), above carina</li>
+          <li>Flat ETCO₂ waveform after intubation → esophageal intubation until proven otherwise</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Peri-intubation bradycardia</h3>
+        <ul>
+          <li>Pre-oxygenate aggressively before every attempt</li>
+          <li>Limit laryngoscopy to &lt;30 sec; abort if SpO₂ &lt;90%</li>
+          <li>Atropine 0.02 mg/kg IV/IO (min 0.1 mg) — consider for infants; not routine for all children</li>
+          <li>Vagal stimulation during laryngoscopy is the most common cause</li>
+          <li>LMA (supraglottic airway) as bridge when intubation is difficult or failed</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 13: Scenarios -->
+  <section class="slide">
+    <div class="pill pg">Clinical Scenarios</div>
+    <h2>Apply the framework — rapid scenario review</h2>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot">A</div>
+        <div>
+          <h3>8-month-old · barky cough · inspiratory stridor · RR 48 · SpO₂ 92%</h3>
+          <p><strong>Category:</strong> Upper airway obstruction — croup. <strong>Action:</strong> Blow-by humidified O₂ → Nebulized epinephrine 0.5 mg/kg (max 5 mg) → Dexamethasone 0.6 mg/kg PO/IM. Observe ≥2 h for rebound. Minimize agitation. If worsening: prepare for intubation (smaller tube than expected — subglottic edema).</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">B</div>
+        <div>
+          <h3>5-year-old · expiratory wheeze · RR 38 · SpO₂ 89% · anxious</h3>
+          <p><strong>Category:</strong> Lower airway obstruction — acute asthma. <strong>Action:</strong> High-flow O₂ → Albuterol 2.5 mg nebulized q20 min × 3 → Ipratropium 0.25 mg nebulized → Methylprednisolone 2 mg/kg IV. No improvement: MgSO₄ 40 mg/kg IV over 20 min → Consider CPAP. Intubation last resort — high auto-PEEP risk.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">C</div>
+        <div>
+          <h3>3-year-old · grunting · bilateral crackles · RR 58 · SpO₂ 88% · fever 39.7°C</h3>
+          <p><strong>Category:</strong> Lung tissue disease — pneumonia. <strong>Action:</strong> O₂ to target SpO₂ ≥94% → CPAP if severe retractions → Antibiotics → ABG: pH 7.28, PCO₂ 60, PO₂ 60 → Hypercapnic failure → Intubate, lung-protective settings (low Vt, titrated PEEP).</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">D</div>
+        <div>
+          <h3>12-year-old · post-seizure · RR 6 · shallow · SpO₂ 79% · limp · on carbamazepine</h3>
+          <p><strong>Category:</strong> Disordered control of breathing — anticonvulsant toxicity + post-ictal state. <strong>Action:</strong> BVM immediately (do not wait) → Check glucose → Head-tilt chin-lift → If inadequate despite BVM: intubate → Maintain SpO₂ 94–99%. Treat cause.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 14: Summary + Next -->
+  <section class="slide">
+    <div class="pill pg">Key Takeaways</div>
+    <h2>Module 04 — Core principles</h2>
+    <div class="cards c2">
+      <div class="alt ag"><h4>1. Categorize before treating</h4><p>Upper · Lower · Lung tissue · Disordered control. Each has distinct physiology and distinct first-line treatment. Misidentification wastes critical time.</p></div>
+      <div class="alt as"><h4>2. SpO₂ target: 94–99%</h4><p>Below = hypoxia requiring action. Above = unnecessary risk of oxygen toxicity post-ROSC. Titrate oxygen delivery continuously and deliberately.</p></div>
+      <div class="alt ag"><h4>3. Grunting and bradypnea are danger signs</h4><p>Grunting = parenchymal disease + patient fighting alveolar collapse. Bradypnea in a previously tachypneic child = muscle fatigue + impending arrest. Both demand immediate escalation.</p></div>
+      <div class="alt as"><h4>4. DOPE when intubated patient deteriorates</h4><p>Displacement · Obstruction · Pneumothorax · Equipment failure. Rule out tension pneumothorax first in hemodynamic collapse — needle thoracostomy is fast and potentially life-saving.</p></div>
+      <div class="alt ag"><h4>5. BVM before advanced airway</h4><p>For most children, skilled bag-mask ventilation achieves equivalent neurologic outcomes to intubation prehospital (AHA 2025, COR 2a). Master the technique. Two-person BVM is better than a poorly performed intubation.</p></div>
+      <div class="alt as"><h4>6. Confirm ETT with ETCO₂ — always</h4><p>Clinical assessment alone misses esophageal intubation. Capnography (colorimetric or waveform) is mandatory for ETT confirmation in every setting, every time.</p></div>
+    </div>
+    <a href="pals_module_05_shock.slides.html" class="nxt">Next → Module 05: Shock Recognition &amp; Management →</a>
+  </section>
+
 </main>
 <footer class="footer">
-  <div class="counter" id="counter">1 / 8</div>
-  <div class="foot-btns"><button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button><button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button></div>
+  <div class="counter" id="counter">1 / 14</div>
+  <div class="foot-btns">
+    <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
+    <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
+  </div>
 </footer>
 <script>
 const slides=[...document.querySelectorAll('.slide')];let cur=0,total=slides.length;
-function updateUI(){document.getElementById('counter').textContent=(cur+1)+' / '+total;document.getElementById('prev-btn').disabled=cur===0;document.getElementById('next-btn').disabled=cur===total-1;if(cur===total-1)markComplete('mod04');document.getElementById('progress-bar').style.width=((cur+1)/total*100)+'%';}
-function goTo(n){if(n<0||n>=total||n===cur)return;const old=slides[cur],nw=slides[n];old.classList.remove('active');old.classList.add(n>cur?'exit-left':'');setTimeout(()=>old.classList.remove('exit-left'),500);nw.classList.add('active');cur=n;updateUI();}
+function updateUI(){
+  document.getElementById('counter').textContent=(cur+1)+' / '+total;
+  document.getElementById('prev-btn').disabled=cur===0;
+  document.getElementById('next-btn').disabled=cur===total-1;
+  if(cur===total-1)markComplete('mod04');
+  document.getElementById('progress-bar').style.width=((cur+1)/total*100)+'%';
+}
+function goTo(n){
+  if(n<0||n>=total||n===cur)return;
+  const old=slides[cur],nw=slides[n];
+  old.classList.remove('active');
+  old.classList.add(n>cur?'exit-left':'');
+  setTimeout(()=>old.classList.remove('exit-left'),500);
+  nw.classList.add('active');
+  cur=n;updateUI();
+}
 function changeSlide(d){goTo(cur+d)}
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')changeSlide(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')changeSlide(-1)});
-let sx=0;document.addEventListener('touchstart',e=>sx=e.changedTouches[0].clientX,{passive:true});document.addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>48)changeSlide(dx>0?-1:1)},{passive:true});
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')changeSlide(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')changeSlide(-1);
+});
+let sx=0;
+document.addEventListener('touchstart',e=>sx=e.changedTouches.clientX,{passive:true});
+document.addEventListener('touchend',e=>{let dx=e.changedTouches.clientX-sx;if(Math.abs(dx)>48)changeSlide(dx>0?-1:1)},{passive:true});
 updateUI();
 function markComplete(k){try{var r=sessionStorage.getItem('pals_progress');var p=r?JSON.parse(r):{};p[k]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}}
 </script>
-</body></html>
+</body>
+</html>
