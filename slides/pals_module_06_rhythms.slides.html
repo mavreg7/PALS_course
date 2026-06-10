@@ -393,4 +393,29 @@ document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowD
 let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});document.addEventListener('touchend',e=>{const dx=tx-e.changedTouches[0].clientX;if(Math.abs(dx)>50)changeSlide(dx>0?1:-1);},{passive:true});
 updateUI();
 </script>
+<div id="complete-bar-6" style="position:fixed;bottom:0;left:0;right:0;padding:14px 24px;background:rgba(7,8,14,.96);border-top:1px solid rgba(255,255,255,.07);display:none;justify-content:flex-end;align-items:center;gap:12px;z-index:300;">
+  <span style="color:rgba(255,255,255,.4);font-size:12px;font-family:sans-serif;">End of module</span>
+  <button id="completeBtn6" onclick="markDone()" style="background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.35);color:#2dd4bf;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:sans-serif;letter-spacing:.04em;transition:all .2s;">✓ Mark Complete &amp; Continue →</button>
+</div>
+<script>
+function markDone() {
+  try {
+    var p = JSON.parse(sessionStorage.getItem('pals_progress') || '{}');
+    p[5] = true;
+    sessionStorage.setItem('pals_progress', JSON.stringify(p));
+  } catch(e) {}
+  var btn = document.getElementById('completeBtn6');
+  if(btn) { btn.textContent='✓ Completed!'; btn.style.background='rgba(0,230,118,.15)'; btn.style.color='#00e676'; }
+  setTimeout(function() { window.location.href='../slides/pals_module_07_algorithms.slides.html'; }, 900);
+}
+(function(){
+  setInterval(function(){
+    var bar = document.getElementById('complete-bar-6');
+    if(!bar) return;
+    var slides = document.querySelectorAll('section.slide, .slide');
+    var total = slides.length;
+    var isLast = (typeof cur!=='undefined' && cur===total-1);
+    bar.style.display = isLast ? 'flex' : 'none';
+  }, 300);
+})();</script>
 </body></html>
