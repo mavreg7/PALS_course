@@ -23,6 +23,8 @@ body{background:radial-gradient(circle at 75% 18%, rgba(255,179,0,.06), transpar
 .nxt{display:inline-flex;align-items:center;gap:10px;margin-top:4px;padding:12px 24px;background:linear-gradient(135deg,var(--amber),var(--cyan));color:#07080e;font-family:var(--font-head);font-weight:700;font-size:.86rem;border-radius:var(--r);text-decoration:none;transition:opacity .2s,transform .2s,box-shadow .2s;align-self:flex-start}.nxt:hover{opacity:.88;transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,179,0,.25)}
 .footer{position:fixed;left:0;right:0;bottom:0;height:72px;background:rgba(7,8,14,.92);backdrop-filter:blur(18px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:60}.counter{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}.foot-btns{display:flex;gap:10px}.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}.foot-btn:hover:not(:disabled){border-color:rgba(255,179,0,.25);transform:translateY(-1px)}.foot-btn:disabled{opacity:.35;cursor:not-allowed}.foot-btn.primary{background:linear-gradient(135deg,var(--amber),var(--cyan));border:none;color:#071018;font-family:var(--font-head);font-weight:700}
 </style>
+<script src="../firebase-config.js"></script>
+<script type="module" src="../firebase-sync.js"></script>
 </head>
 <body>
 <div id="progress-bar"></div>
@@ -127,6 +129,18 @@ function markComplete(moduleKey) {
     prog[moduleKey] = true;
     sessionStorage.setItem('pals_progress', JSON.stringify(prog));
   } catch(e) {}
+}
+
+async function markDone(){
+  try{var p=JSON.parse(sessionStorage.getItem('pals_progress')||'{}');p[4]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}
+  
+  (async function(){
+    try{
+      var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB);},3000);})]);
+      if(fb&&fb.markModuleComplete){await fb.markModuleComplete(4);}
+    }catch(ex){console.warn('[PALS] FB save:',ex&&ex.message);}
+  })();
+  setTimeout(function(){window.location.href='../hub_student.html';},900);
 }
 </script>
 </body></html>
