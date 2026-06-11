@@ -209,6 +209,8 @@ ul,ol{padding-left:18px}
 .foot-btn.primary{background:rgba(0,230,118,0.07);border-color:rgba(0,230,118,0.25);color:var(--grn)}
 .foot-btn.primary:hover:not(:disabled){background:rgba(0,230,118,0.13);box-shadow:0 0 24px rgba(0,230,118,0.18)}
 </style>
+<script src="../firebase-config.js"></script>
+<script type="module" src="../firebase-sync.js"></script>
 </head>
 <body>
 <div class="bg-grid"></div>
@@ -502,6 +504,7 @@ function updateUI() {
   document.getElementById('counter').textContent = (cur+1) + ' / ' + total;
   document.getElementById('prev-btn').disabled = cur === 0;
   document.getElementById('next-btn').disabled = cur === total - 1;
+  if(cur===total-1 && !window._mod_done_fired){window._mod_done_fired=true;markDone();}
   document.getElementById('progress-bar').style.width = ((cur+1)/total*100) + '%';
   document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === cur));
 }
@@ -529,6 +532,18 @@ document.addEventListener('touchend', e => {
   if (Math.abs(dx) > 48) changeSlide(dx > 0 ? 1 : -1);
 }, {passive:true});
 updateUI();
+
+async function markDone(){
+  try{var p=JSON.parse(sessionStorage.getItem('pals_progress')||'{}');p[2]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}
+  
+  (async function(){
+    try{
+      var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB);},3000);})]);
+      if(fb&&fb.markModuleComplete){await fb.markModuleComplete(2);}
+    }catch(ex){console.warn('[PALS] FB save:',ex&&ex.message);}
+  })();
+  setTimeout(function(){window.location.href='../hub_student.html';},900);
+}
 </script>
 </body>
 </html>
