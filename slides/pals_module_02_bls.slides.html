@@ -1,530 +1,597 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="he" dir="rtl" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Module 02 · Pediatric BLS &amp; High-Quality CPR</title>
+<title>מודול 02 · Pediatric BLS & High-Quality CPR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="../firebase-config.js"></script>
+<script src="../firebase-sync.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    DESIGN TOKENS — Module 02 · Pediatric BLS & High-Quality CPR
-   Accent: Red-Orange (BLS / urgency theme)
    ═══════════════════════════════════════════════ */
-:root{
-  --bg:#07080e;--surface:#0d0f18;--surface2:#121520;--surface3:#181b27;
-  --border:rgba(255,255,255,0.06);
-  --text:#e8eaf0;--muted:#7c8494;--faint:#2a2e3e;
-  --red:#ff3d5a;--red-glow:rgba(255,61,90,0.22);--red-dim:rgba(255,61,90,0.10);
-  --orange:#ff6b35;--orange-dim:rgba(255,107,53,0.10);
-  --cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.10);
-  --green:#00e676;--green-dim:rgba(0,230,118,0.10);
-  --amber:#ffb300;--amber-dim:rgba(255,179,0,0.10);
-  --sky:#38bdf8;--sky-dim:rgba(56,189,248,0.10);
-  --font-head:'Space Grotesk',sans-serif;
-  --font-body:'Inter',sans-serif;
-  --r:10px;--r-lg:16px;--r-xl:22px;
+:root {
+  --bg:#0a0b0f; --surface:#10121a; --surface2:#161823; --surface3:#1c1f2e;
+  --border:rgba(255,255,255,0.07);
+  --text:#e6e8f0; --muted:#7b8194; --faint:#2a2d3e;
+  --accent:#ff3d5a; --accent-dim:rgba(255,61,90,0.12); --accent-glow:rgba(255,61,90,0.22);
+  --red:#ff3d5a;     --red-dim:rgba(255,61,90,0.12);
+  --teal:#00d4b4;    --teal-dim:rgba(0,212,180,0.12);
+  --amber:#ffb300;   --amber-dim:rgba(255,179,0,0.12);
+  --green:#00e676;   --green-dim:rgba(0,230,118,0.12);
+  --navy:#4488ff;    --navy-dim:rgba(68,136,255,0.12);
+  --font-he:'Heebo', sans-serif;
+  --font-en:'Inter', sans-serif;
+  --r:10px; --r-lg:16px; --r-xl:24px;
   --ease:cubic-bezier(0.16,1,0.3,1);
-  --trans:0.5s var(--ease);
+  --trans:0.45s var(--ease);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-he);font-size:16px;-webkit-font-smoothing:antialiased}
 
 /* ── Background ── */
-.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(255,61,90,0.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,61,90,0.016) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0}
-.bg-blob{position:fixed;border-radius:50%;filter:blur(140px);pointer-events:none;z-index:0;animation:drift 22s ease-in-out infinite alternate}
-.bb1{width:800px;height:800px;top:-300px;right:-250px;background:radial-gradient(circle,rgba(255,61,90,0.07),transparent 70%)}
-.bb2{width:600px;height:600px;bottom:-200px;left:-200px;background:radial-gradient(circle,rgba(0,212,255,0.03),transparent 70%);animation-delay:-11s}
-.bb3{width:450px;height:450px;top:35%;left:40%;background:radial-gradient(circle,rgba(255,107,53,0.03),transparent 70%);animation-delay:-6s}
-@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,28px) scale(1.07)}}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(var(--accent-dim) 1px,transparent 1px),linear-gradient(90deg,var(--accent-dim) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;opacity:0.5}
+.bg-blob{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;animation:drift 20s ease-in-out infinite alternate}
+.bb1{width:500px;height:500px;top:-150px;right:-150px;background:var(--accent-glow);animation-delay:0s}
+.bb2{width:400px;height:400px;bottom:-100px;left:-100px;background:var(--accent-glow);opacity:0.6;animation-delay:-7s}
+.bb3{width:300px;height:300px;top:40%;left:40%;background:rgba(68,136,255,0.06);animation-delay:-12s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(30px,20px) scale(1.06)}}
+
+/* ── Top bar ── */
+.topbar{position:fixed;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(10,11,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:100}
+.topbar-logo{font-size:13px;font-weight:700;letter-spacing:2px;color:var(--accent);font-family:var(--font-en);text-transform:uppercase}
+.topbar-title{font-size:13px;color:var(--muted);font-family:var(--font-en);font-weight:500}
+.topbar-back{font-size:12px;font-family:var(--font-en);color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:5px 12px;cursor:pointer;transition:all .2s;text-decoration:none}
+.topbar-back:hover{color:var(--text);border-color:var(--accent)}
 
 /* ── Progress bar ── */
-#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--red),var(--orange),var(--amber));transition:width 0.55s var(--ease);z-index:100;box-shadow:0 0 16px rgba(255,61,90,0.6)}
+.prog-track{position:fixed;top:54px;left:0;right:0;height:3px;background:var(--faint);z-index:99}
+#progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-glow));width:0%;transition:width .4s var(--ease)}
 
-/* ── Nav ── */
-.nav{position:fixed;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:50}
-.nav-logo{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--red);letter-spacing:0.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-.nav-logo-dot{width:7px;height:7px;background:var(--red);border-radius:50%;box-shadow:0 0 10px var(--red);animation:pulse-dot 1.2s ease-in-out infinite}
-@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.6)}}
-.nav-title{font-size:12px;color:var(--muted);font-weight:500}
-.nav-btn{background:rgba(255,61,90,0.08);border:1px solid rgba(255,61,90,0.22);color:var(--muted);border-radius:8px;padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font-head);letter-spacing:0.05em;text-transform:uppercase}
-.nav-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-dim)}
+/* ── Stage ── */
+.stage{position:fixed;inset:57px 0 68px;overflow:hidden;z-index:1}
 
-/* ── Stage & slides ── */
-.stage{position:fixed;inset:58px 0 72px;overflow:hidden}
-.slide{position:absolute;inset:0;padding:32px 52px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;opacity:0;transform:translateX(70px) scale(0.985);transition:opacity var(--trans),transform var(--trans);pointer-events:none;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}
-.slide::-webkit-scrollbar{width:3px}.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
-.slide.active{opacity:1;transform:translateX(0) scale(1);pointer-events:all}
-.slide.exit-left{opacity:0;transform:translateX(-70px) scale(0.985)}
-.hero-slide{justify-content:center;padding:72px 52px}
-@media(max-width:680px){.slide{padding:20px 18px 20px}.hero-slide{padding:40px 18px}}
+/* ── Slide base ── */
+.slide{
+  position:absolute;inset:0;
+  padding:28px 48px 20px;
+  overflow-y:auto;
+  display:none;
+  flex-direction:column;
+  gap:14px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--faint) transparent;
+}
+.slide.active{display:flex}
+.slide::-webkit-scrollbar{width:4px}
+.slide::-webkit-scrollbar-track{background:transparent}
+.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:2px}
 
-/* ── Eyebrow ── */
-.ey{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:10px}
-.ey::before{content:'';display:block;width:24px;height:2px;background:linear-gradient(90deg,var(--red),transparent);border-radius:2px}
+/* ── Slide header ── */
+.slide-header{display:flex;align-items:center;gap:10px;margin-bottom:2px;flex-shrink:0}
+.mod-tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-family:var(--font-en);background:var(--accent-dim);padding:3px 10px;border-radius:20px}
+.slide-title-he{font-size:22px;font-weight:800;color:var(--text);font-family:var(--font-he)}
+.slide-title-en{font-size:13px;color:var(--muted);font-family:var(--font-en);font-weight:500;margin-top:1px}
 
-/* ── Typography ── */
-h1.hero{font-family:var(--font-head);font-size:clamp(2.1rem,4.5vw,3.4rem);font-weight:700;line-height:1.08;letter-spacing:-0.03em;color:#fff;max-width:860px}
-h1.hero .grad{background:linear-gradient(100deg,var(--red),var(--orange) 55%,var(--amber) 100%);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer-text 4s linear infinite}
-@keyframes shimmer-text{0%{background-position:0%}100%{background-position:200%}}
-h2{font-family:var(--font-head);font-size:clamp(1.25rem,2.4vw,1.78rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-0.018em}
-h3{font-family:var(--font-head);font-size:0.98rem;font-weight:600;color:var(--text);margin-bottom:6px}
-h4{font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:4px}
-p{font-size:0.88rem;color:var(--muted);line-height:1.7}
-li{font-size:0.86rem;color:var(--muted);line-height:1.65;margin-bottom:5px}
-strong{color:var(--text);font-weight:600}
-ul,ol{padding-left:18px}
-.subt{font-size:0.97rem;color:var(--muted);max-width:700px;line-height:1.75}
-.htags{display:flex;flex-wrap:wrap;gap:9px;margin-top:6px}
-.htag{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:500;color:var(--muted);transition:all 0.2s}
-.htag:hover{border-color:rgba(255,61,90,0.35);color:var(--text);background:var(--red-dim)}
+/* ── Section heading ── */
+.sec-heading{font-size:17px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:4px;flex-shrink:0}
+.sec-heading small{font-size:12px;font-weight:400;color:var(--muted);font-family:var(--font-en);display:block;margin-top:2px}
 
-/* ── Pills ── */
-.pill{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 11px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px}
-.pr{background:rgba(255,61,90,0.14);color:var(--red)}
-.pg{background:rgba(0,230,118,0.12);color:var(--green)}
-.pc{background:rgba(0,212,255,0.12);color:var(--cyan)}
-.pa{background:rgba(255,179,0,0.12);color:var(--amber)}
-.po{background:rgba(255,107,53,0.14);color:var(--orange)}
+/* ── Card grid ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;flex:1}
+.card-grid.c3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card-grid.c2{grid-template-columns:repeat(2,1fr)}
 
-/* ── Cards ── */
-.cards{display:grid;gap:13px}
-.c2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-.c3{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;transition:border-color 0.3s,box-shadow 0.3s,transform 0.3s}
-.card:hover{border-color:rgba(255,61,90,0.25);box-shadow:0 6px 30px rgba(255,61,90,0.07);transform:translateY(-2px)}
+/* ── Card ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+.card.accent-red   {border-top:3px solid var(--red);}
+.card.accent-teal  {border-top:3px solid var(--teal);}
+.card.accent-amber {border-top:3px solid var(--amber);}
+.card.accent-green {border-top:3px solid var(--green);}
+.card.accent-navy  {border-top:3px solid var(--navy);}
+.card.accent-accent{border-top:3px solid var(--accent);}
+.card-icon{font-size:26px;line-height:1}
+.card-title-he{font-size:15px;font-weight:700;color:var(--text);font-family:var(--font-he)}
+.card-title-en{font-size:11px;color:var(--muted);font-family:var(--font-en);font-weight:500}
+.card-body{font-size:13px;color:var(--muted);line-height:1.6}
+.card-body strong{color:var(--text)}
 
-/* ── Alert strips ── */
-.alt{border-radius:var(--r);padding:13px 17px;border-left:3px solid}
-.ar{background:rgba(255,61,90,0.07);border-color:var(--red)}.ar h4{color:var(--red)}
-.aa{background:rgba(255,179,0,0.06);border-color:var(--amber)}.aa h4{color:var(--amber)}
-.ac{background:rgba(0,212,255,0.06);border-color:var(--cyan)}.ac h4{color:var(--cyan)}
-.ag{background:rgba(0,230,118,0.06);border-color:var(--green)}.ag h4{color:var(--green)}
-.ao{background:rgba(255,107,53,0.07);border-color:var(--orange)}.ao h4{color:var(--orange)}
+/* ── Hero slide ── */
+.hero-slide{justify-content:center;align-items:flex-start;padding:40px 48px}
+.hero-slide .eyebrow{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-family:var(--font-en);font-weight:700;margin-bottom:12px}
+.hero-slide h1{font-size:clamp(36px,5vw,56px);font-weight:900;line-height:1.1;margin-bottom:12px}
+.hero-slide h1 .grad{background:linear-gradient(135deg,var(--accent),var(--navy));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-slide .subtitle{font-size:15px;color:var(--muted);font-family:var(--font-en);max-width:600px;line-height:1.6;margin-bottom:20px}
+.hero-slide .subtitle-he{font-size:15px;color:var(--muted);font-family:var(--font-he);margin-bottom:6px}
+.htags{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.htag{font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;color:var(--muted);font-family:var(--font-en)}
 
-/* ── Objectives ── */
-.obj-list{display:flex;flex-direction:column;gap:10px}
-.obj-item{display:flex;align-items:flex-start;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 20px;transition:border-color 0.3s,transform 0.3s}
-.obj-item:hover{border-color:rgba(255,61,90,0.25);transform:translateX(4px)}
-.obj-num{width:30px;height:30px;border-radius:50%;background:var(--red-dim);border:1px solid rgba(255,61,90,0.3);color:var(--red);font-family:var(--font-head);font-weight:700;font-size:0.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.obj-text{font-size:0.85rem;color:var(--muted);line-height:1.6}
-.obj-text strong{color:var(--text)}
-
-/* ── CPR Metrics stat grid ── */
-.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px}
-.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 14px;text-align:center;position:relative;overflow:hidden;transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s}
-.metric-card:hover{transform:translateY(-3px)}
-.metric-card::after{content:'';position:absolute;inset:0;border-radius:var(--r-lg);background:radial-gradient(circle at 50% 0%,var(--mg,rgba(255,61,90,0.07)),transparent 70%);pointer-events:none}
-.metric-val{font-family:var(--font-head);font-size:clamp(1.4rem,2.5vw,2rem);font-weight:700;line-height:1;margin-bottom:5px}
-.metric-lbl{font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-.metric-note{font-size:0.72rem;color:var(--muted);line-height:1.45}
-
-/* ── Tables ── */
-.tbl{width:100%;border-collapse:collapse;font-size:0.81rem}
-.tbl th{text-align:left;padding:9px 13px;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--red);border-bottom:1px solid rgba(255,61,90,0.2);background:rgba(255,61,90,0.05)}
-.tbl td{padding:8px 13px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
-.tbl tr:hover td{background:rgba(255,255,255,0.018)}
-.tbl td strong{color:var(--text)}
-
-/* ── Steps list ── */
-.steps{display:flex;flex-direction:column;gap:8px;counter-reset:step}
-.step{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;transition:border-color 0.2s}
-.step:hover{border-color:rgba(255,61,90,0.28)}
-.step-n{background:var(--red-dim);border:1px solid rgba(255,61,90,0.28);color:var(--red);font-family:var(--font-head);font-weight:700;font-size:0.75rem;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.step-text{font-size:0.84rem;color:var(--muted);line-height:1.55}
+/* ── Step list ── */
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{display:flex;gap:10px;align-items:flex-start}
+.step-n{min-width:24px;height:24px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0;font-family:var(--font-en)}
+.step-text{font-size:13.5px;color:var(--muted);line-height:1.55;padding-top:3px}
 .step-text strong{color:var(--text)}
 
-/* ── Flip cards ── */
-.fg{display:grid;gap:13px}
-.fg2{grid-template-columns:repeat(auto-fit,minmax(295px,1fr))}
-.fc{perspective:1100px;cursor:pointer}
-.fc-inner{width:100%;min-height:158px;position:relative;transform-style:preserve-3d;transition:transform 0.68s var(--ease)}
-.fc.flipped .fc-inner{transform:rotateY(180deg)}
-.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--r-lg);padding:22px;display:flex;flex-direction:column;justify-content:center}
-.ff{background:var(--surface);border:1px solid rgba(255,61,90,0.22)}
-.fb{background:linear-gradient(135deg,rgba(255,61,90,0.08),rgba(255,107,53,0.04));border:1px solid rgba(255,61,90,0.25);transform:rotateY(180deg)}
-.ql{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
-.ff h4{font-size:0.87rem;color:var(--text);line-height:1.48}
-.fb p{font-size:0.85rem;color:var(--text);line-height:1.68}
-.hi{font-size:10px;color:var(--faint);margin-top:12px;font-style:italic}
+/* ── Two-column layout ── */
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;flex:1}
 
-/* ── Pearl ── */
-.pearl{padding:30px 36px;border-radius:var(--r-xl);background:linear-gradient(135deg,rgba(255,61,90,0.07),rgba(255,107,53,0.04));border:1px solid rgba(255,61,90,0.22);position:relative;overflow:hidden}
-.pearl::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,61,90,0.1),transparent 70%);pointer-events:none}
-.pearl-quote{font-family:var(--font-head);font-size:clamp(1.05rem,2vw,1.45rem);font-weight:700;color:#fff;line-height:1.3;margin:10px 0 14px;letter-spacing:-0.01em}
-.pearl-quote .accent{color:var(--red)}
+/* ── Stat row ── */
+.stat-row{display:flex;gap:12px;flex-wrap:wrap}
+.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;flex:1;min-width:130px;text-align:center}
+.stat-box .num{font-size:28px;font-weight:900;color:var(--accent);font-family:var(--font-en);line-height:1}
+.stat-box .label-he{font-size:12px;color:var(--text);margin-top:4px;font-family:var(--font-he)}
+.stat-box .label-en{font-size:10px;color:var(--muted);font-family:var(--font-en)}
 
-/* ── Stat summary ── */
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden;transition:border-color 0.3s,transform 0.3s}
-.stat-card:hover{transform:translateY(-3px)}
-.stat-card::after{content:'';position:absolute;inset:0;border-radius:var(--r-lg);background:radial-gradient(circle at 100% 0%,var(--sg,rgba(255,61,90,0.06)),transparent 70%);pointer-events:none}
-.stat-val{font-family:var(--font-head);font-size:1.4rem;font-weight:700;line-height:1;margin-bottom:4px}
-.stat-lbl{font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-.stat-note{font-size:0.72rem;color:var(--muted);line-height:1.5}
+/* ── Pill / badge ── */
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:8px;font-family:var(--font-en)}
+.pill.pr{background:var(--red-dim);color:var(--red)}
+.pill.pt{background:var(--teal-dim);color:var(--teal)}
+.pill.pa{background:var(--amber-dim);color:var(--amber)}
+.pill.pg{background:var(--green-dim);color:var(--green)}
+.pill.pn{background:var(--navy-dim);color:var(--navy)}
+.pill.pac{background:var(--accent-dim);color:var(--accent)}
+.pill-2025{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent);font-size:10px;padding:2px 8px;border-radius:20px;font-family:var(--font-en);font-weight:700}
 
-/* ── CTA ── */
-.nxt{display:inline-flex;align-items:center;gap:10px;margin-top:6px;padding:13px 26px;background:linear-gradient(135deg,var(--red),var(--orange));color:#07080e;font-family:var(--font-head);font-weight:700;font-size:0.87rem;border-radius:var(--r);text-decoration:none;transition:opacity 0.2s,transform 0.2s,box-shadow 0.2s;align-self:flex-start;letter-spacing:0.02em}
-.nxt:hover{opacity:0.88;transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,61,90,0.35)}
-.nxt-arrow{transition:transform 0.2s}.nxt:hover .nxt-arrow{transform:translateX(4px)}
+/* ── Table ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:var(--surface2);color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:8px 10px;border-bottom:1px solid var(--border);font-family:var(--font-en);font-weight:700;text-align:right}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--faint);color:var(--muted);line-height:1.45}
+.tbl td strong{color:var(--text)}
+.tbl tr:hover td{background:var(--surface2)}
 
-/* ── Footer ── */
-.foot{position:fixed;bottom:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,0.92);backdrop-filter:blur(24px);border-top:1px solid var(--border);z-index:50}
-.slide-counter{font-size:12px;color:var(--muted);font-family:var(--font-head);font-weight:600;min-width:50px}
-.slide-dots{display:flex;gap:5px;align-items:center}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--faint);transition:all 0.35s;cursor:pointer}
-.dot.active{background:var(--red);box-shadow:0 0 8px var(--red);width:20px;border-radius:4px}
-.dot:hover:not(.active){background:var(--muted)}
-.foot-btns{display:flex;gap:8px}
-.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:9px 22px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font-head);letter-spacing:0.04em}
-.foot-btn:hover:not(:disabled){border-color:rgba(255,61,90,0.4);color:var(--red);box-shadow:0 0 20px rgba(255,61,90,0.12)}
-.foot-btn:disabled{opacity:0.2;cursor:not-allowed}
-.foot-btn.primary{background:rgba(255,61,90,0.08);border-color:rgba(255,61,90,0.3);color:var(--red)}
-.foot-btn.primary:hover:not(:disabled){background:rgba(255,61,90,0.16);box-shadow:0 0 24px rgba(255,61,90,0.2)}
+/* ── Alert box ── */
+.alert{border-radius:var(--r);padding:12px 14px;font-size:13px;line-height:1.55;border-left:3px solid}
+.alert-red{background:var(--red-dim);border-color:var(--red);color:var(--text)}
+.alert-teal{background:var(--teal-dim);border-color:var(--teal);color:var(--text)}
+.alert-amber{background:var(--amber-dim);border-color:var(--amber);color:var(--text)}
+.alert-green{background:var(--green-dim);border-color:var(--green);color:var(--text)}
+.alert-accent{background:var(--accent-dim);border-color:var(--accent);color:var(--text)}
+
+/* ── SVG diagram container ── */
+.svg-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.svg-wrap svg{max-width:100%;max-height:100%;width:auto;height:auto}
+
+/* ── Knowledge check (flip cards) ── */
+.kc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;flex:1}
+.kc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;cursor:pointer;transition:all .3s;min-height:100px;display:flex;flex-direction:column;justify-content:center}
+.kc-card:hover{border-color:var(--accent)}
+.kc-q{font-size:13px;font-weight:600;color:var(--text);font-family:var(--font-he)}
+.kc-q-en{font-size:11px;color:var(--muted);font-family:var(--font-en);margin-top:3px}
+.kc-a{font-size:13px;color:var(--accent);display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:8px;font-family:var(--font-he)}
+.kc-a-en{font-size:11px;color:var(--teal);font-family:var(--font-en);margin-top:2px;display:none}
+.kc-card.revealed .kc-a{display:block}
+.kc-card.revealed .kc-a-en{display:block}
+
+/* ── Slide footer ── */
+.slide-footer{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-top:4px}
+.nav-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:var(--r);padding:7px 16px;font-size:13px;cursor:pointer;transition:all .2s;font-family:var(--font-he)}
+.nav-btn:hover:not(:disabled){border-color:var(--accent);color:var(--text)}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
+.progress-wrap{flex:1;display:flex;flex-direction:column;gap:5px;align-items:center}
+.progress-bar-outer{width:100%;height:4px;background:var(--faint);border-radius:2px;overflow:hidden}
+.progress-bar-inner{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-glow));border-radius:2px;transition:width .4s var(--ease);width:14%}
+.dot-row{display:flex;gap:5px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--faint);cursor:pointer;transition:all .2s}
+.dot.active{background:var(--accent);transform:scale(1.3)}
+.slide-counter{font-size:12px;color:var(--muted);font-family:var(--font-en);min-width:36px;text-align:center}
+
+/* ── Bottom bar ── */
+.bottombar{position:fixed;bottom:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(10,11,15,0.92);backdrop-filter:blur(16px);border-top:1px solid var(--border);z-index:100}
+#prev-btn,#next-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:9px 22px;font-size:14px;cursor:pointer;transition:all .2s;font-family:var(--font-he);font-weight:600}
+#prev-btn:hover:not(:disabled),#next-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-dim)}
+#prev-btn:disabled,#next-btn:disabled{opacity:0.25;cursor:not-allowed}
+.bottom-center{display:flex;flex-direction:column;align-items:center;gap:5px}
+.bottom-counter{font-size:12px;color:var(--muted);font-family:var(--font-en)}
+.bottom-dots{display:flex;gap:5px}
+.bottom-dots .dot{width:7px;height:7px;border-radius:50%;background:var(--faint);cursor:pointer;transition:all .2s}
+.bottom-dots .dot.active{background:var(--accent)}
+
+/* ── Responsive ── */
+@media(max-width:700px){
+  .slide{padding:16px 18px 14px}
+  .hero-slide{padding:24px 18px}
+  .hero-slide h1{font-size:30px}
+  .card-grid,.cols2,.cols3{grid-template-columns:1fr}
+  .tbl{font-size:11px}
+  .topbar-title{display:none}
+}
+
+/* ── RTL overrides ── */
+[dir=rtl] .alert{border-left:none;border-right:3px solid}
+[dir=rtl] .tbl th,[dir=rtl] .tbl td{text-align:right}
 </style>
-<script src="../firebase-config.js"></script>
-<script type="module" src="../firebase-sync.js"></script>
-</head>
-<body>
+</head><body>
 <div class="bg-grid"></div>
 <div class="bg-blob bb1"></div>
 <div class="bg-blob bb2"></div>
 <div class="bg-blob bb3"></div>
-<div id="progress-bar"></div>
 
-<nav class="nav">
-  <div class="nav-logo"><div class="nav-logo-dot"></div>PALS 2025</div>
-  <div class="nav-title">Module 02 &nbsp;·&nbsp; Pediatric BLS &amp; High-Quality CPR</div>
-  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
-</nav>
+<div class="topbar">
+  <span class="topbar-logo">PALS 2025</span>
+  <span class="topbar-title">Module 02 &nbsp;·&nbsp; Pediatric BLS &amp; High-Quality CPR</span>
+  <a class="topbar-back" href="../hub_student.html">← Hub</a>
+</div>
+<div class="prog-track"><div id="progress-bar"></div></div>
 
 <div class="stage">
 
-<!-- SLIDE 1 · HERO -->
-<section class="slide active hero-slide">
-  <div class="ey">Module 02 &nbsp;·&nbsp; 2025 AHA Guidelines</div>
-  <h1 class="hero">Pediatric BLS &amp;<br><span class="grad">High-Quality CPR</span></h1>
-  <p class="subt">Recognition of arrest · 2025 simultaneous assessment · compression metrics · age-based technique · AED use</p>
+<div class="slide hero-slide active">
+  <div class="eyebrow">Module 02 &nbsp;·&nbsp; 2025 AHA Guidelines</div>
+  <h1>BLS בילדים &amp;<br><span class="grad">CPR איכותי</span></h1>
+  <p class="subtitle-he">זיהוי הפסקת לב · הערכה 10 שניות · עומק קצב לחיצות · טכניקה לפי גיל · AED</p>
+  <p class="subtitle">Recognition · 10-second simultaneous assessment · compression metrics · age-based technique · AED use</p>
   <div class="htags">
-    <span class="htag">⏱ 10-Second Assessment</span>
-    <span class="htag">💪 Rate 100–120</span>
-    <span class="htag">📍 Depth ≥4 / ≥5 cm</span>
-    <span class="htag">♻️ Full Recoil</span>
-    <span class="htag">⚡ AED Pads</span>
-    <span class="htag">🔄 Switch Every 2 min</span>
-    <span class="htag">📊 ≥80% Fraction</span>
+    <span class="htag">⏱ הערכה 10 שניות</span>
+    <span class="htag">💪 קצב 100–120/דק'</span>
+    <span class="htag">📏 עומק ≥4 / ≥5 ס"מ</span>
+    <span class="htag">♻️ Recoil מלא</span>
+    <span class="htag">⚡ AED מוקדם</span>
+    <span class="htag">🔄 החלפה כל 2 דק'</span>
+    <span class="htag">📊 שבר לחיצות ≥80%</span>
   </div>
-</section>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 02</span>
+    <span class="slide-title-he">מטרות הלמידה</span>
+    <span class="slide-title-en">Learning Objectives</span>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-<!-- SLIDE 2 · OBJECTIVES -->
-<section class="slide">
-  <div class="ey">Learning Objectives</div>
-  <h2>What you'll master in this module</h2>
-  <div class="obj-list">
-    <div class="obj-item">
-      <div class="obj-num">1</div>
-      <div class="obj-text">Recognise cardiopulmonary arrest in infants and children using the <strong>2025 simultaneous breathing + pulse check</strong> in ≥10 seconds</div>
-    </div>
-    <div class="obj-item">
-      <div class="obj-num">2</div>
-      <div class="obj-text">Deliver compressions meeting all <strong>AHA 2025 metrics</strong>: rate 100–120 · depth ≥4 cm infant / ≥5 cm child · full recoil · ≥80% fraction · pauses &lt;10 s</div>
-    </div>
-    <div class="obj-item">
-      <div class="obj-num">3</div>
-      <div class="obj-text">Apply the correct <strong>compression technique by age</strong> (2-finger, 2-thumb encircling, 1- or 2-hand) and compression-to-ventilation ratios for 1- and 2-rescuer scenarios</div>
-    </div>
-    <div class="obj-item">
-      <div class="obj-num">4</div>
-      <div class="obj-text">Operate an AED correctly including <strong>paediatric pad selection</strong> for children &lt;8 years or &lt;25 kg, and resume compressions immediately post-shock</div>
+    <div class="sec-heading">מטרות הלמידה<small>Learning Objectives</small></div>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-text"><strong>זיהוי הפסקת לב</strong> בתינוקות וילדים – הערכה בו-זמנית של נשימה ודופק תוך 10 שניות<br><small style="color:var(--muted);font-family:var(--font-en)">Recognise cardiac arrest using 2025 simultaneous breathing + pulse check ≤10s</small></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-text"><strong>מדדי AHA 2025</strong>: קצב 100–120 · עומק ≥4 ס"מ תינוק / ≥5 ס"מ ילד · Recoil מלא · שבר ≥80% · הפסקות &lt;10 שניות<br><small style="color:var(--muted);font-family:var(--font-en)">Deliver compressions meeting all 2025 AHA metrics</small></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-text"><strong>טכניקה לפי גיל</strong>: 2 אגודלים עם חיבוק חזה (תינוק) · יד אחת/שתיים (ילד) · יחסי לחיצות:נשימות לפי מספר מצילים<br><small style="color:var(--muted);font-family:var(--font-en)">Apply correct technique by age — ratios for 1- and 2-rescuer scenarios</small></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-text"><strong>שימוש ב-AED</strong>: בחירת פדים &lt;8 שנים / &lt;25 ק"ג · חידוש לחיצות מיד לאחר שוק<br><small style="color:var(--muted);font-family:var(--font-en)">Operate AED with correct paediatric pad selection; resume CPR immediately post-shock</small></div></div>
+      <div class="step"><div class="step-n">5</div><div class="step-text"><strong>חסימת דרכי אוויר בגוף זר (FBAO)</strong> – <span class="pill-2025">2025 חדש</span> מחזורים של 5 מכות גב → 5 לחיצות בטן/חזה<br><small style="color:var(--muted);font-family:var(--font-en)">2025: back blows FIRST, then abdominal/chest thrusts — repeated cycles</small></div></div>
     </div>
   </div>
-</section>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 02</span>
+    <span class="slide-title-he">זיהוי הפסקת לב</span>
+    <span class="slide-title-en">Arrest Recognition</span>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-<!-- SLIDE 3 · RECOGNITION -->
-<section class="slide">
-  <div class="ey">Arrest Recognition</div>
-  <h2>The 10-Second Window</h2>
-  <div class="cards c2">
-    <div class="card" style="border-color:rgba(255,61,90,0.25)">
-      <div class="pill pr">⚠️ Action Sequence</div>
-      <div class="steps">
-        <div class="step"><div class="step-n">1</div><div class="step-text"><strong>Verify scene safety</strong> before approaching</div></div>
-        <div class="step"><div class="step-n">2</div><div class="step-text"><strong>Tap and shout</strong> to assess responsiveness</div></div>
-        <div class="step"><div class="step-n">3</div><div class="step-text"><strong>Shout for help</strong> · activate ERS · get AED</div></div>
-        <div class="step"><div class="step-n">4</div><div class="step-text"><strong>Simultaneously</strong> check breathing AND pulse for ≥10 s</div></div>
-        <div class="step"><div class="step-n">5</div><div class="step-text">No pulse or HR &lt;60 with poor perfusion → <strong>start CPR</strong></div></div>
+    <div class="sec-heading">זיהוי הפסקת לב<small>Arrest Recognition — The 10-Second Window</small></div>
+    <div class="cols2">
+      <div class="card accent-red">
+        <div class="pill pr">⚠️ רצף פעולות</div>
+        <div class="steps" style="margin-top:4px">
+          <div class="step"><div class="step-n">1</div><div class="step-text"><strong>בדוק בטיחות סביבה</strong> לפני ניגשה — Scene Safety</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-text"><strong>נקוש וצעק</strong> לבדיקת תגובה — Tap &amp; Shout</div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-text"><strong>קרא לעזרה</strong> · הפעל שירות חירום · שלח לAED</div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-text"><strong>בו-זמנית</strong>: בדוק נשימה + דופק ≤10 שניות</div></div>
+          <div class="step"><div class="step-n">5</div><div class="step-text">אין דופק / HR&lt;60 עם ספיגה ירודה → <strong>התחל CPR</strong></div></div>
+        </div>
+      </div>
+      <div class="card accent-teal">
+        <div class="pill pt">💉 מקום בדיקת דופק</div>
+        <div class="steps" style="margin-top:8px">
+          <div class="step"><div class="step-n">👶</div><div class="step-text"><strong>תינוק (&lt;שנה)</strong>: עורק הזרוע — Brachial artery (פנים הזרוע העליונה)</div></div>
+          <div class="step"><div class="step-n">🧒</div><div class="step-text"><strong>ילד / מתבגר</strong>: עורק הצוואר (Carotid) או עורק הירך (Femoral)</div></div>
+        </div>
+        <div class="alert alert-amber" style="margin-top:10px;font-size:12px">
+          לא בטוח לגבי הדופק תוך 10 שניות? <strong>הנח הפסקת לב → התחל CPR</strong><br>
+          <span style="font-family:var(--font-en)">Cannot confirm pulse within 10s → assume arrest → begin CPR</span>
+        </div>
       </div>
     </div>
-    <div class="card" style="border-color:rgba(0,212,255,0.20)">
-      <div class="pill pc">💉 Pulse Check Site</div>
-      <ul style="margin-top:8px">
-        <li><strong>Infant (&lt;1 year):</strong> brachial artery (inner upper arm)</li>
-        <li><strong>Child / Adolescent:</strong> carotid or femoral artery</li>
-        <li>Cannot confidently confirm pulse within 10 s? <strong>Assume arrest → begin CPR</strong></li>
-      </ul>
-      <div style="margin-top:14px">
-        <div class="pill pa">🟡 HR &lt;60 + poor perfusion</div>
-        <p style="font-size:0.82rem;margin-top:6px">A detectable but <strong>bradycardic</strong> heart rate (&lt;60/min) with signs of poor perfusion is treated as cardiac arrest — start compressions and ventilations.</p>
+  </div>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 02</span>
+    <span class="slide-title-he">CPR איכותי</span>
+    <span class="slide-title-en">High-Quality CPR Metrics</span>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
+
+    <div class="sec-heading">מדדי CPR איכותי<small>2025 AHA High-Quality CPR — Every Number Matters</small></div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="num">100–120</div><div class="label-he">לחיצות לדקה</div><div class="label-en">compressions / min</div></div>
+      <div class="stat-box"><div class="num">≥5 ס"מ</div><div class="label-he">עומק ילד</div><div class="label-en">child depth (≥2 in)</div></div>
+      <div class="stat-box"><div class="num">≥4 ס"מ</div><div class="label-he">עומק תינוק</div><div class="label-en">infant depth (≥1.5 in)</div></div>
+      <div class="stat-box"><div class="num">≥80%</div><div class="label-he">שבר לחיצות</div><div class="label-en">compression fraction</div></div>
+      <div class="stat-box"><div class="num">&lt;10 שנ'</div><div class="label-he">הפסקה מרבית</div><div class="label-en">max pause per interruption</div></div>
+    </div>
+    <div class="card-grid c3" style="margin-top:4px">
+      <div class="card accent-accent">
+        <div class="card-icon">🔄</div>
+        <div class="card-title-he">Recoil מלא</div>
+        <div class="card-title-en">Full Chest Recoil</div>
+        <div class="card-body">אל תישען על החזה בין לחיצות — Recoil מלא מאפשר מילוי לב מחדש. <span style="font-family:var(--font-en)">Do not lean between compressions.</span></div>
+      </div>
+      <div class="card accent-amber">
+        <div class="card-icon">👥</div>
+        <div class="card-title-he">החלפת מציל</div>
+        <div class="card-title-en">Compressor Switch</div>
+        <div class="card-body">החלף מציל לחיצות כל 2 דק' (מוקדם יותר אם עייף) כדי לשמור על איכות. <span style="font-family:var(--font-en)">Switch every 2 min or sooner if fatigued.</span></div>
+      </div>
+      <div class="card accent-red">
+        <div class="card-icon">🫁</div>
+        <div class="card-title-he">אוורור</div>
+        <div class="card-title-en">Ventilation</div>
+        <div class="card-body">כל נשימה תוך 1 שנייה עם עליית חזה נראית. הימנע מהיפר-אוורור. <span style="font-family:var(--font-en)">Each breath over 1 s with visible chest rise.</span></div>
       </div>
     </div>
   </div>
-  <div class="alt ar"><h4>🔴 2025 Change: Simultaneous assessment</h4><p>Previous guidelines asked rescuers to check breathing first, then pulse, sequentially. The 2025 update mandates <strong>both simultaneously in ≥10 seconds</strong> to reduce time to first compression. Train this as a single action, not two.</p></div>
-</section>
-
-<!-- SLIDE 4 · CPR METRICS -->
-<section class="slide">
-  <div class="ey">High-Quality CPR</div>
-  <h2>2025 AHA Metrics — Every Number Matters</h2>
-  <div class="metric-grid">
-    <div class="metric-card" style="--mg:rgba(255,61,90,0.08);border-color:rgba(255,61,90,0.28)">
-      <div class="metric-lbl">Rate</div>
-      <div class="metric-val" style="color:var(--red)">100–120</div>
-      <div class="metric-note">compressions / min · use a metronome or feedback device</div>
-    </div>
-    <div class="metric-card" style="--mg:rgba(255,107,53,0.08);border-color:rgba(255,107,53,0.28)">
-      <div class="metric-lbl">Depth — Infant</div>
-      <div class="metric-val" style="color:var(--orange)">≥4 cm</div>
-      <div class="metric-note">at least ⅓ AP chest diameter</div>
-    </div>
-    <div class="metric-card" style="--mg:rgba(255,179,0,0.07);border-color:rgba(255,179,0,0.28)">
-      <div class="metric-lbl">Depth — Child</div>
-      <div class="metric-val" style="color:var(--amber)">≥5 cm</div>
-      <div class="metric-note">at least ⅓ AP chest diameter · max 6 cm</div>
-    </div>
-    <div class="metric-card" style="--mg:rgba(0,230,118,0.06);border-color:rgba(0,230,118,0.25)">
-      <div class="metric-lbl">Recoil</div>
-      <div class="metric-val" style="color:var(--green)">100%</div>
-      <div class="metric-note">full chest recoil between every compression · do not lean</div>
-    </div>
-    <div class="metric-card" style="--mg:rgba(0,212,255,0.07);border-color:rgba(0,212,255,0.25)">
-      <div class="metric-lbl">Compression Fraction</div>
-      <div class="metric-val" style="color:var(--cyan)">≥80%</div>
-      <div class="metric-note">% of resuscitation time spent compressing</div>
-    </div>
-    <div class="metric-card" style="--mg:rgba(56,189,248,0.07);border-color:rgba(56,189,248,0.25)">
-      <div class="metric-lbl">Max Pause</div>
-      <div class="metric-val" style="color:var(--sky)">&lt;10 s</div>
-      <div class="metric-note">even during rhythm checks and intubation</div>
-    </div>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 02</span>
+    <span class="slide-title-he">טכניקה לפי גיל</span>
+    <span class="slide-title-en">Technique by Age</span>
   </div>
-  <div class="alt ar"><h4>🔴 Avoid these common errors</h4><p>Excessive ventilation (raises intrathoracic pressure, reduces coronary perfusion) · incomplete recoil (leaning on chest) · too-rapid rate &gt;120/min (reduces filling time) · long pauses · inadequate depth. Feedback devices significantly improve performance.</p></div>
-</section>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-<!-- SLIDE 5 · TECHNIQUE BY AGE -->
-<section class="slide">
-  <div class="ey">Compression Technique</div>
-  <h2>Method &amp; Ratio by Age</h2>
-  <div style="overflow-x:auto;border-radius:var(--r-lg);border:1px solid var(--border)">
+    <div class="sec-heading">טכניקת לחיצות לפי גיל<small>Compression Technique &amp; Ratio by Age — 2025 AHA</small></div>
     <table class="tbl">
-      <thead><tr><th>Age</th><th>1-Rescuer technique</th><th>2-Rescuer technique</th><th>Ratio</th><th>Hand position</th></tr></thead>
-      <tbody>
-        <tr>
-          <td><strong>Neonate</strong></td>
-          <td>2-thumb encircling hands preferred</td>
-          <td>2-thumb encircling hands</td>
-          <td>3:1</td>
-          <td>Lower ⅓ sternum</td>
-        </tr>
-        <tr>
-          <td><strong>Infant (&lt;1 yr)</strong></td>
-          <td>2 fingers, just below nipple line</td>
-          <td>2-thumb encircling hands (preferred)</td>
-          <td>30:2 / <strong>15:2</strong></td>
-          <td>Lower ⅓ sternum</td>
-        </tr>
-        <tr>
-          <td><strong>Child (1 yr – puberty)</strong></td>
-          <td>1 or 2 hands, heel of hand</td>
-          <td>2 hands, heel of hand</td>
-          <td>30:2 / <strong>15:2</strong></td>
-          <td>Lower half sternum · avoid xiphoid</td>
-        </tr>
-        <tr>
-          <td><strong>Adolescent</strong></td>
-          <td>2 hands, adult technique</td>
-          <td>2 hands</td>
-          <td>30:2</td>
-          <td>Centre of chest, lower sternum</td>
-        </tr>
-      </tbody>
+      <tr><th>גיל / Age</th><th>טכניקה / Technique</th><th>מציל יחיד</th><th>2 מצילים</th></tr>
+      <tr>
+        <td><strong>תינוק</strong><br><span style="font-family:var(--font-en);font-size:11px">Infant (&lt;1 yr)</span></td>
+        <td><strong>2 אגודלים עם חיבוק חזה</strong> (מועדף) <span class="pill-2025">2025</span><br>
+            <span style="font-family:var(--font-en);font-size:11px">2 thumb-encircling hands (preferred) — 2-finger no longer recommended</span></td>
+        <td style="font-family:var(--font-en)">30:2</td>
+        <td style="font-family:var(--font-en)">15:2</td>
+      </tr>
+      <tr>
+        <td><strong>ילד</strong><br><span style="font-family:var(--font-en);font-size:11px">Child (1yr–puberty)</span></td>
+        <td><strong>עקב יד אחת</strong> (ילד קטן) / <strong>שתי ידיים</strong> (ילד גדול)<br>
+            <span style="font-family:var(--font-en);font-size:11px">Heel of 1 hand or 2 hands — lower half of sternum</span></td>
+        <td style="font-family:var(--font-en)">30:2</td>
+        <td style="font-family:var(--font-en)">15:2</td>
+      </tr>
+      <tr>
+        <td><strong>מתבגר</strong><br><span style="font-family:var(--font-en);font-size:11px">Adolescent / Postpuberty</span></td>
+        <td><strong>שתי ידיים</strong> — כמו מבוגר<br><span style="font-family:var(--font-en);font-size:11px">2 hands — adult technique</span></td>
+        <td style="font-family:var(--font-en)">30:2</td>
+        <td style="font-family:var(--font-en)">30:2</td>
+      </tr>
     </table>
-  </div>
-  <div class="cards c2">
-    <div class="alt ag"><h4>🟢 2-Rescuer infant advantage</h4><p>The <strong>2-thumb encircling hand technique</strong> generates higher peak systolic and coronary perfusion pressures than the 2-finger method. When 2 rescuers are present for an infant, always use it. The encircling hands also provide tactile feedback on recoil.</p></div>
-    <div class="alt aa"><h4>🟡 Switch compressors every 2 min</h4><p>Compression quality degrades significantly within 2 minutes due to fatigue — even when the rescuer feels capable of continuing. Plan role switches at every rhythm check. Announce “switch” with 5 compressions remaining to allow a seamless transition.</p></div>
-  </div>
-</section>
-
-<!-- SLIDE 6 · AED -->
-<section class="slide">
-  <div class="ey">Defibrillation</div>
-  <h2>AED Use — Defibrillate Early When Shockable</h2>
-  <div class="cards c2">
-    <div class="card" style="border-color:rgba(255,61,90,0.25)">
-      <div class="pill pr">⚡ Pad Selection</div>
-      <ul style="margin-top:8px">
-        <li><strong>&lt;8 years or &lt;25 kg:</strong> paediatric pads or attenuator cable</li>
-        <li><strong>≥8 years or ≥25 kg:</strong> adult pads</li>
-        <li>If only adult pads available for infant/child: use them — do not delay shock</li>
-        <li>Anterior-anterior or anterior-posterior placement both acceptable</li>
-        <li>Ensure pads do not touch each other</li>
-      </ul>
+    <div class="alert alert-accent" style="margin-top:4px;font-size:13px">
+      <strong>עם דרכי אוויר מתקדמות (ETT/LMA)</strong>: לחיצות רצופות + נשימה כל 2–3 שניות (20–30/דק') ללא הפסקות לאוורור<br>
+      <span style="font-family:var(--font-en);font-size:11px">Advanced airway in place: continuous compressions + 1 breath every 2–3 s (20–30/min) — no pause for ventilation</span>
     </div>
-    <div class="card" style="border-color:rgba(255,107,53,0.25)">
-      <div class="pill po">📲 AED Workflow</div>
-      <div class="steps" style="margin-top:8px">
-        <div class="step"><div class="step-n">1</div><div class="step-text"><strong>Power on</strong> AED and follow voice prompts</div></div>
-        <div class="step"><div class="step-n">2</div><div class="step-text"><strong>Place pads</strong> (anterior-anterior or A-P)</div></div>
-        <div class="step"><div class="step-n">3</div><div class="step-text"><strong>Clear</strong> patient · allow analysis</div></div>
-        <div class="step"><div class="step-n">4</div><div class="step-text"><strong>Deliver shock</strong> if advised — ensure all clear</div></div>
-        <div class="step"><div class="step-n">5</div><div class="step-text"><strong>Resume CPR immediately</strong> — no pulse check after shock</div></div>
+  </div>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 02</span>
+    <span class="slide-title-he">FBAO</span>
+    <span class="slide-title-en">Foreign-Body Airway Obstruction</span>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
+
+    <div class="sec-heading">חסימת דרכי אוויר בגוף זר (FBAO)<small>Foreign-Body Airway Obstruction — 2025 Updated Algorithm</small></div>
+    <div class="cols2">
+      <div class="card accent-red">
+        <div class="pill pr">👶 תינוק (&lt;שנה)</div>
+        <div class="steps" style="margin-top:6px">
+          <div class="step"><div class="step-n">1</div><div class="step-text">בדוק סימני חסימה קשה: שיעול חלש/נעדר, ציאנוזה, שינוי הכרה</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-text"><strong>5 מכות גב</strong> (עם עקב כף היד) <span class="pill-2025">2025 ראשון</span></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-text"><strong>5 לחיצות חזה</strong> (לא בטן — סכנת פגיעה באברי בטן)</div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-text">חזור עד לפינוי הגוף הזר או אובדן הכרה → CPR</div></div>
+        </div>
+      </div>
+      <div class="card accent-amber">
+        <div class="pill pa">🧒 ילד (1–בגרות)</div>
+        <div class="steps" style="margin-top:6px">
+          <div class="step"><div class="step-n">1</div><div class="step-text">בדוק סימני חסימה קשה: אי יכולת לדבר/לשעול, ציאנוזה</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-text"><strong>5 מכות גב</strong> <span class="pill-2025">2025 ראשון</span></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-text"><strong>5 לחיצות בטן</strong> (Heimlich)</div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-text">חזור עד לפינוי הגוף הזר או אובדן הכרה → CPR (התחל בלחיצות חזה)</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-teal" style="font-size:12px">
+      <strong>חידוש 2025:</strong> מכות גב לפני לחיצות בטן — מחקר חדש הראה יעילות גבוהה יותר של מכות גב בפינוי גוף זר. עקביות בין תינוק לילד.<br>
+      <span style="font-family:var(--font-en)">2025 change: back blows FIRST for all ages — observational data supports improved clearance vs. abdominal thrusts alone.</span>
+    </div>
+  </div>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 02</span>
+    <span class="slide-title-he">שימוש ב-AED</span>
+    <span class="slide-title-en">AED Use</span>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
+
+    <div class="sec-heading">שימוש ב-AED<small>AED Use — Defibrillate Early When Rhythm is Shockable</small></div>
+    <div class="cols2">
+      <div class="card accent-accent">
+        <div class="pill pac">⚡ שלבי AED</div>
+        <div class="steps" style="margin-top:6px">
+          <div class="step"><div class="step-n">1</div><div class="step-text"><strong>הדלק AED</strong> — ON/פתח מכסה</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-text"><strong>חבר פדים</strong> לחזה + גב/תחת זרוע שמאל (כפי שמוצג)</div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-text"><strong>"Stand clear — מנתח קצב"</strong> — אל תיגע בנפגע</div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-text">קצב מדאיג? <strong>"Stand clear — לחץ SHOCK"</strong></div></div>
+          <div class="step"><div class="step-n">5</div><div class="step-text"><strong>חדש CPR מיד</strong> — 2 דקות לפני בדיקת קצב הבאה</div></div>
+        </div>
+      </div>
+      <div class="card accent-navy">
+        <div class="pill pn">👶 פדים בילדים</div>
+        <div class="card-body" style="margin-top:8px">
+          <p><strong>&lt;8 שנים או &lt;25 ק"ג</strong> → השתמש בפדים ילדים (מפחיתי אנרגיה) אם זמינים</p>
+          <p style="margin-top:8px;font-family:var(--font-en);font-size:12px">Children &lt;8yr / &lt;25 kg: use paediatric attenuator pads if available. If not available, adult pads are acceptable — ensure pads do not touch each other.</p>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <div class="stat-box" style="padding:8px 10px">
+              <div class="num" style="font-size:18px">2 J/kg</div>
+              <div class="label-en">1st shock</div>
+            </div>
+            <div class="stat-box" style="padding:8px 10px">
+              <div class="num" style="font-size:18px">4 J/kg</div>
+              <div class="label-en">2nd+ shock</div>
+            </div>
+            <div class="stat-box" style="padding:8px 10px">
+              <div class="num" style="font-size:18px">≤10 J/kg</div>
+              <div class="label-en">max dose</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="alt ar"><h4>🔴 No pulse check after shock</h4><p>The 2025 guidelines are explicit: <strong>resume CPR immediately after shock delivery without pausing for a pulse check</strong>. Even a successful defibrillation takes 1–2 minutes of CPR to restore adequate perfusion. The rhythm check happens after the next 2-minute CPR cycle.</p></div>
-</section>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 02</span>
+    <span class="slide-title-he">בחן את עצמך</span>
+    <span class="slide-title-en">Knowledge Check</span>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-<!-- SLIDE 7 · KNOWLEDGE CHECK -->
-<section class="slide">
-  <div class="ey">Knowledge Check</div>
-  <h2>Tap each card to reveal the answer</h2>
-  <div class="fg fg2">
-    <div class="fc" onclick="this.classList.toggle('flipped')">
-      <div class="fc-inner">
-        <div class="ff"><div class="ql">Question 1</div><h4>Two rescuers are present for a 7-month-old in cardiac arrest. What is the preferred compression technique and ratio?</h4><div class="hi">Tap to reveal →</div></div>
-        <div class="fb"><p><strong>2-thumb encircling hands technique</strong> at the lower ⅓ sternum. With 2 healthcare provider rescuers, the ratio is <strong>15:2</strong>. The 2-thumb technique generates superior coronary perfusion pressure compared with 2-finger compression and is the preferred 2-rescuer method for infants.</p></div>
+    <div class="sec-heading">בחן את עצמך<small>Knowledge Check — Tap each card to reveal the answer</small></div>
+    <div class="kc-grid">
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">מהו קצב הלחיצות הנדרש לפי AHA 2025?</div>
+        <div class="kc-q-en">What is the required compression rate (2025 AHA)?</div>
+        <div class="kc-a">100–120 לחיצות לדקה</div>
+        <div class="kc-a-en">100–120 compressions/min — not faster than 120</div>
       </div>
-    </div>
-    <div class="fc" onclick="this.classList.toggle('flipped')">
-      <div class="fc-inner">
-        <div class="ff"><div class="ql">Question 2</div><h4>A 5-year-old has a pulse of 52/min with mottled skin, weak central pulses, and altered consciousness. What do you do?</h4><div class="hi">Tap to reveal →</div></div>
-        <div class="fb"><p>Start <strong>CPR</strong>. A heart rate &lt;60/min with <strong>signs of poor perfusion</strong> is treated as cardiac arrest in paediatric BLS. Do not wait for pulselessness. Give compressions at a 30:2 ratio (1 rescuer) or 15:2 (2 rescuers) and provide ventilations.</p></div>
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">מה הטכניקה המועדפת ב-2025 ללחיצות חזה בתינוק?</div>
+        <div class="kc-q-en">Preferred infant compression technique (2025)?</div>
+        <div class="kc-a">2 אגודלים עם חיבוק חזה — טכניקת 2 האצבעות כבר לא מומלצת</div>
+        <div class="kc-a-en">2-thumb encircling hands — 2-finger technique no longer recommended</div>
       </div>
-    </div>
-    <div class="fc" onclick="this.classList.toggle('flipped')">
-      <div class="fc-inner">
-        <div class="ff"><div class="ql">Question 3</div><h4>What is the maximum acceptable pause in chest compressions, and when does this most commonly occur?</h4><div class="hi">Tap to reveal →</div></div>
-        <div class="fb"><p>Maximum pause is <strong>&lt;10 seconds</strong>. It most commonly occurs during rhythm checks, pulse checks, and intubation attempts. Compressions should restart immediately after a shock is delivered, without pausing for a pulse check, and should continue during preparation for intubation.</p></div>
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">מה שבר הלחיצות המינימלי הנדרש (Compression Fraction)?</div>
+        <div class="kc-q-en">Minimum compression fraction required?</div>
+        <div class="kc-a">≥80% מהזמן בלחיצות פעילות</div>
+        <div class="kc-a-en">≥80% of resuscitation time in active compressions</div>
       </div>
-    </div>
-    <div class="fc" onclick="this.classList.toggle('flipped')">
-      <div class="fc-inner">
-        <div class="ff"><div class="ql">Question 4</div><h4>You arrive to a 3-year-old in arrest and the only AED available has adult pads. What do you do?</h4><div class="hi">Tap to reveal →</div></div>
-        <div class="fb"><p><strong>Use the adult pads</strong>. Do not delay defibrillation because paediatric pads are unavailable. Place them anterior-posterior if possible to avoid pad-to-pad contact. Early defibrillation of a shockable rhythm is the single intervention most likely to restore perfusion in VF/pVT.</p></div>
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">מה השינוי ב-2025 לגבי FBAO בילדים?</div>
+        <div class="kc-q-en">2025 FBAO change for children?</div>
+        <div class="kc-a">מכות גב ראשון (5), אחר כך לחיצות בטן (5) — כולל תינוקות</div>
+        <div class="kc-a-en">Back blows FIRST (5), then abdominal/chest thrusts (5) — consistent across all ages</div>
+      </div>
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">יחס לחיצות:נשימות — 2 מצילים, ילד טרום-בגרות</div>
+        <div class="kc-q-en">Compression:ventilation ratio — 2 rescuers, pre-pubertal child?</div>
+        <div class="kc-a">15:2</div>
+        <div class="kc-a-en">15:2 — switches to 30:2 if 1 rescuer or post-pubertal</div>
+      </div>
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">מה ההפסקה המרבית המותרת בין לחיצות?</div>
+        <div class="kc-q-en">Maximum allowable pause in compressions (2025)?</div>
+        <div class="kc-a">פחות מ-10 שניות</div>
+        <div class="kc-a-en">Less than 10 seconds — minimise interruptions</div>
       </div>
     </div>
   </div>
-</section>
-
-<!-- SLIDE 8 · PEARL + FINISH -->
-<section class="slide">
-  <div class="pearl">
-    <div class="pill pr">Clinical Pearl</div>
-    <div class="pearl-quote">&ldquo;Push hard, push fast, <span class="accent">don’t lean</span>, count it out loud.&rdquo;</div>
-    <p>Compression fraction is the single strongest predictor of survival in paediatric cardiac arrest. Coach your team aloud — rate, depth, recoil, switch. Every two minutes, every time, without exception.</p>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 02</span>
+    <span class="slide-title-he">סיכום</span>
+    <span class="slide-title-en">Module Summary</span>
   </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-  <div class="stat-grid">
-    <div class="stat-card" style="--sg:rgba(255,61,90,0.08);border-color:rgba(255,61,90,0.22)">
-      <div class="stat-lbl">Compression rate</div>
-      <div class="stat-val" style="color:var(--red)">100–120</div>
-      <div class="stat-note">per minute</div>
+    <div class="sec-heading">סיכום מודול 02<small>Module 02 Summary — Pediatric BLS &amp; High-Quality CPR</small></div>
+    <div class="card-grid c2">
+      <div class="card accent-red">
+        <div class="card-icon">⏱</div>
+        <div class="card-title-he">הערכה ב-10 שניות</div>
+        <div class="card-title-en">10-Second Assessment</div>
+        <div class="card-body">בדוק נשימה + דופק בו-זמנית. לא בטוח? → התחל CPR. דופק בתינוק: עורק הזרוע (Brachial).</div>
+      </div>
+      <div class="card accent-accent">
+        <div class="card-icon">💪</div>
+        <div class="card-title-he">מדדי CPR איכותי</div>
+        <div class="card-title-en">Quality Metrics</div>
+        <div class="card-body">קצב 100–120 · עומק ≥4/5 ס"מ · Recoil מלא · שבר ≥80% · הפסקות &lt;10 שנ' · החלף כל 2 דק'.</div>
+      </div>
+      <div class="card accent-teal">
+        <div class="card-icon">👶</div>
+        <div class="card-title-he">טכניקה 2025</div>
+        <div class="card-title-en">2025 Technique</div>
+        <div class="card-body">תינוק: 2 אגודלים עם חיבוק (2 אצבעות כבר לא!). ילד קטן: עקב יד אחת. 15:2 עם 2 מצילים.</div>
+      </div>
+      <div class="card accent-amber">
+        <div class="card-icon">🌀</div>
+        <div class="card-title-he">FBAO 2025</div>
+        <div class="card-title-en">Foreign Body — New Order</div>
+        <div class="card-body">מכות גב ראשון (5) → לחיצות בטן/חזה (5) — אחיד לכל הגילאים ב-2025.</div>
+      </div>
+      <div class="card accent-navy">
+        <div class="card-icon">⚡</div>
+        <div class="card-title-he">AED</div>
+        <div class="card-title-en">Early Defibrillation</div>
+        <div class="card-body">פדים ילדים &lt;8 שנים/25 ק"ג. שוק ראשון 2 J/kg. חדש CPR מיד לאחר שוק.</div>
+      </div>
+      <div class="card accent-green">
+        <div class="card-icon">✅</div>
+        <div class="card-title-he">מודול הושלם!</div>
+        <div class="card-title-en">Module Complete</div>
+        <div class="card-body" style="color:var(--green)">ההתקדמות נשמרת. עבור למודול הבא: הערכה שיטתית – PAT &amp; ABCDE.</div>
+      </div>
     </div>
-    <div class="stat-card" style="--sg:rgba(255,107,53,0.07);border-color:rgba(255,107,53,0.22)">
-      <div class="stat-lbl">Infant depth</div>
-      <div class="stat-val" style="color:var(--orange)">≥4 cm</div>
-      <div class="stat-note">⅓ AP diameter</div>
-    </div>
-    <div class="stat-card" style="--sg:rgba(255,179,0,0.07);border-color:rgba(255,179,0,0.22)">
-      <div class="stat-lbl">Child depth</div>
-      <div class="stat-val" style="color:var(--amber)">≥5 cm</div>
-      <div class="stat-note">⅓ AP · max 6 cm</div>
-    </div>
-    <div class="stat-card" style="--sg:rgba(0,230,118,0.06);border-color:rgba(0,230,118,0.22)">
-      <div class="stat-lbl">Compression fraction</div>
-      <div class="stat-val" style="color:var(--green)">≥80%</div>
-      <div class="stat-note">of resuscitation time</div>
-    </div>
-    <div class="stat-card" style="--sg:rgba(0,212,255,0.07);border-color:rgba(0,212,255,0.22)">
-      <div class="stat-lbl">Max pause</div>
-      <div class="stat-val" style="color:var(--cyan)">&lt;10 s</div>
-      <div class="stat-note">including post-shock</div>
-    </div>
-  </div>
-
-  <a href="pals_module_03_assessment.slides.html" class="nxt">
-    Next — Module 03: Systematic Paediatric Assessment
-    <span class="nxt-arrow">→</span>
-  </a>
-</section>
-
-</div><!-- /stage -->
-
-<div class="foot">
-  <div class="slide-counter" id="counter">1 / 8</div>
-  <div class="slide-dots" id="dots"></div>
-  <div class="foot-btns">
-    <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
-    <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
   </div>
 </div>
 
+</div>
+
+<div class="bottombar">
+  <button id="prev-btn" onclick="go(-1)">◀ הקודם</button>
+  <div class="bottom-center">
+    <div class="bottom-dots" id="dots"></div>
+    <span class="bottom-counter" id="counter">1 / ?</span>
+  </div>
+  <button id="next-btn" onclick="go(1)">הבא ▶</button>
+</div>
 <script>
+// ── Navigation ──────────────────────────────────
 const slides = document.querySelectorAll('.slide');
 const total = slides.length;
 let cur = 0;
-const dotsEl = document.getElementById('dots');
-slides.forEach((_,i) => {
-  const d = document.createElement('div');
-  d.className = 'dot' + (i === 0 ? ' active' : '');
-  d.onclick = () => goTo(i);
-  dotsEl.appendChild(d);
-});
-function updateUI() {
-  document.getElementById('counter').textContent = (cur+1) + ' / ' + total;
-  document.getElementById('prev-btn').disabled = cur === 0;
-  document.getElementById('next-btn').disabled = cur === total - 1;
-  if(cur===total-1 && !window._mod_done_fired){window._mod_done_fired=true;markDone();}
-  document.getElementById('progress-bar').style.width = ((cur+1)/total*100) + '%';
-  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === cur));
-}
-function goTo(idx) {
-  if (idx === cur || idx < 0 || idx >= total) return;
+let _done_fired = false;
+
+function go(dir) {
   slides[cur].classList.remove('active');
-  if (idx > cur) slides[cur].classList.add('exit-left');
-  const prev = cur;
-  cur = idx;
-  setTimeout(() => slides[prev].classList.remove('exit-left'), 520);
+  cur = Math.max(0, Math.min(total - 1, cur + dir));
   slides[cur].classList.add('active');
   updateUI();
+  if (cur === total - 1 && !_done_fired) { _done_fired = true; markDone(); }
 }
-function changeSlide(dir) { goTo(cur + dir); }
-document.addEventListener('keydown', e => {
-  if (e.key==='ArrowRight'||e.key==='ArrowDown') changeSlide(1);
-  if (e.key==='ArrowLeft'||e.key==='ArrowUp') changeSlide(-1);
-  if (e.key==='Home') goTo(0);
-  if (e.key==='End') goTo(total-1);
-});
-let tx = 0;
-document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
-document.addEventListener('touchend', e => {
-  const dx = tx - e.changedTouches[0].clientX;
-  if (Math.abs(dx) > 48) changeSlide(dx > 0 ? 1 : -1);
-}, {passive:true});
-updateUI();
 
-async function markDone(){
-  try{var p=JSON.parse(sessionStorage.getItem('pals_progress')||'{}');p[1]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}
-  
-  (async function(){
-    try{
-      var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB);},3000);})]);
-      if(fb&&fb.markModuleComplete){await fb.markModuleComplete(1);}
-    }catch(ex){console.warn('[PALS] FB save:',ex&&ex.message);}
-  })();
-  setTimeout(function(){window.location.href='../hub_student.html';},900);
+function updateUI() {
+  document.querySelectorAll('#counter').forEach(el => el.textContent = (cur+1)+' / '+total);
+  document.querySelectorAll('#progress-bar').forEach(el => el.style.width = ((cur+1)/total*100)+'%');
+  document.querySelectorAll('#prev-btn').forEach(el => el.disabled = cur === 0);
+  document.querySelectorAll('#next-btn').forEach(el => el.disabled = cur === total-1);
+  document.querySelectorAll('.dot-row').forEach(row => {
+    row.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===cur));
+  });
 }
+
+document.querySelectorAll('.dot-row').forEach(row => {
+  row.innerHTML = Array.from({length: total}, (_,i) =>
+    `<div class="dot${i===0?' active':''}" onclick="jumpTo(${i})"></div>`).join('');
+});
+function jumpTo(i) { slides[cur].classList.remove('active'); cur=i; slides[cur].classList.add('active'); updateUI(); }
+
+async function markDone() {
+  try {
+    var fb = await Promise.race([
+      window.FB_READY || Promise.resolve(window.FB),
+      new Promise(r => setTimeout(() => r(window.FB), 3000))
+    ]);
+    if (fb && fb.markModuleComplete) await fb.markModuleComplete(1);
+  } catch(e) {}
+  setTimeout(() => { window.location.href = '../hub_student.html'; }, 2000);
+}
+updateUI();
 </script>
-</body>
-</html>
