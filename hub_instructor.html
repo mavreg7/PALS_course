@@ -276,6 +276,11 @@ const secondaryApp  = initSecondary(FIREBASE_CONFIG, 'secondary');
 const secondaryAuth = getSecondaryAuth(secondaryApp);
 const db            = getFirestore(app);
 
+// ── Firestore aliases
+const fsDoc    = doc;
+const fsSetDoc = setDoc;
+const fsGetDoc = getDoc;
+
 const SK = 'pals_sess_v2';
 const INSTRUCTOR_ROLES = ['admin', 'lead_instructor', 'instructor'];
 
