@@ -1,549 +1,584 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="he" dir="rtl" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Module 03 · Systematic Paediatric Assessment</title>
+<title>מודול 03 · Systematic Paediatric Assessment</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="../firebase-config.js"></script>
+<script src="../firebase-sync.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    DESIGN TOKENS — Module 03 · Systematic Paediatric Assessment
-   Accent: Emerald-Green (assessment / clinical reasoning)
    ═══════════════════════════════════════════════ */
-:root{
-  --bg:#07080e;--surface:#0d0f18;--surface2:#121520;--surface3:#181b27;
-  --border:rgba(255,255,255,0.06);
-  --text:#e8eaf0;--muted:#7c8494;--faint:#2a2e3e;
-  --grn:#00e676;--grn-glow:rgba(0,230,118,0.22);--grn-dim:rgba(0,230,118,0.09);
-  --teal:#00bcd4;--teal-dim:rgba(0,188,212,0.09);
-  --cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.09);
-  --red:#ff3d5a;--red-dim:rgba(255,61,90,0.09);
-  --amber:#ffb300;--amber-dim:rgba(255,179,0,0.09);
-  --orange:#ff6b35;--orange-dim:rgba(255,107,53,0.09);
-  --sky:#38bdf8;--sky-dim:rgba(56,189,248,0.09);
-  --font-head:'Space Grotesk',sans-serif;
-  --font-body:'Inter',sans-serif;
-  --r:10px;--r-lg:16px;--r-xl:22px;
+:root {
+  --bg:#0a0b0f; --surface:#10121a; --surface2:#161823; --surface3:#1c1f2e;
+  --border:rgba(255,255,255,0.07);
+  --text:#e6e8f0; --muted:#7b8194; --faint:#2a2d3e;
+  --accent:#00d4b4; --accent-dim:rgba(0,212,180,0.12); --accent-glow:rgba(0,212,180,0.20);
+  --red:#ff3d5a;     --red-dim:rgba(255,61,90,0.12);
+  --teal:#00d4b4;    --teal-dim:rgba(0,212,180,0.12);
+  --amber:#ffb300;   --amber-dim:rgba(255,179,0,0.12);
+  --green:#00e676;   --green-dim:rgba(0,230,118,0.12);
+  --navy:#4488ff;    --navy-dim:rgba(68,136,255,0.12);
+  --font-he:'Heebo', sans-serif;
+  --font-en:'Inter', sans-serif;
+  --r:10px; --r-lg:16px; --r-xl:24px;
   --ease:cubic-bezier(0.16,1,0.3,1);
-  --trans:0.5s var(--ease);
+  --trans:0.45s var(--ease);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-he);font-size:16px;-webkit-font-smoothing:antialiased}
 
 /* ── Background ── */
-.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,230,118,0.014) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.014) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0}
-.bg-blob{position:fixed;border-radius:50%;filter:blur(140px);pointer-events:none;z-index:0;animation:drift 24s ease-in-out infinite alternate}
-.bb1{width:800px;height:800px;top:-300px;right:-250px;background:radial-gradient(circle,rgba(0,230,118,0.06),transparent 70%)}
-.bb2{width:600px;height:600px;bottom:-200px;left:-200px;background:radial-gradient(circle,rgba(0,188,212,0.04),transparent 70%);animation-delay:-12s}
-.bb3{width:450px;height:450px;top:35%;left:40%;background:radial-gradient(circle,rgba(0,230,118,0.03),transparent 70%);animation-delay:-6s}
-@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(38px,26px) scale(1.07)}}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(var(--accent-dim) 1px,transparent 1px),linear-gradient(90deg,var(--accent-dim) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;opacity:0.5}
+.bg-blob{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;animation:drift 20s ease-in-out infinite alternate}
+.bb1{width:500px;height:500px;top:-150px;right:-150px;background:var(--accent-glow);animation-delay:0s}
+.bb2{width:400px;height:400px;bottom:-100px;left:-100px;background:var(--accent-glow);opacity:0.6;animation-delay:-7s}
+.bb3{width:300px;height:300px;top:40%;left:40%;background:rgba(68,136,255,0.06);animation-delay:-12s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(30px,20px) scale(1.06)}}
+
+/* ── Top bar ── */
+.topbar{position:fixed;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(10,11,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:100}
+.topbar-logo{font-size:13px;font-weight:700;letter-spacing:2px;color:var(--accent);font-family:var(--font-en);text-transform:uppercase}
+.topbar-title{font-size:13px;color:var(--muted);font-family:var(--font-en);font-weight:500}
+.topbar-back{font-size:12px;font-family:var(--font-en);color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:5px 12px;cursor:pointer;transition:all .2s;text-decoration:none}
+.topbar-back:hover{color:var(--text);border-color:var(--accent)}
 
 /* ── Progress bar ── */
-#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--grn),var(--teal),var(--cyan));transition:width 0.55s var(--ease);z-index:100;box-shadow:0 0 16px rgba(0,230,118,0.5)}
+.prog-track{position:fixed;top:54px;left:0;right:0;height:3px;background:var(--faint);z-index:99}
+#progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-glow));width:0%;transition:width .4s var(--ease)}
 
-/* ── Nav ── */
-.nav{position:fixed;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:50}
-.nav-logo{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--grn);letter-spacing:0.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-.nav-logo-dot{width:7px;height:7px;background:var(--grn);border-radius:50%;box-shadow:0 0 10px var(--grn);animation:pulse-assess 2.4s ease-in-out infinite}
-@keyframes pulse-assess{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.5)}}
-.nav-title{font-size:12px;color:var(--muted);font-weight:500}
-.nav-btn{background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.2);color:var(--muted);border-radius:8px;padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font-head);letter-spacing:0.05em;text-transform:uppercase}
-.nav-btn:hover{border-color:var(--grn);color:var(--grn);background:var(--grn-dim)}
+/* ── Stage ── */
+.stage{position:fixed;inset:57px 0 68px;overflow:hidden;z-index:1}
 
-/* ── Stage & slides ── */
-.stage{position:fixed;inset:58px 0 72px;overflow:hidden}
-.slide{position:absolute;inset:0;padding:28px 52px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;opacity:0;transform:translateX(70px) scale(0.985);transition:opacity var(--trans),transform var(--trans);pointer-events:none;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}
-.slide::-webkit-scrollbar{width:3px}.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
-.slide.active{opacity:1;transform:translateX(0) scale(1);pointer-events:all}
-.slide.exit-left{opacity:0;transform:translateX(-70px) scale(0.985)}
-.hero-slide{justify-content:center;padding:72px 52px}
-@media(max-width:680px){.slide{padding:18px 16px 18px}.hero-slide{padding:36px 16px}}
+/* ── Slide base ── */
+.slide{
+  position:absolute;inset:0;
+  padding:28px 48px 20px;
+  overflow-y:auto;
+  display:none;
+  flex-direction:column;
+  gap:14px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--faint) transparent;
+}
+.slide.active{display:flex}
+.slide::-webkit-scrollbar{width:4px}
+.slide::-webkit-scrollbar-track{background:transparent}
+.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:2px}
 
-/* ── Eyebrow ── */
-.ey{font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--grn);display:flex;align-items:center;gap:10px}
-.ey::before{content:'';display:block;width:24px;height:2px;background:linear-gradient(90deg,var(--grn),transparent);border-radius:2px}
+/* ── Slide header ── */
+.slide-header{display:flex;align-items:center;gap:10px;margin-bottom:2px;flex-shrink:0}
+.mod-tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-family:var(--font-en);background:var(--accent-dim);padding:3px 10px;border-radius:20px}
+.slide-title-he{font-size:22px;font-weight:800;color:var(--text);font-family:var(--font-he)}
+.slide-title-en{font-size:13px;color:var(--muted);font-family:var(--font-en);font-weight:500;margin-top:1px}
 
-/* ── Typography ── */
-h1.hero{font-family:var(--font-head);font-size:clamp(2rem,4.2vw,3.2rem);font-weight:700;line-height:1.08;letter-spacing:-0.03em;color:#fff;max-width:860px}
-h1.hero .grad{background:linear-gradient(100deg,var(--grn),var(--teal) 55%,var(--cyan) 100%);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer-text 4s linear infinite}
-@keyframes shimmer-text{0%{background-position:0%}100%{background-position:200%}}
-h2{font-family:var(--font-head);font-size:clamp(1.2rem,2.3vw,1.7rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-0.018em}
-h3{font-family:var(--font-head);font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:5px}
-h4{font-size:0.84rem;font-weight:600;color:var(--text);margin-bottom:3px}
-p{font-size:0.86rem;color:var(--muted);line-height:1.7}
-li{font-size:0.84rem;color:var(--muted);line-height:1.65;margin-bottom:5px}
-strong{color:var(--text);font-weight:600}
-ul,ol{padding-left:18px}
-.subt{font-size:0.95rem;color:var(--muted);max-width:700px;line-height:1.75}
-.htags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.htag{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:500;color:var(--muted);transition:all 0.2s}
-.htag:hover{border-color:rgba(0,230,118,0.35);color:var(--text);background:var(--grn-dim)}
+/* ── Section heading ── */
+.sec-heading{font-size:17px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:4px;flex-shrink:0}
+.sec-heading small{font-size:12px;font-weight:400;color:var(--muted);font-family:var(--font-en);display:block;margin-top:2px}
 
-/* ── Pills ── */
-.pill{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 11px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px}
-.pg{background:rgba(0,230,118,0.12);color:var(--grn)}
-.pt{background:rgba(0,188,212,0.12);color:var(--teal)}
-.pc{background:rgba(0,212,255,0.12);color:var(--cyan)}
-.pr{background:rgba(255,61,90,0.12);color:var(--red)}
-.pa{background:rgba(255,179,0,0.12);color:var(--amber)}
-.po{background:rgba(255,107,53,0.13);color:var(--orange)}
-.ps{background:rgba(56,189,248,0.12);color:var(--sky)}
+/* ── Card grid ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;flex:1}
+.card-grid.c3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card-grid.c2{grid-template-columns:repeat(2,1fr)}
 
-/* ── Cards ── */
-.cards{display:grid;gap:12px}
-.c2{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
-.c3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
-.c5{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;transition:border-color 0.3s,box-shadow 0.3s,transform 0.3s}
-.card:hover{transform:translateY(-2px)}
+/* ── Card ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+.card.accent-red   {border-top:3px solid var(--red);}
+.card.accent-teal  {border-top:3px solid var(--teal);}
+.card.accent-amber {border-top:3px solid var(--amber);}
+.card.accent-green {border-top:3px solid var(--green);}
+.card.accent-navy  {border-top:3px solid var(--navy);}
+.card.accent-accent{border-top:3px solid var(--accent);}
+.card-icon{font-size:26px;line-height:1}
+.card-title-he{font-size:15px;font-weight:700;color:var(--text);font-family:var(--font-he)}
+.card-title-en{font-size:11px;color:var(--muted);font-family:var(--font-en);font-weight:500}
+.card-body{font-size:13px;color:var(--muted);line-height:1.6}
+.card-body strong{color:var(--text)}
 
-/* ── Alert strips ── */
-.alt{border-radius:var(--r);padding:12px 16px;border-left:3px solid}
-.ar{background:rgba(255,61,90,0.07);border-color:var(--red)}.ar h4{color:var(--red)}
-.aa{background:rgba(255,179,0,0.06);border-color:var(--amber)}.aa h4{color:var(--amber)}
-.ac{background:rgba(0,212,255,0.06);border-color:var(--cyan)}.ac h4{color:var(--cyan)}
-.ag{background:rgba(0,230,118,0.06);border-color:var(--grn)}.ag h4{color:var(--grn)}
-.at{background:rgba(0,188,212,0.06);border-color:var(--teal)}.at h4{color:var(--teal)}
+/* ── Hero slide ── */
+.hero-slide{justify-content:center;align-items:flex-start;padding:40px 48px}
+.hero-slide .eyebrow{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-family:var(--font-en);font-weight:700;margin-bottom:12px}
+.hero-slide h1{font-size:clamp(36px,5vw,56px);font-weight:900;line-height:1.1;margin-bottom:12px}
+.hero-slide h1 .grad{background:linear-gradient(135deg,var(--accent),var(--navy));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-slide .subtitle{font-size:15px;color:var(--muted);font-family:var(--font-en);max-width:600px;line-height:1.6;margin-bottom:20px}
+.hero-slide .subtitle-he{font-size:15px;color:var(--muted);font-family:var(--font-he);margin-bottom:6px}
+.htags{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.htag{font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;color:var(--muted);font-family:var(--font-en)}
 
-/* ── Objectives ── */
-.obj-list{display:flex;flex-direction:column;gap:9px}
-.obj-item{display:flex;align-items:flex-start;gap:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;transition:border-color 0.3s,transform 0.3s}
-.obj-item:hover{border-color:rgba(0,230,118,0.25);transform:translateX(4px)}
-.obj-num{width:28px;height:28px;border-radius:50%;background:var(--grn-dim);border:1px solid rgba(0,230,118,0.28);color:var(--grn);font-family:var(--font-head);font-weight:700;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.obj-text{font-size:0.83rem;color:var(--muted);line-height:1.6}
-.obj-text strong{color:var(--text)}
+/* ── Step list ── */
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{display:flex;gap:10px;align-items:flex-start}
+.step-n{min-width:24px;height:24px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0;font-family:var(--font-en)}
+.step-text{font-size:13.5px;color:var(--muted);line-height:1.55;padding-top:3px}
+.step-text strong{color:var(--text)}
 
-/* ── PAT triangle ── */
-.pat-wrap{display:grid;grid-template-columns:1fr 1.4fr;gap:20px;align-items:start}
-@media(max-width:680px){.pat-wrap{grid-template-columns:1fr}}
-.pat-svg-box{display:flex;align-items:center;justify-content:center}
-.pat-side{display:flex;flex-direction:column;gap:10px}
-.pat-card{background:var(--surface);border-radius:var(--r-lg);padding:14px 16px;border:1px solid var(--border);transition:border-color 0.3s,transform 0.3s}
-.pat-card:hover{transform:translateX(4px)}
-.pat-card h4{font-size:0.82rem;margin-bottom:3px}
-.pat-card p{font-size:0.78rem;color:var(--muted);line-height:1.5}
+/* ── Two-column layout ── */
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;flex:1}
 
-/* ── ABCDE cards ── */
-.abc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
-.abc-card{background:var(--surface);border-radius:var(--r-lg);padding:16px;border:1px solid var(--border);transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s}
-.abc-card:hover{transform:translateY(-3px)}
-.abc-letter{font-family:var(--font-head);font-size:2rem;font-weight:700;line-height:1;margin-bottom:6px}
-.abc-name{font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;color:var(--muted)}
-.abc-card p{font-size:0.76rem;color:var(--muted);line-height:1.55}
+/* ── Stat row ── */
+.stat-row{display:flex;gap:12px;flex-wrap:wrap}
+.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;flex:1;min-width:130px;text-align:center}
+.stat-box .num{font-size:28px;font-weight:900;color:var(--accent);font-family:var(--font-en);line-height:1}
+.stat-box .label-he{font-size:12px;color:var(--text);margin-top:4px;font-family:var(--font-he)}
+.stat-box .label-en{font-size:10px;color:var(--muted);font-family:var(--font-en)}
 
-/* ── EII cycle ── */
-.eii-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative}
-.eii-card{background:var(--surface);border-radius:var(--r-lg);padding:18px 16px;border:1px solid;text-align:center;position:relative}
-.eii-card h4{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:4px}
-.eii-card p{font-size:0.77rem;color:var(--muted);line-height:1.5}
-.eii-arrow{display:flex;align-items:center;justify-content:center;color:var(--grn);font-size:1.4rem;padding-top:14px}
-.eii-repeat{text-align:center;font-size:0.78rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--grn);padding:10px;border-top:1px dashed rgba(0,230,118,0.2);margin-top:4px}
+/* ── Pill / badge ── */
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:8px;font-family:var(--font-en)}
+.pill.pr{background:var(--red-dim);color:var(--red)}
+.pill.pt{background:var(--teal-dim);color:var(--teal)}
+.pill.pa{background:var(--amber-dim);color:var(--amber)}
+.pill.pg{background:var(--green-dim);color:var(--green)}
+.pill.pn{background:var(--navy-dim);color:var(--navy)}
+.pill.pac{background:var(--accent-dim);color:var(--accent)}
+.pill-2025{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent);font-size:10px;padding:2px 8px;border-radius:20px;font-family:var(--font-en);font-weight:700}
 
-/* ── Tables ── */
-.tbl{width:100%;border-collapse:collapse;font-size:0.8rem}
-.tbl th{text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--grn);border-bottom:1px solid rgba(0,230,118,0.18);background:rgba(0,230,118,0.04)}
-.tbl td{padding:7px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
-.tbl tr:hover td{background:rgba(255,255,255,0.016)}
+/* ── Table ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:var(--surface2);color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:8px 10px;border-bottom:1px solid var(--border);font-family:var(--font-en);font-weight:700;text-align:right}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--faint);color:var(--muted);line-height:1.45}
 .tbl td strong{color:var(--text)}
+.tbl tr:hover td{background:var(--surface2)}
 
-/* ── Spectrum bar ── */
-.spectrum{width:100%;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border)}
-.spectrum-bar{display:grid;grid-template-columns:repeat(5,1fr)}
-.sp-seg{padding:16px 10px;text-align:center;position:relative}
-.sp-seg h4{font-family:var(--font-head);font-size:0.82rem;font-weight:700;color:#fff;margin-bottom:4px}
-.sp-seg p{font-size:0.7rem;color:rgba(255,255,255,0.65);line-height:1.4}
-.sp1{background:rgba(0,230,118,0.22)}
-.sp2{background:rgba(0,188,212,0.18)}
-.sp3{background:rgba(255,179,0,0.22)}
-.sp4{background:rgba(255,107,53,0.3)}
-.sp5{background:rgba(255,61,90,0.35)}
-.spectrum-arrow{height:28px;background:linear-gradient(90deg,rgba(0,230,118,0.3),rgba(0,188,212,0.2),rgba(255,179,0,0.25),rgba(255,107,53,0.35),rgba(255,61,90,0.45));display:flex;align-items:center;justify-content:flex-end;padding-right:14px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.5)}
+/* ── Alert box ── */
+.alert{border-radius:var(--r);padding:12px 14px;font-size:13px;line-height:1.55;border-left:3px solid}
+.alert-red{background:var(--red-dim);border-color:var(--red);color:var(--text)}
+.alert-teal{background:var(--teal-dim);border-color:var(--teal);color:var(--text)}
+.alert-amber{background:var(--amber-dim);border-color:var(--amber);color:var(--text)}
+.alert-green{background:var(--green-dim);border-color:var(--green);color:var(--text)}
+.alert-accent{background:var(--accent-dim);border-color:var(--accent);color:var(--text)}
 
-/* ── Flip cards ── */
-.fg{display:grid;gap:12px}
-.fg2{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
-.fc{perspective:1100px;cursor:pointer}
-.fc-inner{width:100%;min-height:152px;position:relative;transform-style:preserve-3d;transition:transform 0.68s var(--ease)}
-.fc.flipped .fc-inner{transform:rotateY(180deg)}
-.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;justify-content:center}
-.ff{background:var(--surface);border:1px solid rgba(0,230,118,0.2)}
-.fb{background:linear-gradient(135deg,rgba(0,230,118,0.07),rgba(0,188,212,0.04));border:1px solid rgba(0,230,118,0.25);transform:rotateY(180deg)}
-.ql{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--grn);margin-bottom:8px}
-.ff h4{font-size:0.86rem;color:var(--text);line-height:1.48}
-.fb p{font-size:0.83rem;color:var(--text);line-height:1.65}
-.hi{font-size:10px;color:var(--faint);margin-top:10px;font-style:italic}
+/* ── SVG diagram container ── */
+.svg-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.svg-wrap svg{max-width:100%;max-height:100%;width:auto;height:auto}
 
-/* ── Pearl ── */
-.pearl{padding:28px 34px;border-radius:var(--r-xl);background:linear-gradient(135deg,rgba(0,230,118,0.07),rgba(0,188,212,0.04));border:1px solid rgba(0,230,118,0.2);position:relative;overflow:hidden}
-.pearl::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(0,230,118,0.09),transparent 70%);pointer-events:none}
-.pearl-quote{font-family:var(--font-head);font-size:clamp(1rem,2vw,1.4rem);font-weight:700;color:#fff;line-height:1.3;margin:10px 0 12px;letter-spacing:-0.01em}
-.pearl-quote .accent{color:var(--grn)}
+/* ── Knowledge check (flip cards) ── */
+.kc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;flex:1}
+.kc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;cursor:pointer;transition:all .3s;min-height:100px;display:flex;flex-direction:column;justify-content:center}
+.kc-card:hover{border-color:var(--accent)}
+.kc-q{font-size:13px;font-weight:600;color:var(--text);font-family:var(--font-he)}
+.kc-q-en{font-size:11px;color:var(--muted);font-family:var(--font-en);margin-top:3px}
+.kc-a{font-size:13px;color:var(--accent);display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:8px;font-family:var(--font-he)}
+.kc-a-en{font-size:11px;color:var(--teal);font-family:var(--font-en);margin-top:2px;display:none}
+.kc-card.revealed .kc-a{display:block}
+.kc-card.revealed .kc-a-en{display:block}
 
-/* ── Stat summary ── */
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:11px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;position:relative;overflow:hidden;transition:border-color 0.3s,transform 0.3s}
-.stat-card:hover{transform:translateY(-3px)}
-.stat-card::after{content:'';position:absolute;inset:0;border-radius:var(--r-lg);background:radial-gradient(circle at 100% 0%,var(--sg,rgba(0,230,118,0.06)),transparent 70%);pointer-events:none}
-.stat-val{font-family:var(--font-head);font-size:1.3rem;font-weight:700;line-height:1;margin-bottom:3px}
-.stat-lbl{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-.stat-note{font-size:0.71rem;color:var(--muted);line-height:1.5}
+/* ── Slide footer ── */
+.slide-footer{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-top:4px}
+.nav-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:var(--r);padding:7px 16px;font-size:13px;cursor:pointer;transition:all .2s;font-family:var(--font-he)}
+.nav-btn:hover:not(:disabled){border-color:var(--accent);color:var(--text)}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
+.progress-wrap{flex:1;display:flex;flex-direction:column;gap:5px;align-items:center}
+.progress-bar-outer{width:100%;height:4px;background:var(--faint);border-radius:2px;overflow:hidden}
+.progress-bar-inner{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-glow));border-radius:2px;transition:width .4s var(--ease);width:14%}
+.dot-row{display:flex;gap:5px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--faint);cursor:pointer;transition:all .2s}
+.dot.active{background:var(--accent);transform:scale(1.3)}
+.slide-counter{font-size:12px;color:var(--muted);font-family:var(--font-en);min-width:36px;text-align:center}
 
-/* ── CTA ── */
-.nxt{display:inline-flex;align-items:center;gap:10px;margin-top:4px;padding:12px 24px;background:linear-gradient(135deg,var(--grn),var(--teal));color:#07080e;font-family:var(--font-head);font-weight:700;font-size:0.86rem;border-radius:var(--r);text-decoration:none;transition:opacity 0.2s,transform 0.2s,box-shadow 0.2s;align-self:flex-start;letter-spacing:0.02em}
-.nxt:hover{opacity:0.88;transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,230,118,0.28)}
-.nxt-arrow{transition:transform 0.2s}.nxt:hover .nxt-arrow{transform:translateX(4px)}
+/* ── Bottom bar ── */
+.bottombar{position:fixed;bottom:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(10,11,15,0.92);backdrop-filter:blur(16px);border-top:1px solid var(--border);z-index:100}
+#prev-btn,#next-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:9px 22px;font-size:14px;cursor:pointer;transition:all .2s;font-family:var(--font-he);font-weight:600}
+#prev-btn:hover:not(:disabled),#next-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-dim)}
+#prev-btn:disabled,#next-btn:disabled{opacity:0.25;cursor:not-allowed}
+.bottom-center{display:flex;flex-direction:column;align-items:center;gap:5px}
+.bottom-counter{font-size:12px;color:var(--muted);font-family:var(--font-en)}
+.bottom-dots{display:flex;gap:5px}
+.bottom-dots .dot{width:7px;height:7px;border-radius:50%;background:var(--faint);cursor:pointer;transition:all .2s}
+.bottom-dots .dot.active{background:var(--accent)}
 
-/* ── Footer ── */
-.foot{position:fixed;bottom:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,0.92);backdrop-filter:blur(24px);border-top:1px solid var(--border);z-index:50}
-.slide-counter{font-size:12px;color:var(--muted);font-family:var(--font-head);font-weight:600;min-width:50px}
-.slide-dots{display:flex;gap:5px;align-items:center}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--faint);transition:all 0.35s;cursor:pointer}
-.dot.active{background:var(--grn);box-shadow:0 0 8px var(--grn);width:20px;border-radius:4px}
-.dot:hover:not(.active){background:var(--muted)}
-.foot-btns{display:flex;gap:8px}
-.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:9px 22px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font-head);letter-spacing:0.04em}
-.foot-btn:hover:not(:disabled){border-color:rgba(0,230,118,0.4);color:var(--grn);box-shadow:0 0 20px rgba(0,230,118,0.1)}
-.foot-btn:disabled{opacity:0.2;cursor:not-allowed}
-.foot-btn.primary{background:rgba(0,230,118,0.07);border-color:rgba(0,230,118,0.25);color:var(--grn)}
-.foot-btn.primary:hover:not(:disabled){background:rgba(0,230,118,0.13);box-shadow:0 0 24px rgba(0,230,118,0.18)}
+/* ── Responsive ── */
+@media(max-width:700px){
+  .slide{padding:16px 18px 14px}
+  .hero-slide{padding:24px 18px}
+  .hero-slide h1{font-size:30px}
+  .card-grid,.cols2,.cols3{grid-template-columns:1fr}
+  .tbl{font-size:11px}
+  .topbar-title{display:none}
+}
+
+/* ── RTL overrides ── */
+[dir=rtl] .alert{border-left:none;border-right:3px solid}
+[dir=rtl] .tbl th,[dir=rtl] .tbl td{text-align:right}
 </style>
-<script src="../firebase-config.js"></script>
-<script type="module" src="../firebase-sync.js"></script>
-</head>
-<body>
+</head><body>
 <div class="bg-grid"></div>
 <div class="bg-blob bb1"></div>
 <div class="bg-blob bb2"></div>
 <div class="bg-blob bb3"></div>
-<div id="progress-bar"></div>
 
-<nav class="nav">
-  <div class="nav-logo"><div class="nav-logo-dot"></div>PALS 2025</div>
-  <div class="nav-title">Module 03 &nbsp;·&nbsp; Systematic Paediatric Assessment</div>
-  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
-</nav>
+<div class="topbar">
+  <span class="topbar-logo">PALS 2025</span>
+  <span class="topbar-title">Module 03 &nbsp;·&nbsp; Systematic Paediatric Assessment</span>
+  <a class="topbar-back" href="../hub_student.html">← Hub</a>
+</div>
+<div class="prog-track"><div id="progress-bar"></div></div>
 
 <div class="stage">
 
-<!-- SLIDE 1 · HERO -->
-<section class="slide active hero-slide">
-  <div class="ey">Module 03 &nbsp;·&nbsp; 2025 AHA Guidelines</div>
-  <h1 class="hero">Systematic<br><span class="grad">Paediatric Assessment</span></h1>
-  <p class="subt">PAT from doorway · ABCDE primary survey · Evaluate-Identify-Intervene cycle · age-specific vitals · clinical state spectrum</p>
+<div class="slide hero-slide active">
+  <div class="eyebrow">Module 03 &nbsp;·&nbsp; 2025 AHA Guidelines</div>
+  <h1>הערכה שיטתית<br><span class="grad">של הילד החולה</span></h1>
+  <p class="subtitle-he">משולש הערכה ילדים (PAT) · ABCDE · ערכים נורמלים · ספקטרום קליני</p>
+  <p class="subtitle">Paediatric Assessment Triangle · Primary ABCDE Survey · Normal Vitals · Clinical State Spectrum</p>
   <div class="htags">
-    <span class="htag">🔺 PAT Triangle</span>
-    <span class="htag">🔤 TICLS Appearance</span>
-    <span class="htag">🌬️ Work of Breathing</span>
-    <span class="htag">🌡️ Circulation to Skin</span>
-    <span class="htag">🔄 Evaluate → Identify → Intervene</span>
-    <span class="htag">📊 Age-Specific Vitals</span>
-    <span class="htag">🟡 Treat the Trend</span>
+    <span class="htag">👁️ PAT — 30 שניות</span>
+    <span class="htag">🫀 ABCDE ראשוני</span>
+    <span class="htag">📊 ערכים נורמלים לגיל</span>
+    <span class="htag">🔁 Assess → Identify → Intervene</span>
+    <span class="htag">⚡ זיהוי מוקדם מציל חיים</span>
   </div>
-</section>
-
-<!-- SLIDE 2 · OBJECTIVES -->
-<section class="slide">
-  <div class="ey">Learning Objectives</div>
-  <h2>What you’ll master in this module</h2>
-  <div class="obj-list">
-    <div class="obj-item"><div class="obj-num">1</div><div class="obj-text">Apply the <strong>Paediatric Assessment Triangle (PAT)</strong> from the doorway within 30 seconds using Appearance, Work of Breathing, and Circulation to Skin</div></div>
-    <div class="obj-item"><div class="obj-num">2</div><div class="obj-text">Conduct a structured <strong>ABCDE primary assessment</strong> — Airway, Breathing, Circulation, Disability, Exposure — in the correct sequence</div></div>
-    <div class="obj-item"><div class="obj-num">3</div><div class="obj-text">Apply the <strong>Evaluate → Identify → Intervene</strong> cycle continuously throughout resuscitation, re-evaluating after every intervention</div></div>
-    <div class="obj-item"><div class="obj-num">4</div><div class="obj-text">Identify age-specific <strong>normal vital sign ranges</strong> (HR, RR, SBP) and recognise abnormal trends that prompt escalation</div></div>
-    <div class="obj-item"><div class="obj-num">5</div><div class="obj-text">Distinguish among the five <strong>clinical states</strong>: stable, respiratory distress, respiratory failure / shock, decompensated shock, and cardiac arrest</div></div>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 03</span>
+    <span class="slide-title-he">מטרות הלמידה</span>
+    <span class="slide-title-en">Learning Objectives</span>
   </div>
-</section>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-<!-- SLIDE 3 · PAT -->
-<section class="slide">
-  <div class="ey">Paediatric Assessment Triangle</div>
-  <h2>Hands-Off, 30-Second First Impression</h2>
-  <div class="pat-wrap">
-    <div class="pat-svg-box">
-      <svg viewBox="0 0 340 300" style="width:100%;max-width:300px">
-        <defs>
-          <linearGradient id="gA" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00e676"/><stop offset="100%" stop-color="#00bcd4"/></linearGradient>
-          <linearGradient id="gB" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00bcd4"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
-          <linearGradient id="gC" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#00e676"/></linearGradient>
-        </defs>
-        <!-- triangle sides -->
-        <line x1="170" y1="22" x2="30" y2="268" stroke="url(#gB)" stroke-width="3" stroke-linecap="round"/>
-        <line x1="30" y1="268" x2="310" y2="268" stroke="url(#gC)" stroke-width="3" stroke-linecap="round"/>
-        <line x1="310" y1="268" x2="170" y2="22" stroke="url(#gA)" stroke-width="3" stroke-linecap="round"/>
-        <!-- centre PAT label -->
-        <circle cx="170" cy="150" r="44" fill="rgba(0,230,118,0.07)" stroke="rgba(0,230,118,0.25)" stroke-width="1.5"/>
-        <text x="170" y="146" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="17" font-weight="700" fill="#e8eaf0">PAT</text>
-        <text x="170" y="164" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#7c8494">30 seconds</text>
-        <!-- vertex labels -->
-        <text x="170" y="14" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="13" font-weight="700" fill="#00e676">Appearance</text>
-        <text x="14" y="286" text-anchor="start" font-family="Space Grotesk,sans-serif" font-size="12" font-weight="700" fill="#00bcd4">Work of</text>
-        <text x="14" y="299" text-anchor="start" font-family="Space Grotesk,sans-serif" font-size="12" font-weight="700" fill="#00bcd4">Breathing</text>
-        <text x="326" y="286" text-anchor="end" font-family="Space Grotesk,sans-serif" font-size="12" font-weight="700" fill="#38bdf8">Circulation</text>
-        <text x="326" y="299" text-anchor="end" font-family="Space Grotesk,sans-serif" font-size="12" font-weight="700" fill="#38bdf8">to Skin</text>
+    <div class="sec-heading">מטרות הלמידה<small>Learning Objectives</small></div>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-text"><strong>שימוש ב-PAT</strong> (משולש הערכה ילדים) לזיהוי מצוקה תוך 30 שניות ללא מגע<br><small style="font-family:var(--font-en);color:var(--muted)">Apply the Paediatric Assessment Triangle to identify distress within 30 s, hands-off</small></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-text"><strong>ביצוע הערכה ראשונית ABCDE</strong> בצורה שיטתית עם זיהוי בעיות מיידיות<br><small style="font-family:var(--font-en);color:var(--muted)">Perform a systematic ABCDE primary survey and identify life-threatening problems</small></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-text"><strong>ידיעת ערכים נורמלים</strong> של HR, RR, BP ו-SpO₂ לפי קבוצות גיל<br><small style="font-family:var(--font-en);color:var(--muted)">Know normal vital sign ranges by age group for rapid recognition of abnormality</small></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-text"><strong>זיהוי מצב קליני</strong> לפי ספקטרום: יציב → מצוקה → כשל → הפסקת לב<br><small style="font-family:var(--font-en);color:var(--muted)">Categorise the child's clinical state and intervene before deterioration to arrest</small></div></div>
+    </div>
+  </div>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 03</span>
+    <span class="slide-title-he">משולש PAT</span>
+    <span class="slide-title-en">Paediatric Assessment Triangle</span>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
+
+    <div class="sec-heading">משולש הערכת הילד (PAT)<small>Paediatric Assessment Triangle — Hands-Off 30-Second First Impression</small></div>
+    <!-- SVG PAT Triangle -->
+    <div class="svg-wrap" style="flex:0 0 auto;height:200px">
+      <svg viewBox="0 0 520 210" xmlns="http://www.w3.org/2000/svg" style="max-height:200px;font-family:'Heebo',sans-serif">
+        <!-- Triangle outline -->
+        <polygon points="260,15 20,195 500,195" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
+        <!-- Side fills -->
+        <polygon points="260,15 20,195 140,195" fill="rgba(255,61,90,0.10)" stroke="none"/>
+        <polygon points="260,15 500,195 380,195" fill="rgba(0,212,180,0.10)" stroke="none"/>
+        <polygon points="140,195 380,195 260,105" fill="rgba(255,179,0,0.10)" stroke="none"/>
+        <!-- Labels - corners -->
+        <text x="260" y="10" text-anchor="middle" fill="#ff3d5a" font-size="13" font-weight="700">מראה</text>
+        <text x="260" y="24" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Inter,sans-serif">Appearance</text>
+        <text x="14" y="205" text-anchor="start" fill="#ffb300" font-size="13" font-weight="700">עבודת נשימה</text>
+        <text x="14" y="218" text-anchor="start" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Inter,sans-serif">Work of Breathing</text>
+        <text x="506" y="205" text-anchor="end" fill="#00d4b4" font-size="13" font-weight="700">צבע עור/הסתייגות</text>
+        <text x="506" y="218" text-anchor="end" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Inter,sans-serif">Circulation to Skin</text>
+        <!-- Center text -->
+        <text x="260" y="125" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="11" font-family="Inter,sans-serif">PAT</text>
+        <text x="260" y="140" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="9" font-family="Inter,sans-serif">30 seconds · hands-off</text>
       </svg>
     </div>
-    <div class="pat-side">
-      <div class="pat-card" style="border-color:rgba(0,230,118,0.25)">
-        <h4 style="color:var(--grn)">🔺 Appearance — TICLS</h4>
-        <p><strong>T</strong>one · <strong>I</strong>nteractivity · <strong>C</strong>onsolability · <strong>L</strong>ook/gaze · <strong>S</strong>peech or cry. Abnormal appearance is the single most sensitive indicator of serious illness in a child.</p>
+    <div class="cols3" style="margin-top:4px">
+      <div class="card accent-red">
+        <div class="card-icon">👁️</div>
+        <div class="card-title-he">מראה (Appearance)</div>
+        <div class="card-title-en">TICLS Mnemonic</div>
+        <div class="card-body"><strong>T</strong>one · <strong>I</strong>nteractiveness · <strong>C</strong>onsolability · <strong>L</strong>ook/Gaze · <strong>S</strong>peech/Cry<br>— תנוחה, אינטראקציה, ניחומיות, מבט, קול</div>
       </div>
-      <div class="pat-card" style="border-color:rgba(0,188,212,0.25)">
-        <h4 style="color:var(--teal)">🌬️ Work of Breathing</h4>
-        <p>Abnormal sounds (stridor, wheeze, grunting) · abnormal positioning (tripod, sniffing) · retractions (subcostal, intercostal, suprasternal) · nasal flaring. Absence of effort in an obtunded child = silent obstruction.</p>
+      <div class="card accent-amber">
+        <div class="card-icon">🫁</div>
+        <div class="card-title-he">מאמץ נשימה</div>
+        <div class="card-title-en">Work of Breathing</div>
+        <div class="card-body">רעשים: Stridor · Grunting · Wheezing<br>עמדת ריח (Sniffing) · Tripod · שימוש בשרירי עזר · נחרחורים</div>
       </div>
-      <div class="pat-card" style="border-color:rgba(56,189,248,0.22)">
-        <h4 style="color:var(--sky)">🌡️ Circulation to Skin</h4>
-        <p>Pallor · mottling · cyanosis (central vs peripheral) · capillary refill &gt;2 s. Abnormal skin circulation in the absence of respiratory distress suggests circulatory problem (shock).</p>
+      <div class="card accent-teal">
+        <div class="card-icon">💉</div>
+        <div class="card-title-he">צבע עור / הסתייגות</div>
+        <div class="card-title-en">Circulation to Skin</div>
+        <div class="card-body">חיוורון (Pallor) · כחלון (Cyanosis) · Mottling (דוגמת שיש)<br>ניתן להעריך מרחוק, תוך שניות</div>
       </div>
     </div>
   </div>
-  <div class="alt ag"><h4>🟢 Clinical tip: PAT before you touch</h4><p>The PAT takes 15–30 seconds and requires no equipment. It immediately classifies the child’s physiological status and tells you whether to <strong>intervene now</strong> (abnormal appearance + any other abnormal side) or proceed with a structured primary survey.</p></div>
-</section>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 03</span>
+    <span class="slide-title-he">הערכה ראשונית ABCDE</span>
+    <span class="slide-title-en">Primary ABCDE Survey</span>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-<!-- SLIDE 4 · ABCDE -->
-<section class="slide">
-  <div class="ey">Primary Assessment</div>
-  <h2>ABCDE — Methodical &amp; Repeatable</h2>
-  <div class="abc-grid">
-    <div class="abc-card" style="border-color:rgba(255,61,90,0.28)">
-      <div class="abc-letter" style="color:var(--red)">A</div>
-      <div class="abc-name" style="color:var(--red)">Airway</div>
-      <p>Patent / maintainable / not maintainable · reposition, suction, OPA/NPA if needed · consider RSI early if failure</p>
-    </div>
-    <div class="abc-card" style="border-color:rgba(0,212,255,0.25)">
-      <div class="abc-letter" style="color:var(--cyan)">B</div>
-      <div class="abc-name" style="color:var(--cyan)">Breathing</div>
-      <p>RR · effort · sounds · SpO₂ (target ≥94%) · chest rise symmetry · ETCO₂ if available</p>
-    </div>
-    <div class="abc-card" style="border-color:rgba(255,179,0,0.25)">
-      <div class="abc-letter" style="color:var(--amber)">C</div>
-      <div class="abc-name" style="color:var(--amber)">Circulation</div>
-      <p>HR · BP · central + peripheral pulses · cap refill · skin temp/colour · urine output</p>
-    </div>
-    <div class="abc-card" style="border-color:rgba(255,107,53,0.25)">
-      <div class="abc-letter" style="color:var(--orange)">D</div>
-      <div class="abc-name" style="color:var(--orange)">Disability</div>
-      <p>AVPU or GCS · pupils (size, reactivity, equality) · point-of-care glucose · focal neurological signs</p>
-    </div>
-    <div class="abc-card" style="border-color:rgba(0,230,118,0.22)">
-      <div class="abc-letter" style="color:var(--grn)">E</div>
-      <div class="abc-name" style="color:var(--grn)">Exposure</div>
-      <p>Core temperature · full skin exam (rash, petechiae, trauma) · expose → assess → cover · prevent hypothermia</p>
+    <div class="sec-heading">הערכה ראשונית — ABCDE<small>Primary Assessment — Methodical &amp; Repeatable</small></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n" style="background:var(--red-dim);border-color:var(--red);color:var(--red);font-size:13px;font-weight:800;width:28px;height:28px">A</div>
+        <div class="step-text"><strong>Airway — דרכי אוויר</strong>: פתוח? רעשים? חסימה? → Head-tilt chin-lift / Jaw thrust / פתיחת מכשיר (OPA/NPA)</div>
+      </div>
+      <div class="step">
+        <div class="step-n" style="background:var(--amber-dim);border-color:var(--amber);color:var(--amber);font-size:13px;font-weight:800;width:28px;height:28px">B</div>
+        <div class="step-text"><strong>Breathing — נשימה</strong>: קצב · עומק · סימטריה · SpO₂ · קולות · שימוש שרירי עזר<br><small style="font-family:var(--font-en)">Rate, depth, symmetry, SpO₂, breath sounds, accessory muscle use, grunting, retractions</small></div>
+      </div>
+      <div class="step">
+        <div class="step-n" style="background:var(--teal-dim);border-color:var(--teal);color:var(--teal);font-size:13px;font-weight:800;width:28px;height:28px">C</div>
+        <div class="step-text"><strong>Circulation — מחזור</strong>: HR · BP · זמן מילוי נימים (CRT &lt;2 שנ') · דופק מרכזי vs פריפרי · עור<br><small style="font-family:var(--font-en)">HR, BP, capillary refill &lt;2s, central vs peripheral pulse, skin colour/temperature/moisture</small></div>
+      </div>
+      <div class="step">
+        <div class="step-n" style="background:var(--navy-dim);border-color:var(--navy);color:var(--navy);font-size:13px;font-weight:800;width:28px;height:28px">D</div>
+        <div class="step-text"><strong>Disability — הכרה</strong>: AVPU (Alert/Voice/Pain/Unresponsive) · GCS · גלוקוז · אישונים<br><small style="font-family:var(--font-en)">AVPU scale, GCS, pupils (PERRL), blood glucose, posturing</small></div>
+      </div>
+      <div class="step">
+        <div class="step-n" style="background:var(--green-dim);border-color:var(--green);color:var(--green);font-size:13px;font-weight:800;width:28px;height:28px">E</div>
+        <div class="step-text"><strong>Exposure — חשיפה</strong>: חשוף במלואו לבדיקה — חבלות, פריחות, חום, נפיחויות, עיוותים<br><small style="font-family:var(--font-en)">Expose fully — trauma, rashes, temperature, swelling, deformity. Prevent hypothermia.</small></div>
+      </div>
     </div>
   </div>
-  <div class="alt at"><h4>💡 A before B before C</h4><p>Airway problems kill fastest — never proceed to B until A is secured. In paediatrics, airway obstruction from infection (croup, epiglottitis), foreign body, or reduced GCS is common and rapidly fatal. Optimise one step before moving to the next.</p></div>
-</section>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 03</span>
+    <span class="slide-title-he">מחזור ההערכה</span>
+    <span class="slide-title-en">Assessment Cycle</span>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-<!-- SLIDE 5 · EII CYCLE -->
-<section class="slide">
-  <div class="ey">The Assessment Cycle</div>
-  <h2>Evaluate → Identify → Intervene → Repeat</h2>
-  <div class="eii-row">
-    <div class="eii-card" style="border-color:rgba(0,230,118,0.28)">
-      <h4 style="color:var(--grn)">🔍 Evaluate</h4>
-      <p>PAT · ABCDE primary survey · vital signs · history (SAMPLE) · focused exam</p>
-    </div>
-    <div class="eii-card" style="border-color:rgba(0,188,212,0.25)">
-      <h4 style="color:var(--teal)">🎯 Identify</h4>
-      <p>Type of problem: respiratory / circulatory / metabolic / neurological · Severity: stable to arrest</p>
-    </div>
-    <div class="eii-card" style="border-color:rgba(0,212,255,0.22)">
-      <h4 style="color:var(--cyan)">⚡ Intervene</h4>
-      <p>Most time-critical treatment first · airway → O₂ → IV access → fluids → medications · then re-evaluate</p>
+    <div class="sec-heading">מחזור ההערכה<small>The Assessment Cycle — Evaluate → Identify → Intervene → Re-Evaluate</small></div>
+    <div class="cols2">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="alert alert-accent">
+          <strong>עיקרון מפתח:</strong> הערכה היא תהליך <em>מחזורי</em> — לאחר כל התערבות חזור להתחלה ובדוק מחדש.<br>
+          <span style="font-family:var(--font-en);font-size:12px">Every intervention must be followed by re-evaluation. The child's condition can change rapidly.</span>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-text"><strong>הערך</strong> (Assess): PAT → ABCDE → ממצאים</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-text"><strong>זהה</strong> (Identify): קטגוריה · חומרה · סיבה</div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-text"><strong>התערב</strong> (Intervene): O₂ · דרכי אוויר · עירוי · תרופות</div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-text"><strong>הערך מחדש</strong> (Re-Assess): האם מצב השתפר? הרע?</div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="card accent-teal">
+          <div class="card-title-he">קטגוריות קליניות</div>
+          <div class="card-title-en">Clinical Categories (PALS Framework)</div>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="color:var(--green);font-size:18px">🟢</span><span><strong>יציב</strong> — Stable · עקוב ובצע הערכה נוספת</span></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="color:var(--amber);font-size:18px">🟡</span><span><strong>מצוקה נשימתית / הלם מפוצה</strong> — Distress · התערב מיד</span></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="color:var(--red);font-size:18px">🔴</span><span><strong>כשל נשימתי / הלם מנוטרל</strong> — Failure · BVM/IV/IO</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">⚫</span><span><strong>הפסקת לב/נשימה</strong> — Arrest · CPR מיד</span></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="eii-repeat">↺ Repeat continuously — after every intervention, return to Evaluate</div>
-  <div class="cards c2">
-    <div class="alt ag"><h4>🟢 Continuous reassessment</h4><p>Children can <strong>decompensate rapidly</strong> or respond dramatically to treatment. Each reassessment after an intervention confirms whether the problem is resolving or escalating. Never perform an action and walk away — close the loop.</p></div>
-    <div class="alt ac"><h4>🟠 SAMPLE history</h4><p><strong>S</strong>igns & symptoms · <strong>A</strong>llergies · <strong>M</strong>edications · <strong>P</strong>ast history · <strong>L</strong>ast meal · <strong>E</strong>vents leading to presentation. Gather from caregivers simultaneously with the primary survey.</p></div>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 03</span>
+    <span class="slide-title-he">ערכים נורמלים</span>
+    <span class="slide-title-en">Normal Vital Signs</span>
   </div>
-</section>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-<!-- SLIDE 6 · VITALS -->
-<section class="slide">
-  <div class="ey">Age-Specific Vital Signs</div>
-  <h2>Normal Awake Ranges — Know These Cold</h2>
-  <div style="overflow-x:auto;border-radius:var(--r-lg);border:1px solid var(--border)">
+    <div class="sec-heading">ערכים נורמלים לפי גיל<small>Normal Awake Vital Signs — Know These Cold</small></div>
     <table class="tbl">
-      <thead><tr><th>Age group</th><th>Heart rate (bpm)</th><th>Resp rate (/min)</th><th>SBP lower limit (mmHg)</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Newborn (0–3 mo)</strong></td><td>85–205</td><td>30–60</td><td>60</td></tr>
-        <tr><td><strong>Infant (3–12 mo)</strong></td><td>100–180</td><td>30–50</td><td>70</td></tr>
-        <tr><td><strong>Toddler (1–3 yr)</strong></td><td>90–150</td><td>22–37</td><td>70 + (2 × age)</td></tr>
-        <tr><td><strong>Preschool (3–6 yr)</strong></td><td>80–140</td><td>20–28</td><td>70 + (2 × age)</td></tr>
-        <tr><td><strong>School age (6–12 yr)</strong></td><td>70–120</td><td>18–25</td><td>70 + (2 × age)</td></tr>
-        <tr><td><strong>Adolescent (≥12 yr)</strong></td><td>60–100</td><td>12–20</td><td>≥90</td></tr>
-      </tbody>
+      <tr><th>גיל / Age</th><th>HR (דפקות/דק')</th><th>RR (נשימות/דק')</th><th>BP סיסטולי (mmHg)</th><th>SpO₂</th></tr>
+      <tr><td><strong>נולד–3 חוד'</strong><br><span style="font-family:var(--font-en);font-size:10px">Neonate–3 mo</span></td><td style="font-family:var(--font-en)">100–160</td><td style="font-family:var(--font-en)">40–60</td><td style="font-family:var(--font-en)">60–80</td><td rowspan="6" style="font-family:var(--font-en);text-align:center;vertical-align:middle;font-size:16px;font-weight:700;color:var(--teal)">≥94%</td></tr>
+      <tr><td><strong>3–12 חוד'</strong><br><span style="font-family:var(--font-en);font-size:10px">3–12 months</span></td><td style="font-family:var(--font-en)">100–150</td><td style="font-family:var(--font-en)">30–60</td><td style="font-family:var(--font-en)">70–95</td></tr>
+      <tr><td><strong>1–3 שנים</strong><br><span style="font-family:var(--font-en);font-size:10px">1–3 years</span></td><td style="font-family:var(--font-en)">90–150</td><td style="font-family:var(--font-en)">24–40</td><td style="font-family:var(--font-en)">80–110</td></tr>
+      <tr><td><strong>4–6 שנים</strong><br><span style="font-family:var(--font-en);font-size:10px">4–6 years</span></td><td style="font-family:var(--font-en)">80–140</td><td style="font-family:var(--font-en)">22–34</td><td style="font-family:var(--font-en)">80–115</td></tr>
+      <tr><td><strong>7–10 שנים</strong><br><span style="font-family:var(--font-en);font-size:10px">7–10 years</span></td><td style="font-family:var(--font-en)">70–120</td><td style="font-family:var(--font-en)">18–26</td><td style="font-family:var(--font-en)">85–120</td></tr>
+      <tr><td><strong>11+ שנים</strong><br><span style="font-family:var(--font-en);font-size:10px">Adolescent</span></td><td style="font-family:var(--font-en)">60–100</td><td style="font-family:var(--font-en)">12–20</td><td style="font-family:var(--font-en)">90–130</td></tr>
     </table>
-  </div>
-  <div class="cards c2">
-    <div class="alt aa"><h4>🟡 SBP formula shortcut</h4><p>For children 1–10 years: minimum acceptable systolic BP = <strong>70 + (2 × age in years)</strong>. Below this threshold in a child with signs of poor perfusion = <strong>hypotensive shock</strong> requiring immediate intervention.</p></div>
-    <div class="alt ar"><h4>🔴 Tachycardia ≠ always pathological</h4><p>Fever, pain, and anxiety all cause tachycardia. Assess tachycardia in <strong>context</strong>: if HR is elevated AND perfusion signs are abnormal (cap refill, pulses, skin), treat as circulatory compromise. A falling HR in a shocked child may signal imminent arrest, not improvement.</p></div>
-  </div>
-</section>
-
-<!-- SLIDE 7 · SPECTRUM -->
-<section class="slide">
-  <div class="ey">Clinical State Spectrum</div>
-  <h2>From Stable to Arrest — Intervene Early</h2>
-  <div class="spectrum">
-    <div class="spectrum-arrow">►►► Deterioration if untreated ►►►</div>
-    <div class="spectrum-bar">
-      <div class="sp-seg sp1"><h4>Stable</h4><p>Normal PAT · normal vitals · no distress</p></div>
-      <div class="sp-seg sp2"><h4>Respiratory Distress</h4><p>Increased WOB · normal SpO₂ maintained · alert</p></div>
-      <div class="sp-seg sp3"><h4>Resp Failure / Shock</h4><p>WOB severe or absent · SpO₂ falling · signs of poor perfusion</p></div>
-      <div class="sp-seg sp4"><h4>Decompensated</h4><p>Altered consciousness · hypotension · severe hypoxia</p></div>
-      <div class="sp-seg sp5"><h4>Cardiac Arrest</h4><p>Unresponsive · apnoeic · pulseless · CPR now</p></div>
+    <div class="alert alert-amber" style="font-size:12px;margin-top:4px">
+      <strong>BP מינימלי בילדים (כלל אצבע):</strong> 70 + (גיל × 2) mmHg. ילד 5 שנים = 70+10 = 80 mmHg. מתחת לסף זה = היפוטנציה.<br>
+      <span style="font-family:var(--font-en)">Minimum systolic BP: 70 + (age×2). Child 5yr: 70+10=80 mmHg. Below this = hypotension = late/decompensated shock.</span>
     </div>
   </div>
-  <div class="cards c2">
-    <div class="alt ag"><h4>🟢 Intervene before decompensation</h4><p>Children have <strong>high physiological reserve</strong> and compensate well until they cannot. Respiratory distress and compensated shock are your intervention window. By the time hypotension appears in a child, they are near the edge of cardiac arrest.</p></div>
-    <div class="alt aa"><h4>🟡 Respiratory vs circulatory primary problem</h4><p>PAT helps differentiate: <strong>abnormal breathing + normal circulation</strong> = primary respiratory. <strong>Normal breathing + abnormal skin circulation</strong> = primary circulatory (shock). Both abnormal = combined or late-stage problem requiring simultaneous intervention on both fronts.</p></div>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 03</span>
+    <span class="slide-title-he">ספקטרום קליני</span>
+    <span class="slide-title-en">Clinical State Spectrum</span>
   </div>
-</section>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-<!-- SLIDE 8 · KNOWLEDGE CHECK -->
-<section class="slide">
-  <div class="ey">Knowledge Check</div>
-  <h2>Tap each card to reveal the answer</h2>
-  <div class="fg fg2">
-    <div class="fc" onclick="this.classList.toggle('flipped')">
-      <div class="fc-inner">
-        <div class="ff"><div class="ql">Question 1</div><h4>A 2-year-old is brought in limp, eyes closed, not crying. Breathing looks laboured with subcostal retractions. Skin is pale. What does the PAT tell you?</h4><div class="hi">Tap to reveal →</div></div>
-        <div class="fb"><p>All <strong>three PAT sides are abnormal</strong>: Appearance (limp, unresponsive), Work of Breathing (retractions), Circulation to Skin (pallor). This is a <strong>life-threatening emergency</strong> — intervene immediately, do not proceed with a leisurely history.</p></div>
+    <div class="sec-heading">ספקטרום קליני<small>Clinical State Spectrum — From Stable to Arrest: Intervene Early</small></div>
+    <div class="card-grid c2">
+      <div class="card" style="border-top:3px solid var(--green)">
+        <div class="pill pg">🟢 יציב — Stable</div>
+        <div class="card-body">PAT: רגיל. ABCDE: תקין. ילד ערני, עור טוב, נשימה רגועה.<br><span style="font-family:var(--font-en);font-size:12px">Monitor, reassess, complete secondary survey.</span></div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--amber)">
+        <div class="pill pa">🟡 מצוקה — Distress</div>
+        <div class="card-body"><strong>נשימתית:</strong> מאמץ מוגבר, SpO₂ 90–94%, Stridor/Wheeze<br><strong>הלם מפוצה:</strong> HR↑, CRT 2–3 שנ', דופק חלש, עור קריר<br><span style="font-family:var(--font-en);font-size:12px">Compensated — intervene now to prevent failure</span></div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--red)">
+        <div class="pill pr">🔴 כשל — Failure</div>
+        <div class="card-body"><strong>נשימתי:</strong> SpO₂&lt;90%, הכרה ירודה, Grunting, Cyanosis<br><strong>הלם מנוטרל:</strong> BP↓, עור Mottled, Bradycardia<br><span style="font-family:var(--font-en);font-size:12px">Decompensated — BVM, IV/IO access, prepare for CPR</span></div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--muted)">
+        <div class="pill" style="background:rgba(255,255,255,0.05);color:var(--muted)">⚫ הפסקה — Arrest</div>
+        <div class="card-body"><strong>נשימתית/לבבית:</strong> אין נשימה, אין דופק, חסר הכרה<br><span style="font-family:var(--font-en);font-size:12px">Start CPR immediately — activate full team response</span></div>
       </div>
     </div>
-    <div class="fc" onclick="this.classList.toggle('flipped')">
-      <div class="fc-inner">
-        <div class="ff"><div class="ql">Question 2</div><h4>In the ABCDE assessment, you note severe stridor and cyanosis. What is your next immediate action?</h4><div class="hi">Tap to reveal →</div></div>
-        <div class="fb"><p>Address <strong>A — Airway</strong> first. Reposition the head, suction if secretions present, apply a jaw thrust or chin lift. If not maintainable, insert NPA/OPA. Do not proceed to B until airway is secured. Cyanosis here is a consequence of the obstructed airway, not a primary breathing problem.</p></div>
-      </div>
+    <div class="alert alert-red" style="margin-top:4px;font-size:13px">
+      <strong>⚠️ עיקרון מפתח:</strong> רוב הפסקות הלב בילדים ניתנות למניעה! זיהוי של מצוקה/כשל <em>לפני</em> ההפסקה מציל חיים.<br>
+      <span style="font-family:var(--font-en)">Most paediatric cardiac arrests are preventable. Identify distress/failure early — before arrest occurs.</span>
     </div>
-    <div class="fc" onclick="this.classList.toggle('flipped')">
-      <div class="fc-inner">
-        <div class="ff"><div class="ql">Question 3</div><h4>A 4-year-old weighs 16 kg and has a BP of 76/40. Is this hypotensive?</h4><div class="hi">Tap to reveal →</div></div>
-        <div class="fb"><p>Minimum SBP for a 4-year-old = 70 + (2 × 4) = <strong>78 mmHg</strong>. The measured SBP is 76 — <strong>below the lower limit</strong>. This is hypotensive shock. Escalate immediately: IV access, fluid bolus (10 mL/kg isotonic), reassess after.</p></div>
+  </div>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 03</span>
+    <span class="slide-title-he">בחן את עצמך</span>
+    <span class="slide-title-en">Knowledge Check</span>
+  </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
+
+    <div class="sec-heading">בחן את עצמך<small>Knowledge Check — Tap each card to reveal the answer</small></div>
+    <div class="kc-grid">
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">מהם שלושת הצלעות של משולש PAT?</div>
+        <div class="kc-q-en">Name the 3 sides of the Paediatric Assessment Triangle</div>
+        <div class="kc-a">מראה (Appearance) · מאמץ נשימה (Work of Breathing) · צבע עור (Circulation to Skin)</div>
+        <div class="kc-a-en">Appearance · Work of Breathing · Circulation to Skin</div>
       </div>
-    </div>
-    <div class="fc" onclick="this.classList.toggle('flipped')">
-      <div class="fc-inner">
-        <div class="ff"><div class="ql">Question 4</div><h4>You give a fluid bolus to a child in compensated shock. What do you do next?</h4><div class="hi">Tap to reveal →</div></div>
-        <div class="fb"><p><strong>Return to Evaluate</strong> — repeat the PAT, reassess A through E, recheck vital signs. The Evaluate → Identify → Intervene cycle closes only when you confirm the intervention’s effect. Determine if perfusion signs have improved, remained the same, or deteriorated, then identify the next action.</p></div>
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">מה ייצג האות D ב-ABCDE?</div>
+        <div class="kc-q-en">What does 'D' represent in ABCDE?</div>
+        <div class="kc-a">Disability — הכרה: AVPU, GCS, גלוקוז, אישונים</div>
+        <div class="kc-a-en">Disability — level of consciousness: AVPU/GCS, pupils, glucose</div>
+      </div>
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">מהו BP מינימלי לילד בן 6?</div>
+        <div class="kc-q-en">Minimum systolic BP for a 6-year-old?</div>
+        <div class="kc-a">70 + (6×2) = 82 mmHg</div>
+        <div class="kc-a-en">70 + (age×2) = 70+12 = 82 mmHg systolic</div>
+      </div>
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">מה מיוחד ב-PAT לעומת ABCDE?</div>
+        <div class="kc-q-en">Key difference between PAT and ABCDE?</div>
+        <div class="kc-a">PAT מבוצע ללא מגע, מרחוק, תוך 30 שניות — רושם ראשוני</div>
+        <div class="kc-a-en">PAT is hands-off, from a distance, in 30 seconds — first impression before hands-on exam</div>
+      </div>
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">Grunting (נחרחור) מצביע על מה?</div>
+        <div class="kc-q-en">What does grunting indicate?</div>
+        <div class="kc-a">ניסיון לשמור על נפח ריאות — סימן לכשל נשימתי מתקדם</div>
+        <div class="kc-a-en">Attempt to maintain lung volume with intrinsic PEEP — sign of severe/impending respiratory failure</div>
+      </div>
+      <div class="kc-card" onclick="this.classList.toggle('revealed')">
+        <div class="kc-q">מה SpO₂ תקין לפי AHA 2025?</div>
+        <div class="kc-q-en">Target SpO₂ per AHA 2025?</div>
+        <div class="kc-a">≥94% בכל הגילאים</div>
+        <div class="kc-a-en">≥94% — supplemental O₂ to achieve and maintain this target</div>
       </div>
     </div>
   </div>
-</section>
-
-<!-- SLIDE 9 · PEARL + FINISH -->
-<section class="slide">
-  <div class="pearl">
-    <div class="pill pg">Clinical Pearl</div>
-    <div class="pearl-quote">&ldquo;Treat the <span class="accent">trend</span>, not the snapshot.&rdquo;</div>
-    <p>A single set of vitals can mislead. The deteriorating child reveals themselves through changing tone, rising work of breathing, falling cap refill, and climbing heart rate — repeated across your assessment cycles. The child who ‘looks better’ after oxygen but has a worsening cap refill is not better.</p>
+</div>
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 03</span>
+    <span class="slide-title-he">סיכום</span>
+    <span class="slide-title-en">Module Summary</span>
   </div>
+  <div class="slide-body" style="display:flex;flex-direction:column;gap:14px;flex:1">
 
-  <div class="stat-grid">
-    <div class="stat-card" style="--sg:rgba(0,230,118,0.07);border-color:rgba(0,230,118,0.22)">
-      <div class="stat-lbl">PAT time</div>
-      <div class="stat-val" style="color:var(--grn)">30 s</div>
-      <div class="stat-note">hands-off from doorway</div>
+    <div class="sec-heading">סיכום מודול 03<small>Module 03 Summary — Systematic Paediatric Assessment</small></div>
+    <div class="card-grid c2">
+      <div class="card accent-red">
+        <div class="card-icon">🔺</div>
+        <div class="card-title-he">PAT — 30 שניות</div>
+        <div class="card-title-en">Paediatric Assessment Triangle</div>
+        <div class="card-body">3 צלעות: מראה · מאמץ נשימה · צבע עור. ללא מגע, מרחוק, רושם ראשוני.</div>
+      </div>
+      <div class="card accent-accent">
+        <div class="card-icon">🔤</div>
+        <div class="card-title-he">ABCDE — שיטתי</div>
+        <div class="card-title-en">Primary Survey</div>
+        <div class="card-body">Airway · Breathing · Circulation · Disability · Exposure. חזור לאחר כל התערבות.</div>
+      </div>
+      <div class="card accent-amber">
+        <div class="card-icon">📊</div>
+        <div class="card-title-he">ערכים נורמלים</div>
+        <div class="card-title-en">Vital Signs by Age</div>
+        <div class="card-body">BP מינימלי = 70+(גיל×2). SpO₂ ≥94%. HR ו-RR יורדים עם הגיל.</div>
+      </div>
+      <div class="card accent-teal">
+        <div class="card-icon">🔁</div>
+        <div class="card-title-he">מחזור הערכה</div>
+        <div class="card-title-en">Assess → Identify → Intervene → Re-Assess</div>
+        <div class="card-body">הערכה היא מחזורית. כל התערבות מחייבת הערכה מחודשת.</div>
+      </div>
+      <div class="card accent-navy">
+        <div class="card-icon">📈</div>
+        <div class="card-title-he">ספקטרום קליני</div>
+        <div class="card-title-en">Clinical Spectrum</div>
+        <div class="card-body">יציב → מצוקה → כשל → הפסקה. זהה מוקדם — התערב לפני הפסקת לב.</div>
+      </div>
+      <div class="card accent-green">
+        <div class="card-icon">✅</div>
+        <div class="card-title-he">מודול הושלם!</div>
+        <div class="card-title-en">Module Complete</div>
+        <div class="card-body" style="color:var(--green)">המשך למודול 04: חירום נשימתי — חסימה עליונה/תחתונה, כשל נשימתי.</div>
+      </div>
     </div>
-    <div class="stat-card" style="--sg:rgba(0,188,212,0.07);border-color:rgba(0,188,212,0.22)">
-      <div class="stat-lbl">TICLS components</div>
-      <div class="stat-val" style="color:var(--teal)">5</div>
-      <div class="stat-note">Tone · Interactivity · Consolability · Look · Speech</div>
-    </div>
-    <div class="stat-card" style="--sg:rgba(255,179,0,0.06);border-color:rgba(255,179,0,0.22)">
-      <div class="stat-lbl">SBP formula</div>
-      <div class="stat-val" style="color:var(--amber)">70+2n</div>
-      <div class="stat-note">n = age in years (1–10 yr)</div>
-    </div>
-    <div class="stat-card" style="--sg:rgba(0,212,255,0.06);border-color:rgba(0,212,255,0.22)">
-      <div class="stat-lbl">SpO₂ target</div>
-      <div class="stat-val" style="color:var(--cyan)">≥94%</div>
-      <div class="stat-note">supplemental O₂ if below</div>
-    </div>
-    <div class="stat-card" style="--sg:rgba(255,61,90,0.06);border-color:rgba(255,61,90,0.2)">
-      <div class="stat-lbl">Clinical states</div>
-      <div class="stat-val" style="color:var(--red)">5</div>
-      <div class="stat-note">Stable → Distress → Failure → Decomp → Arrest</div>
-    </div>
-  </div>
-
-  <a href="pals_module_04_respiratory.slides.html" class="nxt">
-    Next — Module 04: Respiratory Emergencies
-    <span class="nxt-arrow">→</span>
-  </a>
-</section>
-
-</div><!-- /stage -->
-
-<div class="foot">
-  <div class="slide-counter" id="counter">1 / 9</div>
-  <div class="slide-dots" id="dots"></div>
-  <div class="foot-btns">
-    <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
-    <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
   </div>
 </div>
 
+</div>
+
+<div class="bottombar">
+  <button id="prev-btn" onclick="go(-1)">◀ הקודם</button>
+  <div class="bottom-center">
+    <div class="bottom-dots" id="dots"></div>
+    <span class="bottom-counter" id="counter">1 / ?</span>
+  </div>
+  <button id="next-btn" onclick="go(1)">הבא ▶</button>
+</div>
 <script>
+// ── Navigation ──────────────────────────────────
 const slides = document.querySelectorAll('.slide');
 const total = slides.length;
 let cur = 0;
-const dotsEl = document.getElementById('dots');
-slides.forEach((_,i) => {
-  const d = document.createElement('div');
-  d.className = 'dot' + (i === 0 ? ' active' : '');
-  d.onclick = () => goTo(i);
-  dotsEl.appendChild(d);
-});
-function updateUI() {
-  document.getElementById('counter').textContent = (cur+1) + ' / ' + total;
-  document.getElementById('prev-btn').disabled = cur === 0;
-  document.getElementById('next-btn').disabled = cur === total - 1;
-  if(cur===total-1 && !window._mod_done_fired){window._mod_done_fired=true;markDone();}
-  document.getElementById('progress-bar').style.width = ((cur+1)/total*100) + '%';
-  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === cur));
-}
-function goTo(idx) {
-  if (idx === cur || idx < 0 || idx >= total) return;
+let _done_fired = false;
+
+function go(dir) {
   slides[cur].classList.remove('active');
-  if (idx > cur) slides[cur].classList.add('exit-left');
-  const prev = cur;
-  cur = idx;
-  setTimeout(() => slides[prev].classList.remove('exit-left'), 520);
+  cur = Math.max(0, Math.min(total - 1, cur + dir));
   slides[cur].classList.add('active');
   updateUI();
+  if (cur === total - 1 && !_done_fired) { _done_fired = true; markDone(); }
 }
-function changeSlide(dir) { goTo(cur + dir); }
-document.addEventListener('keydown', e => {
-  if (e.key==='ArrowRight'||e.key==='ArrowDown') changeSlide(1);
-  if (e.key==='ArrowLeft'||e.key==='ArrowUp') changeSlide(-1);
-  if (e.key==='Home') goTo(0);
-  if (e.key==='End') goTo(total-1);
-});
-let tx = 0;
-document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
-document.addEventListener('touchend', e => {
-  const dx = tx - e.changedTouches[0].clientX;
-  if (Math.abs(dx) > 48) changeSlide(dx > 0 ? 1 : -1);
-}, {passive:true});
-updateUI();
 
-async function markDone(){
-  try{var p=JSON.parse(sessionStorage.getItem('pals_progress')||'{}');p[2]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}
-  
-  (async function(){
-    try{
-      var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB);},3000);})]);
-      if(fb&&fb.markModuleComplete){await fb.markModuleComplete(2);}
-    }catch(ex){console.warn('[PALS] FB save:',ex&&ex.message);}
-  })();
-  setTimeout(function(){window.location.href='../hub_student.html';},900);
+function updateUI() {
+  document.querySelectorAll('#counter').forEach(el => el.textContent = (cur+1)+' / '+total);
+  document.querySelectorAll('#progress-bar').forEach(el => el.style.width = ((cur+1)/total*100)+'%');
+  document.querySelectorAll('#prev-btn').forEach(el => el.disabled = cur === 0);
+  document.querySelectorAll('#next-btn').forEach(el => el.disabled = cur === total-1);
+  document.querySelectorAll('.dot-row').forEach(row => {
+    row.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===cur));
+  });
 }
+
+document.querySelectorAll('.dot-row').forEach(row => {
+  row.innerHTML = Array.from({length: total}, (_,i) =>
+    `<div class="dot${i===0?' active':''}" onclick="jumpTo(${i})"></div>`).join('');
+});
+function jumpTo(i) { slides[cur].classList.remove('active'); cur=i; slides[cur].classList.add('active'); updateUI(); }
+
+async function markDone() {
+  try {
+    var fb = await Promise.race([
+      window.FB_READY || Promise.resolve(window.FB),
+      new Promise(r => setTimeout(() => r(window.FB), 3000))
+    ]);
+    if (fb && fb.markModuleComplete) await fb.markModuleComplete(2);
+  } catch(e) {}
+  setTimeout(() => { window.location.href = '../hub_student.html'; }, 2000);
+}
+updateUI();
 </script>
-</body>
-</html>
