@@ -50,6 +50,46 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 
 @media(max-width:768px){.grid-3{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
 @media(max-width:500px){.grid-3,.grid-2{grid-template-columns:1fr}}
+
+/* ── Roster Section ──────────────────────────────────────────── */
+.roster-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem}
+.roster-search{padding:.5rem .9rem;border:1px solid var(--border);border-radius:8px;font-size:.85rem;background:var(--surface);color:var(--text);width:260px;outline:none;transition:border-color .2s}
+.roster-search:focus{border-color:var(--primary)}
+.roster-actions{display:flex;gap:.5rem}
+.roster-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.roster-table{width:100%;border-collapse:collapse;font-size:.83rem}
+.roster-table th{padding:.65rem 1rem;text-align:left;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface2)}
+.roster-table td{padding:.7rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text)}
+.roster-table tr:last-child td{border-bottom:none}
+.roster-table tr:hover td{background:rgba(8,145,178,.04)}
+.prog-bar-wrap{display:flex;align-items:center;gap:.5rem;min-width:140px}
+.prog-bar-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),#22c55e);border-radius:3px;transition:width .4s}
+.prog-pct{font-size:.75rem;font-weight:700;color:var(--muted);min-width:32px;text-align:right}
+.badge-role{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.03em}
+.badge-student{background:rgba(8,145,178,.12);color:var(--primary)}
+.badge-instructor{background:rgba(124,58,237,.12);color:#7C3AED}
+.btn-edit{padding:.3rem .7rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-edit:hover{border-color:var(--primary);color:var(--primary)}
+.roster-empty{padding:2.5rem;text-align:center;color:var(--muted);font-size:.9rem}
+.roster-stats{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.4rem .85rem;font-size:.78rem;color:var(--muted)}
+.stat-chip strong{color:var(--text);font-weight:700}
+/* Edit modal */
+#edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+#edit-overlay.open{opacity:1;pointer-events:all}
+.edit-modal{background:var(--surface);border-radius:var(--radius);width:min(540px,95vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.edit-modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)}
+.edit-modal-header h3{font-size:1rem;font-weight:700}
+.edit-modal-body{padding:1.5rem}
+.mod-toggles{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.75rem 0}
+.mod-toggle{display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer;padding:.4rem .6rem;border:1px solid var(--border);border-radius:6px;transition:all .2s}
+.mod-toggle input{accent-color:var(--primary);cursor:pointer}
+.mod-toggle.done{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.06);color:#15803d}
+.edit-notes{width:100%;min-height:70px;padding:.6rem .8rem;border:1px solid var(--border);border-radius:8px;font-size:.83rem;background:var(--surface);color:var(--text);resize:vertical;font-family:inherit;outline:none;transition:border-color .2s;margin-top:.25rem}
+.edit-notes:focus{border-color:var(--primary)}
+.edit-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap}
+
 </style>
 </head>
 <body>
@@ -143,6 +183,72 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 
   <div class="section-title">12 Learning Modules</div>
   <div class="modules-grid" id="modules-grid"></div>
+
+  <!-- ── Student Roster ──────────────────────────────────────── -->
+  <div class="section-title" style="margin-top:2.5rem">Student Roster &amp; Progress</div>
+
+  <div class="roster-stats">
+    <div class="stat-chip">Total students: <strong id="stat-total">—</strong></div>
+    <div class="stat-chip">Completed all: <strong id="stat-done">—</strong></div>
+    <div class="stat-chip">In progress: <strong id="stat-progress">—</strong></div>
+    <div class="stat-chip">Not started: <strong id="stat-notstarted">—</strong></div>
+  </div>
+
+  <div class="roster-header">
+    <input class="roster-search" id="roster-search" type="search" placeholder="🔍  Search by name, email or cohort…" oninput="filterRoster()">
+    <div class="roster-actions">
+      <button class="btn-sm btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px" onclick="loadRoster()">↺ Refresh</button>
+    </div>
+  </div>
+
+  <div class="roster-table-wrap">
+    <table class="roster-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Cohort</th>
+          <th>Role</th>
+          <th>Progress</th>
+          <th>Last Active</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="roster-tbody">
+        <tr><td colspan="7" class="roster-empty">Loading roster…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Edit Student Modal ───────────────────────────────────── -->
+  <div id="edit-overlay">
+    <div class="edit-modal">
+      <div class="edit-modal-header">
+        <h3 id="edit-modal-title">✏️ Edit Student</h3>
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
+      </div>
+      <div class="edit-modal-body">
+        <input type="hidden" id="edit-uid">
+        <div style="margin-bottom:1rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Module Completion</label>
+          <div class="mod-toggles" id="mod-toggles"></div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:.35rem">Toggle to manually mark modules complete or incomplete. Saves immediately to Firestore.</div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Instructor Notes</label>
+          <textarea class="edit-notes" id="edit-notes" placeholder="Optional notes about this student…"></textarea>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-sm btn-ghost" onclick="closeEditModal()">Cancel</button>
+          <button class="btn-sm" style="background:#ef4444;color:#fff;border:none;border-radius:8px" onclick="resetProgress()">🗑 Reset Progress</button>
+          <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px" onclick="saveEdit()">💾 Save Changes</button>
+        </div>
+        <div id="edit-result" style="margin-top:.75rem;font-size:.8rem"></div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script type="module">
@@ -156,8 +262,8 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore,
-  doc,
-  setDoc,
+  doc, setDoc, getDoc, getDocs,
+  collection, onSnapshot, updateDoc,
   serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
@@ -396,6 +502,238 @@ function applyTheme() {
     ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
     : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
 }
+
+
+// ── ROSTER GLOBALS ─────────────────────────────────────────────
+const MOD_LABELS = [
+  'Intro','BLS','Assessment','Respiratory','Shock',
+  'Rhythms','Algorithms','Megacode-R','Megacode-S',
+  'Cardiac Arrest','Post-Arrest','Airway/Pharm'
+];
+let allStudents = [];
+let allUsers    = {};
+
+async function loadRoster() {
+  try {
+    document.querySelector('#roster-tbody').innerHTML = '<tr><td colspan="7" class="roster-empty">Loading…</td></tr>';
+
+    // Load users collection (has name/email/cohort/role)
+    const usersSnap = await getDocs(collection(db,'users'));
+    allUsers = {};
+    usersSnap.forEach(d => { allUsers[d.id] = d.data(); });
+
+    // Load students collection (has progress)
+    const studSnap = await getDocs(collection(db,'students'));
+    const progMap  = {};
+    studSnap.forEach(d => { progMap[d.id] = d.data(); });
+
+    // Merge
+    allStudents = Object.entries(allUsers).map(([uid, u]) => ({
+      uid,
+      name:     u.name || (u.firstName + ' ' + u.lastName) || 'Unknown',
+      email:    u.email || '',
+      cohort:   u.cohort || 'Unassigned',
+      role:     u.role  || 'student',
+      notes:    u.notes || '',
+      progress: (progMap[uid] && progMap[uid].progress) || {},
+      updatedAt:(progMap[uid] && progMap[uid].updatedAt) || null,
+    })).filter(s => s.role === 'student' || s.role === 'instructor');
+
+    updateStats();
+    renderRoster(allStudents);
+  } catch(e) {
+    document.querySelector('#roster-tbody').innerHTML =
+      '<tr><td colspan="7" class="roster-empty">Error loading roster: ' + e.message + '</td></tr>';
+  }
+}
+
+function modCount(progress) {
+  return Object.keys(progress).filter(k => progress[k]).length;
+}
+
+function updateStats() {
+  const total   = allStudents.length;
+  const done    = allStudents.filter(s => modCount(s.progress) >= 12).length;
+  const inprog  = allStudents.filter(s => { const c=modCount(s.progress); return c>0 && c<12; }).length;
+  const notst   = allStudents.filter(s => modCount(s.progress) === 0).length;
+  document.getElementById('stat-total').textContent      = total;
+  document.getElementById('stat-done').textContent       = done;
+  document.getElementById('stat-progress').textContent   = inprog;
+  document.getElementById('stat-notstarted').textContent = notst;
+}
+
+function timeAgo(ts) {
+  if (!ts) return '—';
+  const diff = Date.now() - ts;
+  if (diff < 60000)    return 'just now';
+  if (diff < 3600000)  return Math.floor(diff/60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+  return Math.floor(diff/86400000) + 'd ago';
+}
+
+function renderRoster(students) {
+  const tbody = document.getElementById('roster-tbody');
+  if (!students.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="roster-empty">No students found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = students.map(s => {
+    const count = modCount(s.progress);
+    const pct   = Math.round(count/12*100);
+    const roleClass = s.role === 'student' ? 'badge-student' : 'badge-instructor';
+    return `<tr>
+      <td><strong>${s.name}</strong></td>
+      <td style="color:var(--muted);font-size:.8rem">${s.email}</td>
+      <td style="font-size:.8rem">${s.cohort}</td>
+      <td><span class="badge-role ${roleClass}">${s.role}</span></td>
+      <td>
+        <div class="prog-bar-wrap">
+          <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
+          <span class="prog-pct">${count}/12</span>
+        </div>
+      </td>
+      <td style="font-size:.78rem;color:var(--muted)">${timeAgo(s.updatedAt)}</td>
+      <td><button class="btn-edit" onclick="openEditModal('${s.uid}')">✏️ Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterRoster() {
+  const q = document.getElementById('roster-search').value.toLowerCase();
+  if (!q) { renderRoster(allStudents); return; }
+  renderRoster(allStudents.filter(s =>
+    s.name.toLowerCase().includes(q) ||
+    s.email.toLowerCase().includes(q) ||
+    s.cohort.toLowerCase().includes(q)
+  ));
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Last Active']];
+  allStudents.forEach(s => {
+    const count = modCount(s.progress);
+    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/12*100)+'%', timeAgo(s.updatedAt)]);
+  });
+  const csv  = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a    = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pals_roster_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+window.exportCSV = exportCSV;
+window.filterRoster = filterRoster;
+window.loadRoster   = loadRoster;
+
+// ── EDIT MODAL ────────────────────────────────────────────────
+let editUid = null;
+
+function openEditModal(uid) {
+  editUid = uid;
+  const s = allStudents.find(x => x.uid === uid);
+  if (!s) return;
+  document.getElementById('edit-uid').value   = uid;
+  document.getElementById('edit-modal-title').textContent = '✏️ ' + s.name;
+  document.getElementById('edit-notes').value = s.notes || '';
+  document.getElementById('edit-result').textContent = '';
+
+  // Build module toggles
+  const togglesDiv = document.getElementById('mod-toggles');
+  togglesDiv.innerHTML = MOD_LABELS.map((label, i) => {
+    const done = !!s.progress[i];
+    return `<label class="mod-toggle ${done ? 'done' : ''}" id="toggle-wrap-${i}">
+      <input type="checkbox" id="mod-check-${i}" ${done ? 'checked' : ''} onchange="toggleModStyle(${i})">
+      M${String(i+1).padStart(2,'0')} ${label}
+    </label>`;
+  }).join('');
+
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function toggleModStyle(i) {
+  const checked = document.getElementById('mod-check-' + i).checked;
+  const wrap    = document.getElementById('toggle-wrap-' + i);
+  if (checked) wrap.classList.add('done');
+  else         wrap.classList.remove('done');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-overlay').classList.remove('open');
+  editUid = null;
+}
+window.openEditModal  = openEditModal;
+window.closeEditModal = closeEditModal;
+window.toggleModStyle = toggleModStyle;
+
+async function saveEdit() {
+  if (!editUid) return;
+  const resultEl = document.getElementById('edit-result');
+  resultEl.textContent = 'Saving…';
+  resultEl.style.color = 'var(--muted)';
+  try {
+    // Build new progress object from checkboxes
+    const progress = {};
+    for (let i = 0; i < 12; i++) {
+      if (document.getElementById('mod-check-' + i).checked) progress[i] = true;
+    }
+    const notes = document.getElementById('edit-notes').value.trim();
+
+    // Update students/{uid}.progress
+    await fsSetDoc(fsDoc(db, 'students', editUid), { progress, updatedAt: Date.now() }, { merge: true });
+    // Update users/{uid}.notes
+    await fsSetDoc(fsDoc(db, 'users', editUid), { notes }, { merge: true });
+
+    // Update local cache
+    const s = allStudents.find(x => x.uid === editUid);
+    if (s) { s.progress = progress; s.notes = notes; s.updatedAt = Date.now(); }
+
+    updateStats();
+    renderRoster(allStudents);
+    resultEl.textContent = '✅ Saved successfully!';
+    resultEl.style.color = 'var(--success)';
+    setTimeout(closeEditModal, 1200);
+  } catch(e) {
+    resultEl.textContent = '❌ Error: ' + e.message;
+    resultEl.style.color = 'var(--danger)';
+  }
+}
+window.saveEdit = saveEdit;
+
+async function resetProgress() {
+  if (!editUid) return;
+  if (!confirm('Reset ALL progress for this student? This cannot be undone.')) return;
+  const resultEl = document.getElementById('edit-result');
+  resultEl.textContent = 'Resetting…';
+  try {
+    await fsSetDoc(fsDoc(db, 'students', editUid), { progress: {}, updatedAt: Date.now() }, { merge: true });
+    // Uncheck all boxes
+    for (let i = 0; i < 12; i++) {
+      const cb = document.getElementById('mod-check-' + i);
+      if (cb) { cb.checked = false; toggleModStyle(i); }
+    }
+    const s = allStudents.find(x => x.uid === editUid);
+    if (s) { s.progress = {}; s.updatedAt = Date.now(); }
+    updateStats();
+    renderRoster(allStudents);
+    resultEl.textContent = '✅ Progress reset!';
+    resultEl.style.color = 'var(--success)';
+    setTimeout(closeEditModal, 1200);
+  } catch(e) {
+    resultEl.textContent = '❌ ' + e.message;
+    resultEl.style.color = 'var(--danger)';
+  }
+}
+window.resetProgress = resetProgress;
+
+// Close edit modal on overlay click
+document.getElementById('edit-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('edit-overlay')) closeEditModal();
+});
+
+// Auto-load roster on page init (after auth check passes)
+setTimeout(loadRoster, 800);
+
 </script>
 </body>
 </html>
