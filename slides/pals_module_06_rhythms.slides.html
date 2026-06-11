@@ -53,6 +53,8 @@ h1.hero{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3.4rem);font-wei
 @media(max-width:760px){.compare{grid-template-columns:1fr}.vs{display:none}}
 @media(max-width:640px){.slide{padding:24px 20px}.hero-slide{padding:36px 20px}h1.hero{font-size:1.8rem}}
 </style>
+<script src="../firebase-config.js"></script>
+<script type="module" src="../firebase-sync.js"></script>
 </head>
 <body>
 <div class="bg-grid"></div><div class="bg-blob bb1"></div><div class="bg-blob bb2"></div>
@@ -398,15 +400,17 @@ updateUI();
   <button id="completeBtn6" onclick="markDone()" style="background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.35);color:#2dd4bf;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:sans-serif;letter-spacing:.04em;transition:all .2s;">✓ Mark Complete &amp; Continue →</button>
 </div>
 <script>
-function markDone() {
-  try {
-    var p = JSON.parse(sessionStorage.getItem('pals_progress') || '{}');
-    p[5] = true;
-    sessionStorage.setItem('pals_progress', JSON.stringify(p));
-  } catch(e) {}
+async function markDone(){
+  try{var p=JSON.parse(sessionStorage.getItem('pals_progress')||'{}');p[5]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}
   var btn = document.getElementById('completeBtn6');
-  if(btn) { btn.textContent='✓ Completed!'; btn.style.background='rgba(0,230,118,.15)'; btn.style.color='#00e676'; }
-  setTimeout(function() { window.location.href='../slides/pals_module_07_algorithms.slides.html'; }, 900);
+  if(btn) { btn.textContent='✓ Completed!'; btn.style.background='rgba(0,230,118,.15)'; btn.style.borderColor='rgba(0,230,118,.4)'; btn.style.color='#00e676'; btn.disabled=true; }
+  (async function(){
+    try{
+      var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB);},3000);})]);
+      if(fb&&fb.markModuleComplete){await fb.markModuleComplete(5);}
+    }catch(ex){console.warn('[PALS] FB save:',ex&&ex.message);}
+  })();
+  setTimeout(function(){window.location.href='../slides/pals_module_07_algorithms.slides.html';},900);
 }
 (function(){
   setInterval(function(){
