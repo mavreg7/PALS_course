@@ -154,6 +154,8 @@ ul{padding-left:18px}
 .nxt{display:inline-flex;align-items:center;gap:10px;margin-top:8px;padding:13px 26px;background:linear-gradient(135deg,var(--cyan),var(--blue));color:#07090f;font-family:var(--font-head);font-weight:700;font-size:0.88rem;border-radius:var(--r);text-decoration:none;transition:opacity 0.2s,transform 0.2s;align-self:flex-start}
 .nxt:hover{opacity:0.86;transform:translateY(-2px)}
 </style>
+<script src="../firebase-config.js"></script>
+<script type="module" src="../firebase-sync.js"></script>
 </head>
 <body>
 <div class="bg-grid"></div>
@@ -520,15 +522,17 @@ updateUI();
   <button id="completeBtn9" onclick="markDone()" style="background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.35);color:#2dd4bf;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:sans-serif;letter-spacing:.04em;transition:all .2s;">✓ Mark Complete &amp; Continue →</button>
 </div>
 <script>
-function markDone() {
-  try {
-    var p = JSON.parse(sessionStorage.getItem('pals_progress') || '{}');
-    p[8] = true;
-    sessionStorage.setItem('pals_progress', JSON.stringify(p));
-  } catch(e) {}
+async function markDone(){
+  try{var p=JSON.parse(sessionStorage.getItem('pals_progress')||'{}');p[8]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}
   var btn = document.getElementById('completeBtn9');
-  if(btn) { btn.textContent='✓ Completed!'; btn.style.background='rgba(0,230,118,.15)'; btn.style.color='#00e676'; }
-  setTimeout(function() { window.location.href='../slides/pals_module_10_cardiac_arrest.slides.html'; }, 900);
+  if(btn) { btn.textContent='✓ Completed!'; btn.style.background='rgba(0,230,118,.15)'; btn.style.borderColor='rgba(0,230,118,.4)'; btn.style.color='#00e676'; btn.disabled=true; }
+  (async function(){
+    try{
+      var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB);},3000);})]);
+      if(fb&&fb.markModuleComplete){await fb.markModuleComplete(8);}
+    }catch(ex){console.warn('[PALS] FB save:',ex&&ex.message);}
+  })();
+  setTimeout(function(){window.location.href='../hub_student.html';},900);
 }
 (function(){
   setInterval(function(){
