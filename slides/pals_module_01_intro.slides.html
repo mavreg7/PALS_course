@@ -1,131 +1,982 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Module 01 · Course Intro &amp; 2025 Updates</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<style>
-:root{--bg:#07080e;--surface:#0d0f18;--surface2:#121520;--border:rgba(255,255,255,.06);--text:#e8eaf0;--muted:#7c8494;--faint:#2a2e3e;--sky:#38bdf8;--sky-dim:rgba(56,189,248,.1);--blue:#60a5fa;--cyan:#00d4ff;--green:#00e676;--amber:#ffb300;--red:#ff3d5a;--font-head:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--r:10px;--r-lg:16px;--ease:cubic-bezier(.16,1,.3,1)}
-*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
-body{background:radial-gradient(circle at 80% 10%,rgba(56,189,248,.07),transparent 35%),radial-gradient(circle at 10% 85%,rgba(0,230,118,.04),transparent 32%),var(--bg)}
-#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--sky),var(--blue),var(--cyan));transition:width .5s ease;z-index:100;box-shadow:0 0 14px rgba(56,189,248,.6)}
-.nav{position:fixed;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,8,14,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:50}.nav-logo{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--sky);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px}.nav-logo-dot{width:7px;height:7px;background:var(--sky);border-radius:50%;box-shadow:0 0 10px var(--sky);animation:pdot 3.5s ease-in-out infinite}@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.6)}}.nav-title{font-size:12px;color:var(--muted)}.nav-btn{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.22);color:var(--muted);border-radius:8px;padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-head);letter-spacing:.05em;text-transform:uppercase;transition:all .2s}.nav-btn:hover{border-color:var(--sky);color:var(--sky);background:var(--sky-dim)}
-.stage{position:fixed;inset:58px 0 72px;overflow:hidden}.slide{position:absolute;inset:0;padding:30px 48px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;opacity:0;transform:translateX(60px) scale(.985);transition:opacity .5s var(--ease),transform .5s var(--ease);pointer-events:none;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}.slide.active{opacity:1;transform:translateX(0) scale(1);pointer-events:all}.slide.exit-left{opacity:0;transform:translateX(-60px) scale(.985)}.hero-slide{justify-content:center;padding:66px 48px}@media(max-width:680px){.slide{padding:20px 18px}.hero-slide{padding:40px 18px}}
-.ey{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--sky);display:flex;align-items:center;gap:10px}.ey::before{content:'';display:block;width:24px;height:2px;background:linear-gradient(90deg,var(--sky),transparent);border-radius:2px}
-h1.hero{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3.3rem);font-weight:700;line-height:1.08;letter-spacing:-.03em;color:#fff;max-width:880px}h1.hero .grad{background:linear-gradient(100deg,var(--sky),var(--blue) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}h2{font-family:var(--font-head);font-size:clamp(1.25rem,2.4vw,1.75rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-.018em}h3{font-family:var(--font-head);font-size:.96rem;font-weight:600;color:var(--text);margin-bottom:6px}p{font-size:.88rem;color:var(--muted);line-height:1.7}li{font-size:.86rem;color:var(--muted);line-height:1.65;margin-bottom:5px}strong{color:var(--text)}ul,ol{padding-left:18px}.subt{font-size:.96rem;color:var(--muted);max-width:720px;line-height:1.75}
-.pill{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 11px;border-radius:20px;display:inline-flex;align-items:center;margin-bottom:10px}.ps{background:rgba(56,189,248,.12);color:var(--sky)}.pg{background:rgba(0,230,118,.12);color:var(--green)}.pa{background:rgba(255,179,0,.12);color:var(--amber)}.pr{background:rgba(255,61,90,.12);color:var(--red)}
-.cards{display:grid;gap:13px}.c2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}.c3{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;transition:border-color .3s,box-shadow .3s,transform .3s}.card:hover{border-color:rgba(56,189,248,.22);box-shadow:0 8px 28px rgba(56,189,248,.08);transform:translateY(-2px)}
-.alt{border-radius:var(--r);padding:13px 17px;border-left:3px solid}.as{background:rgba(56,189,248,.06);border-color:var(--sky)}.as h4{color:var(--sky)}.ag{background:rgba(0,230,118,.06);border-color:var(--green)}.ag h4{color:var(--green)}.aa{background:rgba(255,179,0,.06);border-color:var(--amber)}.aa h4{color:var(--amber)}.ar{background:rgba(255,61,90,.06);border-color:var(--red)}.ar h4{color:var(--red)}h4{font-size:.84rem;font-weight:600;color:var(--text);margin-bottom:4px}
-.timeline{display:flex;flex-direction:column;gap:0}.tl-item{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05)}.tl-item:last-child{border-bottom:none}.tl-dot{width:32px;height:32px;border-radius:50%;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:var(--sky);font-family:var(--font-head);font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.nxt{display:inline-flex;align-items:center;gap:10px;margin-top:4px;padding:12px 24px;background:linear-gradient(135deg,var(--sky),var(--cyan));color:#060c14;font-family:var(--font-head);font-weight:700;font-size:.86rem;border-radius:var(--r);text-decoration:none;transition:opacity .2s,transform .2s;align-self:flex-start}.nxt:hover{opacity:.88;transform:translateY(-2px)}
-.footer{position:fixed;left:0;right:0;bottom:0;height:72px;background:rgba(7,8,14,.92);backdrop-filter:blur(18px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:60}.counter{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}.foot-btns{display:flex;gap:10px}.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}.foot-btn:hover:not(:disabled){border-color:rgba(56,189,248,.25);transform:translateY(-1px)}.foot-btn:disabled{opacity:.35;cursor:not-allowed}.foot-btn.primary{background:linear-gradient(135deg,var(--sky),var(--cyan));border:none;color:#060c14;font-family:var(--font-head);font-weight:700}
-</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מודול 01 – מבוא לקורס PALS 2025</title>
 <script src="../firebase-config.js"></script>
-<script type="module" src="../firebase-sync.js"></script>
+<script src="../firebase-sync.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Inter:wght@300;400;500;700&display=swap');
+
+  :root {
+    --red:    #C0392B;
+    --red-d:  #96281B;
+    --red-l:  #FDECEA;
+    --navy:   #1A2744;
+    --navy-m: #243257;
+    --navy-l: #EEF1F8;
+    --teal:   #0D7377;
+    --teal-l: #E6F4F4;
+    --amber:  #E67E22;
+    --amber-l:#FEF5EC;
+    --green:  #1E8449;
+    --green-l:#E9F7EF;
+    --gray-1: #F7F8FA;
+    --gray-2: #EAECF0;
+    --gray-3: #C5CAD5;
+    --gray-4: #6B7280;
+    --gray-5: #374151;
+    --white:  #FFFFFF;
+    --text:   #1C1F26;
+    --radius: 12px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.10);
+    --font-he: 'Heebo', 'Arial Hebrew', sans-serif;
+    --font-en: 'Inter', Arial, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%; width: 100%;
+    font-family: var(--font-he);
+    background: var(--gray-1);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ── LAYOUT ── */
+  .deck { height: 100vh; display: flex; flex-direction: column; }
+
+  .slide {
+    display: none;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    flex-direction: column;
+  }
+  .slide.active { display: flex; }
+
+  /* ── HEADER ── */
+  .slide-header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    gap: 16px;
+  }
+  .slide-header .mod-tag {
+    background: var(--red);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-family: var(--font-en);
+  }
+  .slide-header .slide-title-he {
+    font-size: 18px;
+    font-weight: 700;
+    flex: 1;
+    text-align: center;
+  }
+  .slide-header .slide-title-en {
+    font-size: 11px;
+    font-family: var(--font-en);
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  /* ── CONTENT AREA ── */
+  .slide-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── HERO SLIDE ── */
+  .hero-slide .slide-body {
+    background: linear-gradient(135deg, var(--navy) 0%, #1A3A6E 60%, #0D4F5C 100%);
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    gap: 24px;
+  }
+  .hero-badge {
+    background: var(--red);
+    color: #fff;
+    font-family: var(--font-en);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    padding: 6px 18px;
+    border-radius: 24px;
+    text-transform: uppercase;
+  }
+  .hero-title {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+  }
+  .hero-subtitle {
+    font-size: clamp(14px, 2vw, 20px);
+    font-weight: 400;
+    color: rgba(255,255,255,0.72);
+    font-family: var(--font-en);
+    max-width: 600px;
+  }
+  .hero-org {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    font-family: var(--font-en);
+  }
+
+  /* Cross / Logo SVG */
+  .hero-cross {
+    width: 90px; height: 90px;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── SECTION HEADING ── */
+  .sec-heading {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--navy);
+    border-right: 4px solid var(--red);
+    padding-right: 14px;
+    line-height: 1.2;
+  }
+  .sec-heading small {
+    display: block;
+    font-family: var(--font-en);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-4);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  /* ── CARD GRID ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: var(--white);
+    border: 1px solid var(--gray-2);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .card .card-icon {
+    font-size: 26px;
+    line-height: 1;
+  }
+  .card .card-title-he {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .card .card-title-en {
+    font-size: 11px;
+    font-family: var(--font-en);
+    font-weight: 600;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .card .card-body {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--gray-5);
+  }
+
+  /* ── ACCENT CARDS ── */
+  .card.accent-red { border-top: 3px solid var(--red); }
+  .card.accent-teal { border-top: 3px solid var(--teal); }
+  .card.accent-amber { border-top: 3px solid var(--amber); }
+  .card.accent-green { border-top: 3px solid var(--green); }
+  .card.accent-navy { border-top: 3px solid var(--navy); }
+
+  /* ── INFO BANNER ── */
+  .info-banner {
+    background: var(--navy-l);
+    border: 1px solid #C5D0E8;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .info-banner .bi { font-size: 22px; flex-shrink: 0; }
+  .info-banner .bi-text .title { font-size: 15px; font-weight: 700; color: var(--navy); }
+  .info-banner .bi-text .body { font-size: 13.5px; color: var(--gray-5); line-height: 1.6; margin-top: 4px; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight {
+    background: var(--red-l);
+    border-right: 4px solid var(--red);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--gray-5);
+  }
+  .highlight.teal {
+    background: var(--teal-l);
+    border-right-color: var(--teal);
+  }
+  .highlight.amber {
+    background: var(--amber-l);
+    border-right-color: var(--amber);
+  }
+  .highlight.green {
+    background: var(--green-l);
+    border-right-color: var(--green);
+  }
+
+  /* ── STAT ROW ── */
+  .stat-row {
+    display: flex; gap: 14px; flex-wrap: wrap;
+  }
+  .stat-box {
+    flex: 1; min-width: 120px;
+    background: var(--white);
+    border: 1px solid var(--gray-2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .stat-box .num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--red);
+    font-family: var(--font-en);
+    line-height: 1;
+  }
+  .stat-box .label-he { font-size: 12.5px; color: var(--gray-5); margin-top: 4px; font-weight: 600; }
+  .stat-box .label-en { font-size: 10px; color: var(--gray-4); font-family: var(--font-en); }
+
+  /* ── MODULES OVERVIEW TABLE ── */
+  .module-table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  .module-table th {
+    background: var(--navy);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: right;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .module-table th:first-child { text-align: center; width: 50px; }
+  .module-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--gray-2);
+    vertical-align: middle;
+  }
+  .module-table td:first-child { text-align: center; font-family: var(--font-en); font-weight: 700; color: var(--red); font-size: 13px; }
+  .module-table tr:hover td { background: var(--gray-1); }
+  .module-table .en-col { font-family: var(--font-en); font-size: 11.5px; color: var(--gray-4); }
+  .module-table .badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-family: var(--font-en);
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .badge-core { background: #DBEAFE; color: #1D4ED8; }
+  .badge-clin { background: #D1FAE5; color: #065F46; }
+  .badge-skills { background: #FEF3C7; color: #92400E; }
+
+  /* ── AHA YEAR ── */
+  .aha-strip {
+    background: var(--red);
+    color: #fff;
+    border-radius: 8px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .aha-strip .year {
+    font-family: var(--font-en);
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+
+  /* ── CHAIN OF SURVIVAL SVG ── */
+  .chain-container {
+    background: var(--white);
+    border: 1px solid var(--gray-2);
+    border-radius: var(--radius);
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  /* ── FOOTER NAV ── */
+  .slide-footer {
+    background: var(--white);
+    border-top: 1px solid var(--gray-2);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .nav-btn {
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--font-he);
+    transition: background .15s;
+  }
+  .nav-btn:hover { background: var(--red); }
+  .nav-btn:disabled { background: var(--gray-3); cursor: default; }
+  .progress-wrap { flex: 1; }
+  .progress-bar-outer {
+    height: 6px;
+    background: var(--gray-2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: var(--red);
+    border-radius: 3px;
+    transition: width .3s;
+  }
+  .slide-counter {
+    font-size: 12px;
+    font-family: var(--font-en);
+    color: var(--gray-4);
+    white-space: nowrap;
+  }
+  .dot-row {
+    display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; margin-top: 4px;
+  }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gray-3); transition: background .2s;
+  }
+  .dot.active { background: var(--red); }
+  .dot.done { background: var(--teal); }
+</style>
 </head>
 <body>
-<div id="progress-bar"></div>
-<header class="nav">
-  <div style="display:flex;align-items:center;gap:16px">
-    <div class="nav-logo"><span class="nav-logo-dot"></span>PALS 2025</div>
-    <div class="nav-title">Module 01 · Course Intro &amp; 2025 Updates</div>
+<div class="deck" id="deck">
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 1 – HERO
+══════════════════════════════════════════════ -->
+<div class="slide hero-slide active">
+  <div class="slide-header">
+    <span class="mod-tag">Module 01</span>
+    <span class="slide-title-he">מבוא לקורס PALS</span>
+    <span class="slide-title-en">Course Introduction</span>
   </div>
-  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
-</header>
-<main class="stage" id="stage">
-  <section class="slide active hero-slide">
-    <div class="ey">Module 01</div>
-    <div class="pill ps">Orientation</div>
-    <h1 class="hero">Welcome to <span class="grad">PALS 2025</span> — Pediatric Advanced Life Support.</h1>
-    <p class="subt">This module covers what's new in the 2020/2025 AHA guidelines, how this course is structured, and what you will be able to do by the end of day two.</p>
-  </section>
-  <section class="slide">
-    <div class="pill ps">What is PALS?</div>
-    <h2>Pediatric Advanced Life Support</h2>
-    <div class="cards c2">
-      <div class="card"><h3>Who it's for</h3><p>Healthcare providers who respond to pediatric emergencies — nurses, physicians, paramedics, respiratory therapists, and anyone who may manage a critically ill child.</p></div>
-      <div class="card"><h3>What it teaches</h3><p>Systematic recognition of respiratory failure, shock, and cardiac arrest in children; team-based resuscitation; and algorithm-driven interventions.</p></div>
-      <div class="card"><h3>The goal</h3><p>Improve outcomes by preventing cardiac arrest through early recognition, and by delivering high-quality resuscitation when arrest occurs.</p></div>
-      <div class="card"><h3>This course</h3><p>Two-day provider course following the AHA 2020 guidelines. Skills stations, megacode scenarios, written exam, and provider card on completion.</p></div>
+  <div class="slide-body">
+    <div class="hero-cross">
+      <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+        <rect x="16" y="4" width="12" height="36" rx="3" fill="#fff" opacity=".9"/>
+        <rect x="4" y="16" width="36" height="12" rx="3" fill="#fff" opacity=".9"/>
+      </svg>
     </div>
-  </section>
-  <section class="slide">
-    <div class="pill pg">2020/2025 Updates</div>
-    <h2>Key AHA guideline changes you need to know</h2>
-    <div class="cards c2">
-      <div class="alt as"><h4>CPR rate confirmed</h4><p>100–120 compressions per minute. Faster does not improve outcomes and reduces perfusion pressure between compressions.</p></div>
-      <div class="alt as"><h4>Compression depth</h4><p>At least one-third AP chest diameter. Approximately 1.5 inches (4 cm) in infants, 2 inches (5 cm) in children.</p></div>
-      <div class="alt as"><h4>Full recoil mandatory</h4><p>Allow complete chest recoil between compressions. Leaning on the chest reduces venous return and coronary perfusion.</p></div>
-      <div class="alt as"><h4>Minimize interruptions</h4><p>Pre-shock and post-shock pauses less than 10 seconds. Target CPR fraction &gt;80%.</p></div>
-      <div class="alt ag"><h4>IO access emphasis</h4><p>Intraosseous access is now a primary route — not a rescue route — when IV access is delayed in unstable patients.</p></div>
-      <div class="alt ag"><h4>SpO₂ targets</h4><p>Target SpO₂ 94–99% during resuscitation. Avoid hyperoxia — titrate oxygen after ROSC.</p></div>
+    <span class="hero-badge">PALS 2025 · AHA Guidelines</span>
+    <div class="hero-title">
+      ה소생 מתקדמת<br>לילדים
     </div>
-  </section>
-  <section class="slide">
-    <div class="pill pa">Course structure</div>
-    <h2>Two-day schedule overview</h2>
-    <div class="timeline">
-      <div class="tl-item"><div class="tl-dot">D1</div><div><h3>Day 1 — Didactic + Skills</h3><p>BLS review, systematic assessment, respiratory emergencies, shock recognition, cardiac rhythms, algorithms. Skills stations: airway, IO access, cardiac monitoring.</p></div></div>
-      <div class="tl-item"><div class="tl-dot">D2</div><div><h3>Day 2 — Scenarios + Exam</h3><p>Megacode respiratory case, megacode shock case, cardiac arrest scenarios, post-arrest care, pharmacology review. Written exam and skills sign-off.</p></div></div>
-      <div class="tl-item"><div class="tl-dot">✓</div><div><h3>Completion</h3><p>Pass written exam (≥84%) and demonstrate competency in megacode scenarios to receive AHA PALS Provider card valid for 2 years.</p></div></div>
+    <div style="font-size:clamp(22px,4vw,40px);font-weight:900;color:rgba(255,255,255,0.9);font-family:var(--font-en);letter-spacing:-.02em;">
+      Pediatric Advanced<br>Life Support
     </div>
-  </section>
-  <section class="slide">
-    <div class="pill ps">Learning objectives</div>
-    <h2>By the end of this course you will be able to:</h2>
-    <div class="cards c2">
-      <div class="card"><h3>Recognize emergencies early</h3><p>Apply the Pediatric Assessment Triangle and primary ABCDE survey to identify respiratory failure, shock, and cardiac arrest before decompensation.</p></div>
-      <div class="card"><h3>Apply algorithms correctly</h3><p>Use AHA PALS algorithms for bradycardia, tachycardia, pulseless arrest, and post-cardiac arrest care.</p></div>
-      <div class="card"><h3>Lead and participate in teams</h3><p>Demonstrate effective team dynamics — clear roles, closed-loop communication, constructive debriefing.</p></div>
-      <div class="card"><h3>Perform key skills</h3><p>High-quality CPR, bag-mask ventilation, cardiac monitoring interpretation, vascular access, medication administration.</p></div>
+    <div class="hero-subtitle">
+      קורס מורשה של האיגוד האמריקני לב · MSR · שיבא תל-השומר<br>
+      <span style="opacity:.7">Authorized AHA Training · MSR · Sheba Medical Center</span>
     </div>
-  </section>
-  <section class="slide">
-    <div class="pill pr">Team dynamics</div>
-    <h2>Effective resuscitation is a team sport</h2>
-    <div class="cards c3">
-      <div class="card"><h3>Clear roles</h3><p>Every team member knows their assignment before the code starts. Ambiguity costs seconds.</p></div>
-      <div class="card"><h3>Closed-loop communication</h3><p>The sender gives a directive, the receiver confirms receipt, the sender acknowledges. Nothing is assumed.</p></div>
-      <div class="card"><h3>Constructive intervention</h3><p>Any team member may voice a safety concern. The team leader must be approachable. Hierarchy does not override safety.</p></div>
-      <div class="card"><h3>Shared mental model</h3><p>Everyone knows the working diagnosis, current treatment phase, and what comes next.</p></div>
-      <div class="card"><h3>Debriefing</h3><p>After every simulation and every real event — what went well, what to improve, how to improve it.</p></div>
-      <div class="card"><h3>Workload distribution</h3><p>The team leader monitors the whole picture. Do not pile tasks onto one person.</p></div>
+    <div class="hero-org" style="margin-top:8px">
+      📍 מרכז MSR לסימולציה רפואית · Tel Hashomer 52621
     </div>
-  </section>
-  <section class="slide">
-    <div class="pill pg">Ready</div>
-    <h2>You're set. Let's begin.</h2>
-    <div class="alt ag"><h4>Reminder</h4><p>Each module builds on the previous one. Progress is saved as you complete each module. If you leave and return, your place in the course is preserved.</p></div>
-    <div class="alt as"><h4>How to navigate</h4><p>Use the arrow buttons below, keyboard arrow keys, or swipe left/right on touch screens. Return to the Hub at any time using the ← Hub button above.</p></div>
-    <a href="pals_module_02_bls.slides.html" class="nxt">Next → Module 02: BLS Review →</a>
-  </section>
-</main>
-<footer class="footer">
-  <div class="counter" id="counter">1 / 7</div>
-  <div class="foot-btns"><button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button><button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button></div>
-</footer>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" id="prev-btn" onclick="go(-1)" disabled>◀ הקודם</button>
+    <div class="progress-wrap">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar" style="width:12%"></div></div>
+      <div class="dot-row" id="dot-row"></div>
+    </div>
+    <span class="slide-counter" id="counter">1 / 8</span>
+    <button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 2 – WHY PALS?
+══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 01</span>
+    <span class="slide-title-he">למה PALS?</span>
+    <span class="slide-title-en">Why PALS?</span>
+  </div>
+  <div class="slide-body">
+    <div class="sec-heading">הפסקת לב בילדים – המציאות<small>Pediatric Cardiac Arrest – The Reality</small></div>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="num">&gt;7,000</div>
+        <div class="label-he">הפסקות לב חוץ-בית-חולים</div>
+        <div class="label-en">out-of-hospital cardiac arrests / year (US)</div>
+      </div>
+      <div class="stat-box">
+        <div class="num">~20,000</div>
+        <div class="label-he">הפסקות לב תוך-בית-חולים</div>
+        <div class="label-en">in-hospital cardiac arrests / year (US)</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" style="color:var(--teal)">&lt;10%</div>
+        <div class="label-he">שרידות חוץ-בית-חולים</div>
+        <div class="label-en">OHCA survival rate</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" style="color:var(--green)">~47%</div>
+        <div class="label-he">שרידות תוך-בית-חולים</div>
+        <div class="label-en">IHCA survival rate</div>
+      </div>
+    </div>
+
+    <div class="highlight">
+      <strong>🔑 עיקרון יסוד:</strong> בניגוד למבוגרים, הפסקת לב בילדים <strong>נגרמת לרוב מכשל נשימתי או הלם</strong> – ולא ממחלת לב ראשונית. זיהוי מוקדם ומניעה הם המפתח.
+    </div>
+    <div class="highlight teal" style="direction:ltr;text-align:left;font-family:var(--font-en)">
+      <strong>Key principle:</strong> Unlike adults, pediatric cardiac arrest is usually secondary to <strong>respiratory failure or shock</strong>. Early recognition and intervention are critical.
+    </div>
+
+    <div class="card-grid">
+      <div class="card accent-navy">
+        <div class="card-icon">🧠</div>
+        <div class="card-title-he">זיהוי מוקדם</div>
+        <div class="card-title-en">Early Recognition</div>
+        <div class="card-body">זיהוי הידרדרות לפני הפסקת לב – חיוני להישרדות תקינה נוירולוגית</div>
+      </div>
+      <div class="card accent-red">
+        <div class="card-icon">⚡</div>
+        <div class="card-title-he">CPR איכותי</div>
+        <div class="card-title-en">High-Quality CPR</div>
+        <div class="card-body">דחיסות חזקות ומהירות, ריקויל מלא, הפרעות מינימליות &lt;10 שניות</div>
+      </div>
+      <div class="card accent-teal">
+        <div class="card-icon">🔗</div>
+        <div class="card-title-he">שרשרת ההצלה</div>
+        <div class="card-title-en">Chain of Survival</div>
+        <div class="card-body">כל חוליה קריטית – מניעה, CPR, דפיברילציה, ACLS, שיקום</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button>
+    <div class="progress-wrap">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar" style="width:25%"></div></div>
+      <div class="dot-row" id="dot-row"></div>
+    </div>
+    <span class="slide-counter" id="counter">2 / 8</span>
+    <button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 3 – COURSE GOALS
+══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 01</span>
+    <span class="slide-title-he">מטרות הקורס</span>
+    <span class="slide-title-en">Course Goals</span>
+  </div>
+  <div class="slide-body">
+    <div class="sec-heading">מה תלמד בקורס זה?<small>What you will learn</small></div>
+    <div class="card-grid">
+      <div class="card accent-red">
+        <div class="card-icon">🔍</div>
+        <div class="card-title-he">הערכה שיטתית</div>
+        <div class="card-title-en">Systematic Assessment</div>
+        <div class="card-body">PAT · ABCDE · זיהוי ילד מצוקה – ביצוע מהיר ומדויק</div>
+      </div>
+      <div class="card accent-teal">
+        <div class="card-icon">🫁</div>
+        <div class="card-title-he">קטגוריות נשימה</div>
+        <div class="card-title-en">Respiratory Categories</div>
+        <div class="card-body">חסימה עליונה/תחתונה, מחלת פרנכימה, הפרעה בבקרת נשימה</div>
+      </div>
+      <div class="card accent-amber">
+        <div class="card-icon">💉</div>
+        <div class="card-title-he">הלם בילדים</div>
+        <div class="card-title-en">Pediatric Shock</div>
+        <div class="card-body">הכרה, סיווג וטיפול: Hypovolemic · Distributive · Cardiogenic · Obstructive</div>
+      </div>
+      <div class="card accent-navy">
+        <div class="card-icon">⚡</div>
+        <div class="card-title-he">הפסקת לב</div>
+        <div class="card-title-en">Cardiac Arrest</div>
+        <div class="card-body">אלגוריתם VF/VT, Asystole/PEA, טיפול תרופתי, דפיברילציה</div>
+      </div>
+      <div class="card accent-green">
+        <div class="card-icon">🎭</div>
+        <div class="card-title-he">מגה-קוד</div>
+        <div class="card-title-en">Megacode Simulation</div>
+        <div class="card-body">הדמיית מצבים מורכבים – עבודת צוות ומנהיגות בסביבה בטוחה</div>
+      </div>
+      <div class="card accent-red">
+        <div class="card-icon">💊</div>
+        <div class="card-title-he">פרמקולוגיה</div>
+        <div class="card-title-en">PALS Pharmacology</div>
+        <div class="card-body">אפינפרין, אמיודרון, לידוקאין, אטרופין – מינונים לפי משקל</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="go(-1)">◀ הקודם</button>
+    <div class="progress-wrap">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar" style="width:37%"></div></div>
+      <div class="dot-row" id="dot-row"></div>
+    </div>
+    <span class="slide-counter" id="counter">3 / 8</span>
+    <button class="nav-btn" onclick="go(1)">הבא ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 4 – COURSE STRUCTURE (12 MODULES)
+══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 01</span>
+    <span class="slide-title-he">מבנה הקורס – 12 מודולים</span>
+    <span class="slide-title-en">Course Structure</span>
+  </div>
+  <div class="slide-body">
+    <div class="sec-heading">סדר הלמידה<small>Learning Sequence</small></div>
+    <div style="overflow-x:auto">
+      <table class="module-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>נושא עברית</th>
+            <th>Topic (English)</th>
+            <th>סוג</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>01</td><td>מבוא לקורס PALS</td><td class="en-col">Course Introduction</td><td><span class="badge badge-core">Core</span></td></tr>
+          <tr><td>02</td><td>החייאה בסיסית – BLS</td><td class="en-col">Basic Life Support</td><td><span class="badge badge-skills">Skills</span></td></tr>
+          <tr><td>03</td><td>הערכת ילד מצוקה</td><td class="en-col">Pediatric Assessment</td><td><span class="badge badge-core">Core</span></td></tr>
+          <tr><td>04</td><td>מצבי נשימה מחמירים</td><td class="en-col">Respiratory Emergencies</td><td><span class="badge badge-clin">Clinical</span></td></tr>
+          <tr><td>05</td><td>הלם – Shock</td><td class="en-col">Shock Recognition &amp; Treatment</td><td><span class="badge badge-clin">Clinical</span></td></tr>
+          <tr><td>06</td><td>הפרעות קצב</td><td class="en-col">Cardiac Rhythms</td><td><span class="badge badge-core">Core</span></td></tr>
+          <tr><td>07</td><td>אלגוריתמים – Cardiac Arrest</td><td class="en-col">Cardiac Arrest Algorithms</td><td><span class="badge badge-clin">Clinical</span></td></tr>
+          <tr><td>08</td><td>מגה-קוד – תגובה נשימתית</td><td class="en-col">Megacode: Respiratory</td><td><span class="badge badge-skills">Skills</span></td></tr>
+          <tr><td>09</td><td>מגה-קוד – הלם</td><td class="en-col">Megacode: Shock</td><td><span class="badge badge-skills">Skills</span></td></tr>
+          <tr><td>10</td><td>טיפול לאחר הפסקת לב</td><td class="en-col">Post-Cardiac Arrest Care</td><td><span class="badge badge-clin">Clinical</span></td></tr>
+          <tr><td>11</td><td>פרמקולוגיה – PALS Drugs</td><td class="en-col">PALS Pharmacology</td><td><span class="badge badge-core">Core</span></td></tr>
+          <tr><td>12</td><td>נתיב אוורור מתקדם</td><td class="en-col">Advanced Airway</td><td><span class="badge badge-skills">Skills</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="go(-1)">◀ הקודם</button>
+    <div class="progress-wrap">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar" style="width:50%"></div></div>
+      <div class="dot-row" id="dot-row"></div>
+    </div>
+    <span class="slide-counter" id="counter">4 / 8</span>
+    <button class="nav-btn" onclick="go(1)">הבא ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 5 – AHA 2025 UPDATES
+══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 01</span>
+    <span class="slide-title-he">עדכוני AHA 2025</span>
+    <span class="slide-title-en">2025 AHA Guideline Updates</span>
+  </div>
+  <div class="slide-body">
+    <div class="sec-heading">מה חדש בהנחיות 2025?<small>Key Changes – 2025 AHA Guidelines for CPR & ECC</small></div>
+
+    <div class="aha-strip">
+      <div class="year">2025</div>
+      <div>
+        <div style="font-size:15px;font-weight:700">הנחיות AHA/AAP לאמצעי החייאה לב-ריאה</div>
+        <div style="font-size:12px;opacity:.85;font-family:var(--font-en)">American Heart Association · American Academy of Pediatrics · ILCOR</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card accent-red">
+        <div class="card-icon">👶</div>
+        <div class="card-title-he">טכניקת דחיסה לתינוקות</div>
+        <div class="card-title-en">Infant Compression Technique</div>
+        <div class="card-body">טכניקת 2 אצבעות <strong>בוטלה</strong>. מועדפת: חפן-שני-אגודלות (2-thumb encircling) או עקב יד אחת</div>
+      </div>
+      <div class="card accent-teal">
+        <div class="card-icon">🦴</div>
+        <div class="card-title-he">חסימת גוף זר – FBAO</div>
+        <div class="card-title-en">Foreign Body Airway Obstruction</div>
+        <div class="card-body">מחזורים של 5 מכות גב + 5 לחיצות חזה (תינוק) / 5 מכות גב + 5 לחיצות בטן (ילד) – לפי 2025</div>
+      </div>
+      <div class="card accent-amber">
+        <div class="card-icon">⏱️</div>
+        <div class="card-title-he">הפסקות CPR</div>
+        <div class="card-title-en">CPR Pause Duration</div>
+        <div class="card-body">הפסקות דחיסות &lt;10 שניות. יעד ETCO₂ לניטור איכות CPR ולחיזוי ROSC</div>
+      </div>
+      <div class="card accent-green">
+        <div class="card-icon">💉</div>
+        <div class="card-title-he">אפינפרין – תזמון</div>
+        <div class="card-title-en">Epinephrine Timing</div>
+        <div class="card-body">בקצב לא-ניתן להלם (non-shockable): אפינפרין <strong>מוקדם ככל האפשר</strong> – &lt;3 דקות משפר תוצאות</div>
+      </div>
+      <div class="card accent-navy">
+        <div class="card-icon">🌡️</div>
+        <div class="card-title-he">שליטת טמפרטורה</div>
+        <div class="card-title-en">Temperature Control</div>
+        <div class="card-body">לאחר ROSC: שמירה על בקרת טמפרטורה לפחות 36 שעות בחולים ללא תגובה</div>
+      </div>
+      <div class="card accent-red">
+        <div class="card-icon">📊</div>
+        <div class="card-title-he">פרוגנוזה נוירולוגית</div>
+        <div class="card-title-en">Neuroprognostication</div>
+        <div class="card-body">לראשונה: הנחיות לחיזוי תוצאה נוירולוגית חיובית ושלילית לאחר הפסקת לב בילדים</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="go(-1)">◀ הקודם</button>
+    <div class="progress-wrap">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar" style="width:62%"></div></div>
+      <div class="dot-row" id="dot-row"></div>
+    </div>
+    <span class="slide-counter" id="counter">5 / 8</span>
+    <button class="nav-btn" onclick="go(1)">הבא ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 6 – CHAIN OF SURVIVAL
+══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 01</span>
+    <span class="slide-title-he">שרשרת ההצלה</span>
+    <span class="slide-title-en">Chain of Survival</span>
+  </div>
+  <div class="slide-body">
+    <div class="sec-heading">AHA Chain of Survival – ילדים ומבוגרים<small>Unified Chain of Survival 2025</small></div>
+    <div class="chain-container">
+      <svg viewBox="0 0 900 160" style="width:100%;height:auto;min-width:600px" font-family="'Inter','Heebo',sans-serif">
+        <!-- Chain links -->
+        <defs>
+          <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1A2744"/>
+            <stop offset="100%" stop-color="#2D4080"/>
+          </linearGradient>
+          <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#C0392B"/>
+            <stop offset="100%" stop-color="#E74C3C"/>
+          </linearGradient>
+          <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0D7377"/>
+            <stop offset="100%" stop-color="#14A085"/>
+          </linearGradient>
+          <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#E67E22"/>
+            <stop offset="100%" stop-color="#F39C12"/>
+          </linearGradient>
+          <linearGradient id="g5" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1E8449"/>
+            <stop offset="100%" stop-color="#27AE60"/>
+          </linearGradient>
+          <linearGradient id="g6" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#7D3C98"/>
+            <stop offset="100%" stop-color="#9B59B6"/>
+          </linearGradient>
+        </defs>
+        <!-- Arrows between nodes -->
+        <path d="M138 80 L162 80" stroke="#C5CAD5" stroke-width="3" marker-end="url(#arrow)"/>
+        <path d="M288 80 L312 80" stroke="#C5CAD5" stroke-width="3" marker-end="url(#arrow)"/>
+        <path d="M438 80 L462 80" stroke="#C5CAD5" stroke-width="3" marker-end="url(#arrow)"/>
+        <path d="M588 80 L612 80" stroke="#C5CAD5" stroke-width="3" marker-end="url(#arrow)"/>
+        <path d="M738 80 L762 80" stroke="#C5CAD5" stroke-width="3" marker-end="url(#arrow)"/>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#C5CAD5"/>
+          </marker>
+        </defs>
+
+        <!-- Node 1 -->
+        <circle cx="80" cy="80" r="54" fill="url(#g1)"/>
+        <text x="80" y="68" text-anchor="middle" fill="white" font-size="22" font-weight="700">🛡️</text>
+        <text x="80" y="88" text-anchor="middle" fill="white" font-size="9" font-weight="700">מניעה</text>
+        <text x="80" y="100" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8">Prevention</text>
+
+        <!-- Node 2 -->
+        <circle cx="225" cy="80" r="54" fill="url(#g2)"/>
+        <text x="225" y="68" text-anchor="middle" fill="white" font-size="22" font-weight="700">🆘</text>
+        <text x="225" y="88" text-anchor="middle" fill="white" font-size="9" font-weight="700">זיהוי והפעלה</text>
+        <text x="225" y="100" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8">Recognition &amp; Activation</text>
+
+        <!-- Node 3 -->
+        <circle cx="375" cy="80" r="54" fill="url(#g3)"/>
+        <text x="375" y="68" text-anchor="middle" fill="white" font-size="22" font-weight="700">💓</text>
+        <text x="375" y="88" text-anchor="middle" fill="white" font-size="9" font-weight="700">CPR איכותי</text>
+        <text x="375" y="100" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8">High-Quality CPR</text>
+
+        <!-- Node 4 -->
+        <circle cx="525" cy="80" r="54" fill="url(#g4)"/>
+        <text x="525" y="68" text-anchor="middle" fill="white" font-size="22" font-weight="700">⚡</text>
+        <text x="525" y="88" text-anchor="middle" fill="white" font-size="9" font-weight="700">דפיברילציה</text>
+        <text x="525" y="100" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8">Defibrillation</text>
+
+        <!-- Node 5 -->
+        <circle cx="675" cy="80" r="54" fill="url(#g1)"/>
+        <text x="675" y="68" text-anchor="middle" fill="white" font-size="22" font-weight="700">🏥</text>
+        <text x="675" y="88" text-anchor="middle" fill="white" font-size="9" font-weight="700">ACLS מתקדם</text>
+        <text x="675" y="100" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8">Advanced Resuscitation</text>
+
+        <!-- Node 6 -->
+        <circle cx="825" cy="80" r="54" fill="url(#g5)"/>
+        <text x="825" y="68" text-anchor="middle" fill="white" font-size="22" font-weight="700">🌱</text>
+        <text x="825" y="88" text-anchor="middle" fill="white" font-size="9" font-weight="700">שיקום</text>
+        <text x="825" y="100" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8">Recovery &amp; Survivorship</text>
+      </svg>
+    </div>
+
+    <div class="highlight teal">
+      <strong>2025 – שרשרת מאוחדת:</strong> לראשונה, שרשרת הצלה אחת חלה על הפסקות לב בילדים ומבוגרים – גם בבית-חולים וגם מחוצה לו. כל חוליה שבורה מפחיתה את סיכויי ההישרדות.
+    </div>
+    <div class="highlight" style="direction:ltr;text-align:left;font-family:var(--font-en)">
+      <strong>2025 update:</strong> A single unified Chain of Survival now applies to both adult and pediatric, in-hospital and out-of-hospital cardiac arrest. Every weak link reduces survival odds.
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="go(-1)">◀ הקודם</button>
+    <div class="progress-wrap">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar" style="width:75%"></div></div>
+      <div class="dot-row" id="dot-row"></div>
+    </div>
+    <span class="slide-counter" id="counter">6 / 8</span>
+    <button class="nav-btn" onclick="go(1)">הבא ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 7 – PALS TEAM & ROLES
+══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 01</span>
+    <span class="slide-title-he">עבודת צוות ותפקידים</span>
+    <span class="slide-title-en">Team Roles in Resuscitation</span>
+  </div>
+  <div class="slide-body">
+    <div class="sec-heading">תפקידי הצוות בהחייאה<small>High-Performance Team Dynamics</small></div>
+
+    <div class="card-grid">
+      <div class="card accent-red">
+        <div class="card-icon">👑</div>
+        <div class="card-title-he">מנהיג הצוות</div>
+        <div class="card-title-en">Team Leader</div>
+        <div class="card-body">מפקח, מחליט, מתקשר ברור, מונע טעויות, קורא close-loop. אינו מבצע הליכים בד"כ.</div>
+      </div>
+      <div class="card accent-teal">
+        <div class="card-icon">💓</div>
+        <div class="card-title-he">מבצע CPR</div>
+        <div class="card-title-en">Compressor</div>
+        <div class="card-body">דחיסות: מהירות 100–120/דקה, עומק ⅓ קוטר חזה, ריקויל מלא. חילוף כל 2 דקות.</div>
+      </div>
+      <div class="card accent-amber">
+        <div class="card-icon">🌬️</div>
+        <div class="card-title-he">מנהל נתיב אוורור</div>
+        <div class="card-title-en">Airway Manager</div>
+        <div class="card-body">פותח מסכה, BVM, אוורור, שמירת נתיב; בוחן הצבת מכשיר מתקדם.</div>
+      </div>
+      <div class="card accent-navy">
+        <div class="card-icon">💊</div>
+        <div class="card-title-he">מנהל גישה + תרופות</div>
+        <div class="card-title-en">IV/IO Access + Meds</div>
+        <div class="card-body">פותח גישה ורידית/תוך-עצמית, מכין ונותן תרופות, מדווח למנהיג.</div>
+      </div>
+      <div class="card accent-green">
+        <div class="card-icon">📋</div>
+        <div class="card-title-he">מתעד הזמן</div>
+        <div class="card-title-en">Timer/Recorder</div>
+        <div class="card-body">מתעד כל פעולה ושעתה, מזכיר מחזורים ותרופות, מנטר 2 דקות CPR.</div>
+      </div>
+    </div>
+
+    <div class="info-banner">
+      <span class="bi">🔄</span>
+      <div class="bi-text">
+        <div class="title">תקשורת בלולאה סגורה – Closed-Loop Communication</div>
+        <div class="body">מנהיג מצווה → חבר צוות חוזר על הפקודה → מנהיג מאשר ביצוע. מפחית טעויות בסביבה לחוצה.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="go(-1)">◀ הקודם</button>
+    <div class="progress-wrap">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar" style="width:87%"></div></div>
+      <div class="dot-row" id="dot-row"></div>
+    </div>
+    <span class="slide-counter" id="counter">7 / 8</span>
+    <button class="nav-btn" onclick="go(1)">הבא ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 8 – SUMMARY + COMPLETE
+══════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="mod-tag">Module 01</span>
+    <span class="slide-title-he">סיכום מודול 01</span>
+    <span class="slide-title-en">Module Summary</span>
+  </div>
+  <div class="slide-body">
+    <div class="sec-heading">נקודות מפתח – מודול 01<small>Key Takeaways</small></div>
+
+    <div class="highlight green">
+      ✅ <strong>הפסקת לב בילדים</strong> נגרמת לרוב מכשל נשימתי/הלם – לא ממקור לבבי ראשוני. מניעה וזיהוי מוקדם קריטיים.
+    </div>
+    <div class="highlight teal">
+      ✅ <strong>CPR איכותי ודפיברילציה מוקדמת</strong> הם הטיפולים המשפרים שרידות ביותר. אל תפסיק, אל תאחר.
+    </div>
+    <div class="highlight amber">
+      ✅ <strong>עדכוני 2025:</strong> טכניקת דחיסה תינוק מחודשת, FBAO מחזורי, אפינפרין מוקדם, שליטת טמפרטורה 36 שעות.
+    </div>
+    <div class="highlight">
+      ✅ <strong>עבודת צוות</strong> + תקשורת בלולאה סגורה = הצלת חיים. כל חבר צוות מכיר תפקידו.
+    </div>
+
+    <div class="card" style="background:var(--navy);color:#fff;border:none;align-items:center;text-align:center;gap:12px;padding:22px">
+      <div style="font-size:30px">🎯</div>
+      <div style="font-size:17px;font-weight:800">מוכן להמשיך למודול 02?</div>
+      <div style="font-size:13px;opacity:.75;font-family:var(--font-en)">Ready for Module 02 · Basic Life Support (BLS)?</div>
+      <button onclick="markDone()" id="complete-btn"
+        style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:16px;font-weight:800;cursor:pointer;font-family:var(--font-he);margin-top:6px;transition:background .15s"
+        onmouseover="this.style.background='#96281B'" onmouseout="this.style.background='var(--red)'">
+        ✅ סיימתי מודול 01 – המשך
+      </button>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="go(-1)">◀ הקודם</button>
+    <div class="progress-wrap">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar" style="width:100%"></div></div>
+      <div class="dot-row" id="dot-row"></div>
+    </div>
+    <span class="slide-counter" id="counter">8 / 8</span>
+    <button class="nav-btn" id="next-btn" disabled>סוף המודול</button>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
 <script>
-const slides=[...document.querySelectorAll('.slide')];let cur=0,total=slides.length;
-function updateUI(){document.getElementById('counter').textContent=(cur+1)+' / '+total;document.getElementById('prev-btn').disabled=cur===0;document.getElementById('next-btn').disabled=cur===total-1;if(cur===total-1)markComplete('mod01');document.getElementById('progress-bar').style.width=((cur+1)/total*100)+'%';}
-function goTo(n){if(n<0||n>=total||n===cur)return;const old=slides[cur],nw=slides[n];old.classList.remove('active');old.classList.add(n>cur?'exit-left':'');setTimeout(()=>old.classList.remove('exit-left'),500);nw.classList.add('active');cur=n;updateUI();}
-function changeSlide(d){goTo(cur+d)}
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')changeSlide(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')changeSlide(-1)});
-let sx=0;document.addEventListener('touchstart',e=>sx=e.changedTouches[0].clientX,{passive:true});document.addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>48)changeSlide(dx>0?-1:1)},{passive:true});
+// ── Navigation ──────────────────────────────────
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let cur = 0;
+let _done_fired = false;
+
+function go(dir) {
+  slides[cur].classList.remove('active');
+  cur = Math.max(0, Math.min(total - 1, cur + dir));
+  slides[cur].classList.add('active');
+  updateUI();
+  if (cur === total - 1 && !_done_fired) {
+    _done_fired = true;
+    markDone();
+  }
+}
+
+function updateUI() {
+  const pct = ((cur + 1) / total * 100).toFixed(0);
+  document.querySelectorAll('#counter').forEach(el => el.textContent = (cur + 1) + ' / ' + total);
+  document.querySelectorAll('#progress-bar').forEach(el => el.style.width = pct + '%');
+  document.querySelectorAll('#prev-btn').forEach(el => el.disabled = cur === 0);
+  document.querySelectorAll('#next-btn').forEach(el => el.disabled = cur === total - 1);
+}
+
+// Build dots (only first slide has them in markup; rebuild from active slide)
+document.querySelectorAll('.dot-row').forEach((row, idx) => {
+  row.innerHTML = Array.from({length: total}, (_, i) =>
+    `<div class="dot${i === idx ? ' active' : ''}" onclick="jumpTo(${i})"></div>`
+  ).join('');
+});
+function jumpTo(i) { slides[cur].classList.remove('active'); cur = i; slides[cur].classList.add('active'); updateUI(); }
+
+// ── Completion ─────────────────────────────────
+async function markDone() {
+  if (!window.FB_READY) {
+    window._pendingMod = 0;
+    return;
+  }
+  try {
+    const ready = await Promise.race([
+      window.FB_READY,
+      new Promise(res => setTimeout(() => res(null), 3000))
+    ]);
+    if (ready && ready.markModuleComplete) {
+      await ready.markModuleComplete(0);
+    }
+  } catch(e) {}
+  const btn = document.getElementById('complete-btn');
+  if (btn) {
+    btn.textContent = '✅ הושלם! עובר להub…';
+    btn.disabled = true;
+    setTimeout(() => { window.location.href = '../hub_student.html'; }, 1200);
+  }
+}
+
+window.FB_READY && window.FB_READY.then(fb => {
+  if (fb && window._pendingMod === 0) markDone();
+});
+
 updateUI();
-function markComplete(k){markDone();}
-async function markDone(){
-  try{var p=JSON.parse(sessionStorage.getItem('pals_progress')||'{}');p[0]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}
-  
-  (async function(){
-    try{
-      var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB);},3000);})]);
-      if(fb&&fb.markModuleComplete){await fb.markModuleComplete(0);}
-    }catch(ex){console.warn('[PALS] FB save:',ex&&ex.message);}
-  })();
-  setTimeout(function(){window.location.href='../hub_student.html';},900);
-};p[k]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}}
 </script>
-</body></html>
+</body>
+</html>
