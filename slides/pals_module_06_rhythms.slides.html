@@ -1,425 +1,717 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="he-IL" dir="rtl">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Module 06 · Rhythm Recognition</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Module 06 · Rhythm Recognition</title><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root{--bg:#07090f;--surface:#0e1117;--surface2:#141820;--border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#7c8494;--faint:#3a3f4a;--cyan:#00d4ff;--cyan-dim:#00aacc;--cyan-glow:rgba(0,212,255,0.15);--green:#00e676;--red:#ff4d6d;--amber:#ffb300;--purple:#b388ff;--purple-dim:#7c4dff;--font-head:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--r:12px;--r-lg:20px;--r-xl:28px;--transition:0.45s cubic-bezier(0.16,1,0.3,1)}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
-.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
-.bg-blob{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;animation:drift 18s ease-in-out infinite alternate}
-.bb1{width:600px;height:600px;top:-200px;right:-200px;background:radial-gradient(circle,rgba(0,212,255,0.07),transparent 70%)}
-.bb2{width:500px;height:500px;bottom:-150px;left:-150px;background:radial-gradient(circle,rgba(124,77,255,0.05),transparent 70%);animation-delay:-9s}
-@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,20px) scale(1.05)}}
-#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--purple));transition:width 0.5s ease;z-index:100;box-shadow:0 0 12px var(--cyan)}
-.nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,9,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:50}
-.nav-logo{font-family:var(--font-head);font-size:13px;font-weight:600;color:var(--cyan);letter-spacing:0.08em;text-transform:uppercase}.nav-info{font-size:12px;color:var(--muted)}
-.nav-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s}.nav-btn:hover{border-color:var(--cyan);color:var(--cyan)}
-.stage{position:fixed;inset:56px 0 64px;overflow:hidden}
-.slide{position:absolute;inset:0;padding:40px 48px;overflow-y:auto;display:flex;flex-direction:column;gap:20px;opacity:0;transform:translateX(60px);transition:opacity var(--transition),transform var(--transition);pointer-events:none}
-.slide.active{opacity:1;transform:translateX(0);pointer-events:all}.slide.exit-left{opacity:0;transform:translateX(-60px)}
-.slide::-webkit-scrollbar{width:4px}.slide::-webkit-scrollbar-track{background:transparent}.slide::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
-.hero-slide{justify-content:center;padding:60px 48px}
-.mod-eye{font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px;display:flex;align-items:center;gap:8px}.mod-eye::before{content:'';display:block;width:24px;height:2px;background:var(--cyan);border-radius:2px}
-h1.hero{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3.4rem);font-weight:700;line-height:1.1;letter-spacing:-0.02em;color:#fff;max-width:860px}h1.hero span{color:var(--cyan)}
-.subt{font-size:1.05rem;color:var(--muted);max-width:700px;line-height:1.7}.ttags{display:flex;flex-wrap:wrap;gap:10px}.ttag{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;color:var(--muted)}
-.ey{font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--cyan);opacity:0.8}h2{font-family:var(--font-head);font-size:clamp(1.4rem,2.8vw,2rem);font-weight:700;color:#fff;line-height:1.2;letter-spacing:-0.01em}h3{font-family:var(--font-head);font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:6px}h4{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:4px}p{font-size:0.92rem;color:var(--muted);line-height:1.65}li{font-size:0.9rem;color:var(--muted);line-height:1.6;margin-bottom:4px}strong{color:var(--text);font-weight:600}ul{padding-left:16px}
-.cards{display:grid;gap:16px}.c2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}.c3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}.c4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;transition:border-color 0.25s,box-shadow 0.25s}.card:hover{border-color:rgba(0,212,255,0.25);box-shadow:0 0 24px rgba(0,212,255,0.06)}
-.alt{border-radius:var(--r);padding:16px 18px;border-left:3px solid}.ar{background:rgba(255,77,109,0.08);border-color:var(--red)}.ar h4{color:var(--red);font-size:0.85rem;margin-bottom:4px}.aa{background:rgba(255,179,0,0.07);border-color:var(--amber)}.aa h4{color:var(--amber);font-size:0.85rem;margin-bottom:4px}.ac{background:rgba(0,212,255,0.07);border-color:var(--cyan)}.ac h4{color:var(--cyan);font-size:0.85rem;margin-bottom:4px}.ag{background:rgba(0,230,118,0.07);border-color:var(--green)}.ag h4{color:var(--green);font-size:0.85rem;margin-bottom:4px}
-/* ECG strip */
-.strip-wrap{background:#0a0f0a;border:1px solid rgba(0,200,80,0.2);border-radius:var(--r);padding:8px 12px;overflow:hidden;position:relative}
-.strip-wrap::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,180,60,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,60,0.07) 1px,transparent 1px);background-size:20px 20px}
-.strip-wrap svg{display:block;width:100%;position:relative;z-index:1}
-.ecg-line{stroke:#00e676;stroke-width:1.8;fill:none;filter:drop-shadow(0 0 4px rgba(0,230,118,0.6))}
-.ecg-vf{stroke:#ff4d6d;stroke-width:1.8;fill:none;filter:drop-shadow(0 0 4px rgba(255,77,109,0.5))}
-.ecg-vt{stroke:#ffb300;stroke-width:1.8;fill:none;filter:drop-shadow(0 0 4px rgba(255,179,0,0.5))}
-.ecg-flat{stroke:#7c8494;stroke-width:1.5;fill:none}
-.ecg-pea{stroke:#b388ff;stroke-width:1.8;fill:none;filter:drop-shadow(0 0 3px rgba(179,136,255,0.5))}
-.strip-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
-.compare{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch}.vs{display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:1.3rem;font-weight:700;color:var(--cyan);opacity:0.7}
-.pill{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:8px}.pr{background:rgba(255,77,109,0.15);color:var(--red)}.pg{background:rgba(0,230,118,0.12);color:var(--green)}.pc{background:rgba(0,212,255,0.12);color:var(--cyan)}.pa{background:rgba(255,179,0,0.12);color:var(--amber)}.ppu{background:rgba(179,136,255,0.15);color:var(--purple)}
-/* flip cards */
-.fg{display:grid;gap:16px}.fg3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.fc{perspective:1000px;cursor:pointer}.fi{width:100%;min-height:165px;position:relative;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1)}.fc.flipped .fi{transform:rotateY(180deg)}.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;justify-content:center}.ff{background:var(--surface);border:1px solid rgba(0,212,255,0.2)}.fb{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(179,136,255,0.08));border:1px solid rgba(0,212,255,0.3);transform:rotateY(180deg)}.ql{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}.fi h4{font-size:0.9rem;color:var(--text);line-height:1.4}.fb p{font-size:0.88rem;color:var(--text);line-height:1.6}.hi{font-size:11px;color:var(--faint);margin-top:10px}
-.tbl{width:100%;border-collapse:collapse;font-size:0.85rem}.tbl th{text-align:left;padding:10px 14px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--cyan);border-bottom:1px solid var(--border)}.tbl td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}.tbl tr:hover td{background:rgba(255,255,255,0.02)}.tbl td strong{color:var(--text)}
-.foot{position:fixed;bottom:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(7,9,15,0.85);backdrop-filter:blur(16px);border-top:1px solid var(--border);z-index:50}.slide-counter{font-size:12px;color:var(--muted)}.foot-btns{display:flex;gap:10px}.foot-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:var(--font-head)}.foot-btn:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 16px rgba(0,212,255,0.15)}.foot-btn:disabled{opacity:0.25;cursor:not-allowed}.foot-btn.primary{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.3);color:var(--cyan)}.foot-btn.primary:hover:not(:disabled){background:rgba(0,212,255,0.18)}
-.nxt{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:12px 24px;background:linear-gradient(135deg,var(--cyan),var(--purple-dim));color:#07090f;font-family:var(--font-head);font-weight:700;font-size:0.9rem;border-radius:var(--r);text-decoration:none;transition:opacity 0.2s,transform 0.2s;align-self:flex-start}.nxt:hover{opacity:0.88;transform:translateY(-1px)}
-.shock-box{border-radius:var(--r-xl);padding:24px;display:flex;flex-direction:column;gap:12px}.shock-yes{background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.3)}.shock-no{background:rgba(124,132,148,0.08);border:1px solid var(--border)}
-@media(max-width:760px){.compare{grid-template-columns:1fr}.vs{display:none}}
-@media(max-width:640px){.slide{padding:24px 20px}.hero-slide{padding:36px 20px}h1.hero{font-size:1.8rem}}
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Inter:wght@300;400;500;700&display=swap');
+
+  :root {
+    --red:    #C0392B;
+    --red-d:  #96281B;
+    --red-l:  #FDECEA;
+    --navy:   #1A2744;
+    --navy-m: #243257;
+    --navy-l: #EEF1F8;
+    --teal:   #0D7377;
+    --teal-l: #E6F4F4;
+    --amber:  #E67E22;
+    --amber-l:#FEF5EC;
+    --green:  #1E8449;
+    --green-l:#E9F7EF;
+    --gray-1: #F7F8FA;
+    --gray-2: #EAECF0;
+    --gray-3: #C5CAD5;
+    --gray-4: #6B7280;
+    --gray-5: #374151;
+    --white:  #FFFFFF;
+    --text:   #1C1F26;
+    --radius: 12px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.10);
+    --font-he: 'Heebo', 'Arial Hebrew', sans-serif;
+    --font-en: 'Inter', Arial, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%; width: 100%;
+    font-family: var(--font-he);
+    background: var(--gray-1);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ── LAYOUT ── */
+  .deck { height: 100vh; display: flex; flex-direction: column; }
+
+  .slide {
+    display: none;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    flex-direction: column;
+  }
+  .slide.active { display: flex; }
+
+  /* ── HEADER ── */
+  .slide-header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    gap: 16px;
+  }
+  .slide-header .mod-tag {
+    background: var(--red);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-family: var(--font-en);
+  }
+  .slide-header .slide-title-he {
+    font-size: 18px;
+    font-weight: 700;
+    flex: 1;
+    text-align: center;
+  }
+  .slide-header .slide-title-en {
+    font-size: 11px;
+    font-family: var(--font-en);
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  /* ── CONTENT AREA ── */
+  .slide-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── HERO SLIDE ── */
+  .hero-slide .slide-body {
+    background: linear-gradient(135deg, var(--navy) 0%, #1A3A6E 60%, #0D4F5C 100%);
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    gap: 24px;
+  }
+  .hero-badge {
+    background: var(--red);
+    color: #fff;
+    font-family: var(--font-en);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    padding: 6px 18px;
+    border-radius: 24px;
+    text-transform: uppercase;
+  }
+  .hero-title {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+  }
+  .hero-subtitle {
+    font-size: clamp(14px, 2vw, 20px);
+    font-weight: 400;
+    color: rgba(255,255,255,0.72);
+    font-family: var(--font-en);
+    max-width: 600px;
+  }
+  .hero-org {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    font-family: var(--font-en);
+  }
+
+  /* Cross / Logo SVG */
+  .hero-cross {
+    width: 90px; height: 90px;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── SECTION HEADING ── */
+  .sec-heading {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--navy);
+    border-right: 4px solid var(--red);
+    padding-right: 14px;
+    line-height: 1.2;
+  }
+  .sec-heading small {
+    display: block;
+    font-family: var(--font-en);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-4);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  /* ── CARD GRID ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: var(--white);
+    border: 1px solid var(--gray-2);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .card .card-icon {
+    font-size: 26px;
+    line-height: 1;
+  }
+  .card .card-title-he {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .card .card-title-en {
+    font-size: 11px;
+    font-family: var(--font-en);
+    font-weight: 600;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .card .card-body {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--gray-5);
+  }
+
+  /* ── ACCENT CARDS ── */
+  .card.accent-red { border-top: 3px solid var(--red); }
+  .card.accent-teal { border-top: 3px solid var(--teal); }
+  .card.accent-amber { border-top: 3px solid var(--amber); }
+  .card.accent-green { border-top: 3px solid var(--green); }
+  .card.accent-navy { border-top: 3px solid var(--navy); }
+
+  /* ── INFO BANNER ── */
+  .info-banner {
+    background: var(--navy-l);
+    border: 1px solid #C5D0E8;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .info-banner .bi { font-size: 22px; flex-shrink: 0; }
+  .info-banner .bi-text .title { font-size: 15px; font-weight: 700; color: var(--navy); }
+  .info-banner .bi-text .body { font-size: 13.5px; color: var(--gray-5); line-height: 1.6; margin-top: 4px; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight {
+    background: var(--red-l);
+    border-right: 4px solid var(--red);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--gray-5);
+  }
+  .highlight.teal {
+    background: var(--teal-l);
+    border-right-color: var(--teal);
+  }
+  .highlight.amber {
+    background: var(--amber-l);
+    border-right-color: var(--amber);
+  }
+  .highlight.green {
+    background: var(--green-l);
+    border-right-color: var(--green);
+  }
+
+  /* ── STAT ROW ── */
+  .stat-row {
+    display: flex; gap: 14px; flex-wrap: wrap;
+  }
+  .stat-box {
+    flex: 1; min-width: 120px;
+    background: var(--white);
+    border: 1px solid var(--gray-2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .stat-box .num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--red);
+    font-family: var(--font-en);
+    line-height: 1;
+  }
+  .stat-box .label-he { font-size: 12.5px; color: var(--gray-5); margin-top: 4px; font-weight: 600; }
+  .stat-box .label-en { font-size: 10px; color: var(--gray-4); font-family: var(--font-en); }
+
+  /* ── MODULES OVERVIEW TABLE ── */
+  .module-table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  .module-table th {
+    background: var(--navy);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: right;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .module-table th:first-child { text-align: center; width: 50px; }
+  .module-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--gray-2);
+    vertical-align: middle;
+  }
+  .module-table td:first-child { text-align: center; font-family: var(--font-en); font-weight: 700; color: var(--red); font-size: 13px; }
+  .module-table tr:hover td { background: var(--gray-1); }
+  .module-table .en-col { font-family: var(--font-en); font-size: 11.5px; color: var(--gray-4); }
+  .module-table .badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-family: var(--font-en);
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .badge-core { background: #DBEAFE; color: #1D4ED8; }
+  .badge-clin { background: #D1FAE5; color: #065F46; }
+  .badge-skills { background: #FEF3C7; color: #92400E; }
+
+  /* ── AHA YEAR ── */
+  .aha-strip {
+    background: var(--red);
+    color: #fff;
+    border-radius: 8px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .aha-strip .year {
+    font-family: var(--font-en);
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+
+  /* ── CHAIN OF SURVIVAL SVG ── */
+  .chain-container {
+    background: var(--white);
+    border: 1px solid var(--gray-2);
+    border-radius: var(--radius);
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  /* ── FOOTER NAV ── */
+  .slide-footer {
+    background: var(--white);
+    border-top: 1px solid var(--gray-2);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .nav-btn {
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--font-he);
+    transition: background .15s;
+  }
+  .nav-btn:hover { background: var(--red); }
+  .nav-btn:disabled { background: var(--gray-3); cursor: default; }
+  .progress-wrap { flex: 1; }
+  .progress-bar-outer {
+    height: 6px;
+    background: var(--gray-2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: var(--red);
+    border-radius: 3px;
+    transition: width .3s;
+  }
+  .slide-counter {
+    font-size: 12px;
+    font-family: var(--font-en);
+    color: var(--gray-4);
+    white-space: nowrap;
+  }
+  .dot-row {
+    display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; margin-top: 4px;
+  }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gray-3); transition: background .2s;
+  }
+  .dot.active { background: var(--red); }
+  .dot.done { background: var(--teal); }
+
+.nav{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(8,9,14,0.92);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;gap:16px;z-index:100;border-bottom:1px solid var(--border)}
+.nav-back{color:var(--muted);text-decoration:none;font-size:0.82rem;padding:6px 12px;border-radius:6px;border:1px solid var(--border);transition:all .2s}
+.nav-back:hover{color:var(--text);border-color:var(--muted)}
+.nav-title{flex:1;font-size:0.8rem;color:var(--muted);text-align:center;direction:rtl;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-mod{font-size:0.78rem;color:var(--red);font-weight:700}
+.stage{position:fixed;inset:52px 0 0 0;overflow:hidden}
+.hero-slide .slide-body{justify-content:center;align-items:center;text-align:center}
+.hero-content{max-width:700px;margin:0 auto}
+.hero-eyebrow{font-size:0.78rem;font-weight:600;color:var(--red);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+.hero-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;line-height:1.15;margin-bottom:14px}
+.accent-text{color:var(--red)}
+.hero-sub{font-size:0.95rem;color:var(--muted);max-width:560px;margin:0 auto 20px;line-height:1.6}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.htag{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:0.78rem;color:var(--muted)}
+.obj-list{display:flex;flex-direction:column;gap:10px;width:100%}
+.obj-item{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px}
+.obj-num{min-width:26px;height:26px;background:var(--red);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0}
+.obj-text{font-size:0.86rem;line-height:1.55;direction:rtl}
+.obj-text small{display:block;color:var(--muted);margin-top:3px;direction:ltr}
+.info-bar{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.82rem;display:flex;gap:10px;align-items:flex-start;line-height:1.5}
+.info-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.info-badge.red{background:rgba(230,57,70,0.2);color:var(--red)}
+.info-badge.amber{background:rgba(255,179,0,0.2);color:#ffb300}
+.info-badge.teal{background:rgba(0,200,180,0.2);color:#00c8b4}
+.table-wrap{overflow-x:auto;width:100%}
+.pals-table{width:100%;border-collapse:collapse;font-size:0.8rem}
+.pals-table th{background:var(--surface3);padding:9px 10px;font-weight:700;border:1px solid var(--border);text-align:center;direction:rtl}
+.pals-table td{padding:9px 10px;border:1px solid var(--border);text-align:center;vertical-align:middle;direction:rtl}
+.pals-table td small{display:block;color:var(--muted);direction:ltr;font-size:0.7rem}
+.pals-table tr:nth-child(even) td{background:rgba(255,255,255,0.025)}
+.badge-green{background:rgba(0,180,100,0.15);color:#00c87a;padding:2px 7px;border-radius:4px;font-weight:700;font-size:0.78rem}
+.badge-red{background:rgba(230,57,70,0.15);color:var(--red);padding:2px 7px;border-radius:4px;font-weight:700;font-size:0.78rem}
+.badge-amber{background:rgba(255,179,0,0.15);color:#ffb300;padding:2px 7px;border-radius:4px;font-weight:700;font-size:0.78rem}
+.step-list{display:flex;flex-direction:column;gap:7px}
+.step-item{display:flex;gap:10px;align-items:flex-start;font-size:0.82rem;direction:rtl}
+.step-n{min-width:22px;height:22px;background:var(--surface3);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;color:var(--red)}
+.c2{grid-template-columns:repeat(2,1fr)}
+.c3{grid-template-columns:repeat(3,1fr)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%}
+.col-block{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.col-heading{font-weight:700;font-size:0.9rem;margin-bottom:10px;direction:rtl}
+.col-heading small{display:block;font-weight:400;color:var(--muted);font-size:0.75rem;direction:ltr}
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;width:100%}
+.summary-item{display:flex;gap:12px;align-items:flex-start;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:0.82rem;direction:rtl}
+.sum-icon{font-size:1.3rem;flex-shrink:0}
+.summary-item strong{display:block;margin-bottom:2px}
+.summary-item small{color:var(--muted);direction:ltr;font-size:0.73rem}
+.rhythm-strip{background:#0a1628;border:1px solid #1e3a5f;border-radius:8px;padding:12px 16px;font-family:'Courier New',monospace;font-size:0.78rem;color:#4fc3f7;margin:8px 0;letter-spacing:.05em;overflow-x:auto;white-space:pre}
+.rhythm-label{font-size:0.75rem;color:var(--muted);margin-bottom:4px;direction:rtl}
+.algo-box{background:var(--surface2);border:2px solid var(--border);border-radius:10px;padding:12px 16px;text-align:center;font-size:0.85rem;direction:rtl}
+.algo-box.decision{background:rgba(255,179,0,0.08);border-color:#ffb300;color:#ffb300;font-weight:700}
+.algo-box.action{background:rgba(0,200,180,0.08);border-color:#00c8b4}
+.algo-box.shock{background:rgba(230,57,70,0.08);border-color:var(--red);color:var(--red);font-weight:700}
+.algo-arrow{text-align:center;color:var(--muted);font-size:1.2rem;margin:2px 0}
+@media(max-width:600px){.summary-grid,.two-col{grid-template-columns:1fr}}
+
 </style>
-<script src="../firebase-config.js"></script>
-<script type="module" src="../firebase-sync.js"></script>
 </head>
 <body>
-<div class="bg-grid"></div><div class="bg-blob bb1"></div><div class="bg-blob bb2"></div>
-<div id="progress-bar"></div>
-<nav class="nav">
-  <div class="nav-logo">PALS 2025</div>
-  <div class="nav-info">Module 06 · Rhythm Recognition</div>
-  <button class="nav-btn" onclick="location.href='../hub_student.html'">← Hub</button>
-</nav>
-<div class="stage">
-
-<!-- SLIDE 1: Hero -->
-<section class="slide active hero-slide">
-  <div class="mod-eye">Module 06 · Rhythm Recognition</div>
-  <h1 class="hero">Read the Strip. <span>Treat the Patient.</span></h1>
-  <p class="subt">Rhythm identification only matters if it changes what you do. Know the branch points: shockable vs non-shockable, stable vs unstable.</p>
-  <div class="ttags">
-    <span class="ttag">📹 Sinus by Age</span>
-    <span class="ttag">💓 Brady & AV Block</span>
-    <span class="ttag">⚡ SVT vs Sinus Tach</span>
-    <span class="ttag">🔴 VT / VF</span>
-    <span class="ttag">⚪ Asystole / PEA</span>
+<div class="bg-grid"></div>
+<div class="nav"><a class="nav-back" href="../hub_student.html">← Hub</a><div class="nav-title">M06 · זיהוי הפרעות קצב</div><div class="nav-mod">M06</div></div>
+<div class="stage"><!-- SLIDE 1 -->
+<div class="slide active hero-slide">
+  <div class="slide-header"><span class="mod-tag">Module 06</span><span class="slide-title-he">זיהוי הפרעות קצב</span><span class="slide-title-en">Rhythm Recognition</span></div>
+  <div class="slide-body"><div class="hero-content">
+  <div class="hero-eyebrow">מודול 06 · PALS 2025</div>
+  <h1 class="hero-title">זיהוי הפרעות קצב<br><span class="accent-text">Rhythm Recognition</span></h1>
+  <p class="hero-sub">ברדיקרדיה · SVT · VT · VF · PEA · Asystole — זיהוי מהיר, החלטה נכונה</p>
+  <div class="tag-row">
+    <span class="htag">🐢 Bradycardia</span><span class="htag">⚡ SVT</span>
+    <span class="htag">💥 VT</span><span class="htag">〰️ VF</span>
+    <span class="htag">📉 PEA</span><span class="htag">➖ Asystole</span>
   </div>
-</section>
-
-<!-- SLIDE 2: Normal sinus by age -->
-<section class="slide">
-  <div class="ey">Baseline</div>
-  <h2>Know normal before you call abnormal</h2>
-  <div class="strip-label" style="color:var(--green)">Normal Sinus Rhythm</div>
-  <div class="strip-wrap">
-    <svg viewBox="0 0 800 80" height="80">
-      <path class="ecg-line" d="M0,40 L60,40 L68,36 L74,32 L78,14 L82,68 L86,40 L90,40
-        L150,40 L158,36 L164,32 L168,14 L172,68 L176,40 L180,40
-        L240,40 L248,36 L254,32 L258,14 L262,68 L266,40 L270,40
-        L330,40 L338,36 L344,32 L348,14 L352,68 L356,40 L360,40
-        L420,40 L428,36 L434,32 L438,14 L442,68 L446,40 L450,40
-        L510,40 L518,36 L524,32 L528,14 L532,68 L536,40 L540,40
-        L600,40 L608,36 L614,32 L618,14 L622,68 L626,40 L630,40
-        L690,40 L698,36 L704,32 L708,14 L712,68 L716,40 L800,40"/>
-    </svg>
-  </div>
-  <table class="tbl" style="margin-top:8px">
-    <thead><tr><th>Age Group</th><th>Awake HR (bpm)</th><th>Sleeping HR (bpm)</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Newborn (&lt;1 mo)</strong></td><td>85–205</td><td>80–160</td></tr>
-      <tr><td><strong>Infant (1–12 mo)</strong></td><td>100–180</td><td>75–160</td></tr>
-      <tr><td><strong>Toddler (1–3 y)</strong></td><td>90–150</td><td>70–120</td></tr>
-      <tr><td><strong>School age (6–12 y)</strong></td><td>70–120</td><td>60–100</td></tr>
-      <tr><td><strong>Adolescent (&gt;12 y)</strong></td><td>60–100</td><td>50–90</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<!-- SLIDE 3: Bradyarrhythmias -->
-<section class="slide">
-  <div class="ey">Bradyarrhythmias</div>
-  <h2>HR &lt; 60 with poor perfusion → start CPR</h2>
-  <div class="cards c2">
-    <div>
-      <div class="strip-label" style="color:var(--amber)">Sinus Bradycardia</div>
-      <div class="strip-wrap">
-        <svg viewBox="0 0 800 80" height="70">
-          <path class="ecg-line" d="M0,40 L140,40 L148,36 L154,32 L158,14 L162,68 L166,40 L170,40
-            L400,40 L408,36 L414,32 L418,14 L422,68 L426,40 L430,40
-            L680,40 L688,36 L694,32 L698,14 L702,68 L706,40 L800,40"/>
-        </svg>
-      </div>
-      <p style="font-size:0.82rem;margin-top:8px">Regular, slow, P before every QRS. Treat if perfusion is poor or HR &lt;60.</p>
+</div></div>
+  <div class="slide-footer"><button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button><div class="progress-wrap"><div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div><div class="dot-row" id="dot-row"></div></div><span class="slide-counter" id="counter"></span><button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button></div>
+</div><!-- SLIDE 2 -->
+<div class="slide">
+  <div class="slide-header"><span class="mod-tag">Module 06</span><span class="slide-title-he">מטרות הלמידה</span><span class="slide-title-en">Learning Objectives</span></div>
+  <div class="slide-body"><div class="sec-heading">מטרות הלמידה<small>Learning Objectives</small></div>
+<div class="obj-list">
+  <div class="obj-item"><div class="obj-num">1</div><div class="obj-text">לזהות 6 הפרעות קצב עיקריות ב-PALS: ברדי · SVT · VT עם דופק · VT ללא דופק · VF · PEA/Asystole<br><small>Identify the 6 key PALS rhythms and classify as shockable vs. non-shockable</small></div></div>
+  <div class="obj-item"><div class="obj-num">2</div><div class="obj-text">להחליט מהירות — שמים vs. לא שמים — בתוך 10 שניות<br><small>Decide "shockable / not shockable" within 10 seconds of seeing the rhythm</small></div></div>
+  <div class="obj-item"><div class="obj-num">3</div><div class="obj-text">לתאר מאפייני גל P, מרווח PR, קומפלקס QRS וקצב לכל קצב<br><small>Describe P waves, PR interval, QRS width and rate for each rhythm</small></div></div>
+  <div class="obj-item"><div class="obj-num">4</div><div class="obj-text">לקשר בין הפרעת קצב לפרוטוקול הטיפול המתאים (מודולים 07 ו-10)<br><small>Link each rhythm to its treatment algorithm (covered in Modules 07 &amp; 10)</small></div></div>
+</div></div>
+  <div class="slide-footer"><button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button><div class="progress-wrap"><div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div><div class="dot-row" id="dot-row"></div></div><span class="slide-counter" id="counter"></span><button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button></div>
+</div><!-- SLIDE 3 -->
+<div class="slide">
+  <div class="slide-header"><span class="mod-tag">Module 06</span><span class="slide-title-he">ברדיקרדיה</span><span class="slide-title-en">Bradycardia</span></div>
+  <div class="slide-body"><div class="sec-heading">ברדיקרדיה<small>Bradycardia — Rate &lt; 60/min OR Age-Inappropriate Slow Rate</small></div>
+<div class="two-col">
+  <div class="col-block">
+    <div class="col-heading">מאפיינים<small>ECG Features</small></div>
+    <div class="step-list">
+      <div class="step-item"><span class="step-n">HR</span><span>קצב &lt;60/דקה <strong>או</strong> איטי לגיל עם פגיעה בפרפוזיה</span></div>
+      <div class="step-item"><span class="step-n">P</span><span>גל P יכול להיות קיים (Sinus bradycardia) או חסר (AV block)</span></div>
+      <div class="step-item"><span class="step-n">QRS</span><span>בדרך כלל צר (&lt;0.09 שנ') — אם רחב: ← בלוק תת-לבבי</span></div>
     </div>
-    <div>
-      <div class="strip-label" style="color:var(--red)">Complete (3°) AV Block</div>
-      <div class="strip-wrap">
-        <svg viewBox="0 0 800 80" height="70">
-          <!-- P waves (fast, atrial) -->
-          <path class="ecg-line" style="stroke:var(--cyan);opacity:0.5" d="M30,40 L38,34 L44,40 L110,40 L118,34 L124,40 L190,40 L198,34 L204,40 L270,40 L278,34 L284,40 L350,40 L358,34 L364,40 L430,40 L438,34 L444,40 L510,40 L518,34 L524,40 L590,40 L598,34 L604,40 L670,40 L678,34 L684,40 L750,40 L758,34 L764,40 L800,40"/>
-          <!-- QRS complexes (slow, ventricular, dissociated) -->
-          <path class="ecg-line" style="stroke:var(--red)" d="M0,40 L60,40 L66,38 L68,15 L72,72 L76,40 L200,40 L206,38 L208,15 L212,72 L216,40 L360,40 L366,38 L368,15 L372,72 L376,40 L530,40 L536,38 L538,15 L542,72 L546,40 L700,40 L706,38 L708,15 L712,72 L716,40 L800,40"/>
-        </svg>
-      </div>
-      <p style="font-size:0.82rem;margin-top:8px"><span style="color:var(--cyan)">Cyan — P-waves</span>. <span style="color:var(--red)">Red — QRS</span>. Completely dissociated. Treat cause, consider pacing.</p>
+    <div class="rhythm-strip">
+<span class="rhythm-label">Sinus Bradycardia</span>
+──P──┐    ──P──┐    ──P──┐
+     └─QRS─┘        └─QRS─┘        └─QRS─┘
+   |←────── &gt;1 שנ' ──────→|</div>
+  </div>
+  <div class="col-block">
+    <div class="col-heading">מתי לפעול?<small>When to Act</small></div>
+    <div class="step-list">
+      <div class="step-item"><span class="step-n">✅</span><span>ברדי <strong>ללא</strong> פגיעה: תמיכה ABCs, מעקב, חפש גורם</span></div>
+      <div class="step-item"><span class="step-n">⚠️</span><span>ברדי <strong>עם</strong> פגיעה (שינוי הכרה, BP ↓, סימני הלם): <strong>פעל מיידית</strong></span></div>
+      <div class="step-item"><span class="step-n">CPR</span><span>HR &lt;60 עם פרפוזיה לקויה ← CPR מיידי</span></div>
+      <div class="step-item"><span class="step-n">💊</span><span>Epinephrine / Atropine ← ראה אלגוריתם M07</span></div>
+    </div>
+    <div class="info-bar" style="margin-top:10px">
+      <span class="info-badge red">שכיח</span>
+      <span>הסיבה השכיחה ביותר לברדי בילדים היא <strong>היפוקסיה</strong> — טפל בנשימה לפני הכל!</span>
     </div>
   </div>
-  <div class="alt ar"><h4>🚨 PALS Bradycardia Rule</h4><p>If HR &lt;60 <strong>and</strong> signs of poor perfusion despite oxygenation &amp; ventilation → <strong>start CPR, give epinephrine</strong>. Don’t wait for asystole.</p></div>
-</section>
-
-<!-- SLIDE 4: SVT vs Sinus Tach -->
-<section class="slide">
-  <div class="ey">Tachyarrhythmias</div>
-  <h2>SVT vs Sinus Tachycardia</h2>
-  <div class="compare">
-    <div>
-      <div class="strip-label" style="color:var(--cyan)">Sinus Tachycardia</div>
-      <div class="strip-wrap">
-        <svg viewBox="0 0 800 80" height="70">
-          <path class="ecg-line" d="M0,40 L30,40 L36,36 L40,33 L44,14 L48,70 L52,40 L56,40
-            L90,40 L96,36 L100,33 L104,14 L108,70 L112,40 L116,40
-            L150,40 L156,36 L160,33 L164,14 L168,70 L172,40 L176,40
-            L210,40 L216,36 L220,33 L224,14 L228,70 L232,40 L236,40
-            L270,40 L276,36 L280,33 L284,14 L288,70 L292,40 L296,40
-            L330,40 L336,36 L340,33 L344,14 L348,70 L352,40 L356,40
-            L390,40 L396,36 L400,33 L404,14 L408,70 L412,40 L416,40
-            L450,40 L456,36 L460,33 L464,14 L468,70 L472,40 L476,40
-            L510,40 L516,36 L520,33 L524,14 L528,70 L532,40 L536,40
-            L570,40 L576,36 L580,33 L584,14 L588,70 L592,40 L596,40
-            L630,40 L636,36 L640,33 L644,14 L648,70 L652,40 L800,40"/>
-        </svg>
-      </div>
-      <ul style="margin-top:10px">
-        <li>Rate varies — R-R interval changes</li>
-        <li>P-wave before every QRS</li>
-        <li>Usually &lt;220 bpm (infant) / &lt;180 (child)</li>
-        <li>History: fever, pain, dehydration, SVT history absent</li>
-        <li>Responds to treating the cause</li>
-      </ul>
+</div></div>
+  <div class="slide-footer"><button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button><div class="progress-wrap"><div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div><div class="dot-row" id="dot-row"></div></div><span class="slide-counter" id="counter"></span><button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button></div>
+</div><!-- SLIDE 4 -->
+<div class="slide">
+  <div class="slide-header"><span class="mod-tag">Module 06</span><span class="slide-title-he">SVT — טכיקרדיה על-חדרית</span><span class="slide-title-en">Supraventricular Tachycardia</span></div>
+  <div class="slide-body"><div class="sec-heading">SVT — טכיקרדיה על-חדרית<small>Supraventricular Tachycardia</small></div>
+<div class="two-col">
+  <div class="col-block">
+    <div class="col-heading">מאפייני ECG<small>ECG Features</small></div>
+    <div class="step-list">
+      <div class="step-item"><span class="step-n">HR</span><span>תינוק: <strong>&gt;220/דקה</strong> · ילד: <strong>&gt;180/דקה</strong></span></div>
+      <div class="step-item"><span class="step-n">P</span><span>גלי P <strong>חסרים או חריגים</strong> (לפני/אחרי/בתוך QRS)</span></div>
+      <div class="step-item"><span class="step-n">QRS</span><span>צר (&lt;0.09 שנ') — אחיד ונוקשה, <strong>ללא שינוי עם מאמץ</strong></span></div>
+      <div class="step-item"><span class="step-n">RR</span><span>מרווח RR <strong>קבוע לחלוטין</strong> (vs. ST שמשתנה)</span></div>
     </div>
-    <div class="vs">VS</div>
-    <div>
-      <div class="strip-label" style="color:var(--purple)">SVT</div>
-      <div class="strip-wrap">
-        <svg viewBox="0 0 800 80" height="70">
-          <path class="ecg-line" style="stroke:var(--purple);filter:drop-shadow(0 0 4px rgba(179,136,255,0.6))"
-            d="M0,40 L18,40 L22,38 L24,12 L28,70 L32,40 L50,40 L54,38 L56,12 L60,70 L64,40
-               L82,40 L86,38 L88,12 L92,70 L96,40 L114,40 L118,38 L120,12 L124,70 L128,40
-               L146,40 L150,38 L152,12 L156,70 L160,40 L178,40 L182,38 L184,12 L188,70 L192,40
-               L210,40 L214,38 L216,12 L220,70 L224,40 L242,40 L246,38 L248,12 L252,70 L256,40
-               L274,40 L278,38 L280,12 L284,70 L288,40 L306,40 L310,38 L312,12 L316,70 L320,40
-               L338,40 L342,38 L344,12 L348,70 L352,40 L370,40 L374,38 L376,12 L380,70 L384,40
-               L402,40 L406,38 L408,12 L412,70 L416,40 L434,40 L438,38 L440,12 L444,70 L448,40
-               L466,40 L470,38 L472,12 L476,70 L480,40 L498,40 L502,38 L504,12 L508,70 L512,40
-               L530,40 L534,38 L536,12 L540,70 L544,40 L562,40 L566,38 L568,12 L572,70 L576,40
-               L594,40 L598,38 L600,12 L604,70 L608,40 L626,40 L630,38 L632,12 L636,70 L640,40
-               L658,40 L662,38 L664,12 L668,70 L672,40 L690,40 L694,38 L696,12 L700,70 L800,40"/>
-        </svg>
-      </div>
-      <ul style="margin-top:10px">
-        <li><strong>Rate fixed</strong> — R-R interval constant</li>
-        <li>P-waves absent or abnormal (retrograde)</li>
-        <li>≥220 bpm (infant) / ≥180 (child)</li>
-        <li>Abrupt onset and termination</li>
-        <li>No history of fever/illness</li>
-      </ul>
+    <div class="rhythm-strip">
+<span class="rhythm-label">SVT — Narrow, Regular, Fast</span>
+┐┐┐┐┐┐┐┐┐┐┐┐┐┐┐┐┐┐┐┐
+(תינוק 240/דקה — כל 0.25 שנ')</div>
+  </div>
+  <div class="col-block">
+    <div class="col-heading">SVT vs. Sinus Tachycardia<small>Key Distinction</small></div>
+    <div class="table-wrap"><table class="pals-table">
+      <thead><tr><th>מאפיין</th><th>SVT</th><th>ST (Sinus Tachy)</th></tr></thead>
+      <tbody>
+        <tr><td>קצב</td><td>&gt;220/220 תינוק/ילד</td><td>בהתאם לחום/מצוקה</td></tr>
+        <tr><td>גלי P</td><td>חסרים/חריגים</td><td>תקינים</td></tr>
+        <tr><td>RR</td><td>קבוע — rigid</td><td>משתנה</td></tr>
+        <tr><td>היסטוריה</td><td>פתאומי</td><td>חום, כאב, דהידרציה</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div></div>
+  <div class="slide-footer"><button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button><div class="progress-wrap"><div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div><div class="dot-row" id="dot-row"></div></div><span class="slide-counter" id="counter"></span><button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button></div>
+</div><!-- SLIDE 5 -->
+<div class="slide">
+  <div class="slide-header"><span class="mod-tag">Module 06</span><span class="slide-title-he">VT ו-VF</span><span class="slide-title-en">Ventricular Tachycardia & Fibrillation</span></div>
+  <div class="slide-body"><div class="sec-heading">VT ו-VF — הפרעות חדריות<small>Ventricular Rhythms — Shockable!</small></div>
+<div class="two-col">
+  <div class="col-block">
+    <div class="col-heading">VT — טכיקרדיה חדרית<small>Ventricular Tachycardia</small></div>
+    <div class="step-list">
+      <div class="step-item"><span class="step-n">HR</span><span>&gt;120/דקה, בדרך כלל 150–250</span></div>
+      <div class="step-item"><span class="step-n">QRS</span><span><strong>רחב (&gt;0.09 שנ')</strong>, מונומורפי/פולימורפי</span></div>
+      <div class="step-item"><span class="step-n">P</span><span>גלי P אינם קשורים ל-QRS (AV dissociation)</span></div>
+      <div class="step-item"><span class="step-n">⚡</span><span>עם דופק → Cardioversion 0.5–1 J/kg; ללא דופק → Defib 2 J/kg</span></div>
+    </div>
+    <div class="rhythm-strip">
+<span class="rhythm-label">VT — Wide, Regular</span>
+╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+(QRS רחב, קצב קבוע)</div>
+  </div>
+  <div class="col-block">
+    <div class="col-heading">VF — פרפור חדרים<small>Ventricular Fibrillation</small></div>
+    <div class="step-list">
+      <div class="step-item"><span class="step-n">⚡</span><span><strong>ניתן להלם! — Defibrillate 2 J/kg מיד</strong></span></div>
+      <div class="step-item"><span class="step-n">ECG</span><span>גלים כאוטיים, חסרי צורה, ללא QRS ניתן לזיהוי</span></div>
+      <div class="step-item"><span class="step-n">📋</span><span>אין דופק — חלק מאלגוריתם דום לב</span></div>
+    </div>
+    <div class="rhythm-strip">
+<span class="rhythm-label">VF — Chaotic, No QRS</span>
+∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿
+(גלים כאוטיים — אין QRS)</div>
+    <div class="info-bar" style="margin-top:8px">
+      <span class="info-badge red">SHOCK</span>
+      <span>VF ו-pVT ← <strong>Shockable</strong> · VT עם דופק ← <strong>Cardioversion</strong></span>
     </div>
   </div>
-</section>
-
-<!-- SLIDE 5: SVT management -->
-<section class="slide">
-  <div class="ey">SVT Management</div>
-  <h2>Stable → Vagal → Adenosine → Cardiovert</h2>
-  <div class="cards c3">
-    <div class="card">
-      <div class="pill pc">Step 1 — Stable</div>
-      <h3>Vagal Manoeuvres</h3>
-      <ul>
-        <li>Ice water to face (infant) — diver’s reflex</li>
-        <li>Valsalva (older child: blow through narrow straw)</li>
-        <li>Do NOT use ocular pressure in children</li>
-      </ul>
-    </div>
-    <div class="card">
-      <div class="pill pa">Step 2 — Stable/Unstable</div>
-      <h3>Adenosine IV/IO</h3>
-      <ul>
-        <li><strong>0.1 mg/kg</strong> rapid IV push (max 6 mg)</li>
-        <li>Second dose: <strong>0.2 mg/kg</strong> (max 12 mg)</li>
-        <li>Use proximal large vein + rapid flush</li>
-        <li>Expect brief asystole; warn family</li>
-      </ul>
-    </div>
-    <div class="card">
-      <div class="pill pr">Step 3 — Unstable</div>
-      <h3>Synchronised Cardioversion</h3>
-      <ul>
-        <li><strong>0.5–1 J/kg</strong> (sync on R-wave)</li>
-        <li>Second shock: <strong>2 J/kg</strong></li>
-        <li>Sedate if possible but don’t delay if unstable</li>
-        <li>Never use unsynchronised for a perfusing rhythm</li>
-      </ul>
+</div></div>
+  <div class="slide-footer"><button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button><div class="progress-wrap"><div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div><div class="dot-row" id="dot-row"></div></div><span class="slide-counter" id="counter"></span><button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button></div>
+</div><!-- SLIDE 6 -->
+<div class="slide">
+  <div class="slide-header"><span class="mod-tag">Module 06</span><span class="slide-title-he">PEA ו-Asystole</span><span class="slide-title-en">PEA & Asystole</span></div>
+  <div class="slide-body"><div class="sec-heading">PEA ו-Asystole — לא ניתן להלם<small>Non-Shockable Rhythms — CPR + Epinephrine</small></div>
+<div class="two-col">
+  <div class="col-block">
+    <div class="col-heading">PEA — פעילות חשמלית ללא דופק<small>Pulseless Electrical Activity</small></div>
+    <div class="step-list">
+      <div class="step-item"><span class="step-n">ECG</span><span>פעילות חשמלית <strong>מאורגנת</strong> (יכולה להיראות "תקינה")</span></div>
+      <div class="step-item"><span class="step-n">❌</span><span><strong>אין דופק</strong> — למרות ECG מאורגן</span></div>
+      <div class="step-item"><span class="step-n">🔍</span><span>חפש 10 Hs &amp; Ts (גורמים הפיכים!) — ראה M10</span></div>
+      <div class="step-item"><span class="step-n">💊</span><span>CPR + Epinephrine 0.01 mg/kg כל 3–5 דקות</span></div>
     </div>
   </div>
-  <div class="alt ac"><h4>⚡ Adenosine Tip</h4><p>Give with a 3-way tap: adenosine in one port, large flush in another. Push both simultaneously for fastest delivery to the SA node. A slow push won’t work — its half-life is &lt;10 seconds.</p></div>
-</section>
-
-<!-- SLIDE 6: VT and VF -->
-<section class="slide">
-  <div class="ey">Ventricular Arrhythmias</div>
-  <h2>Wide complex = worry until proven otherwise</h2>
-  <div class="cards c2">
-    <div>
-      <div class="strip-label" style="color:var(--amber)">Monomorphic VT</div>
-      <div class="strip-wrap">
-        <svg viewBox="0 0 800 80" height="70">
-          <path class="ecg-vt" d="M0,40 L30,40 L44,10 L52,72 L66,38 L80,40
-            L110,40 L124,10 L132,72 L146,38 L160,40
-            L190,40 L204,10 L212,72 L226,38 L240,40
-            L270,40 L284,10 L292,72 L306,38 L320,40
-            L350,40 L364,10 L372,72 L386,38 L400,40
-            L430,40 L444,10 L452,72 L466,38 L480,40
-            L510,40 L524,10 L532,72 L546,38 L560,40
-            L590,40 L604,10 L612,72 L626,38 L640,40
-            L670,40 L684,10 L692,72 L706,38 L720,40 L800,40"/>
-        </svg>
-      </div>
-      <ul style="margin-top:8px">
-        <li>Wide QRS (&gt;0.09 sec in children)</li>
-        <li>Regular, monomorphic complexes</li>
-        <li>May have pulse (treat with cardioversion) or pulseless (defibrillate)</li>
-      </ul>
+  <div class="col-block">
+    <div class="col-heading">Asystole — דממה חשמלית<small>Asystole / Flatline</small></div>
+    <div class="step-list">
+      <div class="step-item"><span class="step-n">ECG</span><span>קו ישר — <strong>ללא פעילות חשמלית</strong></span></div>
+      <div class="step-item"><span class="step-n">⚙️</span><span>בדוק חיבורים! ודא ב-2 הובלות לפחות</span></div>
+      <div class="step-item"><span class="step-n">💊</span><span>CPR + Epinephrine — זהה לטיפול ב-PEA</span></div>
+      <div class="step-item"><span class="step-n">🚫</span><span>אין להלם Asystole — לא יועיל</span></div>
     </div>
-    <div>
-      <div class="strip-label" style="color:var(--red)">Ventricular Fibrillation</div>
-      <div class="strip-wrap">
-        <svg viewBox="0 0 800 80" height="70">
-          <path class="ecg-vf" d="M0,40 L15,25 L28,62 L40,18 L52,70 L62,30 L75,58 L88,15 L100,68 L112,32 L125,55 L138,20 L150,72 L162,35 L175,60 L188,22 L200,68 L212,38 L225,56 L238,18 L250,70 L262,34 L275,58 L288,24 L300,65 L312,38 L324,55 L336,20 L348,70 L360,35 L372,60 L384,22 L396,68 L408,38 L420,56 L432,18 L444,70 L456,34 L468,58 L480,24 L492,65 L504,38 L516,55 L528,20 L540,70 L552,35 L564,60 L576,22 L588,68 L600,38 L612,56 L624,18 L636,70 L648,34 L660,58 L672,24 L684,65 L696,38 L708,55 L720,20 L732,70 L744,35 L756,60 L768,22 L780,65 L800,40"/>
-        </svg>
-      </div>
-      <ul style="margin-top:8px">
-        <li>Chaotic, irregular, no recognisable QRS</li>
-        <li>No pulse — immediately shockable</li>
-        <li>Defibrillate 2 J/kg → 4 J/kg → ≥4 J/kg</li>
-      </ul>
-    </div>
+    <div class="rhythm-strip">
+<span class="rhythm-label">Asystole — Flatline</span>
+────────────────────────
+(קו ישר — ללא פעילות)</div>
   </div>
-</section>
-
-<!-- SLIDE 7: Non-shockable rhythms -->
-<section class="slide">
-  <div class="ey">Non-Shockable Rhythms</div>
-  <h2>No shock. CPR + epinephrine + reversible causes</h2>
-  <div class="cards c2">
-    <div>
-      <div class="strip-label" style="color:var(--muted)">Asystole</div>
-      <div class="strip-wrap">
-        <svg viewBox="0 0 800 80" height="70">
-          <path class="ecg-flat" d="M0,40 L800,40"/>
-        </svg>
-      </div>
-      <ul style="margin-top:8px">
-        <li>Flat line — no electrical activity</li>
-        <li>Confirm in ≥2 leads before calling</li>
-        <li>Most common arrest rhythm in infants</li>
-        <li>CPR + epinephrine + treat reversibles</li>
-      </ul>
-    </div>
-    <div>
-      <div class="strip-label" style="color:var(--purple)">PEA (Pulseless Electrical Activity)</div>
-      <div class="strip-wrap">
-        <svg viewBox="0 0 800 80" height="70">
-          <path class="ecg-pea" d="M0,40 L80,40 L88,36 L94,32 L98,14 L102,68 L106,40 L110,40
-            L240,40 L248,36 L254,32 L258,14 L262,68 L266,40 L270,40
-            L400,40 L408,36 L414,32 L418,14 L422,68 L426,40 L430,40
-            L560,40 L568,36 L574,32 L578,14 L582,68 L586,40 L590,40
-            L720,40 L728,36 L734,32 L738,14 L742,68 L746,40 L800,40"/>
-        </svg>
-      </div>
-      <ul style="margin-top:8px">
-        <li>Organised electrical activity — no pulse</li>
-        <li>Always search for reversible cause (Hs &amp; Ts)</li>
-        <li>CPR + epinephrine q3–5 min</li>
-        <li>Treat underlying: tension PTX, tamponade, hypovolaemia</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 8: Branch point -->
-<section class="slide">
-  <div class="ey">Branch Point</div>
-  <h2>The single most important question at every arrest</h2>
-  <div class="cards c2">
-    <div class="shock-box shock-yes">
-      <div class="pill pr">⚡ Shockable</div>
-      <h3 style="color:var(--red);font-size:1.2rem">VF · Pulseless VT</h3>
-      <ul>
-        <li>Defib <strong>2 J/kg</strong> → resume CPR immediately</li>
-        <li>After 2 min CPR, reassess → <strong>4 J/kg</strong></li>
-        <li>Subsequent shocks ≥<strong>4 J/kg</strong> (max 10 J/kg)</li>
-        <li>Epinephrine after 2nd shock, then q3–5 min</li>
-        <li>Amiodarone <strong>5 mg/kg</strong> after 3rd shock (or lidocaine)</li>
-      </ul>
-    </div>
-    <div class="shock-box shock-no">
-      <div class="pill ppu">⚪ Non-Shockable</div>
-      <h3 style="color:var(--purple);font-size:1.2rem">Asystole · PEA</h3>
-      <ul>
-        <li>High-quality CPR immediately</li>
-        <li>Epinephrine <strong>0.01 mg/kg</strong> (0.1 mL/kg of 1:10,000) q3–5 min</li>
-        <li>Search and treat reversible causes (Hs &amp; Ts)</li>
-        <li>Reassess rhythm every 2 minutes</li>
-      </ul>
-    </div>
-  </div>
-  <div class="alt aa"><h4>⏱ Minimise Interruptions</h4><p>Rhythm checks should be &lt;10 seconds. Deliver shocks during compressions if a biphasic defibrillator is available. Every second of no-flow time reduces survival.</p></div>
-</section>
-
-<!-- SLIDE 9: Knowledge check -->
-<section class="slide">
-  <div class="ey">Knowledge Check</div>
-  <h2>Tap each card to reveal the answer</h2>
-  <div class="fg fg3">
-    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>Infant HR 280 bpm, fixed R-R interval, no P-waves. Diagnosis?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p><strong>SVT.</strong> Rate ≥220 in infants, fixed interval, absent P-waves = SVT. First try vagal manoeuvres, then adenosine 0.1 mg/kg rapid IV push.</p></div></div></div>
-    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>Organised QRS on monitor, no pulse. What rhythm, what action?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p><strong>PEA.</strong> CPR immediately, epinephrine 0.01 mg/kg q3-5 min, search Hs &amp; Ts (tension PTX, tamponade, hypovolaemia are most common in children).</p></div></div></div>
-    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>First defibrillation dose in a child with VF?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p><strong>2 J/kg.</strong> Second shock 4 J/kg. Subsequent ≥4 J/kg (max 10 J/kg or adult max dose). Resume CPR immediately after every shock — don’t pause to check rhythm.</p></div></div></div>
-    <div class="fc" onclick="this.classList.toggle('flipped')"><div class="fi"><div class="ff"><div class="ql">Q</div><h4>P-waves and QRS are completely dissociated. Diagnosis and key treatment?</h4><div class="hi">Tap to reveal →</div></div><div class="fb"><p><strong>Complete (3°) AV block.</strong> Treat cause, consider transcutaneous pacing, epinephrine or isoproterenol infusion. Atropine is rarely effective.</p></div></div></div>
-  </div>
-</section>
-
-<!-- SLIDE 10: Pearl + next -->
-<section class="slide">
-  <div class="card" style="padding:32px;border-radius:var(--r-xl);background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(179,136,255,0.05));border:1px solid rgba(0,212,255,0.2);margin:auto 0">
-    <div class="pill pc">Clinical Pearl</div>
-    <h2 style="margin-bottom:12px">“Treat the patient, then the strip.”</h2>
-    <p>A rhythm on a monitor doesn’t tell you if the patient has a pulse, is perfusing, or is in pain. Always check the patient first. A 3° AV block with a happy child playing is managed very differently from the same rhythm in a grey, limp infant.</p>
-    <div style="display:flex;flex-wrap:wrap;gap:32px;margin-top:20px">
-      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--cyan)">&lt;60</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">HR = CPR + Epi</div></div>
-      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--green)">2 J/kg</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">First VF shock</div></div>
-      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--purple)">0.1 mg/kg</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Adenosine (1st dose)</div></div>
-      <div style="text-align:center"><div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:var(--amber)">&lt;10 sec</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Max rhythm check</div></div>
-    </div>
-  </div>
-  <a href="pals_module_07_algorithms.slides.html" class="nxt">Next → Module 07: Brady &amp; Tachy Algorithms →</a>
-</section>
-
+</div></div>
+  <div class="slide-footer"><button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button><div class="progress-wrap"><div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div><div class="dot-row" id="dot-row"></div></div><span class="slide-counter" id="counter"></span><button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button></div>
+</div><!-- SLIDE 7 -->
+<div class="slide">
+  <div class="slide-header"><span class="mod-tag">Module 06</span><span class="slide-title-he">שמים vs. לא שמים</span><span class="slide-title-en">Shockable vs. Non-Shockable</span></div>
+  <div class="slide-body"><div class="sec-heading">שמים vs. לא שמים — טבלת החלטה<small>Shockable vs. Non-Shockable — Decision Table</small></div>
+<div class="table-wrap">
+<table class="pals-table">
+  <thead>
+    <tr><th>קצב</th><th>דופק?</th><th>ניתן להלם?</th><th>פעולה ראשונה</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>VF</strong></td><td>❌ אין</td><td><span class="badge-red">⚡ כן</span></td><td>Defibrillation 2 J/kg → CPR</td></tr>
+    <tr><td><strong>pVT</strong> (VT ללא דופק)</td><td>❌ אין</td><td><span class="badge-red">⚡ כן</span></td><td>Defibrillation 2 J/kg → CPR</td></tr>
+    <tr><td><strong>VT עם דופק</strong></td><td>✅ יש</td><td><span class="badge-amber">⚡ Sync</span></td><td>Cardioversion 0.5–1 J/kg</td></tr>
+    <tr><td><strong>SVT עם פגיעה</strong></td><td>✅ יש</td><td><span class="badge-amber">⚡ Sync</span></td><td>Cardioversion 0.5–1 J/kg</td></tr>
+    <tr><td><strong>PEA</strong></td><td>❌ אין</td><td><span class="badge-green">🚫 לא</span></td><td>CPR + Epinephrine + חפש גורם</td></tr>
+    <tr><td><strong>Asystole</strong></td><td>❌ אין</td><td><span class="badge-green">🚫 לא</span></td><td>CPR + Epinephrine</td></tr>
+    <tr><td><strong>Bradycardia</strong></td><td>✅ יש</td><td><span class="badge-green">🚫 לא</span></td><td>O₂ → Epi/Atropine → Pacing</td></tr>
+  </tbody>
+</table>
 </div>
-<div class="foot">
-  <div class="slide-counter" id="counter">1 / 10</div>
-  <div class="foot-btns">
-    <button class="foot-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
-    <button class="foot-btn primary" id="next-btn" onclick="changeSlide(1)">Next →</button>
-  </div>
+<div class="info-bar" style="margin-top:12px">
+  <span class="info-badge red">כלל זהב</span>
+  <span>תמיד: <strong>ראה קצב → בדוק דופק → החלט שמים/לא שמים → פעל</strong>. לעולם אל תעצור CPR יותר מ-10 שניות לבדיקת קצב</span>
+</div></div>
+  <div class="slide-footer"><button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button><div class="progress-wrap"><div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div><div class="dot-row" id="dot-row"></div></div><span class="slide-counter" id="counter"></span><button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button></div>
+</div><!-- SLIDE 8 -->
+<div class="slide">
+  <div class="slide-header"><span class="mod-tag">Module 06</span><span class="slide-title-he">סיכום מודול 06</span><span class="slide-title-en">Module Summary</span></div>
+  <div class="slide-body"><div class="sec-heading">סיכום מודול 06<small>Module 06 — Rhythm Recognition Summary</small></div>
+<div class="summary-grid">
+  <div class="summary-item"><span class="sum-icon">🐢</span><div><strong>ברדי: HR &lt;60 + פגיעה = CPR + Epi/Atropine</strong><br><small>Most common cause in children: hypoxia — treat airway first</small></div></div>
+  <div class="summary-item"><span class="sum-icon">⚡</span><div><strong>SVT: &gt;220 תינוק / &gt;180 ילד · QRS צר · RR קבוע</strong><br><small>Vagal → Adenosine → Cardioversion 0.5–1 J/kg</small></div></div>
+  <div class="summary-item"><span class="sum-icon">💥</span><div><strong>VT: QRS רחב &gt;0.09 שנ' — עם דופק: Cardioversion</strong><br><small>With pulse: Sync 0.5–1 J/kg · Without pulse: Defib 2 J/kg</small></div></div>
+  <div class="summary-item"><span class="sum-icon">〰️</span><div><strong>VF: כאוטי, אין QRS — Defibrillate 2 J/kg מיד!</strong><br><small>Shockable — resume CPR immediately after shock</small></div></div>
+  <div class="summary-item"><span class="sum-icon">📉</span><div><strong>PEA: ECG מאורגן + אין דופק → CPR + Epi + Hs&amp;Ts</strong><br><small>Non-shockable — find reversible cause</small></div></div>
+  <div class="summary-item"><span class="sum-icon">🔑</span><div><strong>קצב → דופק → שמים/לא שמים → פעל (&lt;10 שנ')</strong><br><small>Never stop CPR &gt;10 sec for rhythm check</small></div></div>
 </div>
+<div style="text-align:center;margin-top:18px"><button onclick="markDone()" id="complete-btn" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px 40px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit">✅ סיימתי את המודול — שמור התקדמות</button></div></div>
+  <div class="slide-footer"><button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button><div class="progress-wrap"><div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div><div class="dot-row" id="dot-row"></div></div><span class="slide-counter" id="counter"></span><button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button></div>
+</div></div>
+<script src="../firebase-config.js"></script>
+<script src="../firebase-sync.js"></script>
 <script>
-const slides=document.querySelectorAll('.slide'),total=slides.length;let cur=0;
-function updateUI(){document.getElementById('counter').textContent=(cur+1)+' / '+total;document.getElementById('prev-btn').disabled=cur===0;document.getElementById('next-btn').disabled=cur===total-1;document.getElementById('progress-bar').style.width=((cur+1)/total*100)+'%';}
-function changeSlide(dir){const old=cur;cur=Math.max(0,Math.min(total-1,cur+dir));if(cur===old)return;slides[old].classList.remove('active');slides[old].classList.add(dir>0?'exit-left':'');setTimeout(()=>{slides[old].classList.remove('exit-left');},450);slides[cur].classList.add('active');updateUI();}
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')changeSlide(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')changeSlide(-1);});
-let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});document.addEventListener('touchend',e=>{const dx=tx-e.changedTouches[0].clientX;if(Math.abs(dx)>50)changeSlide(dx>0?1:-1);},{passive:true});
+// ── Navigation ──────────────────────────────────
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let cur = 0;
+let _done_fired = false;
+
+function go(dir) {
+  slides[cur].classList.remove('active');
+  cur = Math.max(0, Math.min(total - 1, cur + dir));
+  slides[cur].classList.add('active');
+  updateUI();
+  if (cur === total - 1 && !_done_fired) {
+    _done_fired = true;
+    markDone();
+  }
+}
+
+function updateUI() {
+  const pct = ((cur + 1) / total * 100).toFixed(0);
+  document.querySelectorAll('#counter').forEach(el => el.textContent = (cur + 1) + ' / ' + total);
+  document.querySelectorAll('#progress-bar').forEach(el => el.style.width = pct + '%');
+  document.querySelectorAll('#prev-btn').forEach(el => el.disabled = cur === 0);
+  document.querySelectorAll('#next-btn').forEach(el => el.disabled = cur === total - 1);
+}
+
+// Build dots (only first slide has them in markup; rebuild from active slide)
+document.querySelectorAll('.dot-row').forEach((row, idx) => {
+  row.innerHTML = Array.from({length: total}, (_, i) =>
+    `<div class="dot${i === idx ? ' active' : ''}" onclick="jumpTo(${i})"></div>`
+  ).join('');
+});
+function jumpTo(i) { slides[cur].classList.remove('active'); cur = i; slides[cur].classList.add('active'); updateUI(); }
+
+// ── Completion ─────────────────────────────────
+async function markDone() {
+  if (!window.FB_READY) {
+    window._pendingMod = 5;
+    return;
+  }
+  try {
+    const ready = await Promise.race([
+      window.FB_READY,
+      new Promise(res => setTimeout(() => res(null), 3000))
+    ]);
+    if (ready && ready.markModuleComplete) {
+      await ready.markModuleComplete(5);
+    }
+  } catch(e) {}
+  const btn = document.getElementById('complete-btn');
+  if (btn) {
+    btn.textContent = '✅ הושלם! עובר להub…';
+    btn.disabled = true;
+    setTimeout(() => { window.location.href = '../hub_student.html'; }, 1200);
+  }
+}
+
+window.FB_READY && window.FB_READY.then(fb => {
+  if (fb && window._pendingMod === 5) markDone();
+});
+
 updateUI();
 </script>
-<div id="complete-bar-6" style="position:fixed;bottom:0;left:0;right:0;padding:14px 24px;background:rgba(7,8,14,.96);border-top:1px solid rgba(255,255,255,.07);display:none;justify-content:flex-end;align-items:center;gap:12px;z-index:300;">
-  <span style="color:rgba(255,255,255,.4);font-size:12px;font-family:sans-serif;">End of module</span>
-  <button id="completeBtn6" onclick="markDone()" style="background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.35);color:#2dd4bf;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:sans-serif;letter-spacing:.04em;transition:all .2s;">✓ Mark Complete &amp; Continue →</button>
-</div>
-<script>
-async function markDone(){
-  try{var p=JSON.parse(sessionStorage.getItem('pals_progress')||'{}');p[5]=true;sessionStorage.setItem('pals_progress',JSON.stringify(p));}catch(e){}
-  var btn = document.getElementById('completeBtn6');
-  if(btn) { btn.textContent='✓ Completed!'; btn.style.background='rgba(0,230,118,.15)'; btn.style.borderColor='rgba(0,230,118,.4)'; btn.style.color='#00e676'; btn.disabled=true; }
-  (async function(){
-    try{
-      var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB);},3000);})]);
-      if(fb&&fb.markModuleComplete){await fb.markModuleComplete(5);}
-    }catch(ex){console.warn('[PALS] FB save:',ex&&ex.message);}
-  })();
-  setTimeout(function(){window.location.href='../slides/pals_module_07_algorithms.slides.html';},900);
-}
-(function(){
-  setInterval(function(){
-    var bar = document.getElementById('complete-bar-6');
-    if(!bar) return;
-    var slides = document.querySelectorAll('section.slide, .slide');
-    var total = slides.length;
-    var isLast = (typeof cur!=='undefined' && cur===total-1);
-    bar.style.display = isLast ? 'flex' : 'none';
-  }, 300);
-})();</script>
-</body></html>
+</body>
+</html>
+</body>
+</html>
