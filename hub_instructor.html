@@ -342,6 +342,7 @@ const overlay   = document.getElementById('cs-overlay');
 const closeBtn  = document.getElementById('cs-close');
 const submitBtn = document.getElementById('cs-submit-btn');
 const resultBox = document.getElementById('cs-result');
+let   createdOnce = false;  // when true, the next submit click clears the form for a new entry
 
 function openModal() {
   clearForm();
@@ -379,6 +380,8 @@ function clearForm() {
 
 // ── Submit: create Auth user + Firestore doc ───────────────────
 submitBtn.addEventListener('click', async () => {
+  // After a successful create, the button reads "Create Another" — clear and bail.
+  if (createdOnce) { createdOnce = false; clearForm(); return; }
   const fname  = document.getElementById('cs-fname').value.trim();
   const lname  = document.getElementById('cs-lname').value.trim();
   const email  = document.getElementById('cs-email').value.trim().toLowerCase();
@@ -445,16 +448,11 @@ function showSuccess(fname, lname, email, pw, role, cohort) {
     </div>
     <div style="margin-top:.55rem;font-size:.75rem;color:var(--muted)">Copy these credentials and share them securely with the student. They can change their password after first login.</div>
   `;
-  // Button becomes "Create Another"
+  // Button becomes "Create Another"; the existing click handler sees
+  // createdOnce and clears the form on the next click (no double handlers).
   submitBtn.disabled = false;
   submitBtn.textContent = 'Create Another';
-  submitBtn.onclick = () => {
-    submitBtn.onclick = null;
-    clearForm();
-    submitBtn.addEventListener('click', arguments.callee);
-  };
-  // Re-wire submit properly for "Create Another"
-  submitBtn.onclick = clearForm;
+  createdOnce = true;
 }
 
 function showError(msg) {
@@ -496,9 +494,9 @@ document.getElementById('modules-grid').innerHTML = MODULES.map(m =>
 ).join('');
 
 // ── Theme toggle ───────────────────────────────────────────────
-let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+let dark = (()=>{try{const s=localStorage.getItem('pals_theme');if(s)return s==='dark';}catch(e){}return window.matchMedia('(prefers-color-scheme: dark)').matches;})();
 applyTheme();
-function toggleTheme() { dark = !dark; applyTheme(); }
+function toggleTheme() { dark = !dark; try{localStorage.setItem('pals_theme',dark?'dark':'light');}catch(e){} applyTheme(); }
 window.toggleTheme = toggleTheme;
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');

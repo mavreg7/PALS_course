@@ -247,30 +247,28 @@ function render(){
 }
 
 // ── FIX: loadAndSync result is now applied to sessionStorage before render ──
-function initHub(){
-  if(window.FB){
-    window.FB.loadAndSync().then(data=>{
+// Only re-render when the remote snapshot actually changes (no flicker).
+let _lastSnap = null;
+function refresh(force){
+  if(!window.FB){ if(force) render(); else setTimeout(()=>refresh(true),100); return; }
+  window.FB.loadAndSync().then(data=>{
+    const snap = JSON.stringify(data);
+    if(force || snap !== _lastSnap){
+      _lastSnap = snap;
       applyRemoteData(data);
       render();
-    });
-  } else { setTimeout(initHub,100); }
+    }
+  });
 }
 
 if(s && s.role === 'student') {
-  initHub();
-  setInterval(()=>{
-    if(window.FB){
-      window.FB.loadAndSync().then(data=>{
-        applyRemoteData(data);
-        render();
-      });
-    } else { render(); }
-  },7000);
+  refresh(true);
+  setInterval(refresh, 15000);
 }
 
-let dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+let dark=(()=>{try{const s=localStorage.getItem('pals_theme');if(s)return s==='dark';}catch(e){}return window.matchMedia('(prefers-color-scheme:dark)').matches;})();
 function applyTheme(){document.documentElement.setAttribute('data-theme',dark?'dark':'light');document.getElementById('thbtn').textContent=dark?'☀️':'🌙';}
-function toggleTheme(){dark=!dark;applyTheme();}
+function toggleTheme(){dark=!dark;try{localStorage.setItem('pals_theme',dark?'dark':'light');}catch(e){}applyTheme();}
 window.toggleTheme=toggleTheme;
 applyTheme();
 </script>

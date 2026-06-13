@@ -1,0 +1,66 @@
+rules_version = '2';
+
+// PALS 2025 — Firestore Security Rules
+// Collections: users (profiles+roles), students (progress/flags/scores),
+//              courseFlags (global gates), meta (admin bootstrap lock)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function myRole() {
+      return signedIn()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : 'none';
+    }
+    function isStaff() {
+      return myRole() in ['admin', 'lead_instructor', 'instructor'];
+    }
+    function isAdmin() {
+      return myRole() == 'admin';
+    }
+    // Keys a user is NOT allowed to change on their own profile
+    function touchesPrivileged() {
+      return request.resource.data.diff(resource.data)
+               .affectedKeys().hasAny(['role', 'canAdmin']);
+    }
+
+    // ── USERS: profile + role ────────────────────────────────────
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isStaff());
+
+      // Self may update own profile but never role/canAdmin
+      allow update: if signedIn() && request.auth.uid == uid && !touchesPrivileged();
+      // Staff may update profiles; only admin may change role/canAdmin
+      allow update: if isStaff() && (!touchesPrivileged() || isAdmin());
+
+      // Only an admin can mint accounts/roles (instructor "Create Student"
+      // runs while signed in as admin). Self-signup, if ever enabled, is
+      // restricted to role 'student'.
+      allow create: if isAdmin()
+                    || (signedIn() && request.auth.uid == uid
+                        && request.resource.data.role == 'student');
+      allow delete: if isAdmin();
+    }
+
+    // ── STUDENTS: progress, flags, exam scores, certificate ──────
+    match /students/{uid} {
+      allow read, write: if signedIn() && (request.auth.uid == uid || isStaff());
+    }
+
+    // ── COURSE FLAGS: students read, staff write ─────────────────
+    match /courseFlags/{doc} {
+      allow read:  if signedIn();
+      allow write: if isStaff();
+    }
+
+    // ── META (admin bootstrap lock): admin only ──────────────────
+    match /meta/{doc} {
+      allow read:  if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // Everything else denied by default.
+  }
+}

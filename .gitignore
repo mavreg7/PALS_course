@@ -1,0 +1,9 @@
+# Editor / local dev tooling
+.claude/
+
+# Source reference materials (kept local; not redistributed)
+references/
+
+# OS cruft
+.DS_Store
+Thumbs.db

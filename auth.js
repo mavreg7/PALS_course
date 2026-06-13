@@ -50,7 +50,7 @@ async function getUser() {
     return {
       uid:         u.uid,
       email:       u.email,
-      displayName: d.displayName || u.displayName || '',
+      displayName: d.displayName || d.name || u.displayName || '',
       role:        d.role || 'student',
       canAdmin:    d.canAdmin === true,
       isAdmin:     d.role === 'admin',
