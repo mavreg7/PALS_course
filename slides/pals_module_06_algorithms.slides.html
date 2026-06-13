@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 7 — Bradycardia & Tachycardia Algorithms | אלגוריתמי ברדי וטכי</title>
+<title>Module 6 — Bradycardia & Tachycardia Algorithms | אלגוריתמי ברדי וטכי</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="../firebase-config.js"></script>
@@ -69,7 +69,7 @@
 
   <!-- 1 HERO -->
   <section class="slide active">
-    <span class="pill">Module 07 · מודול 07</span>
+    <span class="pill">Module 06 · מודול 06</span>
     <div class="he"><h1 class="mt-5">אלגוריתמים:<br>ברדיקרדיה וטכיקרדיה עם דופק</h1><p class="sub mt-5">צומת ההחלטה · אלגוריתם ברדי · אלגוריתם טכי · תרופות ומינונים</p></div>
     <div class="en"><h1 class="mt-5">Algorithms:<br>Bradycardia &amp; Tachycardia With a Pulse</h1><p class="sub mt-5">The decision point · brady algorithm · tachy algorithm · drugs &amp; doses</p></div>
     <p class="src">דמויות: פרוטוקולי MSR / AHA PALS 2025 (Pediatric Bradycardia &amp; Tachyarrhythmia With a Pulse).</p>
@@ -188,7 +188,7 @@
         <li>טכי: צר (≤0.09) = SVT → ואגאלי/אדנוזין; רחב (&gt;0.09) = חשד VT.</li>
         <li>טכי לא יציב ← <strong>היפוך חשמלי מסונכרן</strong> 0.5–1 ← 2 ג'אול/ק"ג.</li>
       </ul>
-      <a href="pals_module_08_megacode_resp.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 8: מגה-קוד נשימתי</a></div>
+      <a href="pals_module_07_megacode_resp.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 7: מגה-קוד נשימתי</a></div>
     <div class="en"><h3 class="ey">Summary</h3><h2>Key take-aways</h2>
       <ul class="mt-3">
         <li>Patient first: is there a pulse? stable or unstable (cardiopulmonary compromise)?</li>
@@ -196,7 +196,7 @@
         <li>Tachy: narrow (≤0.09) = SVT → vagal/adenosine; wide (&gt;0.09) = suspect VT.</li>
         <li>Unstable tachy → <strong>synchronized cardioversion</strong> 0.5–1 → 2 J/kg.</li>
       </ul>
-      <a href="pals_module_08_megacode_resp.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 8: Respiratory Megacode</a></div>
+      <a href="pals_module_07_megacode_resp.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 7: Respiratory Megacode</a></div>
   </section>
 
 </div>
@@ -208,7 +208,7 @@ const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=docu
 function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
 function go(d){show(cur+d)}
 function setLang(l){document.body.className='lang-'+l;document.documentElement.lang=l;document.documentElement.dir=(l==='he'?'rtl':'ltr')}
-function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(6);}catch(e){}})();}
+function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(5);}catch(e){}})();}
 var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
 setLang('he');
 document.addEventListener('click',e=>{const im=e.target.closest('.fig')?e.target:null;if(im&&im.tagName==='IMG'){document.getElementById('lbimg').src=im.src;document.getElementById('lb').style.display='flex'}});

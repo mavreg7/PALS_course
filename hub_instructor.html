@@ -181,7 +181,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
   </div>
   <!-- Create Student card injected here by JS when role === admin -->
 
-  <div class="section-title">12 Learning Modules</div>
+  <div class="section-title">11 Learning Modules</div>
   <div class="modules-grid" id="modules-grid"></div>
 
   <!-- ── Student Roster ──────────────────────────────────────── -->
@@ -476,18 +476,17 @@ function firebaseErrorMessage(code) {
 
 // ── Modules grid ───────────────────────────────────────────────
 const MODULES = [
-  {n:1, file:'slides/pals_module_01_intro.slides.html',         title:'Course Intro & 2025 Updates',  sub:'Goals, cert, key changes'},
-  {n:2, file:'slides/pals_module_02_bls.slides.html',           title:'Pediatric BLS & CPR',           sub:'C-A-B, depth, rate, AED'},
-  {n:3, file:'slides/pals_module_03_assessment.slides.html',    title:'Systematic Assessment',         sub:'PAT, ABCDE, vitals'},
-  {n:4, file:'slides/pals_module_04_respiratory.slides.html',   title:'Respiratory Emergencies',       sub:'Distress vs failure, BVM'},
-  {n:5, file:'slides/pals_module_05_shock.slides.html',         title:'Shock Recognition',             sub:'Compensated, fluids, sepsis'},
-  {n:6, file:'slides/pals_module_06_rhythms.slides.html',       title:'Rhythm Recognition',            sub:'Brady, SVT, VT, VF, PEA'},
-  {n:7, file:'slides/pals_module_07_algorithms.slides.html',    title:'Brady & Tachy Algorithms',      sub:'Atropine, adenosine, cardioversion'},
-  {n:8, file:'slides/pals_module_08_megacode_resp.slides.html', title:'Megacode 1: Respiratory',       sub:'Team roles, checklist, debrief'},
-  {n:9, file:'slides/pals_module_09_megacode_shock.slides.html',title:'Megacode 2: Shock',             sub:'Septic shock scenario'},
-  {n:10,file:'slides/pals_module_10_cardiac_arrest.slides.html',title:'Cardiac Arrest Algorithm',      sub:'Shockable/non-shockable, epi'},
-  {n:11,file:'slides/pals_module_11_postarrest.slides.html',    title:'Post-Arrest Care',              sub:'SpO2, PaCO2, neuro monitoring'},
-  {n:12,file:'slides/pals_module_12_airway_pharm.slides.html',  title:'Airway & Pharmacology',         sub:'BVM, ETT, RSI, drug calculator'}
+  {n:1, file:'slides/pals_module_01_bls.slides.html',           title:'Pediatric BLS & CPR',           sub:'C-A-B, depth, rate, AED'},
+  {n:2, file:'slides/pals_module_02_assessment.slides.html',    title:'Systematic Assessment',         sub:'PAT, ABCDE, vitals'},
+  {n:3, file:'slides/pals_module_03_respiratory.slides.html',   title:'Respiratory Emergencies',       sub:'Distress vs failure, BVM'},
+  {n:4, file:'slides/pals_module_04_shock.slides.html',         title:'Shock Recognition',             sub:'Compensated, fluids, sepsis'},
+  {n:5, file:'slides/pals_module_05_rhythms.slides.html',       title:'Rhythm Recognition',            sub:'Brady, SVT, VT, VF, PEA'},
+  {n:6, file:'slides/pals_module_06_algorithms.slides.html',    title:'Brady & Tachy Algorithms',      sub:'Atropine, adenosine, cardioversion'},
+  {n:7, file:'slides/pals_module_07_megacode_resp.slides.html', title:'Megacode 1: Respiratory',       sub:'Team roles, checklist, debrief'},
+  {n:8, file:'slides/pals_module_08_megacode_shock.slides.html',title:'Megacode 2: Shock',             sub:'Septic shock scenario'},
+  {n:9, file:'slides/pals_module_09_cardiac_arrest.slides.html',title:'Cardiac Arrest Algorithm',      sub:'Shockable/non-shockable, epi'},
+  {n:10,file:'slides/pals_module_10_postarrest.slides.html',    title:'Post-Arrest Care',              sub:'SpO2, PaCO2, neuro monitoring'},
+  {n:11,file:'slides/pals_module_11_airway_pharm.slides.html',  title:'Airway & Pharmacology',         sub:'BVM, ETT, RSI, drug calculator'}
 ];
 document.getElementById('modules-grid').innerHTML = MODULES.map(m =>
   `<a href="${m.file}" class="mod-card">
@@ -511,10 +510,11 @@ function applyTheme() {
 
 // ── ROSTER GLOBALS ─────────────────────────────────────────────
 const MOD_LABELS = [
-  'Intro','BLS','Assessment','Respiratory','Shock',
-  'Rhythms','Algorithms','Megacode-R','Megacode-S',
+  'BLS','Assessment','Respiratory','Shock','Rhythms',
+  'Algorithms','Megacode-R','Megacode-S',
   'Cardiac Arrest','Post-Arrest','Airway/Pharm'
 ];
+const MOD_COUNT = MOD_LABELS.length;
 let allStudents = [];
 let allUsers    = {};
 
@@ -558,8 +558,8 @@ function modCount(progress) {
 
 function updateStats() {
   const total   = allStudents.length;
-  const done    = allStudents.filter(s => modCount(s.progress) >= 12).length;
-  const inprog  = allStudents.filter(s => { const c=modCount(s.progress); return c>0 && c<12; }).length;
+  const done    = allStudents.filter(s => modCount(s.progress) >= MOD_COUNT).length;
+  const inprog  = allStudents.filter(s => { const c=modCount(s.progress); return c>0 && c<MOD_COUNT; }).length;
   const notst   = allStudents.filter(s => modCount(s.progress) === 0).length;
   document.getElementById('stat-total').textContent      = total;
   document.getElementById('stat-done').textContent       = done;
@@ -584,7 +584,7 @@ function renderRoster(students) {
   }
   tbody.innerHTML = students.map(s => {
     const count = modCount(s.progress);
-    const pct   = Math.round(count/12*100);
+    const pct   = Math.round(count/MOD_COUNT*100);
     const roleClass = s.role === 'student' ? 'badge-student' : 'badge-instructor';
     return `<tr>
       <td><strong>${s.name}</strong></td>
@@ -594,7 +594,7 @@ function renderRoster(students) {
       <td>
         <div class="prog-bar-wrap">
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
-          <span class="prog-pct">${count}/12</span>
+          <span class="prog-pct">${count}/${MOD_COUNT}</span>
         </div>
       </td>
       <td style="font-size:.78rem;color:var(--muted)">${timeAgo(s.updatedAt)}</td>
@@ -618,7 +618,7 @@ function exportCSV() {
   const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Last Active']];
   allStudents.forEach(s => {
     const count = modCount(s.progress);
-    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/12*100)+'%', timeAgo(s.updatedAt)]);
+    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/MOD_COUNT*100)+'%', timeAgo(s.updatedAt)]);
   });
   const csv  = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
@@ -679,7 +679,7 @@ async function saveEdit() {
   try {
     // Build new progress object from checkboxes
     const progress = {};
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < MOD_COUNT; i++) {
       if (document.getElementById('mod-check-' + i).checked) progress[i] = true;
     }
     const notes = document.getElementById('edit-notes').value.trim();
@@ -713,7 +713,7 @@ async function resetProgress() {
   try {
     await fsSetDoc(fsDoc(db, 'students', editUid), { progress: {}, updatedAt: Date.now() }, { merge: true });
     // Uncheck all boxes
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < MOD_COUNT; i++) {
       const cb = document.getElementById('mod-check-' + i);
       if (cb) { cb.checked = false; toggleModStyle(i); }
     }

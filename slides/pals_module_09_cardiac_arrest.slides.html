@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 10 — Cardiac Arrest | דום לב בילדים</title>
+<title>Module 09 — Cardiac Arrest | דום לב בילדים</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="../firebase-config.js"></script>
@@ -70,7 +70,7 @@
 
   <!-- 1 HERO -->
   <section class="slide active">
-    <span class="pill">Module 10 · מודול 10</span>
+    <span class="pill">Module 09 · מודול 09</span>
     <div class="he"><h1 class="mt-5">דום לב בילדים</h1><p class="sub mt-5">האלגוריתם · ניתן לשוק מול לא ניתן לשוק · אנרגיות ותרופות · סיבות הפיכות</p></div>
     <div class="en"><h1 class="mt-5">Pediatric Cardiac Arrest</h1><p class="sub mt-5">The algorithm · shockable vs non-shockable · energies &amp; drugs · reversible causes</p></div>
     <p class="src">דמות: פרוטוקול MSR / AHA PALS 2025 (Pediatric Cardiac Arrest Algorithm).</p>
@@ -124,7 +124,7 @@
         <li><span class="term">Epinephrine</span> כל 3–5 דק'; שקול נתיב אוויר מתקדם וקפנוגרפיה.</li>
         <li>VF/pVT עמיד ← <span class="term">Amiodarone</span> או <span class="term">Lidocaine</span>.</li>
         <li>אסיסטולה/PEA ← אדרנלין מיד; טפל בסיבות הפיכות.</li>
-        <li>ROSC? ← טיפול לאחר דום לב (מודול 11).</li>
+        <li>ROSC? ← טיפול לאחר דום לב (מודול 10).</li>
       </ul></div>
       <div class="card en" style="flex:1;align-self:center"><ul style="margin:0">
         <li>Start CPR · bag-mask ventilation · attach monitor/defibrillator.</li>
@@ -132,7 +132,7 @@
         <li><span class="term">Epinephrine</span> q3–5 min; consider advanced airway &amp; capnography.</li>
         <li>Refractory VF/pVT → <span class="term">amiodarone</span> or <span class="term">lidocaine</span>.</li>
         <li>Asystole/PEA → epinephrine ASAP; treat reversible causes.</li>
-        <li>ROSC? → post-cardiac-arrest care (Module 11).</li>
+        <li>ROSC? → post-cardiac-arrest care (Module 10).</li>
       </ul></div>
     </div>
   </section>
@@ -189,7 +189,7 @@
         <li>אדרנלין 0.01 מ"ג/ק"ג; חפש וטפל ב-4H/4T.</li>
         <li>ROSC ← טיפול לאחר דום לב.</li>
       </ul>
-      <a href="pals_module_11_postarrest.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 11: טיפול לאחר דום לב</a></div>
+      <a href="pals_module_10_postarrest.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 10: טיפול לאחר דום לב</a></div>
     <div class="en"><h3 class="ey">Summary</h3><h2>Key take-aways</h2>
       <ul class="mt-3">
         <li>2-minute CPR cycles; minimize interruptions; rhythm check each cycle.</li>
@@ -198,7 +198,7 @@
         <li>Epinephrine 0.01 mg/kg; search and treat the H's &amp; T's.</li>
         <li>ROSC → post-cardiac-arrest care.</li>
       </ul>
-      <a href="pals_module_11_postarrest.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 11: Post-Arrest Care</a></div>
+      <a href="pals_module_10_postarrest.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 10: Post-Arrest Care</a></div>
   </section>
 
 </div>
@@ -210,7 +210,7 @@ const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=docu
 function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
 function go(d){show(cur+d)}
 function setLang(l){document.body.className='lang-'+l;document.documentElement.lang=l;document.documentElement.dir=(l==='he'?'rtl':'ltr')}
-function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(9);}catch(e){}})();}
+function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(8);}catch(e){}})();}
 var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
 setLang('he');
 document.addEventListener('click',e=>{const im=e.target.closest('.fig')?e.target:null;if(im&&im.tagName==='IMG'){document.getElementById('lbimg').src=im.src;document.getElementById('lb').style.display='flex'}});

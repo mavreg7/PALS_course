@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 4 — Respiratory Emergencies | מצבי חירום נשימתיים</title>
+<title>Module 3 — Respiratory Emergencies | מצבי חירום נשימתיים</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="../firebase-config.js"></script>
@@ -64,7 +64,7 @@
 
   <!-- 1 HERO -->
   <section class="slide active">
-    <span class="pill">Module 04 · מודול 04</span>
+    <span class="pill">Module 03 · מודול 03</span>
     <div class="he"><h1 class="mt-5">מצבי חירום<br>נשימתיים בילדים</h1><p class="sub mt-5">זיהוי מצוקה וכשל · 4 סוגי ההפרעה · ייצוב ראשוני · טיפול באסתמה וגוף זר</p></div>
     <div class="en"><h1 class="mt-5">Pediatric Respiratory<br>Emergencies</h1><p class="sub mt-5">Distress vs failure · 4 problem types · initial stabilization · asthma &amp; FBAO</p></div>
     <p class="src">מבוסס על חומרי MSR ("זיהוי וטיפול במצבי חירום נשימתיים") ועל AHA PALS 2025.</p>
@@ -223,7 +223,7 @@
         <div class="card"><strong>ילד בהכרה</strong><div class="src mt-1">לחיצות בטניות (היימליך) מעל הטבור עד שחרור.</div></div>
       </div>
       <div class="esc mt-4"><strong>מחוסר הכרה:</strong> עבור להחייאה (30:2 או 15:2) גם בנוכחות דופק. לפני הנשמה — הסתכל בפה והוצא גוף זר נראה. <strong>ללא גריפה עיוורת.</strong></div>
-      <p class="src">פירוט מלא במודול 2 (BLS).</p></div>
+      <p class="src">פירוט מלא במודול 1 (BLS).</p></div>
     <div class="en"><h3 class="ey">Foreign-body aspiration</h3><h2>Quick reference</h2>
       <div class="grid3 mt-3">
         <div class="card"><strong>Mild (coughing)</strong><div class="src mt-1">Encourage coughing, don't move or slap — coughing is the best mechanism.</div></div>
@@ -231,7 +231,7 @@
         <div class="card"><strong>Conscious child</strong><div class="src mt-1">Abdominal thrusts (Heimlich) above the navel until relief.</div></div>
       </div>
       <div class="esc mt-4"><strong>Unresponsive:</strong> start CPR (30:2 or 15:2) even with a pulse. Before breaths — look in the mouth and remove a visible object. <strong>No blind finger sweeps.</strong></div>
-      <p class="src">Full detail in Module 2 (BLS).</p></div>
+      <p class="src">Full detail in Module 1 (BLS).</p></div>
   </section>
 
   <!-- 10 SUMMARY -->
@@ -244,7 +244,7 @@
         <li><strong>ייצוב ראשוני לפי ABCDE</strong> מתאים לכולם — חמצון ואוורור מעל הכול.</li>
         <li>אסתמה: חמצן + וונטולין ± איפרטרופיום, סטרואידים, מגנזיום; אדרנלין IM לקראת כשל.</li>
       </ul>
-      <a href="pals_module_05_shock.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 5: הלם (Shock)</a></div>
+      <a href="pals_module_04_shock.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 4: הלם (Shock)</a></div>
     <div class="en"><h3 class="ey">Summary</h3><h2>Key take-aways</h2>
       <ul class="mt-3">
         <li>Respiratory distress can rapidly progress to <strong>failure → arrest</strong>.</li>
@@ -253,7 +253,7 @@
         <li><strong>Initial ABCDE stabilization</strong> fits all — oxygenation &amp; ventilation above all.</li>
         <li>Asthma: O₂ + albuterol ± ipratropium, steroids, magnesium; IM epinephrine if approaching failure.</li>
       </ul>
-      <a href="pals_module_05_shock.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 5: Shock</a></div>
+      <a href="pals_module_04_shock.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 4: Shock</a></div>
   </section>
 
 </div>
@@ -265,7 +265,7 @@ const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=docu
 function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
 function go(d){show(cur+d)}
 function setLang(l){document.body.className='lang-'+l;document.documentElement.lang=l;document.documentElement.dir=(l==='he'?'rtl':'ltr')}
-function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(3);}catch(e){}})();}
+function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(2);}catch(e){}})();}
 var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
 setLang('he');
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);if(e.key===' ')go(1)});

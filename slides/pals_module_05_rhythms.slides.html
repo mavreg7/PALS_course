@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 6 — Rhythm Recognition | זיהוי הפרעות קצב</title>
+<title>Module 5 — Rhythm Recognition | זיהוי הפרעות קצב</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="../firebase-config.js"></script>
@@ -65,7 +65,7 @@
 
   <!-- 1 HERO -->
   <section class="slide active">
-    <span class="pill">Module 06 · מודול 06</span>
+    <span class="pill">Module 05 · מודול 05</span>
     <div class="he"><h1 class="mt-5">זיהוי הפרעות קצב</h1><p class="sub mt-5">מסינוס ועד אסיסטולה — תבנית, קצב, פרפוזיה ופעולה</p></div>
     <div class="en"><h1 class="mt-5">Rhythm Recognition</h1><p class="sub mt-5">From sinus to asystole — pattern, rate, perfusion, action</p></div>
     <p class="src">מבוסס על AHA PALS 2025 ועל פרוטוקולי MSR.</p>
@@ -212,7 +212,7 @@
         <li>סינוס: משתנה, גלי P, היסטוריה. SVT: פתאומי, קבוע, ללא גלי P.</li>
         <li>VT/VF = ניתן לשוק. אסיסטולה/PEA = לא ניתן לשוק, סיבות הפיכות.</li>
       </ul>
-      <a href="pals_module_07_algorithms.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 7: אלגוריתמים — ברדי וטכי</a></div>
+      <a href="pals_module_06_algorithms.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 6: אלגוריתמים — ברדי וטכי</a></div>
     <div class="en"><h3 class="ey">Summary</h3><h2>Key take-aways</h2>
       <ul class="mt-3">
         <li>Sinus rhythm changes by age; know normal awake ranges.</li>
@@ -220,7 +220,7 @@
         <li>Sinus tach: variable, P-waves, history. SVT: abrupt, fixed, no P-waves.</li>
         <li>VT/VF = shockable. Asystole/PEA = non-shockable, reversibles.</li>
       </ul>
-      <a href="pals_module_07_algorithms.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 7: Brady &amp; Tachy Algorithms</a></div>
+      <a href="pals_module_06_algorithms.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 6: Brady &amp; Tachy Algorithms</a></div>
   </section>
 
 </div>
@@ -232,7 +232,7 @@ const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=docu
 function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
 function go(d){show(cur+d)}
 function setLang(l){document.body.className='lang-'+l;document.documentElement.lang=l;document.documentElement.dir=(l==='he'?'rtl':'ltr')}
-function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(5);}catch(e){}})();}
+function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(4);}catch(e){}})();}
 var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
 setLang('he');
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);if(e.key===' ')go(1)});
