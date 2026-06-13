@@ -6,6 +6,7 @@
 <title>PALS 2025 · Instructor Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="firebase-config.js"></script>
+<script src="modules.js"></script>
 <style>
 :root{--primary:#0891B2;--primary-dark:#0e7490;--primary-light:#e0f2fe;--instructor:#7C3AED;--success:#22C55E;--warning:#F59E0B;--danger:#EF4444;--bg:#F0F9FF;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--faint:#94a3b8;--radius:14px;--shadow:0 4px 20px rgba(8,145,178,.09)}
 [data-theme="dark"]{--bg:#0f172a;--surface:#1e293b;--surface2:#273548;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--faint:#475569;--shadow:0 4px 24px rgba(0,0,0,.4)}
@@ -473,19 +474,7 @@ function firebaseErrorMessage(code) {
 }
 
 // ── Modules grid ───────────────────────────────────────────────
-const MODULES = [
-  {n:1, file:'slides/pals_module_01_bls.slides.html',           title:'Pediatric BLS & CPR',           sub:'C-A-B, depth, rate, AED'},
-  {n:2, file:'slides/pals_module_02_assessment.slides.html',    title:'Systematic Assessment',         sub:'PAT, ABCDE, vitals'},
-  {n:3, file:'slides/pals_module_03_respiratory.slides.html',   title:'Respiratory Emergencies',       sub:'Distress vs failure, BVM'},
-  {n:4, file:'slides/pals_module_04_shock.slides.html',         title:'Shock Recognition',             sub:'Compensated, fluids, sepsis'},
-  {n:5, file:'slides/pals_module_05_rhythms.slides.html',       title:'Rhythm Recognition',            sub:'Brady, SVT, VT, VF, PEA'},
-  {n:6, file:'slides/pals_module_06_algorithms.slides.html',    title:'Brady & Tachy Algorithms',      sub:'Atropine, adenosine, cardioversion'},
-  {n:7, file:'slides/pals_module_07_megacode_resp.slides.html', title:'Megacode 1: Respiratory',       sub:'Team roles, checklist, debrief'},
-  {n:8, file:'slides/pals_module_08_megacode_shock.slides.html',title:'Megacode 2: Shock',             sub:'Septic shock scenario'},
-  {n:9, file:'slides/pals_module_09_cardiac_arrest.slides.html',title:'Cardiac Arrest Algorithm',      sub:'Shockable/non-shockable, epi'},
-  {n:10,file:'slides/pals_module_10_postarrest.slides.html',    title:'Post-Arrest Care',              sub:'SpO2, PaCO2, neuro monitoring'},
-  {n:11,file:'slides/pals_module_11_airway_pharm.slides.html',  title:'Airway & Pharmacology',         sub:'BVM, ETT, RSI, drug calculator'}
-];
+const MODULES = window.PALS_MODULES;
 document.getElementById('modules-grid').innerHTML = MODULES.map(m =>
   `<a href="${m.file}" class="mod-card">
     <div class="mod-num">M${String(m.n).padStart(2,'0')}</div>
@@ -507,12 +496,8 @@ function applyTheme() {
 
 
 // ── ROSTER GLOBALS ─────────────────────────────────────────────
-const MOD_LABELS = [
-  'BLS','Assessment','Respiratory','Shock','Rhythms',
-  'Algorithms','Megacode-R','Megacode-S',
-  'Cardiac Arrest','Post-Arrest','Airway/Pharm'
-];
-const MOD_COUNT = MOD_LABELS.length;
+const MOD_LABELS = window.PALS_MODULES.map(m => m.label);
+const MOD_COUNT  = MOD_LABELS.length;
 let allStudents = [];
 let allUsers    = {};
 
