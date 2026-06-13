@@ -168,11 +168,14 @@ async function logout() {
 
 // Auth guard: students only
 const s = getSession();
-if (!s || s.role !== 'student') {
+if (!s) {
   window.__pals_sess = null;
   try { sessionStorage.removeItem(SK); } catch(e) {}
   try { await signOut(auth); } catch(e) {}
   window.location.href = 'index.html';
+} else if (s.role !== 'student') {
+  // Wrong role (e.g. an instructor) — send them to their hub, do NOT sign out.
+  window.location.href = 'hub_instructor.html';
 } else {
   document.getElementById('welcome-name').textContent = 'Welcome, ' + s.name;
   document.getElementById('user-badge').textContent = '🎓 ' + s.name.toUpperCase();

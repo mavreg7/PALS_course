@@ -17,15 +17,15 @@ window.FB_READY = new Promise(res => { _fbResolve = res; });
 // (not a session name string). All Firestore paths use UID.
 // ───────────────────────────────────────────────
 
-import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getFirestore,
   doc, setDoc, getDoc,
   onSnapshot, collection, getDocs
 }                            from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { getAuth }           from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
-// ── Init (reuses app already started by auth.js if present) ───
+// ── Init (reuses any app already started by auth.js or the host page) ──
 let _db, _auth;
 function _ensureInit() {
   if (_db) return;
@@ -33,10 +33,25 @@ function _ensureInit() {
     _db   = window.PALS_AUTH.db;
     _auth = window.PALS_AUTH.auth;
   } else {
-    const app = initializeApp(FIREBASE_CONFIG);
+    // Reuse the existing default app if the page already created one
+    // (e.g. the hubs) — calling initializeApp twice throws "already exists".
+    const app = getApps().length ? getApp() : initializeApp(FIREBASE_CONFIG);
     _db       = getFirestore(app);
     _auth     = getAuth(app);
   }
+}
+
+// ── Auth readiness — resolves once Firebase restores the session ─────
+// (currentUser is null synchronously until persistence loads; without
+//  waiting, deck progress writes silently no-op.)
+let _authReady;
+function _ensureAuthReady() {
+  if (_authReady) return _authReady;
+  _ensureInit();
+  _authReady = new Promise(res => {
+    const unsub = onAuthStateChanged(_auth, u => { unsub(); res(u); });
+  });
+  return _authReady;
 }
 
 // ── Get current UID ─────────────────────────────────────────
@@ -50,7 +65,7 @@ function _uid() {
 // ── STUDENT: Save module progress ───────────────────────────
 async function fbSaveProgress(progress) {
   try {
-    _ensureInit();
+    await _ensureAuthReady();
     const uid = _uid(); if (!uid) return;
     await setDoc(doc(_db,'students',uid), { progress, updatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveProgress:', e.message); }
@@ -59,7 +74,7 @@ async function fbSaveProgress(progress) {
 // ── STUDENT: Save course flags ───────────────────────────────
 async function fbSaveFlags(flags) {
   try {
-    _ensureInit();
+    await _ensureAuthReady();
     const uid = _uid(); if (!uid) return;
     await setDoc(doc(_db,'students',uid), { flags, flagsUpdatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveFlags:', e.message); }
@@ -68,7 +83,7 @@ async function fbSaveFlags(flags) {
 // ── STUDENT: Load own record ─────────────────────────────────
 async function fbLoadMyData() {
   try {
-    _ensureInit();
+    await _ensureAuthReady();
     const uid = _uid(); if (!uid) return null;
     const snap = await getDoc(doc(_db,'students',uid));
     return snap.exists() ? snap.data() : null;
@@ -98,7 +113,7 @@ async function fbMarkModuleComplete(moduleIndex) {
 // ── STUDENT: Save exam score ─────────────────────────────────
 async function fbSaveExamScore(examType, score, total) {
   try {
-    _ensureInit();
+    await _ensureAuthReady();
     const uid = _uid(); if (!uid) return;
     const field = examType === 'final' ? 'finalExam' : 'preTest';
     await setDoc(doc(_db,'students',uid), {
@@ -110,7 +125,7 @@ async function fbSaveExamScore(examType, score, total) {
 // ── STUDENT: Save certificate ────────────────────────────────
 async function fbSaveCertificate(issued) {
   try {
-    _ensureInit();
+    await _ensureAuthReady();
     const uid = _uid(); if (!uid) return;
     await setDoc(doc(_db,'students',uid), {
       certificate: { issued, issuedAt: issued ? Date.now() : null }

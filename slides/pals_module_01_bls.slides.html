@@ -74,7 +74,7 @@
 </head>
 <body class="lang-he">
 <div id="lb" onclick="this.style.display='none'"><img id="lbimg" alt="enlarged figure"><div class="hint">לחצו בכל מקום לסגירה · click anywhere to close</div></div>
-<a class="home" href="../hub_student.html">⌂ Hub</a>
+<a class="home" href="../hub_student.html" onclick="return goHub(event)">⌂ Hub</a>
 <div class="langtog"><button id="bHe" onclick="setLang('he')">עברית</button><button id="bEn" onclick="setLang('en')">English</button></div>
 <div class="counter"><span id="cur">1</span>/<span id="tot">11</span></div>
 
@@ -292,6 +292,7 @@ function go(d){show(cur+d)}
 function setLang(l){document.body.className='lang-'+l;document.documentElement.lang=l;document.documentElement.dir=(l==='he'?'rtl':'ltr')}
 function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(0);}catch(e){}})();}
 var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
+function goHub(e){try{var s=JSON.parse(sessionStorage.getItem('pals_sess_v2')||'null');if(s&&s.role&&s.role!=='student'){if(e)e.preventDefault();location.href='../hub_instructor.html';return false;}}catch(_){}return true;}
 setLang('he');
 document.addEventListener('click',e=>{const im=e.target.closest('.fig')?e.target:null;if(im&&im.tagName==='IMG'){document.getElementById('lbimg').src=im.src;document.getElementById('lb').style.display='flex'}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lb').style.display='none'});

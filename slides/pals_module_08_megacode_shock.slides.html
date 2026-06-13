@@ -58,7 +58,7 @@
 </style>
 </head>
 <body class="lang-he">
-<a class="home" href="../hub_student.html">⌂ Hub</a>
+<a class="home" href="../hub_student.html" onclick="return goHub(event)">⌂ Hub</a>
 <div class="langtog"><button id="bHe" onclick="setLang('he')">עברית</button><button id="bEn" onclick="setLang('en')">English</button></div>
 <div class="counter"><span id="cur">1</span>/<span id="tot">9</span></div>
 
@@ -223,6 +223,7 @@ function go(d){show(cur+d)}
 function setLang(l){document.body.className='lang-'+l;document.documentElement.lang=l;document.documentElement.dir=(l==='he'?'rtl':'ltr')}
 function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(7);}catch(e){}})();}
 var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
+function goHub(e){try{var s=JSON.parse(sessionStorage.getItem('pals_sess_v2')||'null');if(s&&s.role&&s.role!=='student'){if(e)e.preventDefault();location.href='../hub_instructor.html';return false;}}catch(_){}return true;}
 setLang('he');
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);if(e.key===' ')go(1)});
 let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});

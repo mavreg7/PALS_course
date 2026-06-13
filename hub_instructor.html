@@ -302,11 +302,14 @@ async function logout() {
 
 // ── Auth guard ─────────────────────────────────────────────────
 const s = getSession();
-if (!s || !INSTRUCTOR_ROLES.includes(s.role)) {
+if (!s) {
   window.__pals_sess = null;
   try { sessionStorage.removeItem(SK); } catch(e) {}
   try { await signOut(auth); } catch(e) {}
   window.location.replace('index.html');
+} else if (!INSTRUCTOR_ROLES.includes(s.role)) {
+  // A student landed here — send them to the student hub, do NOT sign out.
+  window.location.replace('hub_student.html');
 } else {
   document.getElementById('welcome-name').textContent = 'Welcome, ' + s.name;
   document.getElementById('user-badge').textContent = s.role === 'admin' ? 'ADMIN' : s.name.toUpperCase();
