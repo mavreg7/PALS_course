@@ -60,9 +60,21 @@
   .grid2,.grid3,.grid4{grid-template-columns:1fr}
   .eqn{flex-direction:column}
 }
+/*figlb*/
+.fig{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 10px 30px -14px rgba(15,29,46,.22);display:flex;align-items:center;justify-content:center}
+.fig img{max-width:100%;max-height:100%;object-fit:contain;display:block;cursor:zoom-in}
+.fig::after{content:'922';position:absolute;top:8px;inset-inline-end:8px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:rgba(14,124,134,.9);color:#fff;border-radius:7px;font-size:15px;font-weight:700;pointer-events:none;opacity:.85}
+.figrow{display:flex;gap:22px;align-items:stretch}
+.capt{font-size:13.5px;color:var(--mut);text-align:center;margin-top:6px;font-weight:600}
+.he .capt{font-family:'Assistant',sans-serif}
+#lb{display:none;position:fixed;inset:0;background:rgba(8,15,25,.92);z-index:300;align-items:center;justify-content:center;cursor:zoom-out;padding:3vh}
+#lb img{max-width:96vw;max-height:94vh;object-fit:contain;border-radius:8px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+#lb .hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);color:#cbd5e1;font-size:13px;font-weight:600}
 </style>
 </head>
 <body class="lang-he">
+<div id="lb" onclick="this.style.display='none'"><img id="lbimg" alt="enlarged figure"><div class="hint">לחצו בכל מקום לסגירה · click anywhere to close</div></div>
+
 <a class="home" href="../hub_student.html" onclick="return goHub(event)">⌂ Hub</a>
 <div class="langtog"><button id="bHe" onclick="setLang('he')">עברית</button><button id="bEn" onclick="setLang('en')">English</button></div>
 <div class="counter"><span id="cur">1</span>/<span id="tot">7</span></div>
@@ -177,6 +189,20 @@
       <p class="src">Neuroprognostication: multimodal, and not in the first hours.</p></div>
   </section>
 
+  <!-- 6b POST-ARREST CHECKLIST (figures) -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">צ'ק-ליסט טיפול לאחר דום לב</h3><h2>רכיבי הטיפול ומפת הדרך להחלמה</h2></div>
+    <div class="en"><h3 class="ey">Post-arrest care checklist</h3><h2>Components of care &amp; roadmap to recovery</h2></div>
+    <div class="figrow mt-3" style="gap:18px">
+      <div style="flex:0 0 54%"><div class="fig" style="height:64vh"><img src="assets/post_arrest_checklist.png" alt="Components of post-cardiac arrest care"></div>
+        <div class="capt he">רכיבי הטיפול לאחר דום לב (AHA)</div><div class="capt en">Components of post–cardiac arrest care (AHA)</div></div>
+      <div style="flex:1"><div class="fig" style="height:64vh"><img src="assets/roadmap_recovery.png" alt="Roadmap to recovery"></div>
+        <div class="capt he">מפת הדרך להחלמה</div><div class="capt en">Roadmap to recovery</div></div>
+    </div>
+    <div class="he"><p class="src">לחצו על תמונה להגדלה.</p></div>
+    <div class="en"><p class="src">Click an image to enlarge.</p></div>
+  </section>
+
   <!-- 7 SUMMARY -->
   <section class="slide">
     <div class="he"><h3 class="ey">סיכום</h3><h2>נקודות מפתח</h2>
@@ -211,6 +237,8 @@ function setLang(l){document.body.className='lang-'+l;document.documentElement.l
 function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(9);}catch(e){}})();}
 var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
 function goHub(e){try{var s=JSON.parse(sessionStorage.getItem('pals_sess_v2')||'null');if(s&&s.role&&s.role!=='student'){if(e)e.preventDefault();location.href='../hub_instructor.html';return false;}}catch(_){}return true;}
+document.addEventListener('click',function(e){var im=e.target.closest('.fig')?e.target:null;if(im&&im.tagName==='IMG'){document.getElementById('lbimg').src=im.src;document.getElementById('lb').style.display='flex';}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('lb').style.display='none';});
 setLang('he');
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);if(e.key===' ')go(1)});
 let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
