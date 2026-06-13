@@ -53,6 +53,15 @@
   .counter{position:fixed;top:18px;right:26px;font-size:14px;font-weight:700;color:var(--mut);background:#fff;padding:6px 14px;border-radius:999px;box-shadow:0 2px 8px -4px rgba(0,0,0,.3);z-index:100}
   .home{position:fixed;top:18px;left:26px;font-size:14px;font-weight:700;color:var(--cyan-d);background:#fff;padding:6px 14px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px -4px rgba(0,0,0,.3);z-index:100}
   .esc{background:#FEF2F2;border:1px solid #FECACA;border-inline-start:5px solid var(--red);border-radius:12px;padding:14px 18px}
+
+/*resp760*/
+@media(max-width:760px){
+  .figrow{flex-direction:column}
+  .figrow>div,.figrow>.fig{flex:1 1 auto !important;width:100%;max-width:100%}
+  .figrow .fig,.fig{height:auto !important;max-height:44vh !important}
+  .grid2,.grid3,.grid4{grid-template-columns:1fr}
+  .eqn{flex-direction:column}
+}
 </style>
 </head>
 <body class="lang-he">
@@ -190,6 +199,18 @@
         <div class="card"><strong style="color:var(--red)">C · Circulation</strong><ul class="mt-2"><li>Monitor HR / palpate pulses</li><li>IV access for fluids &amp; meds when needed</li></ul></div>
       </div>
       <p class="src">Initial stabilization fits all problem types and is the most critical step out of hospital. Call for advanced help early.</p></div>
+  </section>
+
+  <!-- 7b AIRWAY & BREATHING SUPPORT — visuals -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">תמיכה בנתיב אוויר ובנשימה</h3><h2>פתיחת נתיב אוויר ואוורור</h2></div>
+    <div class="en"><h3 class="ey">Airway &amp; breathing support</h3><h2>Opening the airway &amp; ventilation</h2></div>
+    <div class="figrow mt-3" style="gap:18px">
+      <div style="flex:1"><div class="fig" style="height:52vh"><img src="assets/airway_headtilt.png" alt="Head tilt-chin lift"></div>
+        <div class="capt he">פתיחת נתיב אוויר — הטיית ראש והרמת סנטר (Sniffing בתינוק)</div><div class="capt en">Open the airway — head tilt–chin lift (sniffing position in infants)</div></div>
+      <div style="flex:1"><div class="fig" style="height:52vh"><img src="assets/bvm.png" alt="Bag-mask ventilation"></div>
+        <div class="capt he">הנשמה באמבו ומסכה — אחיזת C-E, חמצן 100%, עד התרוממות בית החזה</div><div class="capt en">Bag-mask ventilation — C-E grip, 100% O₂, to chest rise only</div></div>
+    </div>
   </section>
 
   <!-- 8 ASTHMA LADDER -->

@@ -57,6 +57,15 @@
   .counter{position:fixed;top:18px;right:26px;font-size:14px;font-weight:700;color:var(--mut);background:#fff;padding:6px 14px;border-radius:999px;box-shadow:0 2px 8px -4px rgba(0,0,0,.3);z-index:100}
   .home{position:fixed;top:18px;left:26px;font-size:14px;font-weight:700;color:var(--cyan-d);background:#fff;padding:6px 14px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px -4px rgba(0,0,0,.3);z-index:100}
   .key{background:var(--amber-bg);border:1px solid #F4D9A6;border-inline-start:5px solid var(--amber);border-radius:12px;padding:14px 18px}
+
+/*resp760*/
+@media(max-width:760px){
+  .figrow{flex-direction:column}
+  .figrow>div,.figrow>.fig{flex:1 1 auto !important;width:100%;max-width:100%}
+  .figrow .fig,.fig{height:auto !important;max-height:44vh !important}
+  .grid2,.grid3,.grid4{grid-template-columns:1fr}
+  .eqn{flex-direction:column}
+}
 </style>
 </head>
 <body class="lang-he">

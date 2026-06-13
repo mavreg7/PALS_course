@@ -56,6 +56,15 @@
   .nav-btn{background:var(--cyan);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer}
   .counter{position:fixed;top:18px;right:26px;font-size:14px;font-weight:700;color:var(--mut);background:#fff;padding:6px 14px;border-radius:999px;box-shadow:0 2px 8px -4px rgba(0,0,0,.3);z-index:100}
   .home{position:fixed;top:18px;left:26px;font-size:14px;font-weight:700;color:var(--cyan-d);background:#fff;padding:6px 14px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px -4px rgba(0,0,0,.3);z-index:100}
+
+/*resp760*/
+@media(max-width:760px){
+  .figrow{flex-direction:column}
+  .figrow>div,.figrow>.fig{flex:1 1 auto !important;width:100%;max-width:100%}
+  .figrow .fig,.fig{height:auto !important;max-height:44vh !important}
+  .grid2,.grid3,.grid4{grid-template-columns:1fr}
+  .eqn{flex-direction:column}
+}
 </style>
 </head>
 <body class="lang-he">
