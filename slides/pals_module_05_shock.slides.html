@@ -1,825 +1,271 @@
 <!DOCTYPE html>
-<html lang="he-IL" dir="rtl">
+<html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Module 05 · Pediatric Shock</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Inter:wght@300;400;500;700&display=swap');
-
-  :root {
-    --red:    #C0392B;
-    --red-d:  #96281B;
-    --red-l:  #FDECEA;
-    --navy:   #1A2744;
-    --navy-m: #243257;
-    --navy-l: #EEF1F8;
-    --teal:   #0D7377;
-    --teal-l: #E6F4F4;
-    --amber:  #E67E22;
-    --amber-l:#FEF5EC;
-    --green:  #1E8449;
-    --green-l:#E9F7EF;
-    --gray-1: #F7F8FA;
-    --gray-2: #EAECF0;
-    --gray-3: #C5CAD5;
-    --gray-4: #6B7280;
-    --gray-5: #374151;
-    --white:  #FFFFFF;
-    --text:   #1C1F26;
-    --radius: 12px;
-    --shadow: 0 4px 20px rgba(0,0,0,0.10);
-    --font-he: 'Heebo', 'Arial Hebrew', sans-serif;
-    --font-en: 'Inter', Arial, sans-serif;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    height: 100%; width: 100%;
-    font-family: var(--font-he);
-    background: var(--gray-1);
-    color: var(--text);
-    overflow: hidden;
-  }
-
-  /* ── LAYOUT ── */
-  .deck { height: 100vh; display: flex; flex-direction: column; }
-
-  .slide {
-    display: none;
-    flex: 1;
-    overflow: hidden;
-    position: relative;
-    flex-direction: column;
-  }
-  .slide.active { display: flex; }
-
-  /* ── HEADER ── */
-  .slide-header {
-    background: var(--navy);
-    color: var(--white);
-    padding: 14px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-    gap: 16px;
-  }
-  .slide-header .mod-tag {
-    background: var(--red);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .06em;
-    padding: 3px 10px;
-    border-radius: 20px;
-    text-transform: uppercase;
-    white-space: nowrap;
-    font-family: var(--font-en);
-  }
-  .slide-header .slide-title-he {
-    font-size: 18px;
-    font-weight: 700;
-    flex: 1;
-    text-align: center;
-  }
-  .slide-header .slide-title-en {
-    font-size: 11px;
-    font-family: var(--font-en);
-    color: rgba(255,255,255,0.55);
-    font-weight: 400;
-    white-space: nowrap;
-  }
-
-  /* ── CONTENT AREA ── */
-  .slide-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 28px 32px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  /* ── HERO SLIDE ── */
-  .hero-slide .slide-body {
-    background: linear-gradient(135deg, var(--navy) 0%, #1A3A6E 60%, #0D4F5C 100%);
-    color: #fff;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 40px;
-    gap: 24px;
-  }
-  .hero-badge {
-    background: var(--red);
-    color: #fff;
-    font-family: var(--font-en);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    padding: 6px 18px;
-    border-radius: 24px;
-    text-transform: uppercase;
-  }
-  .hero-title {
-    font-size: clamp(28px, 5vw, 52px);
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -.02em;
-  }
-  .hero-subtitle {
-    font-size: clamp(14px, 2vw, 20px);
-    font-weight: 400;
-    color: rgba(255,255,255,0.72);
-    font-family: var(--font-en);
-    max-width: 600px;
-  }
-  .hero-org {
-    font-size: 13px;
-    color: rgba(255,255,255,0.5);
-    font-family: var(--font-en);
-  }
-
-  /* Cross / Logo SVG */
-  .hero-cross {
-    width: 90px; height: 90px;
-    background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-
-  /* ── SECTION HEADING ── */
-  .sec-heading {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--navy);
-    border-right: 4px solid var(--red);
-    padding-right: 14px;
-    line-height: 1.2;
-  }
-  .sec-heading small {
-    display: block;
-    font-family: var(--font-en);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--gray-4);
-    margin-top: 2px;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-  }
-
-  /* ── CARD GRID ── */
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 14px;
-  }
-  .card {
-    background: var(--white);
-    border: 1px solid var(--gray-2);
-    border-radius: var(--radius);
-    padding: 18px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  .card .card-icon {
-    font-size: 26px;
-    line-height: 1;
-  }
-  .card .card-title-he {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--navy);
-  }
-  .card .card-title-en {
-    font-size: 11px;
-    font-family: var(--font-en);
-    font-weight: 600;
-    color: var(--gray-4);
-    text-transform: uppercase;
-    letter-spacing: .05em;
-  }
-  .card .card-body {
-    font-size: 13.5px;
-    line-height: 1.6;
-    color: var(--gray-5);
-  }
-
-  /* ── ACCENT CARDS ── */
-  .card.accent-red { border-top: 3px solid var(--red); }
-  .card.accent-teal { border-top: 3px solid var(--teal); }
-  .card.accent-amber { border-top: 3px solid var(--amber); }
-  .card.accent-green { border-top: 3px solid var(--green); }
-  .card.accent-navy { border-top: 3px solid var(--navy); }
-
-  /* ── INFO BANNER ── */
-  .info-banner {
-    background: var(--navy-l);
-    border: 1px solid #C5D0E8;
-    border-radius: var(--radius);
-    padding: 16px 20px;
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-  }
-  .info-banner .bi { font-size: 22px; flex-shrink: 0; }
-  .info-banner .bi-text .title { font-size: 15px; font-weight: 700; color: var(--navy); }
-  .info-banner .bi-text .body { font-size: 13.5px; color: var(--gray-5); line-height: 1.6; margin-top: 4px; }
-
-  /* ── HIGHLIGHT BOX ── */
-  .highlight {
-    background: var(--red-l);
-    border-right: 4px solid var(--red);
-    border-radius: 8px;
-    padding: 14px 18px;
-    font-size: 14px;
-    line-height: 1.65;
-    color: var(--gray-5);
-  }
-  .highlight.teal {
-    background: var(--teal-l);
-    border-right-color: var(--teal);
-  }
-  .highlight.amber {
-    background: var(--amber-l);
-    border-right-color: var(--amber);
-  }
-  .highlight.green {
-    background: var(--green-l);
-    border-right-color: var(--green);
-  }
-
-  /* ── STAT ROW ── */
-  .stat-row {
-    display: flex; gap: 14px; flex-wrap: wrap;
-  }
-  .stat-box {
-    flex: 1; min-width: 120px;
-    background: var(--white);
-    border: 1px solid var(--gray-2);
-    border-radius: 10px;
-    padding: 14px 16px;
-    text-align: center;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-  }
-  .stat-box .num {
-    font-size: 28px;
-    font-weight: 900;
-    color: var(--red);
-    font-family: var(--font-en);
-    line-height: 1;
-  }
-  .stat-box .label-he { font-size: 12.5px; color: var(--gray-5); margin-top: 4px; font-weight: 600; }
-  .stat-box .label-en { font-size: 10px; color: var(--gray-4); font-family: var(--font-en); }
-
-  /* ── MODULES OVERVIEW TABLE ── */
-  .module-table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
-  .module-table th {
-    background: var(--navy);
-    color: #fff;
-    padding: 10px 14px;
-    text-align: right;
-    font-weight: 700;
-    font-size: 12px;
-  }
-  .module-table th:first-child { text-align: center; width: 50px; }
-  .module-table td {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--gray-2);
-    vertical-align: middle;
-  }
-  .module-table td:first-child { text-align: center; font-family: var(--font-en); font-weight: 700; color: var(--red); font-size: 13px; }
-  .module-table tr:hover td { background: var(--gray-1); }
-  .module-table .en-col { font-family: var(--font-en); font-size: 11.5px; color: var(--gray-4); }
-  .module-table .badge {
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-family: var(--font-en);
-    font-weight: 600;
-    display: inline-block;
-    white-space: nowrap;
-  }
-  .badge-core { background: #DBEAFE; color: #1D4ED8; }
-  .badge-clin { background: #D1FAE5; color: #065F46; }
-  .badge-skills { background: #FEF3C7; color: #92400E; }
-
-  /* ── AHA YEAR ── */
-  .aha-strip {
-    background: var(--red);
-    color: #fff;
-    border-radius: 8px;
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .aha-strip .year {
-    font-family: var(--font-en);
-    font-size: 28px;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: -.02em;
-  }
-
-  /* ── CHAIN OF SURVIVAL SVG ── */
-  .chain-container {
-    background: var(--white);
-    border: 1px solid var(--gray-2);
-    border-radius: var(--radius);
-    padding: 20px;
-    overflow-x: auto;
-  }
-
-  /* ── FOOTER NAV ── */
-  .slide-footer {
-    background: var(--white);
-    border-top: 1px solid var(--gray-2);
-    padding: 10px 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
-  }
-  .nav-btn {
-    background: var(--navy);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 20px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: var(--font-he);
-    transition: background .15s;
-  }
-  .nav-btn:hover { background: var(--red); }
-  .nav-btn:disabled { background: var(--gray-3); cursor: default; }
-  .progress-wrap { flex: 1; }
-  .progress-bar-outer {
-    height: 6px;
-    background: var(--gray-2);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .progress-bar-inner {
-    height: 100%;
-    background: var(--red);
-    border-radius: 3px;
-    transition: width .3s;
-  }
-  .slide-counter {
-    font-size: 12px;
-    font-family: var(--font-en);
-    color: var(--gray-4);
-    white-space: nowrap;
-  }
-  .dot-row {
-    display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; margin-top: 4px;
-  }
-  .dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--gray-3); transition: background .2s;
-  }
-  .dot.active { background: var(--red); }
-  .dot.done { background: var(--teal); }
-
-/* ── Layout Shell ─────────────────────────── */
-.nav{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(8,9,14,0.92);
-  backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 20px;
-  gap:16px;z-index:100;border-bottom:1px solid var(--border)}
-.nav-back{color:var(--muted);text-decoration:none;font-size:0.82rem;white-space:nowrap;
-  padding:6px 12px;border-radius:6px;border:1px solid var(--border);transition:all .2s}
-.nav-back:hover{color:var(--text);border-color:var(--muted)}
-.nav-title{flex:1;font-size:0.8rem;color:var(--muted);text-align:center;direction:rtl;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nav-mod{font-size:0.78rem;color:var(--red);font-weight:700;white-space:nowrap}
-.stage{position:fixed;inset:52px 0 0 0;overflow:hidden}
-/* ── Hero ───────────────────────────────────── */
-.hero-slide .slide-body{justify-content:center;align-items:center;text-align:center}
-.hero-content{max-width:700px;margin:0 auto}
-.hero-eyebrow{font-size:0.78rem;font-weight:600;color:var(--red);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
-.hero-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;line-height:1.15;margin-bottom:14px}
-.accent-text{color:var(--red)}
-.hero-sub{font-size:0.95rem;color:var(--muted);max-width:560px;margin:0 auto 20px;line-height:1.6}
-.tag-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.htag{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:0.78rem;color:var(--muted)}
-/* ── Objectives ─────────────────────────────── */
-.obj-list{display:flex;flex-direction:column;gap:10px;width:100%}
-.obj-item{display:flex;gap:14px;align-items:flex-start;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px}
-.obj-num{min-width:26px;height:26px;background:var(--red);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0}
-.obj-text{font-size:0.86rem;line-height:1.55;direction:rtl}
-.obj-text small{display:block;color:var(--muted);margin-top:3px;direction:ltr}
-/* ── Info Bar ───────────────────────────────── */
-.info-bar{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.82rem;display:flex;gap:10px;align-items:flex-start;line-height:1.5}
-.info-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;white-space:nowrap;flex-shrink:0;margin-top:1px}
-.info-badge.red{background:rgba(230,57,70,0.2);color:var(--red)}
-.info-badge.amber{background:rgba(255,179,0,0.2);color:#ffb300}
-.info-badge.teal{background:rgba(0,200,180,0.2);color:#00c8b4}
-/* ── Metrics Grid ───────────────────────────── */
-.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%}
-.metric-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center;display:flex;flex-direction:column;gap:5px}
-.metric-icon{font-size:1.4rem}
-.metric-val{font-size:1.1rem;font-weight:800;color:var(--red);line-height:1.2}
-.metric-label-he{font-size:0.8rem;font-weight:600;direction:rtl}
-.metric-label-en{font-size:0.7rem;color:var(--muted);direction:ltr}
-@media(max-width:600px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
-/* ── Table ──────────────────────────────────── */
-.table-wrap{overflow-x:auto;width:100%}
-.pals-table{width:100%;border-collapse:collapse;font-size:0.8rem}
-.pals-table th{background:var(--surface3);padding:9px 10px;font-weight:700;border:1px solid var(--border);text-align:center;direction:rtl}
-.pals-table td{padding:9px 10px;border:1px solid var(--border);text-align:center;vertical-align:middle;direction:rtl}
-.pals-table td small{display:block;color:var(--muted);direction:ltr;font-size:0.7rem}
-.pals-table tr:nth-child(even) td{background:rgba(255,255,255,0.025)}
-.badge-green{background:rgba(0,180,100,0.15);color:#00c87a;padding:2px 7px;border-radius:4px;font-weight:700;font-size:0.78rem}
-.badge-red{background:rgba(230,57,70,0.15);color:var(--red);padding:2px 7px;border-radius:4px;font-weight:700;font-size:0.78rem}
-.badge-amber{background:rgba(255,179,0,0.15);color:#ffb300;padding:2px 7px;border-radius:4px;font-weight:700;font-size:0.78rem}
-/* ── Step List ──────────────────────────────── */
-.step-list{display:flex;flex-direction:column;gap:7px}
-.step-item{display:flex;gap:10px;align-items:flex-start;font-size:0.82rem;direction:rtl}
-.step-n{min-width:22px;height:22px;background:var(--surface3);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;color:var(--red)}
-/* ── Card Grid ──────────────────────────────── */
-.c2{grid-template-columns:repeat(2,1fr)}
-.c3{grid-template-columns:repeat(3,1fr)}
-/* ── Summary Grid ───────────────────────────── */
-.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;width:100%}
-.summary-item{display:flex;gap:12px;align-items:flex-start;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:0.82rem;direction:rtl}
-.sum-icon{font-size:1.3rem;flex-shrink:0}
-.summary-item strong{display:block;margin-bottom:2px}
-.summary-item small{color:var(--muted);direction:ltr;font-size:0.73rem}
-@media(max-width:600px){.summary-grid{grid-template-columns:1fr}}
-/* ── Two-col layout ─────────────────────────── */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%}
-.col-block{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px}
-.col-heading{font-weight:700;font-size:0.9rem;margin-bottom:10px;direction:rtl}
-.col-heading small{display:block;font-weight:400;color:var(--muted);font-size:0.75rem;direction:ltr}
-
-</style>
-</head>
-<body>
-<div class="bg-grid"></div>
-<div class="nav">
-  <a class="nav-back" href="../hub_student.html">← Hub</a>
-  <div class="nav-title">M05 · הלם בילדים</div>
-  <div class="nav-mod">M05</div>
-</div>
-<div class="stage">
-<!-- SLIDE 1 -->
-<div class="slide active hero-slide">
-  <div class="slide-header">
-    <span class="mod-tag">Module 05</span>
-    <span class="slide-title-he">הלם בילדים</span>
-    <span class="slide-title-en">Pediatric Shock</span>
-  </div>
-  <div class="slide-body"><div class="hero-content">
-  <div class="hero-eyebrow">מודול 05 · PALS 2025</div>
-  <h1 class="hero-title">הלם בילדים<br><span class="accent-text">זיהוי · סיווג · טיפול</span></h1>
-  <p class="hero-sub">4 סוגים · הלם מפוצה vs. בלתי-מפוצה · Fluid Bolus 10–20 מ"ל/ק"ג · Vasopressors</p>
-  <div class="tag-row">
-    <span class="htag">💧 Hypovolemic</span>
-    <span class="htag">🦠 Distributive</span>
-    <span class="htag">❤️ Cardiogenic</span>
-    <span class="htag">🚧 Obstructive</span>
-    <span class="htag">⚡ Fluid Bolus</span>
-    <span class="htag">💊 Norepinephrine</span>
-  </div>
-</div></div>
-  <div class="slide-footer">
-    <button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button>
-    <div class="progress-wrap">
-      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-      <div class="dot-row" id="dot-row"></div>
-    </div>
-    <span class="slide-counter" id="counter"></span>
-    <button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button>
-  </div>
-</div><!-- SLIDE 2 -->
-<div class="slide">
-  <div class="slide-header">
-    <span class="mod-tag">Module 05</span>
-    <span class="slide-title-he">מטרות הלמידה</span>
-    <span class="slide-title-en">Learning Objectives</span>
-  </div>
-  <div class="slide-body"><div class="sec-heading">מטרות הלמידה<small>Learning Objectives</small></div>
-<div class="obj-list">
-  <div class="obj-item"><div class="obj-num">1</div><div class="obj-text">לזהות הלם מפוצה ובלתי-מפוצה באמצעות הערכת HR, BP, זלוף, הכרה ו-cap refill<br><small>Identify compensated vs. decompensated shock using HR, BP, perfusion, LOC, cap refill</small></div></div>
-  <div class="obj-item"><div class="obj-num">2</div><div class="obj-text">לסווג הלם לאחד מ-4 הסוגים: היפו-וולמי · חלוקתי · לבבי · חסימתי<br><small>Classify shock into one of 4 types: hypovolemic · distributive · cardiogenic · obstructive</small></div></div>
-  <div class="obj-item"><div class="obj-num">3</div><div class="obj-text">לתת Fluid Bolus 10–20 מ"ל/ק"ג מלוחה תוך 5–20 דקות ולהעריך תגובה<br><small>Administer NS bolus 10–20 mL/kg over 5–20 min; reassess response</small></div></div>
-  <div class="obj-item"><div class="obj-num">4</div><div class="obj-text">לבחור Vasopressor/Inotrope לפי סוג ההלם (Norepinephrine / Epinephrine / Dopamine / Dobutamine)<br><small>Select vasopressor/inotrope based on shock type</small></div></div>
-</div></div>
-  <div class="slide-footer">
-    <button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button>
-    <div class="progress-wrap">
-      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-      <div class="dot-row" id="dot-row"></div>
-    </div>
-    <span class="slide-counter" id="counter"></span>
-    <button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button>
-  </div>
-</div><!-- SLIDE 3 -->
-<div class="slide">
-  <div class="slide-header">
-    <span class="mod-tag">Module 05</span>
-    <span class="slide-title-he">הלם מפוצה vs. בלתי-מפוצה</span>
-    <span class="slide-title-en">Compensated vs. Decompensated Shock</span>
-  </div>
-  <div class="slide-body"><div class="sec-heading">הלם מפוצה לעומת בלתי-מפוצה<small>Compensated vs. Decompensated Shock</small></div>
-<div class="table-wrap">
-<table class="pals-table">
-  <thead>
-    <tr><th>פרמטר</th><th><span class="badge-amber">מפוצה</span></th><th><span class="badge-red">בלתי-מפוצה</span></th></tr>
-  </thead>
-  <tbody>
-    <tr><td><strong>לחץ דם</strong></td><td>תקין לגיל</td><td><strong>יפוטנציה</strong> (מאוחרת!)</td></tr>
-    <tr><td><strong>דופק</strong></td><td>טכיקרדיה</td><td>טכיקרדיה קשה / ברדיקרדיה</td></tr>
-    <tr><td><strong>Cap Refill</strong></td><td>&gt;2 שניות</td><td>&gt;3–5 שניות</td></tr>
-    <tr><td><strong>גפיים</strong></td><td>קרות, חיוורות</td><td>קרות, ספוטיות, מוטות</td></tr>
-    <tr><td><strong>הכרה</strong></td><td>ערנות / עצבנות</td><td>בלבול, ישנוניות, לתרגיה</td></tr>
-    <tr><td><strong>שתן</strong></td><td>ירידה קלה</td><td>&lt;1 מ"ל/ק"ג/שעה</td></tr>
-  </tbody>
-</table>
-</div>
-<div class="info-bar" style="margin-top:12px">
-  <span class="info-badge red">⚠️ חשוב מאוד</span>
-  <span>בילדים — <strong>יפוטנציה היא סימן מאוחר!</strong> ילד יכול לאבד 30% מנפח הדם ועדיין לשמור BP תקין. זהה הלם <strong>לפני</strong> ירידת לחץ הדם</span>
-</div></div>
-  <div class="slide-footer">
-    <button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button>
-    <div class="progress-wrap">
-      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-      <div class="dot-row" id="dot-row"></div>
-    </div>
-    <span class="slide-counter" id="counter"></span>
-    <button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button>
-  </div>
-</div><!-- SLIDE 4 -->
-<div class="slide">
-  <div class="slide-header">
-    <span class="mod-tag">Module 05</span>
-    <span class="slide-title-he">4 סוגי הלם</span>
-    <span class="slide-title-en">4 Types of Shock</span>
-  </div>
-  <div class="slide-body"><div class="sec-heading">4 סוגי הלם<small>4 Shock Types — Mechanism &amp; Causes</small></div>
-<div class="card-grid c2">
-  <div class="card accent-teal">
-    <div class="card-icon">💧</div>
-    <div class="card-title-he">היפו-וולמי</div>
-    <div class="card-title-en">Hypovolemic</div>
-    <div class="card-body">סיבה: דמם · שלשול/הקאה · כוויות · 3rd spacing<br>מנגנון: ירידת Preload<br>גפיים: <strong>קרות וחיוורות</strong> (Vasoconstriction)<br><small>Most common pediatric shock — cold extremities, ↓ preload</small></div>
-  </div>
-  <div class="card accent-red">
-    <div class="card-icon">🦠</div>
-    <div class="card-title-he">חלוקתי (Distributive)</div>
-    <div class="card-title-en">Distributive</div>
-    <div class="card-body">סיבה: ספסיס · אנפילקסיס · נוירוגני<br>מנגנון: ↓ SVR (vasodilation)<br>גפיים: <strong>חמות ואדומות</strong> (ספסיס מוקדם)<br><small>Sepsis most common — warm/flushed early, cold/mottled late</small></div>
-  </div>
-  <div class="card accent-amber">
-    <div class="card-icon">❤️</div>
-    <div class="card-title-he">לבבי (Cardiogenic)</div>
-    <div class="card-title-en">Cardiogenic</div>
-    <div class="card-body">סיבה: מחלת לב מולדת · מיוקרדיטיס · אריתמיה<br>מנגנון: ↓ Cardiac Output<br>סימן: <strong>הפטומגליה, גריגולת, בצקת ריאות</strong><br><small>Congenital HD · Myocarditis · Arrhythmia — hepatomegaly, crackles</small></div>
-  </div>
-  <div class="card accent-navy">
-    <div class="card-icon">🚧</div>
-    <div class="card-title-he">חסימתי (Obstructive)</div>
-    <div class="card-title-en">Obstructive</div>
-    <div class="card-body">סיבה: Tamponade · Tension PTX · PE · Ductal-dependent CHD<br>מנגנון: חסימה מכנית לזרימה<br>סימן: <strong>עורקים שקטים, JVD, קולות לב עמומים</strong><br><small>Mechanical obstruction — Beck's triad, absent breath sounds</small></div>
-  </div>
-</div></div>
-  <div class="slide-footer">
-    <button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button>
-    <div class="progress-wrap">
-      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-      <div class="dot-row" id="dot-row"></div>
-    </div>
-    <span class="slide-counter" id="counter"></span>
-    <button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button>
-  </div>
-</div><!-- SLIDE 5 -->
-<div class="slide">
-  <div class="slide-header">
-    <span class="mod-tag">Module 05</span>
-    <span class="slide-title-he">טיפול: Fluid Resuscitation</span>
-    <span class="slide-title-en">Fluid Resuscitation</span>
-  </div>
-  <div class="slide-body"><div class="sec-heading">החייאת נוזלים<small>Fluid Resuscitation — PALS 2025</small></div>
-<div class="two-col">
-  <div class="col-block">
-    <div class="col-heading">Fluid Bolus — מינון ומתן<small>Dosing &amp; Administration</small></div>
-    <div class="step-list">
-      <div class="step-item"><span class="step-n">💧</span><span><strong>Normal Saline (0.9%)</strong> — נוזל ראשון לבחירה</span></div>
-      <div class="step-item"><span class="step-n">📏</span><span><strong>10–20 מ"ל/ק"ג</strong> IV/IO תוך 5–20 דקות</span></div>
-      <div class="step-item"><span class="step-n">🔁</span><span>הערכה לאחר כל בולוס — חזור אם אין תגובה (עד 60 מ"ל/ק"ג)</span></div>
-      <div class="step-item"><span class="step-n">⚠️</span><span>הלם <strong>לבבי וחסימתי</strong> — Fluid בזהירות רבה! 5–10 מ"ל/ק"ג</span></div>
-    </div>
-    <div class="info-bar" style="margin-top:10px">
-      <span class="info-badge red">PALS 2025</span>
-      <span>בספסיס: אין להגביל נוזלים שגרתית — תן 20 מ"ל/ק"ג ← הערך ← חזור לפי צורך</span>
-    </div>
-  </div>
-  <div class="col-block">
-    <div class="col-heading">מה להעריך אחרי כל בולוס?<small>Reassessment After Each Bolus</small></div>
-    <div class="step-list">
-      <div class="step-item"><span class="step-n">❤️</span><span>דופק — ירידת HR = תגובה טובה</span></div>
-      <div class="step-item"><span class="step-n">💉</span><span>לחץ דם — שיפור BP</span></div>
-      <div class="step-item"><span class="step-n">🖐️</span><span>Cap refill — קצר מ-2 שניות</span></div>
-      <div class="step-item"><span class="step-n">🧠</span><span>הכרה — שיפור ערנות</span></div>
-      <div class="step-item"><span class="step-n">🌊</span><span>שתן — ≥1 מ"ל/ק"ג/שעה</span></div>
-    </div>
-  </div>
-</div></div>
-  <div class="slide-footer">
-    <button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button>
-    <div class="progress-wrap">
-      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-      <div class="dot-row" id="dot-row"></div>
-    </div>
-    <span class="slide-counter" id="counter"></span>
-    <button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button>
-  </div>
-</div><!-- SLIDE 6 -->
-<div class="slide">
-  <div class="slide-header">
-    <span class="mod-tag">Module 05</span>
-    <span class="slide-title-he">Vasopressors ו-Inotropes</span>
-    <span class="slide-title-en">Vasopressors & Inotropes</span>
-  </div>
-  <div class="slide-body"><div class="sec-heading">Vasopressors ו-Inotropes לפי סוג הלם<small>Vasopressors &amp; Inotropes by Shock Type</small></div>
-<div class="table-wrap">
-<table class="pals-table">
-  <thead>
-    <tr><th>תרופה</th><th>פעולה</th><th>מינון</th><th>אינדיקציה</th></tr>
-  </thead>
-  <tbody>
-    <tr><td><strong>Norepinephrine</strong></td><td>α &gt; β → Vasoconstriction</td><td>0.01–1 μg/kg/min</td><td><span class="badge-red">חלוקתי (ספסיס)</span></td></tr>
-    <tr><td><strong>Epinephrine</strong></td><td>α + β → ↑HR, ↑BP, ↑CO</td><td>0.01–1 μg/kg/min</td><td><span class="badge-red">אנפילקסיס · דום לב · הלם קשה</span></td></tr>
-    <tr><td><strong>Dopamine</strong></td><td>β + Dopaminergic</td><td>2–20 μg/kg/min</td><td><span class="badge-amber">לבבי · היפו-וולמי עם ↓HR</span></td></tr>
-    <tr><td><strong>Dobutamine</strong></td><td>β₁ → ↑CO (Inotrope)</td><td>2–20 μg/kg/min</td><td><span class="badge-amber">לבבי (↓CO, BP תקין)</span></td></tr>
-  </tbody>
-</table>
-</div>
-<div class="info-bar" style="margin-top:12px">
-  <span class="info-badge teal">כלל PALS</span>
-  <span>כל Vasopressor — העדף מתן ב-IV/IO מרכזי או עורקי. בשטח: נתן ב-IO אם אין גישה אחרת. <strong>Norepinephrine</strong> = first-line בספסיס בילדים לפי PALS 2025</span>
-</div></div>
-  <div class="slide-footer">
-    <button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button>
-    <div class="progress-wrap">
-      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-      <div class="dot-row" id="dot-row"></div>
-    </div>
-    <span class="slide-counter" id="counter"></span>
-    <button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button>
-  </div>
-</div><!-- SLIDE 7 -->
-<div class="slide">
-  <div class="slide-header">
-    <span class="mod-tag">Module 05</span>
-    <span class="slide-title-he">הלם ספטי – גישה מהירה</span>
-    <span class="slide-title-en">Septic Shock — Rapid Approach</span>
-  </div>
-  <div class="slide-body"><div class="sec-heading">הלם ספטי — גישה מהירה (Hour-1 Bundle)<small>Septic Shock — Hour-1 Bundle PALS 2025</small></div>
-<div class="two-col">
-  <div class="col-block">
-    <div class="col-heading">Hour-1 Bundle<small>כל הפעולות תוך שעה</small></div>
-    <div class="step-list">
-      <div class="step-item"><span class="step-n">1</span><span>מדדי תפקוד: HR · BP · SpO₂ · Cap refill · Lactate</span></div>
-      <div class="step-item"><span class="step-n">2</span><span>גישה IV/IO ← נוזלים 20 מ"ל/ק"ג NS</span></div>
-      <div class="step-item"><span class="step-n">3</span><span><strong>תרבית דם</strong> ← לפני אנטיביוטיקה (אל תעכב!)</span></div>
-      <div class="step-item"><span class="step-n">4</span><span><strong>אנטיביוטיקה רחבת-ספקטרום</strong> תוך שעה מזיהוי</span></div>
-      <div class="step-item"><span class="step-n">5</span><span>Norepinephrine אם אין תגובה לנוזלים</span></div>
-      <div class="step-item"><span class="step-n">6</span><span>Hydrocortisone אם עמיד ל-Vasopressors</span></div>
-    </div>
-  </div>
-  <div class="col-block">
-    <div class="col-heading">מטרות טיפול<small>Resuscitation Targets</small></div>
-    <div class="step-list">
-      <div class="step-item"><span class="step-n">❤️</span><span>HR תקין לגיל</span></div>
-      <div class="step-item"><span class="step-n">💉</span><span>BP תקין לגיל (MAP ≥65 מבוגר)</span></div>
-      <div class="step-item"><span class="step-n">🖐️</span><span>Cap refill &lt;2 שניות</span></div>
-      <div class="step-item"><span class="step-n">🌊</span><span>שתן ≥1 מ"ל/ק"ג/שעה</span></div>
-      <div class="step-item"><span class="step-n">📊</span><span>Lactate יורד (clearing)</span></div>
-      <div class="step-item"><span class="step-n">🧠</span><span>שיפור הכרה ורמת ערנות</span></div>
-    </div>
-  </div>
-</div></div>
-  <div class="slide-footer">
-    <button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button>
-    <div class="progress-wrap">
-      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-      <div class="dot-row" id="dot-row"></div>
-    </div>
-    <span class="slide-counter" id="counter"></span>
-    <button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button>
-  </div>
-</div><!-- SLIDE 8 -->
-<div class="slide">
-  <div class="slide-header">
-    <span class="mod-tag">Module 05</span>
-    <span class="slide-title-he">סיכום מודול 05</span>
-    <span class="slide-title-en">Module Summary</span>
-  </div>
-  <div class="slide-body"><div class="sec-heading">סיכום מודול 05<small>Module 05 — Pediatric Shock Summary</small></div>
-<div class="summary-grid">
-  <div class="summary-item"><span class="sum-icon">⚠️</span><div><strong>יפוטנציה = סימן מאוחר! זהה הלם מפוצה מוקדם</strong><br><small>Hypotension is late — identify compensated shock by HR, cap refill, perfusion</small></div></div>
-  <div class="summary-item"><span class="sum-icon">4️⃣</span><div><strong>4 סוגים: היפו-וולמי · חלוקתי · לבבי · חסימתי</strong><br><small>Hypovolemic · Distributive · Cardiogenic · Obstructive</small></div></div>
-  <div class="summary-item"><span class="sum-icon">💧</span><div><strong>Fluid Bolus: 10–20 מ"ל/ק"ג NS תוך 5–20 דקות, הערך, חזור</strong><br><small>Reassess after each bolus — up to 60 mL/kg; caution in cardiogenic</small></div></div>
-  <div class="summary-item"><span class="sum-icon">💊</span><div><strong>Norepinephrine first-line בספסיס; Epinephrine לאנפילקסיס</strong><br><small>Vasopressor selection by shock type — prefer central/IO route</small></div></div>
-  <div class="summary-item"><span class="sum-icon">🦠</span><div><strong>ספסיס: תרבית → אנטיביוטיקה תוך שעה → נוזלים → Norepi</strong><br><small>Hour-1 Bundle — don't delay antibiotics for cultures; do both fast</small></div></div>
-  <div class="summary-item"><span class="sum-icon">🚧</span><div><strong>הלם חסימתי: Fluid בזהירות — טפל בגורם (Needle decompression / Pericardiocentesis)</strong><br><small>Obstructive — treat the cause, not just give fluids</small></div></div>
-</div>
-<div style="text-align:center;margin-top:18px">
-  <button onclick="markDone()" id="complete-btn" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px 40px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit">
-    ✅ סיימתי את המודול — שמור התקדמות
-  </button>
-</div></div>
-  <div class="slide-footer">
-    <button class="nav-btn" id="prev-btn" onclick="go(-1)">◀ הקודם</button>
-    <div class="progress-wrap">
-      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-      <div class="dot-row" id="dot-row"></div>
-    </div>
-    <span class="slide-counter" id="counter"></span>
-    <button class="nav-btn" id="next-btn" onclick="go(1)">הבא ▶</button>
-  </div>
-</div>
-</div>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 5 — Shock | הלם בילדים ותינוקות</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="../firebase-config.js"></script>
 <script src="../firebase-sync.js"></script>
+<style>
+  :root{--cyan:#0E7C86;--cyan-d:#0b5e66;--ink:#0F1D2E;--slate:#3F4D60;--mut:#6B7A8D;--line:#E2E8F0;--amber:#B45309;--amber-bg:#FEF6E7;--green:#16A34A;--red:#DC2626}
+  *{font-family:'Inter',system-ui,sans-serif;box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{background:radial-gradient(120% 120% at 100% 0%,#F2F9FA 0%,#F6F8FC 45%,#EEF2F9 100%);color:var(--ink);overflow:hidden}
+  .deck{position:relative;height:100vh}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:6vh 6vw 9vh;opacity:0;pointer-events:none;transition:opacity .4s ease;overflow-y:auto}
+  .slide.active{opacity:1;pointer-events:auto}
+  h1{font-size:clamp(38px,5vw,68px);font-weight:900;line-height:1.08;color:var(--cyan-d);letter-spacing:-1.5px;margin:0}
+  h2{font-size:clamp(28px,3.6vw,46px);font-weight:800;color:var(--ink);line-height:1.15;margin:0 0 6px}
+  h3.ey{font-size:clamp(17px,1.9vw,24px);font-weight:800;color:var(--cyan);letter-spacing:1px;text-transform:uppercase;margin:0 0 12px}
+  .he h3.ey{letter-spacing:0}
+  p,li,td,th{font-size:clamp(16px,1.55vw,22px);line-height:1.55;color:var(--slate)}
+  li{margin-bottom:8px}
+  .sub{color:var(--mut);font-weight:500;font-size:clamp(15px,1.5vw,21px)}
+  .src{font-size:13px;color:#9AA7B5;margin-top:14px;line-height:1.45}
+  .he,.he h1,.he h2,.he h3,.he p,.he li,.he td,.he th,.he div,.he span{font-family:'Assistant','Segoe UI',sans-serif}
+  .he h1{letter-spacing:-1px;font-weight:800}.he h2{letter-spacing:-.5px}
+  body.lang-he .en{display:none}
+  body.lang-en .he{display:none}
+  body.lang-en{direction:ltr}
+  .en{text-align:left;direction:ltr}.he{text-align:right;direction:rtl}
+  .en ul,.en ol{padding-left:1.3em;padding-right:0}.he ul,.he ol{padding-right:1.3em;padding-left:0}
+  .term{font-family:'Inter',sans-serif;font-weight:700;color:var(--cyan-d);direction:ltr;unicode-bidi:isolate;display:inline-block}
+  .pill{display:inline-block;padding:6px 16px;border-radius:999px;font-size:13px;font-weight:800;background:rgba(14,124,134,.12);color:var(--cyan-d);letter-spacing:1px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 22px;box-shadow:0 10px 30px -12px rgba(15,29,46,.18)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:9px 13px;border-bottom:1px solid var(--line);font-size:clamp(14px,1.4vw,19px);vertical-align:top}
+  .en th,.en td{text-align:left}.he th,.he td{text-align:right}
+  th{background:rgba(14,124,134,.07);font-weight:800;color:var(--cyan-d)}
+  .rowh{font-weight:800;color:var(--ink);background:rgba(14,124,134,.04)}
+  .comp{color:var(--amber);font-weight:800}.decomp{color:var(--red);font-weight:800}
+  .eqn{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+  .eqbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 22px;text-align:center;box-shadow:0 10px 30px -16px rgba(15,29,46,.22);min-width:150px}
+  .eqbox .big{font-size:clamp(22px,2.4vw,32px);font-weight:900;color:var(--cyan-d)}
+  .eqop{font-size:clamp(26px,3vw,40px);font-weight:800;color:var(--mut)}
+  .langtog{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:120;display:flex;background:#fff;border:1px solid #cbd5e1;border-radius:999px;overflow:hidden;box-shadow:0 4px 14px -6px rgba(0,0,0,.25)}
+  .langtog button{border:none;background:transparent;padding:8px 20px;font-weight:800;font-size:14px;color:var(--mut);cursor:pointer}
+  body.lang-he #bHe,body.lang-en #bEn{background:var(--cyan);color:#fff}
+  .nav{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:100;direction:ltr}
+  .dot{width:11px;height:11px;border-radius:50%;background:#cdd5df;cursor:pointer}
+  .dot.active{background:var(--cyan);transform:scale(1.4)}
+  .nav-btn{background:var(--cyan);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer}
+  .counter{position:fixed;top:18px;right:26px;font-size:14px;font-weight:700;color:var(--mut);background:#fff;padding:6px 14px;border-radius:999px;box-shadow:0 2px 8px -4px rgba(0,0,0,.3);z-index:100}
+  .home{position:fixed;top:18px;left:26px;font-size:14px;font-weight:700;color:var(--cyan-d);background:#fff;padding:6px 14px;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px -4px rgba(0,0,0,.3);z-index:100}
+  .key{background:var(--amber-bg);border:1px solid #F4D9A6;border-inline-start:5px solid var(--amber);border-radius:12px;padding:14px 18px}
+</style>
+</head>
+<body class="lang-he">
+<a class="home" href="../hub_student.html">⌂ Hub</a>
+<div class="langtog"><button id="bHe" onclick="setLang('he')">עברית</button><button id="bEn" onclick="setLang('en')">English</button></div>
+<div class="counter"><span id="cur">1</span>/<span id="tot">10</span></div>
+
+<div class="deck">
+
+  <!-- 1 HERO -->
+  <section class="slide active">
+    <span class="pill">Module 05 · מודול 05</span>
+    <div class="he"><h1 class="mt-5">הלם (Shock)<br>בילדים ותינוקות</h1><p class="sub mt-5">הגדרה · פיזיולוגיה · מפוצה מול בלתי מפוצה · סוגי הלם · טיפול ראשוני</p></div>
+    <div class="en"><h1 class="mt-5">Shock in Infants<br>&amp; Children</h1><p class="sub mt-5">Definition · physiology · compensated vs decompensated · types · initial treatment</p></div>
+    <p class="src">מבוסס על חומרי MSR ("טיפול ראשוני במצבי הלם") ועל AHA PALS 2025.</p>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">מטרות הלמידה</h3><h2>בסיום המודול תוכלו</h2>
+      <ul class="mt-4">
+        <li>להגדיר הלם כ<strong>כשל בזילוח</strong> שאינו תלוי בהכרח בלחץ הדם.</li>
+        <li>להסביר תפוקת לב: <span class="term">CO = SV × HR</span> ומנגנוני פיצוי.</li>
+        <li>להבחין בין הלם <strong>מפוצה</strong> ל<strong>בלתי מפוצה</strong>.</li>
+        <li>לזהות הלם <strong>היפוולמי</strong> מול <strong>חלוקתי</strong>.</li>
+        <li>לבצע טיפול ראשוני: חמצן, גישה ורידית ובולוס נוזלים 20 מ"ל/ק"ג.</li>
+      </ul></div>
+    <div class="en"><h3 class="ey">Objectives</h3><h2>By the end of this module you will be able to</h2>
+      <ul class="mt-4">
+        <li>Define shock as a <strong>perfusion failure</strong> not necessarily tied to blood pressure.</li>
+        <li>Explain cardiac output: <span class="term">CO = SV × HR</span> and compensation.</li>
+        <li>Distinguish <strong>compensated</strong> from <strong>decompensated</strong> shock.</li>
+        <li>Recognize <strong>hypovolemic</strong> vs <strong>distributive</strong> shock.</li>
+        <li>Deliver initial treatment: O₂, vascular access, 20 mL/kg fluid bolus.</li>
+      </ul></div>
+  </section>
+
+  <!-- 3 WHAT IS SHOCK -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">מהו הלם</h3><h2>כשל באספקת חמצן לרקמות</h2>
+      <p class="mt-2">הלם הוא מצב שבו <strong>פגיעה בזילוח (פרפוזיה)</strong> גורמת לכך שאספקת הדם לתאים אינה מספקת את דרישת הגוף. זהו מצב <strong>דינמי</strong> שעלול להידרדר במהירות, וללא טיפול מהיר עלול להוביל לכשל לבבי ונשימתי ולדום לב.</p>
+      <div class="key mt-4"><strong>הלם אינו תלוי בלחץ הדם:</strong> בנוכחות הלם הל"ד יכול להיות נמוך, תקין ואף מעט גבוה. בילדים הל"ד נשמר עד שלב מתקדם — לכן <strong>אל תחכו לירידת ל"ד כדי לאבחן הלם</strong>.</div></div>
+    <div class="en"><h3 class="ey">What is shock</h3><h2>Failure of oxygen delivery to tissues</h2>
+      <p class="mt-2">Shock is a state in which <strong>impaired perfusion</strong> means blood supply to the cells does not meet the body's demand. It is a <strong>dynamic</strong> state that can deteriorate rapidly and, without prompt treatment, leads to cardiac and respiratory failure and cardiac arrest.</p>
+      <div class="key mt-4"><strong>Shock is not defined by blood pressure:</strong> BP may be low, normal, or even slightly high. In children BP is preserved until late — so <strong>do not wait for hypotension to diagnose shock</strong>.</div></div>
+  </section>
+
+  <!-- 4 PHYSIOLOGY / CO -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">פיזיולוגיה</h3><h2>תפוקת הלב מניעה את הזילוח</h2>
+      <div class="eqn mt-4">
+        <div class="eqbox"><div class="big">CO</div><div class="src">תפוקת לב</div></div>
+        <div class="eqop">=</div>
+        <div class="eqbox"><div class="big">SV</div><div class="src">נפח פעימה</div></div>
+        <div class="eqop">×</div>
+        <div class="eqbox"><div class="big">HR</div><div class="src">קצב לב</div></div>
+      </div>
+      <p class="mt-4">אספקת חמצן תקינה תלויה ב: כמות חמצן בדם · תפוקת לב תקינה · התאמה בין הצריכה המטבולית לזרימת הדם.</p>
+      <div class="key mt-3"><strong>בילדים:</strong> ירידה בתפוקת הלב נובעת בד"כ מירידה ב<strong>נפח הפעימה</strong>, לא מקצב נמוך. <strong>בתינוקות</strong> נפח הפעימה קבוע יחסית — לכן תפוקת הלב תלויה בעיקר ב<strong>קצב הלב</strong>.</div></div>
+    <div class="en"><h3 class="ey">Physiology</h3><h2>Cardiac output drives perfusion</h2>
+      <div class="eqn mt-4">
+        <div class="eqbox"><div class="big">CO</div><div class="src">Cardiac output</div></div>
+        <div class="eqop">=</div>
+        <div class="eqbox"><div class="big">SV</div><div class="src">Stroke volume</div></div>
+        <div class="eqop">×</div>
+        <div class="eqbox"><div class="big">HR</div><div class="src">Heart rate</div></div>
+      </div>
+      <p class="mt-4">Adequate O₂ delivery depends on: O₂ content of blood · adequate cardiac output · matching metabolic demand to blood flow.</p>
+      <div class="key mt-3"><strong>In children:</strong> low cardiac output is usually from low <strong>stroke volume</strong>, not low rate. <strong>In infants</strong>, stroke volume is relatively fixed — so cardiac output depends mainly on <strong>heart rate</strong>.</div></div>
+  </section>
+
+  <!-- 5 COMPENSATION -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">מנגנוני פיצוי</h3><h2>איך הגוף נאבק בהלם</h2>
+      <div class="grid2 mt-3">
+        <div class="card" style="border-inline-start:5px solid var(--amber)"><strong>1 · העלאת קצב הלב</strong><p class="mt-1">קו ההגנה הראשון, כפיצוי על נפח פעימה נמוך. <strong>טכיקרדיה היא בד"כ הסימן הראשון להלם.</strong></p></div>
+        <div class="card" style="border-inline-start:5px solid var(--amber)"><strong>2 · וואזוקונסטריקציה</strong><p class="mt-1">קו ההגנה השני — הסטת דם לאיברים חיוניים. הביטוי: מילוי קפילרי איטי, גפיים קרות, דפקים פריפריים חלשים.</p></div>
+      </div>
+      <p class="src">הפיצוי שומר על ל"ד תקין — ולכן הסימנים המוקדמים הם בקצב הלב ובפרפוזיה של העור, לא בל"ד.</p></div>
+    <div class="en"><h3 class="ey">Compensation</h3><h2>How the body fights shock</h2>
+      <div class="grid2 mt-3">
+        <div class="card" style="border-inline-start:5px solid var(--amber)"><strong>1 · Increased heart rate</strong><p class="mt-1">First line of defense, compensating for low stroke volume. <strong>Tachycardia is usually the first sign of shock.</strong></p></div>
+        <div class="card" style="border-inline-start:5px solid var(--amber)"><strong>2 · Vasoconstriction</strong><p class="mt-1">Second line — shunts blood to vital organs. Seen as prolonged cap refill, cold extremities, weak peripheral pulses.</p></div>
+      </div>
+      <p class="src">Compensation preserves BP — so early signs are in heart rate and skin perfusion, not blood pressure.</p></div>
+  </section>
+
+  <!-- 6 COMPENSATED vs DECOMPENSATED -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">סיווג חומרה</h3><h2>הלם מפוצה מול בלתי מפוצה</h2>
+      <table class="mt-3">
+        <thead><tr><th></th><th class="comp">מפוצה</th><th class="decomp">בלתי מפוצה (היפוטנסיבי)</th></tr></thead>
+        <tbody>
+          <tr><td class="rowh">לחץ דם</td><td>תקין (נשמר ע"י מנגנוני פיצוי)</td><td>נמוך — מנגנוני ההגנה כשלו</td></tr>
+          <tr><td class="rowh">הכרה</td><td>בד"כ שמורה</td><td>ירודה — מעיד על פרפוזיה נמוכה למח</td></tr>
+          <tr><td class="rowh">משמעות</td><td>חלון הזדמנויות לטיפול</td><td>נזק לאיברים, התדרדרות לדום לב</td></tr>
+          <tr><td class="rowh">קצב</td><td colspan="2">מעבר ממפוצה לבלתי מפוצה עלול לארוך שעות — אך מבלתי מפוצה לדום לב — דקות.</td></tr>
+        </tbody>
+      </table></div>
+    <div class="en"><h3 class="ey">Severity</h3><h2>Compensated vs decompensated shock</h2>
+      <table class="mt-3">
+        <thead><tr><th></th><th class="comp">Compensated</th><th class="decomp">Decompensated (hypotensive)</th></tr></thead>
+        <tbody>
+          <tr><td class="rowh">Blood pressure</td><td>Normal (maintained by compensation)</td><td>Low — defenses have failed</td></tr>
+          <tr><td class="rowh">Consciousness</td><td>Usually preserved</td><td>Depressed — signals low cerebral perfusion</td></tr>
+          <tr><td class="rowh">Meaning</td><td>Window of opportunity to treat</td><td>Organ damage, progression to arrest</td></tr>
+          <tr><td class="rowh">Tempo</td><td colspan="2">Compensated → decompensated can take hours — but decompensated → arrest can take minutes.</td></tr>
+        </tbody>
+      </table></div>
+  </section>
+
+  <!-- 7 FOUR TYPES -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">סוגי הלם</h3><h2>ארבע קטגוריות בסיסיות</h2>
+      <div class="grid4 mt-3">
+        <div class="card"><strong style="color:var(--cyan-d)">היפוולמי</strong><div class="src mt-1">ירידה בנפח התוך-כלי — דהידרציה, דימום. <strong>השכיח ביותר בילדים.</strong></div></div>
+        <div class="card"><strong style="color:var(--cyan-d)">חלוקתי</strong><div class="src mt-1">וואזודילטציה וירידה בתנגודת — ספטי, אנפילקטי, נוירוגני.</div></div>
+        <div class="card" style="opacity:.75"><strong>לבבי</strong><div class="src mt-1">פגיעה בכיווץ הלב.</div></div>
+        <div class="card" style="opacity:.75"><strong>חסימתי</strong><div class="src mt-1">חסימה במערכת הסירקולטורית.</div></div>
+      </div>
+      <p class="src">בקורס זה נתמקד בהלם <strong>היפוולמי</strong> וב<strong>חלוקתי</strong>.</p></div>
+    <div class="en"><h3 class="ey">Types of shock</h3><h2>Four basic categories</h2>
+      <div class="grid4 mt-3">
+        <div class="card"><strong style="color:var(--cyan-d)">Hypovolemic</strong><div class="src mt-1">Reduced intravascular volume — dehydration, hemorrhage. <strong>Most common in children.</strong></div></div>
+        <div class="card"><strong style="color:var(--cyan-d)">Distributive</strong><div class="src mt-1">Vasodilation &amp; low SVR — septic, anaphylactic, neurogenic.</div></div>
+        <div class="card" style="opacity:.75"><strong>Cardiogenic</strong><div class="src mt-1">Impaired cardiac contractility.</div></div>
+        <div class="card" style="opacity:.75"><strong>Obstructive</strong><div class="src mt-1">Obstruction in the circulatory system.</div></div>
+      </div>
+      <p class="src">This course focuses on <strong>hypovolemic</strong> and <strong>distributive</strong> shock.</p></div>
+  </section>
+
+  <!-- 8 HYPOVOLEMIC vs DISTRIBUTIVE -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">זיהוי הסוג</h3><h2>היפוולמי מול חלוקתי</h2>
+      <table class="mt-3">
+        <thead><tr><th></th><th>הלם היפוולמי</th><th>הלם חלוקתי</th></tr></thead>
+        <tbody>
+          <tr><td class="rowh">עור / גפיים</td><td>קר, חיוור, לח</td><td>חם וסמוק ("שוק חם") ← בהמשך קר</td></tr>
+          <tr><td class="rowh">מילוי קפילרי</td><td>מאורך</td><td>מהיר מאוד או איטי מאוד</td></tr>
+          <tr><td class="rowh">דפקים</td><td>פריפריים חלשים</td><td>עוצמה משתנה</td></tr>
+          <tr><td class="rowh">מאפיין ייחודי</td><td>טורגור עור ירוד; היסטוריית איבוד נוזלים/דם</td><td>פטכיות/פורפורה (ספטי); אוליגוריה</td></tr>
+          <tr><td class="rowh">משותף</td><td colspan="2">טכיקרדיה · טכיפנאה · ל"ד תקין→נמוך · שינויים במצב הכרה</td></tr>
+        </tbody>
+      </table></div>
+    <div class="en"><h3 class="ey">Identifying the type</h3><h2>Hypovolemic vs distributive</h2>
+      <table class="mt-3">
+        <thead><tr><th></th><th>Hypovolemic</th><th>Distributive</th></tr></thead>
+        <tbody>
+          <tr><td class="rowh">Skin / extremities</td><td>Cold, pale, clammy</td><td>Warm &amp; flushed ("warm shock") → later cold</td></tr>
+          <tr><td class="rowh">Cap refill</td><td>Prolonged</td><td>Very fast or very slow</td></tr>
+          <tr><td class="rowh">Pulses</td><td>Weak peripheral</td><td>Variable intensity</td></tr>
+          <tr><td class="rowh">Distinctive</td><td>Poor skin turgor; fluid/blood-loss history</td><td>Petechiae/purpura (septic); oliguria</td></tr>
+          <tr><td class="rowh">Shared</td><td colspan="2">Tachycardia · tachypnea · BP normal→low · altered mental status</td></tr>
+        </tbody>
+      </table></div>
+  </section>
+
+  <!-- 9 TREATMENT -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">טיפול בהלם</h3><h2>חמצון, נוזלים והערכה חוזרת</h2>
+      <div class="grid2 mt-3">
+        <div class="card"><strong style="color:var(--cyan-d)">ייצוב</strong><ul class="mt-2"><li>חמצן בריכוז גבוה; סיוע נשימתי בעת הצורך.</li><li>תנוחה: לא יציב והיפוטנסיבי — טרנדלנבורג (אלא אם מצוקה נשימתית).</li><li>גישה ורידית <span class="term">IV</span> או <span class="term">IO</span>.</li><li>הפחת צריכת חמצן: הורדת חום, כאב, הרגעה.</li></ul></div>
+        <div class="card" style="border-inline-start:5px solid var(--red)"><strong style="color:var(--red)">החזרת נוזלים</strong><ul class="mt-2"><li><strong>בולוס קריסטלואיד איזוטוני 20 מ"ל/ק"ג.</strong></li><li>הערכה מחודשת ← בולוסים חוזרים 20 מ"ל/ק"ג עד התייצבות.</li><li>דם 10 מ"ל/ק"ג לפי הצורך; שמירה על חום גוף.</li><li>תרופות לפי סוג ההלם (אדרנלין/דופמין). העברה לטיפול מתקדם.</li></ul></div>
+      </div>
+      <p class="src">נטרו סטורציה, דופק, ל"ד, נוירולוגיה וחום — והעריכו מחדש לאחר כל התערבות.</p></div>
+    <div class="en"><h3 class="ey">Treating shock</h3><h2>Oxygenate, fluids, reassess</h2>
+      <div class="grid2 mt-3">
+        <div class="card"><strong style="color:var(--cyan-d)">Stabilize</strong><ul class="mt-2"><li>High-concentration O₂; ventilatory support if needed.</li><li>Position: unstable &amp; hypotensive — Trendelenburg (unless respiratory distress).</li><li>Vascular access <span class="term">IV</span> or <span class="term">IO</span>.</li><li>Reduce O₂ consumption: treat fever, pain, agitation.</li></ul></div>
+        <div class="card" style="border-inline-start:5px solid var(--red)"><strong style="color:var(--red)">Fluid resuscitation</strong><ul class="mt-2"><li><strong>Isotonic crystalloid bolus 20 mL/kg.</strong></li><li>Reassess → repeat 20 mL/kg boluses to stabilization.</li><li>Blood 10 mL/kg as needed; keep the patient warm.</li><li>Meds per shock type (epinephrine/dopamine). Transfer to advanced care.</li></ul></div>
+      </div>
+      <p class="src">Monitor SpO₂, HR, BP, neuro and temperature — and reassess after every intervention.</p></div>
+  </section>
+
+  <!-- 10 SUMMARY -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">סיכום</h3><h2>נקודות מפתח</h2>
+      <ul class="mt-3">
+        <li>הלם = כשל בזילוח; <strong>אינו תלוי בל"ד</strong> — אל תחכו להיפוטנסיה.</li>
+        <li><span class="term">CO = SV × HR</span>; בתינוקות תפוקת הלב תלויה בקצב.</li>
+        <li><strong>טכיקרדיה</strong> = הסימן הראשון; מילוי קפילרי וגפיים קרות = פיצוי.</li>
+        <li>היפוולמי (קר) מול חלוקתי ("שוק חם", פטכיות).</li>
+        <li>טיפול: חמצן · גישה ורידית · <strong>בולוס 20 מ"ל/ק"ג</strong> והערכה חוזרת.</li>
+      </ul>
+      <a href="pals_module_06_rhythms.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 6: זיהוי הפרעות קצב</a></div>
+    <div class="en"><h3 class="ey">Summary</h3><h2>Key take-aways</h2>
+      <ul class="mt-3">
+        <li>Shock = perfusion failure; <strong>not defined by BP</strong> — don't wait for hypotension.</li>
+        <li><span class="term">CO = SV × HR</span>; in infants cardiac output depends on rate.</li>
+        <li><strong>Tachycardia</strong> = first sign; cap refill &amp; cold extremities = compensation.</li>
+        <li>Hypovolemic (cold) vs distributive ("warm shock", petechiae).</li>
+        <li>Treat: O₂ · vascular access · <strong>20 mL/kg bolus</strong> &amp; reassess.</li>
+      </ul>
+      <a href="pals_module_06_rhythms.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 6: Rhythm Recognition</a></div>
+  </section>
+
+</div>
+
+<div class="nav"><button class="nav-btn" onclick="go(-1)">◀</button><div id="dots" style="display:flex;gap:8px"></div><button class="nav-btn" onclick="go(1)">▶</button></div>
 <script>
-// ── Navigation ──────────────────────────────────
-const slides = document.querySelectorAll('.slide');
-const total = slides.length;
-let cur = 0;
-let _done_fired = false;
-
-function go(dir) {
-  slides[cur].classList.remove('active');
-  cur = Math.max(0, Math.min(total - 1, cur + dir));
-  slides[cur].classList.add('active');
-  updateUI();
-  if (cur === total - 1 && !_done_fired) {
-    _done_fired = true;
-    markDone();
-  }
-}
-
-function updateUI() {
-  const pct = ((cur + 1) / total * 100).toFixed(0);
-  document.querySelectorAll('#counter').forEach(el => el.textContent = (cur + 1) + ' / ' + total);
-  document.querySelectorAll('#progress-bar').forEach(el => el.style.width = pct + '%');
-  document.querySelectorAll('#prev-btn').forEach(el => el.disabled = cur === 0);
-  document.querySelectorAll('#next-btn').forEach(el => el.disabled = cur === total - 1);
-}
-
-// Build dots (only first slide has them in markup; rebuild from active slide)
-document.querySelectorAll('.dot-row').forEach((row, idx) => {
-  row.innerHTML = Array.from({length: total}, (_, i) =>
-    `<div class="dot${i === idx ? ' active' : ''}" onclick="jumpTo(${i})"></div>`
-  ).join('');
-});
-function jumpTo(i) { slides[cur].classList.remove('active'); cur = i; slides[cur].classList.add('active'); updateUI(); }
-
-// ── Completion ─────────────────────────────────
-async function markDone() {
-  if (!window.FB_READY) {
-    window._pendingMod = 4;
-    return;
-  }
-  try {
-    const ready = await Promise.race([
-      window.FB_READY,
-      new Promise(res => setTimeout(() => res(null), 3000))
-    ]);
-    if (ready && ready.markModuleComplete) {
-      await ready.markModuleComplete(4);
-    }
-  } catch(e) {}
-  const btn = document.getElementById('complete-btn');
-  if (btn) {
-    btn.textContent = '✅ הושלם! עובר להub…';
-    btn.disabled = true;
-    setTimeout(() => { window.location.href = '../hub_student.html'; }, 1200);
-  }
-}
-
-window.FB_READY && window.FB_READY.then(fb => {
-  if (fb && window._pendingMod === 4) markDone();
-});
-
-updateUI();
+const slides=document.querySelectorAll('.slide');let cur=0;document.getElementById('tot').textContent=slides.length;
+const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>show(i);dotsEl.appendChild(d)});
+function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
+function go(d){show(cur+d)}
+function setLang(l){document.body.className='lang-'+l;document.documentElement.lang=l;document.documentElement.dir=(l==='he'?'rtl':'ltr')}
+function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(4);}catch(e){}})();}
+var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
+setLang('he');
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);if(e.key===' ')go(1)});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?1:-1)});
 </script>
-</body>
-</html>
 </body>
 </html>
