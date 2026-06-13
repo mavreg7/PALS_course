@@ -196,8 +196,6 @@ function fbWatchAllStudents(callback) {
 }
 
 // ── Expose on window.FB ───────────────────────────────────────
-// Resolve FB_READY
-if (_fbResolve) _fbResolve(window.FB);
 window.FB = {
   saveProgress:          fbSaveProgress,
   saveFlags:             fbSaveFlags,
@@ -215,3 +213,6 @@ window.FB = {
   setCourseFlag:         fbSetCourseFlag,
   watchAllStudents:      fbWatchAllStudents,
 };
+
+// Resolve FB_READY now that window.FB is fully assigned
+if (_fbResolve) _fbResolve(window.FB);
