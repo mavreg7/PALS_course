@@ -237,13 +237,16 @@ function render(){
       <span class="mod-end-ico">${done?'✅':open?'▶️':'🔒'}</span>
     </a>`;
   }).join('');
-  const ann=f._announcement;
-  const banner=document.getElementById('announce-banner');
-  if(ann&&ann.msg&&(Date.now()-ann.ts)<7200000){
-    document.getElementById('announce-txt').textContent='Instructor announcement: '+ann.msg;
-    banner.style.display='flex';
-  }else{banner.style.display='none';}
-  if(window.FB) window.FB.saveProgress(prog);
+}
+
+// ── Instructor broadcast (courseFlags/current._announcement) ───────────
+function showAnnouncement(cf){
+  const ann = cf && cf._announcement;
+  const banner = document.getElementById('announce-banner');
+  if (ann && ann.msg && (!ann.expires || Date.now() < ann.expires)) {
+    document.getElementById('announce-txt').textContent = 'Instructor announcement: ' + ann.msg;
+    banner.style.display = 'flex';
+  } else { banner.style.display = 'none'; }
 }
 
 // ── FIX: loadAndSync result is now applied to sessionStorage before render ──
@@ -264,6 +267,11 @@ function refresh(force){
 if(s && s.role === 'student') {
   refresh(true);
   setInterval(refresh, 15000);
+  // live instructor broadcasts
+  (function watchAnn(){
+    if(window.FB && window.FB.watchCourseFlags){ window.FB.watchCourseFlags(showAnnouncement); }
+    else { setTimeout(watchAnn, 200); }
+  })();
 }
 
 let dark=(()=>{try{const s=localStorage.getItem('pals_theme');if(s)return s==='dark';}catch(e){}return window.matchMedia('(prefers-color-scheme:dark)').matches;})();

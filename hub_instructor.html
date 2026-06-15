@@ -182,6 +182,28 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
   </div>
   <!-- Create Student card injected here by JS when role === admin -->
 
+  <div class="section-title">Broadcast Announcement</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:1;min-width:240px">
+        <label style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:.35rem">Message to all students</label>
+        <input id="ann-msg" type="text" maxlength="280" placeholder="e.g. Lunch break extended to 13:15" style="width:100%;padding:.6rem .85rem;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);font-size:.9rem;font-family:inherit;outline:none">
+      </div>
+      <div>
+        <label style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:.35rem">Shows for</label>
+        <select id="ann-dur" style="padding:.62rem .85rem;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);font-size:.9rem;font-family:inherit">
+          <option value="3600000">1 hour</option>
+          <option value="7200000" selected>2 hours</option>
+          <option value="28800000">8 hours</option>
+          <option value="86400000">24 hours</option>
+        </select>
+      </div>
+      <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.62rem 1.1rem" onclick="sendAnnouncement()">📣 Send</button>
+      <button class="btn-sm btn-ghost" onclick="clearAnnouncement()">Clear</button>
+    </div>
+    <div id="ann-result" style="font-size:.8rem;margin-top:.6rem;color:var(--muted)"></div>
+  </div>
+
   <div class="section-title">11 Learning Modules</div>
   <div class="modules-grid" id="modules-grid"></div>
 
@@ -484,6 +506,29 @@ document.getElementById('modules-grid').innerHTML = MODULES.map(m =>
     <div class="mod-info"><div class="mod-title">${m.title}</div><div class="mod-sub">${m.sub}</div></div>
   </a>`
 ).join('');
+
+// ── Broadcast announcement to all students ─────────────────────
+window.sendAnnouncement = async function() {
+  const msg = document.getElementById('ann-msg').value.trim();
+  const dur = parseInt(document.getElementById('ann-dur').value, 10) || 7200000;
+  const r   = document.getElementById('ann-result');
+  if (!msg) { r.textContent = 'Enter a message first.'; r.style.color = 'var(--danger)'; return; }
+  r.style.color = 'var(--muted)'; r.textContent = 'Sending…';
+  try {
+    await setDoc(doc(db, 'courseFlags', 'current'),
+      { _announcement: { msg, ts: Date.now(), expires: Date.now() + dur } }, { merge: true });
+    r.style.color = 'var(--success)'; r.textContent = '✅ Sent to all students.';
+    document.getElementById('ann-msg').value = '';
+  } catch(e) { r.style.color = 'var(--danger)'; r.textContent = '❌ ' + e.message; }
+};
+window.clearAnnouncement = async function() {
+  const r = document.getElementById('ann-result');
+  r.style.color = 'var(--muted)'; r.textContent = 'Clearing…';
+  try {
+    await setDoc(doc(db, 'courseFlags', 'current'), { _announcement: null }, { merge: true });
+    r.style.color = 'var(--success)'; r.textContent = '✅ Announcement cleared.';
+  } catch(e) { r.style.color = 'var(--danger)'; r.textContent = '❌ ' + e.message; }
+};
 
 // ── Theme toggle ───────────────────────────────────────────────
 let dark = (()=>{try{const s=localStorage.getItem('pals_theme');if(s)return s==='dark';}catch(e){}return window.matchMedia('(prefers-color-scheme: dark)').matches;})();
