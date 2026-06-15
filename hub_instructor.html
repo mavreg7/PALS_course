@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="firebase-config.js"></script>
 <script src="modules.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{--primary:#0891B2;--primary-dark:#0e7490;--primary-light:#e0f2fe;--instructor:#7C3AED;--success:#22C55E;--warning:#F59E0B;--danger:#EF4444;--bg:#F0F9FF;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--faint:#94a3b8;--radius:14px;--shadow:0 4px 20px rgba(8,145,178,.09)}
 [data-theme="dark"]{--bg:#0f172a;--surface:#1e293b;--surface2:#273548;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--faint:#475569;--shadow:0 4px 24px rgba(0,0,0,.4)}
@@ -175,12 +176,27 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     <a href="pals_course_planner.html" class="card"><div class="card-body"><div class="card-icon" style="background:rgba(34,197,94,.1);color:#15803d">📅</div><div class="card-title">Course Planner</div><div class="card-desc">Editable 2-day schedule, color-coded sessions, QR share, print-ready agenda.</div></div><div class="grad-bar"></div></a>
   </div>
 
-  <div class="section-title">Admin Controls</div>
-  <div class="grid-2" style="margin-bottom:2rem" id="admin-grid">
-    <a href="pals_instructor_dashboard.html" class="card"><div class="card-body"><div class="card-icon" style="background:rgba(220,38,38,.1);color:#dc2626">🔐</div><div class="card-title">Student Access Manager</div><div class="card-desc">Use the Instructor Dashboard to manage roster records, review completions, export data, and oversee student access.</div><div class="hint">Consolidated into the dashboard for a smoother workflow.</div></div><div class="grad-bar" style="background:linear-gradient(90deg,#dc2626,#F59E0B)"></div></a>
-    <div class="card" style="cursor:default"><div class="card-body"><div class="card-icon" style="background:rgba(245,158,11,.1);color:#b45309">🔔</div><div class="card-title">Course Status</div><div class="card-desc" id="course-status-text">Manage live session state. Students currently see unlocked modules only.</div><div style="margin-top:.9rem;display:flex;gap:.5rem;flex-wrap:wrap"><span class="badge badge-ok" id="status-tests">● Tests: Managed in forms</span><span class="badge badge-neutral" id="status-roster">● Roster: Managed in dashboard</span></div></div><div class="grad-bar" style="background:linear-gradient(90deg,#F59E0B,#34D399)"></div></div>
+  <div id="admin-controls" style="display:none">
+    <div class="section-title">Admin Controls</div>
+    <!-- Create Student card injected here by JS when role === admin -->
+    <div class="grid-3" style="margin-bottom:2rem" id="admin-grid"></div>
   </div>
-  <!-- Create Student card injected here by JS when role === admin -->
+
+  <div id="bulk-section" style="display:none">
+    <div class="section-title">Bulk Enrollment — invite by CSV / Excel</div>
+    <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:.85rem">Upload a <strong>CSV</strong> or <strong>Excel</strong> file of participants. Recognised columns: <strong>email</strong> (required), <strong>name</strong> (or <strong>first</strong>/<strong>last</strong>), <strong>role</strong> (student / instructor / lead_instructor — default student), optional <strong>cohort</strong>. Each listed person can then self-register <em>once</em> using the link below.</p>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
+        <input type="file" id="bulk-file" accept=".csv,.xlsx,.xls" style="font-size:.85rem;color:var(--text)">
+        <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.6rem 1.1rem" onclick="uploadAllowlist()">⬆ Upload &amp; invite</button>
+      </div>
+      <div id="bulk-result" style="font-size:.83rem;margin-top:.7rem;color:var(--muted);white-space:pre-line"></div>
+      <div style="margin-top:.95rem;font-size:.8rem;color:var(--muted)">Self-registration link to share:<br>
+        <code id="reg-link" style="display:inline-block;margin-top:.3rem;background:var(--surface2);padding:4px 9px;border-radius:6px;user-select:all;word-break:break-all"></code>
+        <button class="btn-sm btn-ghost" style="margin-inline-start:.4rem" onclick="copyRegLink()">Copy link</button>
+      </div>
+    </div>
+  </div>
 
   <div class="section-title">Broadcast Announcement</div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
@@ -339,6 +355,7 @@ if (!s) {
 
   // ── Inject "Create Student" card for admins only ─────────────
   if (s.role === 'admin') {
+    document.getElementById('admin-controls').style.display = 'block';
     const adminGrid = document.getElementById('admin-grid');
     // Expand grid to 3 columns for the extra card
     adminGrid.style.gridTemplateColumns = 'repeat(3,1fr)';
@@ -360,6 +377,12 @@ if (!s) {
     csCard.addEventListener('click', openModal);
     csCard.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); } });
     adminGrid.appendChild(csCard);
+
+    // Reveal bulk-enrollment tool + show the shareable registration link
+    const bulk = document.getElementById('bulk-section');
+    if (bulk) bulk.style.display = 'block';
+    const link = document.getElementById('reg-link');
+    if (link) link.textContent = location.href.replace(/[^/]*(\?.*)?(#.*)?$/, '') + 'register.html';
   }
 }
 
@@ -529,6 +552,68 @@ window.clearAnnouncement = async function() {
     r.style.color = 'var(--success)'; r.textContent = '✅ Announcement cleared.';
   } catch(e) { r.style.color = 'var(--danger)'; r.textContent = '❌ ' + e.message; }
 };
+
+// ── Bulk enrollment (CSV / XLSX → allowlist) ───────────────────
+function csvRows(text){
+  return text.split(/\r?\n/).filter(l=>l.trim()).map(l=>{
+    const out=[]; let cur='', q=false;
+    for(let i=0;i<l.length;i++){ const c=l[i];
+      if(c==='"'){ if(q&&l[i+1]==='"'){cur+='"';i++;} else q=!q; }
+      else if(c===',' && !q){ out.push(cur); cur=''; }
+      else cur+=c;
+    } out.push(cur); return out.map(s=>s.trim());
+  });
+}
+function xlsxRows(buf){
+  const wb = XLSX.read(buf,{type:'array'});
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false}).map(r=>r.map(c=>String(c==null?'':c).trim()));
+}
+function normalizeRows(rows){
+  if(!rows.length) return [];
+  const head = rows[0].map(h=>String(h).toLowerCase());
+  const hasHeader = head.some(h=>/email|name|role|cohort|first|last|מייל|שם|תפקיד/.test(h));
+  const find=re=>head.findIndex(h=>re.test(h));
+  let cE=-1,cN=-1,cF=-1,cL=-1,cR=-1,cC=-1;
+  if(hasHeader){ cE=find(/e-?mail|מייל|דוא/); cN=find(/^name|full|שם מלא/); cF=find(/first|given|פרטי/); cL=find(/last|family|surname|משפחה/); cR=find(/role|תפקיד/); cC=find(/cohort|group|מחזור|קבוצה/); }
+  const body = hasHeader ? rows.slice(1) : rows;
+  const valid=['student','instructor','lead_instructor']; const out=[];
+  for(const row of body){
+    const g=i=>(i>=0&&i<row.length)?String(row[i]||'').trim():'';
+    let email = cE>=0 ? g(cE) : (row.find(c=>/@/.test(c))||'');
+    email = email.trim().toLowerCase();
+    if(!email || !email.includes('@')) continue;
+    let first=g(cF), last=g(cL), name=g(cN);
+    if(!name) name = (first+' '+last).trim() || email.split('@')[0];
+    if(!first && name){ const p=name.split(/\s+/); first=p[0]; last=p.slice(1).join(' '); }
+    let role=(g(cR)||'student').toLowerCase().replace(/\s+/g,'_');
+    if(!valid.includes(role)) role='student';
+    out.push({ email, name, firstName:first, lastName:last, role, cohort:(g(cC)||'Unassigned') });
+  }
+  return out;
+}
+window.uploadAllowlist = async function(){
+  const f = document.getElementById('bulk-file').files[0];
+  const r = document.getElementById('bulk-result');
+  if(!f){ r.style.color='var(--danger)'; r.textContent='Choose a file first.'; return; }
+  r.style.color='var(--muted)'; r.textContent='Reading file…';
+  try{
+    const rows = /\.csv$/i.test(f.name) ? csvRows(await f.text()) : xlsxRows(await f.arrayBuffer());
+    const people = normalizeRows(rows);
+    if(!people.length){ r.style.color='var(--danger)'; r.textContent='No valid rows found (each row needs an email).'; return; }
+    r.textContent='Inviting '+people.length+'…';
+    let ok=0, fail=0; const errs=[]; const uid=(getSession()&&getSession().uid)||'admin';
+    for(const p of people){
+      try{
+        await fsSetDoc(fsDoc(db,'allowlist',p.email), { name:p.name, firstName:p.firstName, lastName:p.lastName, email:p.email, role:p.role, cohort:p.cohort, registered:false, addedAt:serverTimestamp(), addedBy:uid }, {merge:true});
+        ok++;
+      }catch(e){ fail++; if(errs.length<3) errs.push(p.email+': '+e.message); }
+    }
+    r.style.color = fail? 'var(--warning)' : 'var(--success)';
+    r.textContent = '✅ Invited '+ok+(ok===1?' person.':' people.') + (fail?(' '+fail+' failed:\n'+errs.join('\n')):'') + '\nThey can now self-register at the link below.';
+  }catch(e){ r.style.color='var(--danger)'; r.textContent='❌ '+e.message; }
+};
+window.copyRegLink = function(){ const t=document.getElementById('reg-link').textContent; navigator.clipboard.writeText(t).catch(()=>{}); };
 
 // ── Theme toggle ───────────────────────────────────────────────
 let dark = (()=>{try{const s=localStorage.getItem('pals_theme');if(s)return s==='dark';}catch(e){}return window.matchMedia('(prefers-color-scheme: dark)').matches;})();

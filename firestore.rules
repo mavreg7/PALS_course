@@ -35,16 +35,35 @@ service cloud.firestore {
       // Staff may update profiles; only admin may change role/canAdmin
       allow update: if isStaff() && (!touchesPrivileged() || isAdmin());
 
-      // Closed enrollment: only an admin can mint accounts/roles
-      // (the instructor "Create Student" tool runs while signed in as admin).
-      // There is no self-registration.
-      allow create: if isAdmin();
+      // Account creation: an admin (Create Student tool), OR an invited
+      // person registering themselves — only if their email is on the
+      // allowlist, the role matches what was assigned, and it's unused.
+      allow create: if isAdmin()
+        || ( request.auth != null
+             && request.auth.uid == uid
+             && request.resource.data.email == request.auth.token.email
+             && exists(/databases/$(database)/documents/allowlist/$(request.auth.token.email))
+             && get(/databases/$(database)/documents/allowlist/$(request.auth.token.email)).data.role == request.resource.data.role
+             && get(/databases/$(database)/documents/allowlist/$(request.auth.token.email)).data.registered == false );
       allow delete: if isAdmin();
     }
 
     // ── STUDENTS: progress, flags, exam scores, certificate ──────
     match /students/{uid} {
       allow read, write: if signedIn() && (request.auth.uid == uid || isStaff());
+    }
+
+    // ── ALLOWLIST: invited people (admin uploads via CSV/XLSX) ───
+    // Doc id = lowercased email. A registrant may read their own invite
+    // (by knowing their email) and flip only the `registered` flag.
+    match /allowlist/{email} {
+      allow get:    if true;
+      allow list:   if isStaff();
+      allow create, delete: if isStaff();
+      allow update: if isStaff()
+        || ( request.auth != null
+             && request.auth.token.email == email
+             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['registered', 'registeredAt']) );
     }
 
     // ── COURSE FLAGS: students read, staff write ─────────────────
