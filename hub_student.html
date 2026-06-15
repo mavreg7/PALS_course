@@ -142,7 +142,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
       <span class="lock-chip locked-state" id="chip-cert">🔒 Not yet available</span>
     </a>
   </div>
-  <div class="sec-hdr">11 Learning Modules</div>
+  <div class="sec-hdr">9 Learning Modules</div>
   <div class="mod-grid" id="mod-grid"></div>
 </main>
 
@@ -197,7 +197,7 @@ function applyRemoteData(data) {
   }
 }
 
-const MODULES = window.PALS_MODULES;
+const MODULES = window.PALS_MODULES.filter(m => !m.staffOnly);  // megacodes are instructor-run
 
 function render(){
   const f=getFlags();

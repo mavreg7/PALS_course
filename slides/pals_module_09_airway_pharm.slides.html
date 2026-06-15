@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 11 — Advanced Airway & Pharmacology | נתיב אוויר מתקדם ופרמקולוגיה</title>
+<title>Module 9 — Advanced Airway & Pharmacology | נתיב אוויר מתקדם ופרמקולוגיה</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="../firebase-config.js"></script>
@@ -76,7 +76,7 @@
 
   <!-- 1 HERO -->
   <section class="slide active">
-    <span class="pill">Module 11 · מודול 11</span>
+    <span class="pill">Module 09 · מודול 09</span>
     <div class="he"><h1 class="mt-5">נתיב אוויר מתקדם<br>ופרמקולוגיה</h1><p class="sub mt-5">אנטומיה · מנתב אוויר · אמבו ומסכה · אינטובציה · LMA · גישה תוך-גרמית · תרופות</p></div>
     <div class="en"><h1 class="mt-5">Advanced Airway<br>&amp; Pharmacology</h1><p class="sub mt-5">Anatomy · OPA · BVM · intubation · LMA · IO access · drugs</p></div>
     <p class="src">מבוסס על חומרי MSR ("נתיב אוויר מתקדם", "גישה ורידית") ועל AHA PALS 2025.</p>
@@ -134,20 +134,6 @@
         <div class="card"><strong style="color:var(--cyan-d)">Oral airway (OPA)</strong><ul class="mt-2"><li>For the unconscious <strong>without a gag reflex</strong>.</li><li>Size: mouth corner to angle of jaw (earlobe).</li><li>Don't insert if FB suspected; don't push the tongue back.</li></ul></div>
         <div class="card"><strong style="color:var(--cyan-d)">Bag-mask technique</strong><ul class="mt-2"><li><strong>C-E grip</strong>: thumb &amp; finger (C) seal the mask, three fingers (E) lift the jaw.</li><li>Connect O₂ with reservoir → 100%.</li><li>Ventilate to chest rise only, ~1 second.</li></ul></div>
       </div></div>
-  </section>
-
-  <!-- 4b AIRWAY MEASURES — visuals -->
-  <section class="slide">
-    <div class="he"><h3 class="ey">אמצעי נתיב אוויר</h3><h2>פתיחת נתיב אוויר · אמבו-מסכה · גישה תוך-גרמית</h2></div>
-    <div class="en"><h3 class="ey">Airway measures</h3><h2>Opening the airway · bag-mask · intraosseous access</h2></div>
-    <div class="figrow mt-3" style="gap:16px">
-      <div style="flex:1"><div class="fig" style="height:46vh"><img src="assets/airway_headtilt.png" alt="Head tilt-chin lift"></div>
-        <div class="capt he">פתיחת נתיב אוויר — הטיית ראש והרמת סנטר</div><div class="capt en">Airway opening — head tilt–chin lift</div></div>
-      <div style="flex:1"><div class="fig" style="height:46vh"><img src="assets/bvm.png" alt="Bag-mask ventilation"></div>
-        <div class="capt he">הנשמה באמבו ומסכה (אחיזת C-E)</div><div class="capt en">Bag-mask ventilation (C-E grip)</div></div>
-      <div style="flex:1"><div class="fig" style="height:46vh"><img src="assets/io_landmark.png" alt="Intraosseous landmark"></div>
-        <div class="capt he">עירוי תוך-גרמי — מיקום (proximal tibia)</div><div class="capt en">Intraosseous site (proximal tibia)</div></div>
-    </div>
   </section>
 
   <!-- 5 VENTILATION RATES -->
@@ -260,7 +246,7 @@
         <li>התדרדרות במונשם ← <strong>DOPE</strong>. קצב הנשמה 2025: <strong>20–30/דק'</strong>.</li>
         <li>IO = אותם מינונים כמו IV; אדרנלין 0.01 מ"ג/ק"ג.</li>
       </ul>
-      <a href="../hub_student.html" onclick="return goHub(event)" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">⌂ חזרה למרכז הקורס</a></div>
+      <a href="pals_module_10_megacode_resp.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 10: מגה-קוד נשימתי</a></div>
     <div class="en"><h3 class="ey">Summary</h3><h2>Key take-aways</h2>
       <ul class="mt-3">
         <li>Child's airway: narrow, funnel (cricoid), anterior — prone to bradycardia.</li>
@@ -269,7 +255,7 @@
         <li>Deterioration → <strong>DOPE</strong>. 2025 ventilation rate: <strong>20–30/min</strong>.</li>
         <li>IO = same doses as IV; epinephrine 0.01 mg/kg.</li>
       </ul>
-      <a href="../hub_student.html" onclick="return goHub(event)" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">⌂ Back to the course hub</a></div>
+      <a href="pals_module_10_megacode_resp.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 10: Respiratory Megacode</a></div>
   </section>
 
 </div>
@@ -281,7 +267,7 @@ const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=docu
 function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
 function go(d){show(cur+d)}
 function setLang(l){document.body.className='lang-'+l;document.documentElement.lang=l;document.documentElement.dir=(l==='he'?'rtl':'ltr')}
-function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(10);}catch(e){}})();}
+function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(8);}catch(e){}})();}
 var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
 function goHub(e){try{var s=JSON.parse(sessionStorage.getItem('pals_sess_v2')||'null');if(s&&s.role&&s.role!=='student'){if(e)e.preventDefault();location.href='../hub_instructor.html';return false;}}catch(_){}return true;}
 setLang('he');

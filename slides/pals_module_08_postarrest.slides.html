@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 10 — Post-Cardiac-Arrest Care | טיפול לאחר דום לב</title>
+<title>Module 8 — Post-Cardiac-Arrest Care | טיפול לאחר דום לב</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="../firebase-config.js"></script>
@@ -83,7 +83,7 @@
 
   <!-- 1 HERO -->
   <section class="slide active">
-    <span class="pill">Module 10 · מודול 10</span>
+    <span class="pill">Module 08 · מודול 08</span>
     <div class="he"><h1 class="mt-5">טיפול לאחר<br>החזרת מחזור (ROSC)</h1><p class="sub mt-5">חמצון ואוורור · יציבות המודינמית · ויסות חום · גלוקוז ופרכוסים</p></div>
     <div class="en"><h1 class="mt-5">Post-Cardiac-Arrest<br>Care</h1><p class="sub mt-5">Oxygenation &amp; ventilation · hemodynamics · temperature · glucose &amp; seizures</p></div>
     <p class="src">מבוסס על AHA PALS 2025 (Post–Cardiac Arrest Care).</p>
@@ -213,7 +213,7 @@
         <li>נטר ותקן גלוקוז; טפל בפרכוסים.</li>
         <li>המשך לטפל בסיבה (4H/4T); פרוגנוזה רב-ממדית ולא מוקדמת.</li>
       </ul>
-      <a href="pals_module_11_airway_pharm.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 11: נתיב אוויר מתקדם ופרמקולוגיה</a></div>
+      <a href="pals_module_09_airway_pharm.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 9: נתיב אוויר ופרמקולוגיה</a></div>
     <div class="en"><h3 class="ey">Summary</h3><h2>Key take-aways</h2>
       <ul class="mt-3">
         <li>Oxygenation: SpO₂ 94–99%; ventilation: normocapnia — avoid hyper/hypo.</li>
@@ -222,7 +222,7 @@
         <li>Monitor and correct glucose; treat seizures.</li>
         <li>Keep treating the cause (H's &amp; T's); prognostication is multimodal and not early.</li>
       </ul>
-      <a href="pals_module_11_airway_pharm.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 11: Advanced Airway &amp; Pharmacology</a></div>
+      <a href="pals_module_09_airway_pharm.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 9: Advanced Airway & Pharmacology</a></div>
   </section>
 
 </div>
@@ -234,7 +234,7 @@ const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=docu
 function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
 function go(d){show(cur+d)}
 function setLang(l){document.body.className='lang-'+l;document.documentElement.lang=l;document.documentElement.dir=(l==='he'?'rtl':'ltr')}
-function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(9);}catch(e){}})();}
+function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(7);}catch(e){}})();}
 var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
 function goHub(e){try{var s=JSON.parse(sessionStorage.getItem('pals_sess_v2')||'null');if(s&&s.role&&s.role!=='student'){if(e)e.preventDefault();location.href='../hub_instructor.html';return false;}}catch(_){}return true;}
 document.addEventListener('click',function(e){var im=e.target.closest('.fig')?e.target:null;if(im&&im.tagName==='IMG'){document.getElementById('lbimg').src=im.src;document.getElementById('lb').style.display='flex';}});

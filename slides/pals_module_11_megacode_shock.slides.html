@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 8 — Shock Megacode | מגה-קוד הלם</title>
+<title>Module 11 — Shock Megacode | מגה-קוד הלם</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="../firebase-config.js"></script>
@@ -75,10 +75,10 @@
 
   <!-- 1 HERO -->
   <section class="slide active">
-    <span class="pill">Module 08 · מודול 08 · MEGACODE</span>
+    <span class="pill">Module 11 · מודול 11 · MEGACODE</span>
     <div class="he"><h1 class="mt-5">מגה-קוד הלם</h1><p class="sub mt-5">תרחיש משולב: זיהוי הלם, סיווג הסוג וטיפול בנוזלים והערכה חוזרת</p></div>
     <div class="en"><h1 class="mt-5">Shock Megacode</h1><p class="sub mt-5">Integrated case: recognize shock, classify the type, fluids &amp; reassessment</p></div>
-    <p class="src">מבוסס על תרחישי MSR ("תרחישים — PALS") ועל המודולים הקודמים (2, 4, 11).</p>
+    <p class="src">מבוסס על תרחישי MSR ("תרחישים — PALS") ועל המודולים הקודמים (2, 4, 9).</p>
   </section>
 
   <!-- 2 SHOCK RECOGNITION FRAME -->
@@ -209,7 +209,7 @@
         <li>הלם עמיד לנוזלים ← ואזואקטיב; היזהר מעומס נוזלים.</li>
         <li>צוות בלולאה סגורה; חזרה על המחזור בכל שינוי.</li>
       </ul>
-      <a href="pals_module_09_cardiac_arrest.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">← מודול 09: דום לב בילדים</a></div>
+      <a href="../hub_student.html" onclick="return goHub(event)" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">⌂ חזרה למרכז הקורס</a></div>
     <div class="en"><h3 class="ey">Debrief &amp; summary</h3><h2>Key take-aways</h2>
       <ul class="mt-3">
         <li>Recognize shock <strong>before</strong> BP falls — tachycardia and poor perfusion.</li>
@@ -218,7 +218,7 @@
         <li>Fluid-refractory → vasoactive; beware fluid overload.</li>
         <li>Closed-loop team; repeat the cycle on any change.</li>
       </ul>
-      <a href="pals_module_09_cardiac_arrest.slides.html" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">Next → Module 09: Cardiac Arrest</a></div>
+      <a href="../hub_student.html" onclick="return goHub(event)" class="font-bold mt-6 inline-block" style="color:var(--cyan-d);font-size:19px">⌂ Back to the course hub</a></div>
   </section>
 
 </div>
@@ -230,7 +230,7 @@ const dotsEl=document.getElementById('dots');slides.forEach((_,i)=>{const d=docu
 function show(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');document.querySelectorAll('.dot')[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');document.querySelectorAll('.dot')[cur].classList.add('active');document.getElementById('cur').textContent=cur+1}
 function go(d){show(cur+d)}
 function setLang(l){document.body.className='lang-'+l;document.documentElement.lang=l;document.documentElement.dir=(l==='he'?'rtl':'ltr')}
-function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(7);}catch(e){}})();}
+function markModuleDone(){(async()=>{try{var fb=await Promise.race([window.FB_READY||Promise.resolve(window.FB),new Promise(function(r){setTimeout(function(){r(window.FB)},3000)})]);if(fb&&fb.markModuleComplete)await fb.markModuleComplete(10);}catch(e){}})();}
 var _os=show;show=function(n){_os(n);if(cur===slides.length-1)markModuleDone();};
 function goHub(e){try{var s=JSON.parse(sessionStorage.getItem('pals_sess_v2')||'null');if(s&&s.role&&s.role!=='student'){if(e)e.preventDefault();location.href='../hub_instructor.html';return false;}}catch(_){}return true;}
 setLang('he');
