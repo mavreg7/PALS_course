@@ -119,6 +119,30 @@
     </div>
   </section>
 
+  <!-- COURSE STATISTICS BY COHORT -->
+  <section class="card p-5 mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <h2 class="font-bold text-lg">Course Statistics by Cohort</h2>
+      <button class="btn btn-ghost no-print" onclick="saveStatsSnapshot()">💾 Save snapshot</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-xs uppercase text-slate-500 border-b border-slate-200">
+          <th class="py-2 pr-3">Cohort</th>
+          <th class="py-2 px-3">Invited</th>
+          <th class="py-2 px-3">Registered</th>
+          <th class="py-2 px-3">Not yet reg.</th>
+          <th class="py-2 px-3">Completed all</th>
+          <th class="py-2 px-3">In progress</th>
+          <th class="py-2 px-3">Not started</th>
+        </tr></thead>
+        <tbody id="cohort-body"></tbody>
+      </table>
+    </div>
+    <div id="cohort-empty" class="text-sm text-slate-400 italic py-4 hidden">No cohort data yet — invite participants via Bulk Enrollment.</div>
+    <div id="cohort-snap-result" class="text-xs text-slate-500 mt-2"></div>
+  </section>
+
   <!-- BULK ACTIONS -->
   <section class="card p-4 mb-6 no-print">
     <div class="flex flex-wrap gap-2">
@@ -245,6 +269,7 @@ async function loadFirebaseUsers() {
     fbLoaded = true;
     showBanner(`⚠ Could not load Firebase accounts: ${e.message}`, 'yellow');
   }
+  await loadCohortData();
   refreshAll();
 }
 
@@ -579,7 +604,83 @@ function showResult(el, type, msg) {
   el.textContent = msg;
 }
 
-window.refreshAll = function(){renderStats();renderRoster();renderFB();renderSessions();};
+// ── Cohort statistics ──────────────────────────────────────────
+const MODULE_COUNT = 11;
+let fbAllowlist = [];
+let fbStudentProgress = {};   // uid -> number of completed modules
+
+async function loadCohortData(){
+  try {
+    const al = await getDocs(collection(db, 'allowlist'));
+    fbAllowlist = al.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) { fbAllowlist = []; }
+  try {
+    const st = await getDocs(collection(db, 'students'));
+    fbStudentProgress = {};
+    st.forEach(d => {
+      const p = (d.data() && d.data().progress) || {};
+      fbStudentProgress[d.id] = Object.values(p).filter(Boolean).length;
+    });
+  } catch(e) { fbStudentProgress = {}; }
+}
+
+function computeCohortStats(){
+  const by = {};
+  const row = c => by[c] || (by[c] = { cohort:c, invited:0, registered:0, completed:0, inprog:0 });
+  fbAllowlist.forEach(a => { row((a.cohort||'—')).invited++; });
+  fbUsers.forEach(u => {
+    const r = row(u.cohort || '—');
+    r.registered++;
+    const pc = fbStudentProgress[u.uid] || 0;
+    if (pc >= MODULE_COUNT) r.completed++;
+    else if (pc > 0)        r.inprog++;
+  });
+  const cohorts = Object.values(by).sort((a,b)=>a.cohort.localeCompare(b.cohort));
+  const totals = { cohort:'All cohorts', invited:0, registered:0, completed:0, inprog:0 };
+  cohorts.forEach(d => { totals.invited+=d.invited; totals.registered+=d.registered; totals.completed+=d.completed; totals.inprog+=d.inprog; });
+  return { cohorts, totals, moduleCount: MODULE_COUNT };
+}
+
+function renderCohortStats(){
+  const { cohorts, totals } = computeCohortStats();
+  const tbody = document.getElementById('cohort-body');
+  const empty = document.getElementById('cohort-empty');
+  if (!cohorts.length) { tbody.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  const cell = (d, bold) => {
+    const notReg = Math.max(0, d.invited - d.registered);
+    const notStarted = Math.max(0, d.registered - d.completed - d.inprog);
+    const w = bold ? 'font-bold' : '';
+    return `<tr class="${bold?'border-t-2 border-slate-300':'border-b border-slate-100'}">
+      <td class="py-2 pr-3 ${w}">${d.cohort}</td>
+      <td class="py-2 px-3 ${w}">${d.invited}</td>
+      <td class="py-2 px-3 ${w}" style="color:#0891B2">${d.registered}</td>
+      <td class="py-2 px-3 ${w}" style="color:#b45309">${notReg}</td>
+      <td class="py-2 px-3 ${w}" style="color:#15803d">${d.completed}</td>
+      <td class="py-2 px-3 ${w}">${d.inprog}</td>
+      <td class="py-2 px-3 ${w}" style="color:#64748b">${notStarted}</td>
+    </tr>`;
+  };
+  tbody.innerHTML = cohorts.map(d=>cell(d,false)).join('') + cell(totals, true);
+}
+
+window.saveStatsSnapshot = async function(){
+  const r = document.getElementById('cohort-snap-result');
+  const stats = computeCohortStats();
+  if (!stats.cohorts.length) { r.textContent = 'Nothing to save yet.'; return; }
+  r.textContent = 'Saving…';
+  try {
+    const id = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+    await setDoc(doc(db, 'courseStats', id), {
+      ...stats,
+      savedAt: Date.now(),
+      savedBy: (auth.currentUser && auth.currentUser.email) || 'instructor'
+    });
+    r.textContent = '✅ Snapshot saved (courseStats/' + id + ').';
+  } catch(e) { r.textContent = '❌ ' + e.message; }
+};
+
+window.refreshAll = function(){renderStats();renderRoster();renderFB();renderSessions();renderCohortStats();};
 window.refreshAll();
 setInterval(window.refreshAll, 8000);
 </script>

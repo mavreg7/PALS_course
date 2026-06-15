@@ -72,6 +72,11 @@ service cloud.firestore {
       allow write: if isStaff();
     }
 
+    // ── COURSE STATS: archived snapshots, staff only ─────────────
+    match /courseStats/{doc} {
+      allow read, write: if isStaff();
+    }
+
     // ── META (admin bootstrap lock): admin only ──────────────────
     match /meta/{doc} {
       allow read:  if signedIn();
