@@ -35,12 +35,10 @@ service cloud.firestore {
       // Staff may update profiles; only admin may change role/canAdmin
       allow update: if isStaff() && (!touchesPrivileged() || isAdmin());
 
-      // Only an admin can mint accounts/roles (instructor "Create Student"
-      // runs while signed in as admin). Self-signup, if ever enabled, is
-      // restricted to role 'student'.
-      allow create: if isAdmin()
-                    || (signedIn() && request.auth.uid == uid
-                        && request.resource.data.role == 'student');
+      // Closed enrollment: only an admin can mint accounts/roles
+      // (the instructor "Create Student" tool runs while signed in as admin).
+      // There is no self-registration.
+      allow create: if isAdmin();
       allow delete: if isAdmin();
     }
 

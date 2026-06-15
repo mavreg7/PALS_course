@@ -119,6 +119,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
     </div>
     <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
     <div class="progress-sub" id="prog-sub">Start with Module 1 to begin your journey.</div>
+    <a id="continue-btn" href="#" style="display:none;margin-top:.9rem;background:var(--p);color:#fff;font-weight:700;font-size:.85rem;padding:.55rem 1.1rem;border-radius:9px;text-decoration:none;width:fit-content;align-items:center;gap:.4rem">▶ Continue</a>
   </div>
   <div class="sec-hdr">Quick Access</div>
   <div class="quick-grid">
@@ -219,6 +220,13 @@ function render(){
     pct===100?'🎉 All modules complete! You are ready for the final exam.'
     :completed===0?'Start with Module 1 to begin your journey.'
     :`${completed} of ${MODULES.length} modules completed — keep going!`;
+  // Continue where you left off → first incomplete (unlocked) module
+  const cbtn=document.getElementById('continue-btn');
+  const nextI=MODULES.findIndex((_,i)=>!prog[i]);
+  if(nextI===-1){cbtn.style.display='none';}
+  else{const openNext=allOpen||nextI===0||prog[nextI-1];
+    if(openNext){cbtn.href=MODULES[nextI].file;cbtn.textContent=(completed===0?'▶ Start: ':'▶ Continue: ')+'Module '+MODULES[nextI].n+' — '+MODULES[nextI].title;cbtn.style.display='inline-flex';}
+    else{cbtn.style.display='none';}}
   document.getElementById('mod-grid').innerHTML=MODULES.map((m,i)=>{
     const done=!!prog[i];
     const open=allOpen||i===0||(i>0&&prog[i-1]);

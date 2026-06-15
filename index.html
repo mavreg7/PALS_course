@@ -104,12 +104,6 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
   <h1>PALS 2025</h1>
   <div class="sub">Pediatric Advanced Life Support — Provider Course</div>
 
-  <!-- Tab switcher -->
-  <div class="tabs" role="tablist">
-    <button class="tab active" id="tab-signin" role="tab" aria-selected="true"  aria-controls="panel-signin"  onclick="switchTab('signin')">Sign In</button>
-    <button class="tab"        id="tab-reg"    role="tab" aria-selected="false" aria-controls="panel-reg"     onclick="switchTab('reg')">New Here? Register</button>
-  </div>
-
   <div class="card">
 
     <!-- ── SIGN IN PANEL ───────────────────────────────────── -->
@@ -140,10 +134,11 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
         <div class="hint"><div class="dot" style="background:#0891B2"></div><span><strong>Students</strong> — modules, quizzes, progress &amp; certificate</span></div>
         <div class="hint"><div class="dot" style="background:#7C3AED"></div><span><strong>Instructors</strong> — roster, exams, eval tools &amp; admin controls</span></div>
       </div>
+      <p class="reg-note">Accounts are created by your course administrator. Contact your instructor if you need access or a password reset.</p>
     </div>
 
-    <!-- ── REGISTER PANEL ─────────────────────────────────── -->
-    <div class="panel" id="panel-reg" role="tabpanel">
+    <!-- ── REGISTER PANEL (removed — accounts are admin-provisioned only) ─────────────────────────────────── -->
+    <div class="panel" id="panel-reg" role="tabpanel" style="display:none">
       <div id="reg-err" class="err">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <span id="reg-err-msg">Please check your details and try again.</span>
@@ -320,8 +315,16 @@ window.signIn = async function() {
   }
 };
 
-// ── REGISTER ──────────────────────────────────────────────────
-window.register = async function() {
+// ── REGISTER (disabled — closed enrollment; accounts are admin-provisioned) ──
+window.register = function() {
+  const errEl = document.getElementById('reg-err');
+  if (errEl) {
+    document.getElementById('reg-err-msg').textContent =
+      'Self-registration is disabled. Your instructor creates your account — please contact them.';
+    errEl.style.display = 'flex';
+  }
+};
+window.__register_legacy = async function() {
   const fname   = document.getElementById('reg-fn').value.trim();
   const lname   = document.getElementById('reg-ln').value.trim();
   const email   = document.getElementById('reg-em').value.trim().toLowerCase();
