@@ -143,6 +143,25 @@
     <div id="cohort-snap-result" class="text-xs text-slate-500 mt-2"></div>
   </section>
 
+  <!-- PENDING REGISTRATIONS -->
+  <section class="card p-5 mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+      <h2 class="font-bold text-lg">Pending Registrations <span id="pend-count" class="text-sm font-normal text-slate-500"></span></h2>
+      <button class="btn btn-ghost no-print" onclick="copyPendingEmails()">📋 Copy emails</button>
+    </div>
+    <p class="text-xs text-slate-500 mb-3">Invited (via Bulk Enrollment) but haven't created an account yet.</p>
+    <div style="overflow-x:auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-xs uppercase text-slate-500 border-b border-slate-200">
+          <th class="py-2 pr-3">Name</th><th class="py-2 px-3">Email</th><th class="py-2 px-3">Role</th><th class="py-2 px-3">Cohort</th>
+        </tr></thead>
+        <tbody id="pending-body"></tbody>
+      </table>
+    </div>
+    <div id="pending-empty" class="text-sm text-slate-400 italic py-4 hidden">Everyone invited has registered. 🎉</div>
+    <div id="pending-copy-result" class="text-xs text-slate-500 mt-2"></div>
+  </section>
+
   <!-- BULK ACTIONS -->
   <section class="card p-4 mb-6 no-print">
     <div class="flex flex-wrap gap-2">
@@ -680,7 +699,30 @@ window.saveStatsSnapshot = async function(){
   } catch(e) { r.textContent = '❌ ' + e.message; }
 };
 
-window.refreshAll = function(){renderStats();renderRoster();renderFB();renderSessions();renderCohortStats();};
+function renderPending(){
+  const pend = fbAllowlist.filter(a => !a.registered);
+  const tbody = document.getElementById('pending-body');
+  const empty = document.getElementById('pending-empty');
+  document.getElementById('pend-count').textContent = pend.length ? '· ' + pend.length : '';
+  if (!pend.length) { tbody.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  pend.sort((a,b)=>(a.cohort||'').localeCompare(b.cohort||'') || (a.name||a.email).localeCompare(b.name||b.email));
+  tbody.innerHTML = pend.map(a=>`<tr class="border-b border-slate-100">
+    <td class="py-2 pr-3">${a.name||'—'}</td>
+    <td class="py-2 px-3 text-slate-500">${a.email||a.id||'—'}</td>
+    <td class="py-2 px-3">${(a.role||'student').replace('_',' ')}</td>
+    <td class="py-2 px-3">${a.cohort||'—'}</td></tr>`).join('');
+}
+window.copyPendingEmails = function(){
+  const emails = fbAllowlist.filter(a=>!a.registered).map(a=>a.email||a.id).filter(Boolean);
+  const r = document.getElementById('pending-copy-result');
+  if(!emails.length){ r.textContent='No pending emails.'; return; }
+  navigator.clipboard.writeText(emails.join(', ')).then(
+    ()=>{ r.textContent='✅ Copied '+emails.length+' email(s).'; },
+    ()=>{ r.textContent=emails.join(', '); });
+};
+
+window.refreshAll = function(){renderStats();renderRoster();renderFB();renderSessions();renderCohortStats();renderPending();};
 window.refreshAll();
 setInterval(window.refreshAll, 8000);
 </script>
