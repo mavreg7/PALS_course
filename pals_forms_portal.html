@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="firebase-config.js"></script>
+<script type="module" src="firebase-sync.js"></script>
 <style>
   :root{--primary:#0891B2;--secondary:#34D399;--accent:#1E293B;--success:#22C55E;--warning:#F59E0B;--danger:#EF4444}
   *{font-family:'Manrope',system-ui,sans-serif}
@@ -330,6 +332,28 @@ function toast(msg,color='#22C55E'){
 function getStore(key){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}}
 function setStore(key,arr){localStorage.setItem(key,JSON.stringify(arr))}
 
+/* ===== Student session (read-only reuse of hub_student's session) ===== */
+function getStudentSession(){
+  try{const s=JSON.parse(sessionStorage.getItem('pals_sess_v2')||'null');return (s&&s.role==='student')?s:null}catch(e){return null}
+}
+const STUDENT_SESS = getStudentSession();
+async function fbReady(timeoutMs){
+  try{ return await Promise.race([window.FB_READY||Promise.resolve(window.FB), new Promise(r=>setTimeout(()=>r(window.FB),timeoutMs||3000))]); }
+  catch(e){ return window.FB; }
+}
+async function studentExamState(){
+  if(!STUDENT_SESS) return null;
+  const fb=await fbReady();
+  if(!fb||!fb.loadAndSync) return null;
+  try{ return await fb.loadAndSync(); }catch(e){ return null; }
+}
+if(STUDENT_SESS){
+  const lock=(id,val)=>{const el=document.getElementById(id);if(el){el.value=val;el.readOnly=true;el.style.background='#f1f5f9'}};
+  lock('pre_name',STUDENT_SESS.name);lock('pre_email',STUDENT_SESS.email||'');
+  lock('ex_name',STUDENT_SESS.name);lock('ex_email',STUDENT_SESS.email||'');
+  lock('ct_name',STUDENT_SESS.name);
+}
+
 function exportData(key,fmt){
   const data=getStore(key);
   if(!data.length){toast('No data to export','#F59E0B');return}
@@ -423,7 +447,7 @@ function renderPreTest(){
     </div>`).join('');
 }
 renderPreTest();
-function gradePreTest(){
+async function gradePreTest(){
   let correct=0;
   PRETEST_QS.forEach((q,i)=>{
     const sel=document.querySelector('input[name="pre_q'+i+'"]:checked');
@@ -434,7 +458,12 @@ function gradePreTest(){
   const pct=Math.round(correct/PRETEST_QS.length*100);
   const entry={timestamp:new Date().toISOString(),name:document.getElementById('pre_name').value,email:document.getElementById('pre_email').value,date:document.getElementById('pre_date').value,score:correct,total:PRETEST_QS.length,percent:pct};
   const arr=getStore('pals2025_pretest');arr.push(entry);setStore('pals2025_pretest',arr);
-  document.getElementById('pretest_result').innerHTML=`<div class="card p-4 ${pct>=70?'border-green-300 bg-green-50':'border-amber-300 bg-amber-50'}"><div class="text-xl font-bold">Pre-Test Score: ${correct}/${PRETEST_QS.length} (${pct}%)</div><div class="text-sm mt-1">${pct>=70?'Strong baseline. Saved.':'Review focus areas before day 1. Saved.'}</div></div>`;
+  let savedNote='Saved locally.';
+  if(STUDENT_SESS){
+    const fb=await fbReady();
+    if(fb&&fb.saveExamScore){ await fb.saveExamScore('pretest',correct,PRETEST_QS.length); savedNote='Saved to your course record — visible to your instructor.'; }
+  }
+  document.getElementById('pretest_result').innerHTML=`<div class="card p-4 ${pct>=70?'border-green-300 bg-green-50':'border-amber-300 bg-amber-50'}"><div class="text-xl font-bold">Pre-Test Score: ${correct}/${PRETEST_QS.length} (${pct}%)</div><div class="text-sm mt-1">Diagnostic only — not a pass/fail gate. Use it to focus your pre-course reading. ${savedNote}</div></div>`;
   toast('Pre-test graded · '+pct+'%');
 }
 
@@ -537,7 +566,17 @@ function renderExam(){
     </div>`).join('');
 }
 renderExam();
-function gradeExam(){
+async function gradeExam(){
+  if(STUDENT_SESS){
+    const state=await studentExamState();
+    const prog=(state&&state.progress)||{};
+    const doneCount=Object.values(prog).filter(Boolean).length;
+    if(doneCount<9){
+      toast('Complete all 9 modules before the final exam','#EF4444');
+      document.getElementById('exam_result').innerHTML=`<div class="card p-4 border-red-300 bg-red-50"><div class="font-bold">🔒 Final exam locked</div><div class="text-sm mt-1">You have completed ${doneCount}/9 modules. Finish the course modules in the Student Portal first.</div></div>`;
+      return;
+    }
+  }
   let correct=0;
   EXAM_QS.forEach((q,i)=>{
     const sel=document.querySelector('input[name="ex_q'+i+'"]:checked');
@@ -549,7 +588,12 @@ function gradeExam(){
   const pass = pct>=84;
   const e={timestamp:new Date().toISOString(),name:document.getElementById('ex_name').value,email:document.getElementById('ex_email').value,date:document.getElementById('ex_date').value,score:correct,total:EXAM_QS.length,percent:pct,result:pass?'Pass':'Fail'};
   const arr=getStore('pals2025_final_exam');arr.push(e);setStore('pals2025_final_exam',arr);
-  document.getElementById('exam_result').innerHTML=`<div class="card p-4" style="border-color:${pass?'#22C55E':'#EF4444'};background:${pass?'rgba(34,197,94,.08)':'rgba(239,68,68,.08)'}"><div class="text-xl font-bold">${pass?'✅ PASS':'❌ Below Passing'} — ${correct}/${EXAM_QS.length} (${pct}%)</div><div class="text-sm mt-1">${pass?'Meets AHA 2025 PALS provider course passing standard (≥84%).':'Remediation required. Review missed items with instructor.'}</div></div>`;
+  let savedNote='Saved locally.';
+  if(STUDENT_SESS){
+    const fb=await fbReady();
+    if(fb&&fb.saveExamScore){ await fb.saveExamScore('final',correct,EXAM_QS.length); savedNote='Saved to your course record.'; }
+  }
+  document.getElementById('exam_result').innerHTML=`<div class="card p-4" style="border-color:${pass?'#22C55E':'#EF4444'};background:${pass?'rgba(34,197,94,.08)':'rgba(239,68,68,.08)'}"><div class="text-xl font-bold">${pass?'✅ PASS':'❌ Below Passing'} — ${correct}/${EXAM_QS.length} (${pct}%)</div><div class="text-sm mt-1">${pass?'Meets AHA 2025 PALS provider course passing standard (≥84%).':'Remediation required. Review missed items with instructor.'} ${savedNote}</div></div>`;
   toast('Exam graded · '+pct+'%');
 }
 
@@ -586,10 +630,17 @@ function renderCert(){
   document.getElementById('cv_instructor').textContent=(document.getElementById('ct_instructor').value||'Instructor');
   document.getElementById('cv_site').textContent=(document.getElementById('ct_site').value||'Training Site');
 }
-function saveCert(){
+async function saveCert(){
   const name=document.getElementById('ct_name').value.trim();if(!name){toast('Name required','#EF4444');return}
+  if(STUDENT_SESS){
+    const state=await studentExamState();
+    const pct=state&&state.finalExam&&state.finalExam.pct;
+    if(!(pct>=84)){ toast('You must pass the final exam (≥84%) before your certificate is issued','#EF4444'); return; }
+  }
   const e={timestamp:new Date().toISOString(),name,date:document.getElementById('ct_date').value,instructor:document.getElementById('ct_instructor').value,site:document.getElementById('ct_site').value,expiry:document.getElementById('ct_expiry').value,cardid:document.getElementById('ct_cardid').value};
-  const arr=getStore('pals2025_certificates');arr.push(e);setStore('pals2025_certificates',arr);toast('Certificate saved');
+  const arr=getStore('pals2025_certificates');arr.push(e);setStore('pals2025_certificates',arr);
+  if(STUDENT_SESS){ const fb=await fbReady(); if(fb&&fb.saveCertificate) await fb.saveCertificate(true); }
+  toast('Certificate saved');
 }
 renderCert();
 </script>

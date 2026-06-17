@@ -195,24 +195,33 @@ function applyRemoteData(data) {
   if (data.flags && Object.keys(data.flags).length) {
     try { sessionStorage.setItem('pals_flags', JSON.stringify(data.flags)); } catch(e) {}
   }
+  try { sessionStorage.setItem('pals_pretest', JSON.stringify(data.preTest || null)); } catch(e) {}
+  try { sessionStorage.setItem('pals_finalexam', JSON.stringify(data.finalExam || null)); } catch(e) {}
+  try { sessionStorage.setItem('pals_certificate', JSON.stringify(data.certificate || null)); } catch(e) {}
 }
+function getExamData(key){try{return JSON.parse(sessionStorage.getItem(key)||'null')}catch(e){return null}}
 
 const MODULES = window.PALS_MODULES.filter(m => !m.staffOnly);  // megacodes are instructor-run
 
 function render(){
   const f=getFlags();
   const prog=getProgress();
+  const preTest=getExamData('pals_pretest');
+  const finalExam=getExamData('pals_finalexam');
   const allOpen=f.unlockedModules&&f.unlockedModules.length>=11;
-  function gate(id,chipId,open){
+  function gate(id,chipId,open,label){
     const el=document.getElementById(id);
     const chip=document.getElementById(chipId);
-    if(open){el.classList.remove('locked');chip.textContent='✅ Open now';chip.className='lock-chip open-state';}
-    else{el.classList.add('locked');chip.textContent='🔒 Not yet available';chip.className='lock-chip locked-state';}
+    if(open){el.classList.remove('locked');chip.textContent=label||'✅ Open now';chip.className='lock-chip open-state';}
+    else{el.classList.add('locked');chip.textContent=label||'🔒 Not yet available';chip.className='lock-chip locked-state';}
   }
-  gate('ql-pretest','chip-pretest',!!f.pretestUnlocked);
-  gate('ql-exam','chip-exam',!!f.testsUnlocked);
-  gate('ql-cert','chip-cert',!!f.certUnlocked);
   const completed=MODULES.filter((_,i)=>prog[i]).length;
+  const allModulesDone=completed===MODULES.length;
+  const examPassed=!!(finalExam&&finalExam.pct>=84);
+  // Pre-test is a pre-course self-study requirement — always open, never gated.
+  gate('ql-pretest','chip-pretest',true,preTest?`✅ Completed · ${preTest.pct}%`:'📝 Complete before Module 1');
+  gate('ql-exam','chip-exam',allModulesDone,allModulesDone?'✅ Open now':'🔒 Finish all 9 modules first');
+  gate('ql-cert','chip-cert',examPassed,examPassed?'✅ Open now':'🔒 Pass the final exam first');
   const pct=Math.round(completed/MODULES.length*100);
   document.getElementById('prog-pct').textContent=pct+'%';
   document.getElementById('prog-fill').style.width=pct+'%';

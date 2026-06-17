@@ -143,7 +143,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
       <div class="form-row">
         <div class="form-group">
           <label for="cs-cohort">Cohort / Group</label>
-          <input type="text" id="cs-cohort" placeholder="June 2026" autocomplete="off">
+          <input type="text" id="cs-cohort" list="cohort-options" placeholder="June 2026" autocomplete="off">
         </div>
         <div class="form-group">
           <label for="cs-role">Role</label>
@@ -159,6 +159,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     </div>
   </div>
 </div>
+<datalist id="cohort-options"></datalist>
 
 <main class="main">
   <div class="welcome">
@@ -662,10 +663,18 @@ async function loadRoster() {
 
     updateStats();
     renderRoster(allStudents);
+    populateCohortOptions();
   } catch(e) {
     document.querySelector('#roster-tbody').innerHTML =
       '<tr><td colspan="7" class="roster-empty">Error loading roster: ' + e.message + '</td></tr>';
   }
+}
+
+function populateCohortOptions() {
+  const dl = document.getElementById('cohort-options');
+  if (!dl) return;
+  const cohorts = [...new Set(Object.values(allUsers).map(u => (u.cohort || '').trim()).filter(Boolean))].sort();
+  dl.innerHTML = cohorts.map(c => `<option value="${c}"></option>`).join('');
 }
 
 function modCount(progress) {

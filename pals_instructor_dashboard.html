@@ -238,8 +238,9 @@
       </div>
       <div class="fg">
         <label for="edit-cohort">Cohort / Group</label>
-        <input type="text" id="edit-cohort" placeholder="e.g. June 2026" autocomplete="off">
+        <input type="text" id="edit-cohort" list="cohort-options" placeholder="e.g. June 2026" autocomplete="off">
       </div>
+      <datalist id="cohort-options"></datalist>
       <div class="fg">
         <label for="edit-role">Role</label>
         <select id="edit-role">
@@ -641,6 +642,17 @@ async function loadCohortData(){
       fbStudentProgress[d.id] = Object.values(p).filter(Boolean).length;
     });
   } catch(e) { fbStudentProgress = {}; }
+  populateCohortOptions();
+}
+
+function populateCohortOptions(){
+  const dl = document.getElementById('cohort-options');
+  if (!dl) return;
+  const cohorts = [...new Set([
+    ...fbAllowlist.map(a => (a.cohort||'').trim()),
+    ...fbUsers.map(u => (u.cohort||'').trim())
+  ].filter(Boolean))].sort();
+  dl.innerHTML = cohorts.map(c => `<option value="${c}"></option>`).join('');
 }
 
 function computeCohortStats(){

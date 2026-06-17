@@ -95,7 +95,7 @@ async function fbLoadAndSync() {
   try {
     const data = await fbLoadMyData();
     if (!data) return {};
-    return { progress: data.progress || {}, flags: data.flags || {} };
+    return { progress: data.progress || {}, flags: data.flags || {}, preTest: data.preTest || null, finalExam: data.finalExam || null, certificate: data.certificate || null };
   } catch(e) { console.warn('[PALS FB] loadAndSync:', e.message); return {}; }
 }
 
