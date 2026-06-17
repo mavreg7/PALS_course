@@ -55,10 +55,25 @@
 /*resp760*/
 @media(max-width:760px){
   .figrow{flex-direction:column}
-  .figrow>div,.figrow>.fig{flex:1 1 auto !important;width:100%;max-width:100%}
-  .figrow .fig,.fig{height:auto !important;max-height:44vh !important}
+  .figrow>div,.figrow>.fig{flex:1 1 auto !important;width:100% !important;max-width:100%}
+  .figrow .fig,.fig{height:auto !important;max-height:38vh !important}
   .grid2,.grid3,.grid4{grid-template-columns:1fr}
   .eqn{flex-direction:column}
+  .slide{padding:10vw 5vw 14vw !important;overflow-y:auto}
+  h1{font-size:clamp(28px,7vw,48px) !important}
+  h2{font-size:clamp(20px,5.5vw,34px) !important}
+  h3.ey{font-size:clamp(13px,3.5vw,18px) !important}
+  p,li,td,th{font-size:clamp(14px,3.8vw,18px) !important}
+  .nav-btn{padding:14px 22px !important;font-size:18px !important;min-width:52px;min-height:52px}
+  .dot{width:9px;height:9px}
+  .counter{font-size:12px;padding:5px 10px;top:12px;right:10px}
+  .home{font-size:12px;padding:5px 10px;top:12px;left:10px}
+  .langtog{top:10px}
+  .langtog button{padding:6px 14px;font-size:13px}
+  table{font-size:clamp(12px,3.2vw,15px) !important}
+  th,td{padding:6px 8px !important}
+  .card{padding:12px 14px}
+  #lb img{max-width:98vw;max-height:88vh}
 }
 /*figlb*/
 .fig{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 10px 30px -14px rgba(15,29,46,.22);display:flex;align-items:center;justify-content:center}
@@ -203,7 +218,118 @@
     <div class="en"><p class="src">Click an image to enlarge.</p></div>
   </section>
 
-  <!-- 7 SUMMARY -->
+
+  <!-- 7 TTM AND FEVER CONTROL -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">ניהול חום — TTM</h3><h2>קדחת לאחר ROSC מזיקה למח</h2>
+      <div class="figrow mt-3" style="gap:16px;align-items:stretch">
+        <div class="card" style="flex:1;border-top:4px solid var(--cyan)">
+          <strong style="color:var(--cyan-d)">מניעת קדחת (המלצה עיקרית)</strong>
+          <ul class="mt-2">
+            <li>שמור טמפרטורה מרכזית <strong>36–37.5°C</strong> לפחות 72 שעות.</li>
+            <li>טמפרטורה &gt;38°C לאחר ROSC — נזק נוירולוגי מוגבר בצורה עצמאית.</li>
+            <li>אנטיפירטיקה + קירור פיזי אם נדרש.</li>
+          </ul>
+        </div>
+        <div class="card" style="flex:1;border-top:4px solid var(--amber)">
+          <strong style="color:var(--amber)">TTM (Targeted Temperature Management)</strong>
+          <ul class="mt-2">
+            <li>שקול 32–34°C בילדים שנותרים קומטוזים לאחר ROSC — עדיין נחקר.</li>
+            <li><span class="tag chg">עדכון 2025</span> — AHA: מניעת קדחת נחשבת לסטנדרט; TTM מוגדרת 32–34°C רק בבחירת מקרים.</li>
+            <li>הימנע מהיפותרמיה (&lt;32°C) — מגביר סיכון לאריתמיה.</li>
+          </ul>
+        </div>
+        <div class="card" style="flex:1;border-top:4px solid var(--green)">
+          <strong style="color:var(--green)">ניטור ויישום</strong>
+          <ul class="mt-2">
+            <li>טמפרטורה מרכזית (רקטלית / שלפוחית) — לא היקפית.</li>
+            <li>EEG רציף בחשד לפרכוסים תת-קליניים.</li>
+            <li>גלוקוז: הימנע מהיפוגליקמיה (<strong>&lt;60</strong>) ומהיפרגליקמיה (&gt;180).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="en"><h3 class="ey">Temperature management — TTM</h3><h2>Post-ROSC fever damages the brain</h2>
+      <div class="figrow mt-3" style="gap:16px;align-items:stretch">
+        <div class="card" style="flex:1;border-top:4px solid var(--cyan)">
+          <strong style="color:var(--cyan-d)">Fever prevention (primary recommendation)</strong>
+          <ul class="mt-2">
+            <li>Maintain core temp <strong>36–37.5°C</strong> for at least 72 hours.</li>
+            <li>Temp &gt;38°C after ROSC independently worsens neurological outcome.</li>
+            <li>Antipyretics + physical cooling as needed.</li>
+          </ul>
+        </div>
+        <div class="card" style="flex:1;border-top:4px solid var(--amber)">
+          <strong style="color:var(--amber)">TTM (Targeted Temperature Management)</strong>
+          <ul class="mt-2">
+            <li>Consider 32–34°C in children remaining comatose after ROSC — still under study.</li>
+            <li><span class="tag chg">2025 update</span> — AHA: fever prevention is the standard; TTM 32–34°C reserved for select cases.</li>
+            <li>Avoid hypothermia (&lt;32°C) — increases arrhythmia risk.</li>
+          </ul>
+        </div>
+        <div class="card" style="flex:1;border-top:4px solid var(--green)">
+          <strong style="color:var(--green)">Monitoring &amp; implementation</strong>
+          <ul class="mt-2">
+            <li>Core temperature (rectal/bladder) — not peripheral.</li>
+            <li>Continuous EEG if subclinical seizures suspected.</li>
+            <li>Glucose: avoid hypoglycemia (<strong>&lt;60</strong>) and hyperglycemia (&gt;180).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 PROGNOSTICATION AND HANDOFF -->
+  <section class="slide">
+    <div class="he"><h3 class="ey">ניבוי תוצאה ומסירה</h3><h2>מה לאסוף בשעות הראשונות</h2>
+      <div class="grid2 mt-3" style="gap:14px">
+        <div class="card">
+          <strong style="color:var(--cyan-d)">גורמים פרוגנוסטיים מוקדמים</strong>
+          <ul class="mt-2">
+            <li><strong>זמן ללא זרימה</strong> (no-flow) — מהדום ועד תחילת CPR; הגורם המשמעותי ביותר.</li>
+            <li><strong>קצב ראשוני</strong> — VF/pVT פרוגנוזה טובה יותר מ-PEA/אסיסטולה.</li>
+            <li><strong>ROSC מהיר</strong> — כל דקה חשובה.</li>
+            <li>גורמי שחרור: EEG, CT, בדיקה נוירולוגית לאחר 72 שעות.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <strong style="color:var(--cyan-d)">מסירה מסודרת — SBAR</strong>
+          <ul class="mt-2">
+            <li><strong>S</strong>ituation — גיל, מנגנון, זמן דום לב, קצב ראשוני.</li>
+            <li><strong>B</strong>ackground — רקע רפואי, תרופות, סיבה אפשרית.</li>
+            <li><strong>A</strong>ssessment — מצב עכשווי: המודינמיקה, אוורור, נוירו.</li>
+            <li><strong>R</strong>ecommendation — TTM? EEG? הדמיה? התייעצות?</li>
+          </ul>
+        </div>
+      </div>
+      <p class="src mt-3">הסיבה לדום הלב חשובה: טראומה, נוקשות, הרעלה, מחלת לב מולדת — כל אחת משנה את הגישה.</p>
+    </div>
+    <div class="en"><h3 class="ey">Prognostication &amp; handoff</h3><h2>What to gather in the first hours</h2>
+      <div class="grid2 mt-3" style="gap:14px">
+        <div class="card">
+          <strong style="color:var(--cyan-d)">Early prognostic factors</strong>
+          <ul class="mt-2">
+            <li><strong>No-flow time</strong> — from arrest to CPR start; single most important factor.</li>
+            <li><strong>Initial rhythm</strong> — VF/pVT has better outcome than PEA/asystole.</li>
+            <li><strong>Rapid ROSC</strong> — every minute counts.</li>
+            <li>Discharge factors: EEG, CT, neuro exam after 72 hours.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <strong style="color:var(--cyan-d)">Structured handoff — SBAR</strong>
+          <ul class="mt-2">
+            <li><strong>S</strong>ituation — age, mechanism, arrest duration, initial rhythm.</li>
+            <li><strong>B</strong>ackground — medical history, medications, likely cause.</li>
+            <li><strong>A</strong>ssessment — current status: hemodynamics, ventilation, neuro.</li>
+            <li><strong>R</strong>ecommendation — TTM? EEG? Imaging? Consultation?</li>
+          </ul>
+        </div>
+      </div>
+      <p class="src mt-3">The cause of arrest matters: trauma, drowning, poisoning, congenital heart disease — each changes the approach.</p>
+    </div>
+  </section>
+
+  <!-- 9 SUMMARY -->
   <section class="slide">
     <div class="he"><h3 class="ey">סיכום</h3><h2>נקודות מפתח</h2>
       <ul class="mt-3">
