@@ -817,6 +817,10 @@ function openEditModal(uid) {
     </label>`;
   }).join('');
 
+  // Populate exam unlock checkbox
+  const examCb = document.getElementById('edit-exam-unlock');
+  if (examCb) { examCb.checked = !!(s.examUnlocked); examCb.dataset.uid = uid; }
+
   document.getElementById('edit-overlay').classList.add('open');
 }
 
@@ -850,6 +854,13 @@ async function saveEdit() {
 
     // Update students/{uid}.progress
     await fsSetDoc(fsDoc(db, 'students', editUid), { progress, updatedAt: Date.now() }, { merge: true });
+    // Save exam unlock flag
+    const examCb = document.getElementById('edit-exam-unlock');
+    if (examCb) {
+      await setDoc(doc(db, 'students', editUid), { examUnlocked: examCb.checked, examUnlockedAt: Date.now() }, { merge: true });
+      const s2 = allStudents.find(x => x.uid === editUid);
+      if (s2) s2.examUnlocked = examCb.checked;
+    }
     // Update users/{uid}.notes
     await fsSetDoc(fsDoc(db, 'users', editUid), { notes }, { merge: true });
 
@@ -904,32 +915,33 @@ document.getElementById('edit-overlay').addEventListener('click', e => {
 setTimeout(loadRoster, 800);
 
 
-// ── EXAM ACCESS CONTROL ────────────────────────────────────────────────────
 
-// Watch global exam flag in real-time
-(async () => {
-  const fb = await (window.FB_READY || Promise.resolve(window.FB));
-  if (!fb || !fb.watchCourseFlags) return;
-  fb.watchCourseFlags(flags => {
+// ── EXAM ACCESS CONTROL (uses local db directly) ──────────────────────────
+
+// Watch global exam flag in real-time using local db
+function startExamFlagWatcher() {
+  if (typeof db === 'undefined') {
+    setTimeout(startExamFlagWatcher, 300);
+    return;
+  }
+  onSnapshot(doc(db, 'courseFlags', 'current'), snap => {
+    const flags = snap.exists() ? snap.data() : {};
     const unlocked = !!flags.examUnlocked;
+    window._globalExamUnlocked = unlocked;
     const el = document.getElementById('exam-global-status');
     if (el) {
       el.textContent = unlocked ? '✅ Unlocked for all students' : '🔒 Locked — students cannot access exam';
       el.style.color = unlocked ? '#15803d' : '#dc2626';
     }
-    // Store for quick reference
-    window._globalExamUnlocked = unlocked;
-    // Refresh roster to update per-student badges
-    if (typeof loadRoster === 'function') loadRoster();
   });
-})();
+}
+document.addEventListener('DOMContentLoaded', startExamFlagWatcher);
 
 async function setGlobalExam(unlock) {
   const r = document.getElementById('exam-ctrl-result');
   r.style.color = 'var(--muted)'; r.textContent = unlock ? 'Unlocking…' : 'Locking…';
   try {
-    const fb = await (window.FB_READY || Promise.resolve(window.FB));
-    await fb.setCourseFlag('examUnlocked', unlock);
+    await setDoc(doc(db, 'courseFlags', 'current'), { examUnlocked: unlock }, { merge: true });
     r.style.color = unlock ? '#15803d' : '#dc2626';
     r.textContent = unlock ? '✅ Exam unlocked for all students.' : '🔒 Exam locked for all students.';
     setTimeout(() => { r.textContent = ''; }, 4000);
@@ -939,39 +951,10 @@ async function setGlobalExam(unlock) {
 }
 
 async function quickToggleExam(uid, currentlyUnlocked) {
-  const newState = !currentlyUnlocked;
   try {
-    const fb = await (window.FB_READY || Promise.resolve(window.FB));
-    await fb.setStudentExamUnlock(uid, newState);
+    await setDoc(doc(db, 'students', uid), { examUnlocked: !currentlyUnlocked, examUnlockedAt: Date.now() }, { merge: true });
     await loadRoster();
-  } catch(e) { alert('Error: ' + e.message); }
-}
-
-// ── Patch openEditModal to populate exam toggle ───────────────────────────────
-const _origOpenEditModal = typeof openEditModal === 'function' ? openEditModal : null;
-function openEditModal(uid) {
-  if (_origOpenEditModal) _origOpenEditModal(uid);
-  // Populate exam unlock checkbox
-  const s = allStudents.find(x => x.uid === uid);
-  const cb = document.getElementById('edit-exam-unlock');
-  if (cb && s) {
-    cb.checked = !!(s.examUnlocked);
-    cb.dataset.uid = uid;
-  }
-}
-
-// ── Patch saveEdit to also save exam unlock ───────────────────────────────────
-const _origSaveEdit = typeof saveEdit === 'function' ? saveEdit : null;
-async function saveEdit() {
-  if (_origSaveEdit) await _origSaveEdit();
-  const cb = document.getElementById('edit-exam-unlock');
-  if (!cb) return;
-  const uid = cb.dataset.uid || document.getElementById('edit-uid').value;
-  if (!uid) return;
-  try {
-    const fb = await (window.FB_READY || Promise.resolve(window.FB));
-    await fb.setStudentExamUnlock(uid, cb.checked);
-  } catch(e) { console.warn('exam unlock save:', e.message); }
+  } catch(e) { alert('Error toggling exam: ' + e.message); }
 }
 
 </script>
