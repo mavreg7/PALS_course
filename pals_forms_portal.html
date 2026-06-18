@@ -220,6 +220,10 @@
 
     <!-- 6. FINAL EXAM -->
     <div class="panel" data-panel="exam">
+      <div id="exam-lock-banner" style="display:none;background:#FEF9C3;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#92400E;font-size:15px;">
+        🔒 You must complete all 9 course modules before accessing the Final Exam.
+        <br><small style="font-weight:400">Return to the <a href="hub_student.html" style="color:#0891B2">student hub</a> to continue your modules.</small>
+      </div>
       <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-bold">Final Written Exam</h2>
@@ -305,16 +309,28 @@
 </div>
 
 <script>
-const TABS = [
-  {id:'prereg',label:'1. Pre-Registration'},
-  {id:'pretest',label:'2. Pre-Test'},
+const INSTRUCTOR_ROLES = ['admin','lead_instructor','instructor'];
+const _sess = (()=>{try{return JSON.parse(sessionStorage.getItem('pals_sess_v2')||'null');}catch(e){return null;}})();
+
+// ── Auth gate ────────────────────────────────────────────────────────────────
+if(!_sess){location.replace('index.html');}
+
+const IS_INSTRUCTOR = _sess && INSTRUCTOR_ROLES.includes(_sess.role);
+const IS_STUDENT    = _sess && _sess.role === 'student';
+
+// ── Tab visibility by role ───────────────────────────────────────────────────
+const ALL_TABS = [
+  {id:'prereg',    label:'1. Pre-Registration'},
+  {id:'pretest',   label:'2. Pre-Test'},
   {id:'attendance',label:'3. Attendance'},
-  {id:'bls',label:'4. BLS Skills'},
-  {id:'megacode',label:'5. Megacode'},
-  {id:'exam',label:'6. Final Exam'},
-  {id:'feedback',label:'7. Feedback'},
-  {id:'cert',label:'8. Certificate'},
+  {id:'bls',       label:'4. BLS Skills'},
+  {id:'megacode',  label:'5. Megacode'},
+  {id:'exam',      label:'6. Final Exam'},
+  {id:'feedback',  label:'7. Feedback'},
+  {id:'cert',      label:'8. Certificate'},
 ];
+const TABS = IS_INSTRUCTOR ? ALL_TABS : [{id:'exam', label:'Final Exam'}];
+
 const tabsEl = document.getElementById('tabs');
 tabsEl.innerHTML = TABS.map(t=>`<div class="tab" data-tab="${t.id}" onclick="switchTab('${t.id}')">${t.label}</div>`).join('');
 function switchTab(id){
@@ -322,7 +338,41 @@ function switchTab(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===id));
   history.replaceState(null,'','#'+id);
 }
-const initial = location.hash.replace('#','') || 'prereg';
+// ── Route to correct initial tab ────────────────────────────────────────────
+const initial = IS_INSTRUCTOR
+  ? (location.hash.replace('#','') || 'prereg')
+  : 'exam';
+
+// ── Student exam gate: disable inputs until all 9 modules complete ───────────
+if(IS_STUDENT){
+  (async()=>{
+    try{
+      const fb = await Promise.race([
+        window.FB_READY||Promise.resolve(window.FB),
+        new Promise(r=>setTimeout(()=>r(window.FB),4000))
+      ]);
+      let allDone = false;
+      if(fb && fb.loadAndSync){
+        const data = await fb.loadAndSync();
+        const prog = (data && data.progress) || {};
+        const completed = Object.keys(prog).filter(k=>prog[k]).length;
+        allDone = completed >= 9;
+      }
+      if(!allDone){
+        const banner = document.getElementById('exam-lock-banner');
+        if(banner) banner.style.display='block';
+        const examPanel = document.querySelector('[data-panel="exam"]');
+        if(examPanel){
+          examPanel.querySelectorAll('select,button,input,textarea').forEach(el=>{
+            el.disabled=true;
+            el.style.opacity='0.4';
+          });
+        }
+      }
+    }catch(e){}
+  })();
+}
+
 switchTab(initial);
 
 function toast(msg,color='#22C55E'){
