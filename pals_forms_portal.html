@@ -221,8 +221,8 @@
     <!-- 6. FINAL EXAM -->
     <div class="panel" data-panel="exam">
       <div id="exam-lock-banner" style="display:none;background:#FEF9C3;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#92400E;font-size:15px;">
-        🔒 You must complete all 9 course modules before accessing the Final Exam.
-        <br><small style="font-weight:400">Return to the <a href="hub_student.html" style="color:#0891B2">student hub</a> to continue your modules.</small>
+        🔒 The Final Exam has not been unlocked yet.
+        <br><small style="font-weight:400">Your instructor will unlock the exam when the class is ready. Return to the <a href="hub_student.html" style="color:#0891B2">student hub</a> to continue studying.</small>
       </div>
       <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
@@ -355,26 +355,45 @@ if(IS_STUDENT){
         window.FB_READY||Promise.resolve(window.FB),
         new Promise(r=>setTimeout(()=>r(window.FB),4000))
       ]);
-      let allDone = false;
-      if(fb && fb.loadAndSync){
-        const data = await fb.loadAndSync();
-        const prog = (data && data.progress) || {};
-        const completed = Object.keys(prog).filter(k=>prog[k]).length;
-        allDone = completed >= 9;
-      }
-      if(!allDone){
-        const banner = document.getElementById('exam-lock-banner');
-        if(banner) banner.style.display='block';
-        const examPanel = document.querySelector('[data-panel="exam"]');
-        if(examPanel){
-          examPanel.querySelectorAll('select,button,input,textarea').forEach(el=>{
-            el.disabled=true;
-            el.style.opacity='0.4';
+      let examUnlocked = false;
+      if(fb){
+        // Check both: global courseFlag AND per-student override
+        const [myData, ] = await Promise.allSettled([
+          fb.loadAndSync ? fb.loadAndSync() : Promise.resolve(null),
+        ]);
+        const studentData = myData.status==='fulfilled' ? myData.value : null;
+        const perStudent  = !!(studentData && studentData.examUnlocked);
+
+        // Watch global flag (real-time)
+        if(fb.watchCourseFlags){
+          fb.watchCourseFlags(flags => {
+            const globalUnlocked = !!flags.examUnlocked;
+            const isUnlocked = globalUnlocked || perStudent;
+            applyExamGate(!isUnlocked);
           });
         }
+        examUnlocked = perStudent; // initial render before watcher fires
       }
-    }catch(e){}
+      applyExamGate(!examUnlocked);
+    }catch(e){ applyExamGate(true); }
   })();
+}
+
+function applyExamGate(locked){
+  const banner    = document.getElementById('exam-lock-banner');
+  const examPanel = document.querySelector('[data-panel="exam"]');
+  if(!examPanel) return;
+  if(locked){
+    if(banner) banner.style.display='block';
+    examPanel.querySelectorAll('select,button,input,textarea').forEach(el=>{
+      el.disabled=true; el.style.opacity='0.4';
+    });
+  } else {
+    if(banner) banner.style.display='none';
+    examPanel.querySelectorAll('select,button,input,textarea').forEach(el=>{
+      el.disabled=false; el.style.opacity='1';
+    });
+  }
 }
 
 switchTab(initial);
