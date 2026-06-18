@@ -1,8 +1,4 @@
 {
-  "rewrites": [
-    { "source": "/slides/(.*)", "destination": "/slides/$1" },
-    { "source": "/(.*)", "destination": "/$1" }
-  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -14,15 +10,14 @@
       ]
     },
     {
-      "source": "/(.*)\.html",
+      "source": "/*.html",
       "headers": [
         { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" },
-        { "key": "Pragma", "value": "no-cache" },
-        { "key": "Surrogate-Control", "value": "no-store" }
+        { "key": "Pragma", "value": "no-cache" }
       ]
     },
     {
-      "source": "/(.*)\.js",
+      "source": "/*.js",
       "headers": [
         { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" }
       ]
