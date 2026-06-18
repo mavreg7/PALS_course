@@ -199,6 +199,30 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     </div>
   </div>
 
+  <div class="section-title">Exam Access Control</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Global Exam Status</div>
+        <div id="exam-global-status" style="font-size:1rem;font-weight:700;color:var(--danger)">⏳ Checking…</div>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button onclick="setGlobalExam(true)"  id="btn-exam-unlock"
+          style="background:var(--success,#22c55e);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          🔓 Unlock Exam for ALL
+        </button>
+        <button onclick="setGlobalExam(false)" id="btn-exam-lock"
+          style="background:var(--danger,#ef4444);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          🔒 Lock Exam for ALL
+        </button>
+      </div>
+    </div>
+    <div style="font-size:.76rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.75rem">
+      <strong>Global unlock</strong> opens the exam for every student at once. Use <strong>per-student unlock</strong> (✏️ Edit → Exam Access) for individual exceptions.
+    </div>
+    <div id="exam-ctrl-result" style="margin-top:.5rem;font-size:.82rem"></div>
+  </div>
+
   <div class="section-title">Broadcast Announcement</div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
     <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end">
@@ -274,6 +298,13 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
           <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Module Completion</label>
           <div class="mod-toggles" id="mod-toggles"></div>
           <div style="font-size:.75rem;color:var(--muted);margin-top:.35rem">Toggle to manually mark modules complete or incomplete. Saves immediately to Firestore.</div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Exam Access</label>
+          <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer;font-size:.88rem;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:9px;width:fit-content">
+            <input type="checkbox" id="edit-exam-unlock" style="accent-color:#22c55e;width:16px;height:16px;cursor:pointer">
+            <span id="edit-exam-label">Allow this student to access the Final Exam</span>
+          </label>
         </div>
         <div style="margin-bottom:1rem">
           <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Instructor Notes</label>
@@ -723,7 +754,14 @@ function renderRoster(students) {
         </div>
       </td>
       <td style="font-size:.78rem;color:var(--muted)">${timeAgo(s.updatedAt)}</td>
-      <td><button class="btn-edit" onclick="openEditModal('${s.uid}')">✏️ Edit</button></td>
+      <td style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
+        <button class="btn-edit" onclick="openEditModal('${s.uid}')">✏️ Edit</button>
+        <button onclick="quickToggleExam('${s.uid}',${!!s.examUnlocked})"
+          title="${s.examUnlocked?'Click to lock exam':'Click to unlock exam'}"
+          style="padding:.28rem .65rem;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;border:1.5px solid ${s.examUnlocked?'#22c55e':'#ef4444'};background:${s.examUnlocked?'rgba(34,197,94,.1)':'rgba(239,68,68,.08)'};color:${s.examUnlocked?'#15803d':'#dc2626'}">
+          ${s.examUnlocked?'✅ Exam':'🔒 Exam'}
+        </button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -863,6 +901,77 @@ document.getElementById('edit-overlay').addEventListener('click', e => {
 
 // Auto-load roster on page init (after auth check passes)
 setTimeout(loadRoster, 800);
+
+
+// ── EXAM ACCESS CONTROL ────────────────────────────────────────────────────
+
+// Watch global exam flag in real-time
+(async () => {
+  const fb = await (window.FB_READY || Promise.resolve(window.FB));
+  if (!fb || !fb.watchCourseFlags) return;
+  fb.watchCourseFlags(flags => {
+    const unlocked = !!flags.examUnlocked;
+    const el = document.getElementById('exam-global-status');
+    if (el) {
+      el.textContent = unlocked ? '✅ Unlocked for all students' : '🔒 Locked — students cannot access exam';
+      el.style.color = unlocked ? '#15803d' : '#dc2626';
+    }
+    // Store for quick reference
+    window._globalExamUnlocked = unlocked;
+    // Refresh roster to update per-student badges
+    if (typeof loadRoster === 'function') loadRoster();
+  });
+})();
+
+async function setGlobalExam(unlock) {
+  const r = document.getElementById('exam-ctrl-result');
+  r.style.color = 'var(--muted)'; r.textContent = unlock ? 'Unlocking…' : 'Locking…';
+  try {
+    const fb = await (window.FB_READY || Promise.resolve(window.FB));
+    await fb.setCourseFlag('examUnlocked', unlock);
+    r.style.color = unlock ? '#15803d' : '#dc2626';
+    r.textContent = unlock ? '✅ Exam unlocked for all students.' : '🔒 Exam locked for all students.';
+    setTimeout(() => { r.textContent = ''; }, 4000);
+  } catch(e) {
+    r.style.color = '#dc2626'; r.textContent = '❌ Error: ' + e.message;
+  }
+}
+
+async function quickToggleExam(uid, currentlyUnlocked) {
+  const newState = !currentlyUnlocked;
+  try {
+    const fb = await (window.FB_READY || Promise.resolve(window.FB));
+    await fb.setStudentExamUnlock(uid, newState);
+    await loadRoster();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ── Patch openEditModal to populate exam toggle ───────────────────────────────
+const _origOpenEditModal = typeof openEditModal === 'function' ? openEditModal : null;
+function openEditModal(uid) {
+  if (_origOpenEditModal) _origOpenEditModal(uid);
+  // Populate exam unlock checkbox
+  const s = allStudents.find(x => x.uid === uid);
+  const cb = document.getElementById('edit-exam-unlock');
+  if (cb && s) {
+    cb.checked = !!(s.examUnlocked);
+    cb.dataset.uid = uid;
+  }
+}
+
+// ── Patch saveEdit to also save exam unlock ───────────────────────────────────
+const _origSaveEdit = typeof saveEdit === 'function' ? saveEdit : null;
+async function saveEdit() {
+  if (_origSaveEdit) await _origSaveEdit();
+  const cb = document.getElementById('edit-exam-unlock');
+  if (!cb) return;
+  const uid = cb.dataset.uid || document.getElementById('edit-uid').value;
+  if (!uid) return;
+  try {
+    const fb = await (window.FB_READY || Promise.resolve(window.FB));
+    await fb.setStudentExamUnlock(uid, cb.checked);
+  } catch(e) { console.warn('exam unlock save:', e.message); }
+}
 
 </script>
 </body>
