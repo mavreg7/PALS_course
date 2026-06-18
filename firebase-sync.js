@@ -210,6 +210,14 @@ function fbWatchAllStudents(callback) {
   });
 }
 
+// ── INSTRUCTOR: set per-student exam unlock ───────────────────
+async function fbSetStudentExamUnlock(uid, unlocked) {
+  try {
+    _ensureInit();
+    await setDoc(doc(_db,'students',uid), { examUnlocked: unlocked, examUnlockedAt: Date.now() }, { merge:true });
+  } catch(e) { console.warn('[PALS FB] setStudentExamUnlock:', e.message); }
+}
+
 // ── Expose on window.FB ───────────────────────────────────────
 window.FB = {
   saveProgress:          fbSaveProgress,
@@ -226,6 +234,7 @@ window.FB = {
   pushFlagsToStudent:    fbPushFlagsToStudent,
   broadcastAnnouncement: fbBroadcastAnnouncement,
   setCourseFlag:         fbSetCourseFlag,
+  setStudentExamUnlock:  fbSetStudentExamUnlock,
   watchAllStudents:      fbWatchAllStudents,
 };
 
