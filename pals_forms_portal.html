@@ -329,7 +329,9 @@ const ALL_TABS = [
   {id:'feedback',  label:'7. Feedback'},
   {id:'cert',      label:'8. Certificate'},
 ];
-const TABS = IS_INSTRUCTOR ? ALL_TABS : [{id:'exam', label:'Final Exam'}];
+const TABS = IS_INSTRUCTOR
+  ? ALL_TABS
+  : [{id:'pretest', label:'Pre-Test'}, {id:'exam', label:'Final Exam'}];
 
 const tabsEl = document.getElementById('tabs');
 tabsEl.innerHTML = TABS.map(t=>`<div class="tab" data-tab="${t.id}" onclick="switchTab('${t.id}')">${t.label}</div>`).join('');
@@ -339,9 +341,11 @@ function switchTab(id){
   history.replaceState(null,'','#'+id);
 }
 // ── Route to correct initial tab ────────────────────────────────────────────
+const STUDENT_ALLOWED_TABS = ['pretest', 'exam'];
+const _hash = location.hash.replace('#','');
 const initial = IS_INSTRUCTOR
-  ? (location.hash.replace('#','') || 'prereg')
-  : 'exam';
+  ? (_hash || 'prereg')
+  : (STUDENT_ALLOWED_TABS.includes(_hash) ? _hash : 'pretest');
 
 // ── Student exam gate: disable inputs until all 9 modules complete ───────────
 if(IS_STUDENT){
