@@ -757,6 +757,10 @@ function renderRoster(students) {
       <td style="font-size:.78rem;color:var(--muted)">${timeAgo(s.updatedAt)}</td>
       <td style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
         <button class="btn-edit" onclick="openEditModal('${s.uid}')">✏️ Edit</button>
+        <span title="Course feedback ${s.feedback&&s.feedback.submittedAt?'submitted':'not submitted'}"
+          style="padding:.28rem .55rem;border-radius:7px;font-size:.74rem;font-weight:700;border:1.5px solid ${s.feedback&&s.feedback.submittedAt?'#22c55e':'#cbd5e1'};background:${s.feedback&&s.feedback.submittedAt?'rgba(34,197,94,.1)':'rgba(148,163,184,.08)'};color:${s.feedback&&s.feedback.submittedAt?'#15803d':'#64748b'}">
+          ${s.feedback&&s.feedback.submittedAt?'💬 ✓':'💬 —'}
+        </span>
         <button onclick="quickToggleExam('${s.uid}',${!!s.examUnlocked})"
           title="${s.examUnlocked?'Click to lock exam':'Click to unlock exam'}"
           style="padding:.28rem .65rem;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;border:1.5px solid ${s.examUnlocked?'#22c55e':'#ef4444'};background:${s.examUnlocked?'rgba(34,197,94,.1)':'rgba(239,68,68,.08)'};color:${s.examUnlocked?'#15803d':'#dc2626'}">
@@ -779,10 +783,15 @@ function filterRoster() {
 
 // ── EXPORT CSV ────────────────────────────────────────────────
 function exportCSV() {
-  const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Last Active']];
+  const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Pre-Test %','Final Exam %','Feedback','Exam Access','Last Active']];
   allStudents.forEach(s => {
     const count = modCount(s.progress);
-    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/MOD_COUNT*100)+'%', timeAgo(s.updatedAt)]);
+    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/MOD_COUNT*100)+'%',
+      (s.preTest&&s.preTest.pct!=null)?s.preTest.pct+'%':'',
+      (s.finalExam&&s.finalExam.pct!=null)?s.finalExam.pct+'%':'',
+      (s.feedback&&s.feedback.submittedAt)?'Submitted':'',
+      s.examUnlocked?'Unlocked':'Locked',
+      timeAgo(s.updatedAt)]);
   });
   const csv  = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const blob = new Blob([csv], {type:'text/csv'});

@@ -63,6 +63,10 @@ h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
         <div><strong id="who"></strong> &nbsp; <span class="rolechip" id="role-chip"></span></div>
       </div>
       <div class="fl">
+        <label for="nm">Your full name</label>
+        <input class="field" id="nm" type="text" autocomplete="name" placeholder="First Last">
+      </div>
+      <div class="fl">
         <label for="pw">Choose a password</label>
         <input class="field" id="pw" type="password" autocomplete="new-password" placeholder="Minimum 6 characters">
       </div>
@@ -110,15 +114,18 @@ window.checkInvite = async function(){
     if(invite.registered){ showErr('This invitation was already used. Please sign in instead.'); setTimeout(()=>window.location.href='index.html',1800); return; }
     document.getElementById('who').textContent = invite.name || emailKey;
     document.getElementById('role-chip').textContent = (invite.role||'student').replace('_',' ');
+    document.getElementById('nm').value = invite.name || '';
     document.getElementById('step1').style.display='none';
     document.getElementById('step2').style.display='block';
-    document.getElementById('pw').focus();
+    document.getElementById((invite.name?'pw':'nm')).focus();
   }catch(e){ showErr('Could not verify invitation: '+e.message); btn.disabled=false; btn.textContent='Check my invitation'; }
 };
 
 window.createAccount = async function(){
   clearMsg();
   const pw=document.getElementById('pw').value, pw2=document.getElementById('pw2').value;
+  const fullName=(document.getElementById('nm').value||'').trim();
+  if(!fullName){ showErr('Please enter your full name.'); return; }
   if(pw.length<6){ showErr('Password must be at least 6 characters.'); return; }
   if(pw!==pw2){ showErr('Passwords do not match.'); return; }
   const btn=document.getElementById('create-btn'); btn.disabled=true; btn.textContent='Creating account…';
@@ -126,11 +133,12 @@ window.createAccount = async function(){
     const cred = await createUserWithEmailAndPassword(auth, emailKey, pw);
     const uid = cred.user.uid;
     const role = invite.role || 'student';
+    const _parts=fullName.split(/\s+/);
     await setDoc(doc(db,'users',uid), {
       uid, email: emailKey,
-      name: invite.name || emailKey,
-      firstName: invite.firstName || '',
-      lastName:  invite.lastName  || '',
+      name: fullName,
+      firstName: invite.firstName || _parts[0] || '',
+      lastName:  invite.lastName  || _parts.slice(1).join(' ') || '',
       role,
       cohort: invite.cohort || 'Unassigned',
       createdAt: serverTimestamp(),
@@ -138,7 +146,7 @@ window.createAccount = async function(){
       progress: {}
     });
     await setDoc(doc(db,'allowlist',emailKey), { registered: true, registeredAt: serverTimestamp() }, { merge: true });
-    try{ sessionStorage.setItem(SK, JSON.stringify({ uid, role, name: invite.name||emailKey, email: emailKey, ts: Date.now() })); }catch(e){}
+    try{ sessionStorage.setItem(SK, JSON.stringify({ uid, role, name: fullName, email: emailKey, ts: Date.now() })); }catch(e){}
     okEl.textContent='✅ Account created! Redirecting…'; okEl.style.display='block';
     setTimeout(()=>redir(role), 1200);
   }catch(e){

@@ -117,6 +117,10 @@
 
     <!-- 2. PRE-TEST -->
     <div class="panel" data-panel="pretest">
+      <div id="pretest-lock-banner" style="display:none;background:#FEF9C3;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#92400E;font-size:15px;">
+        🔒 The Pre-Test unlocks after you finish all 9 modules.
+        <br><small style="font-weight:400">Work through the modules in the <a href="hub_student.html" style="color:#0891B2">student hub</a> first — this knowledge check opens automatically when they're all complete.</small>
+      </div>
       <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-bold">Entry Knowledge Pre-Test</h2>
@@ -246,6 +250,13 @@
 
     <!-- 7. FEEDBACK -->
     <div class="panel" data-panel="feedback">
+      <div id="feedback-lock-banner" style="display:none;background:#DCFCE7;border:1.5px solid #22C55E;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#166534;font-size:15px;">
+        ✅ Thank you — your feedback has been recorded and is now locked.
+        <br><small style="font-weight:400">The final exam has been unlocked, so feedback responses can no longer be changed.</small>
+      </div>
+      <div id="feedback-required-note" style="display:none;background:#EFF6FF;border:1.5px solid #0891B2;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#0e7490;font-size:15px;">
+        📝 Please complete this short feedback form. It must be submitted before you can take the final exam — and you can edit it any time until the exam is unlocked.
+      </div>
       <div class="card p-6">
         <h2 class="text-xl font-bold mb-4">Course Feedback</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
@@ -329,74 +340,133 @@ const ALL_TABS = [
   {id:'feedback',  label:'7. Feedback'},
   {id:'cert',      label:'8. Certificate'},
 ];
-const TABS = IS_INSTRUCTOR
-  ? ALL_TABS
-  : [{id:'pretest', label:'Pre-Test'}, {id:'exam', label:'Final Exam'}];
+// Students never see the instructor-only forms. The Final Exam tab is hidden
+// entirely until an admin/instructor unlocks it (globally or per-student).
+const STUDENT_BASE_TABS = [
+  {id:'pretest',  label:'Pre-Test'},
+  {id:'feedback', label:'Course Feedback'},
+  {id:'cert',     label:'Certificate'},
+];
+const STUDENT_ALLOWED_TABS = ['pretest','feedback','cert','exam'];
 
 const tabsEl = document.getElementById('tabs');
-tabsEl.innerHTML = TABS.map(t=>`<div class="tab" data-tab="${t.id}" onclick="switchTab('${t.id}')">${t.label}</div>`).join('');
+function buildTabs(arr){
+  tabsEl.innerHTML = arr.map(t=>`<div class="tab" data-tab="${t.id}" onclick="switchTab('${t.id}')">${t.label}</div>`).join('');
+}
 function switchTab(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===id));
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===id));
   history.replaceState(null,'','#'+id);
 }
-// ── Route to correct initial tab ────────────────────────────────────────────
-const STUDENT_ALLOWED_TABS = ['pretest', 'exam'];
-const _hash = location.hash.replace('#','');
-const initial = IS_INSTRUCTOR
-  ? (_hash || 'prereg')
-  : (STUDENT_ALLOWED_TABS.includes(_hash) ? _hash : 'pretest');
 
-// ── Student exam gate: disable inputs until all 9 modules complete ───────────
+// ── Live student state (progress / exam-unlock / feedback) ───────────────────
+let STU = { _data:{}, modulesDone:false, globalExam:false, perExam:false, examUnlocked:false, feedback:null };
+let _fbPrefilled = false;
+
+const _hash = location.hash.replace('#','');
+if(IS_INSTRUCTOR){
+  buildTabs(ALL_TABS);
+  switchTab(_hash || 'prereg');
+} else {
+  // Student: build base tabs now; the Final Exam tab is added only once unlocked.
+  buildTabs(STUDENT_BASE_TABS);
+  switchTab(STUDENT_ALLOWED_TABS.includes(_hash) && _hash!=='exam' ? _hash : 'pretest');
+}
+
+// Rebuild the student tab bar, adding the Final Exam tab only when unlocked.
+let _studentTabsSig = '';
+function rebuildStudentTabs(){
+  const tabs = STU.examUnlocked
+    ? [STUDENT_BASE_TABS[0], STUDENT_BASE_TABS[1], {id:'exam',label:'Final Exam'}, STUDENT_BASE_TABS[2]]
+    : STUDENT_BASE_TABS;
+  const sig = tabs.map(t=>t.id).join(',');
+  if(sig===_studentTabsSig) return;
+  _studentTabsSig = sig;
+  const active = document.querySelector('.tab.active')?.dataset.tab;
+  buildTabs(tabs);
+  switchTab(tabs.some(t=>t.id===active) ? active : 'pretest');
+}
+
+// ── Apply all student gates from a loadAndSync snapshot ──────────────────────
+function applyStudentState(data){
+  if(data) STU._data = data;
+  const prog = (STU._data && STU._data.progress) || {};
+  const doneCount = Object.values(prog).filter(Boolean).length;
+  STU.modulesDone  = doneCount >= 9;
+  STU.perExam      = !!(STU._data && STU._data.examUnlocked);
+  STU.examUnlocked = !!(STU.globalExam || STU.perExam);
+  STU.feedback     = (STU._data && STU._data.feedback) || null;
+
+  applyPretestGate(!STU.modulesDone);
+  applyFeedbackLock();
+  applyExamGate();
+  if(!_fbPrefilled && STU.feedback){ prefillFeedback(STU.feedback); _fbPrefilled = true; }
+  rebuildStudentTabs();
+}
+
 if(IS_STUDENT){
   (async()=>{
-    try{
-      const fb = await Promise.race([
-        window.FB_READY||Promise.resolve(window.FB),
-        new Promise(r=>setTimeout(()=>r(window.FB),4000))
-      ]);
-      let examUnlocked = false;
-      if(fb){
-        // Check both: global courseFlag AND per-student override
-        const [myData, ] = await Promise.allSettled([
-          fb.loadAndSync ? fb.loadAndSync() : Promise.resolve(null),
-        ]);
-        const studentData = myData.status==='fulfilled' ? myData.value : null;
-        const perStudent  = !!(studentData && studentData.examUnlocked);
-
-        // Watch global flag (real-time)
-        if(fb.watchCourseFlags){
-          fb.watchCourseFlags(flags => {
-            const globalUnlocked = !!flags.examUnlocked;
-            const isUnlocked = globalUnlocked || perStudent;
-            applyExamGate(!isUnlocked);
-          });
-        }
-        examUnlocked = perStudent; // initial render before watcher fires
-      }
-      applyExamGate(!examUnlocked);
-    }catch(e){ applyExamGate(true); }
+    const fb = await fbReady(4000);
+    if(fb && fb.watchCourseFlags){
+      fb.watchCourseFlags(flags => { STU.globalExam = !!flags.examUnlocked; applyStudentState(); });
+    }
+    const load = async()=>{ if(fb&&fb.loadAndSync){ const d=await fb.loadAndSync().catch(()=>null); applyStudentState(d); } };
+    await load();
+    setInterval(load, 15000);
   })();
 }
 
-function applyExamGate(locked){
-  const banner    = document.getElementById('exam-lock-banner');
-  const examPanel = document.querySelector('[data-panel="exam"]');
-  if(!examPanel) return;
-  if(locked){
-    if(banner) banner.style.display='block';
-    examPanel.querySelectorAll('select,button,input,textarea').forEach(el=>{
-      el.disabled=true; el.style.opacity='0.4';
-    });
-  } else {
-    if(banner) banner.style.display='none';
-    examPanel.querySelectorAll('select,button,input,textarea').forEach(el=>{
-      el.disabled=false; el.style.opacity='1';
-    });
+// ── Gate: Pre-Test — locked until all 9 modules complete (#1) ────────────────
+function applyPretestGate(locked){
+  if(!IS_STUDENT) return;
+  const banner = document.getElementById('pretest-lock-banner');
+  const panel  = document.querySelector('[data-panel="pretest"] .card');
+  if(banner) banner.style.display = locked ? 'block' : 'none';
+  if(panel){
+    panel.querySelectorAll('select,button,input,textarea').forEach(el=>{ el.disabled=locked; el.style.opacity=locked?'0.4':'1'; });
   }
+  if(STUDENT_SESS){ ['pre_name','pre_email'].forEach(id=>{const e=document.getElementById(id);if(e)e.readOnly=true;}); }
 }
 
-switchTab(initial);
+// ── Gate: Final Exam — admin-unlocked AND feedback submitted (#4,#5) ─────────
+function applyExamGate(){
+  if(!IS_STUDENT) return;
+  const banner    = document.getElementById('exam-lock-banner');
+  const examPanel = document.querySelector('[data-panel="exam"] .card');
+  if(!examPanel) return;
+  const feedbackDone = !!(STU.feedback && STU.feedback.submittedAt);
+  const blocked = !STU.examUnlocked || !feedbackDone;
+  if(banner){
+    if(!STU.examUnlocked){
+      banner.innerHTML = '🔒 The Final Exam has not been unlocked yet.<br><small style="font-weight:400">Your instructor will unlock the exam when the class is ready. Return to the <a href="hub_student.html" style="color:#0891B2">student hub</a> to continue studying.</small>';
+      banner.style.display = 'block';
+    } else if(!feedbackDone){
+      banner.innerHTML = '📝 Almost there — please complete the <a href="#feedback" onclick="switchTab(\'feedback\');return false;" style="color:#0891B2">Course Feedback</a> form before taking the final exam.';
+      banner.style.display = 'block';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+  examPanel.querySelectorAll('select,button,input,textarea').forEach(el=>{ el.disabled=blocked; el.style.opacity=blocked?'0.4':'1'; });
+}
+
+// ── Gate: Feedback — one record, editable until the exam unlocks (#5) ────────
+// Freeze only an EXISTING submission once the exam is unlocked. A student who
+// never submitted may still record it once (otherwise the exam is unreachable).
+function applyFeedbackLock(){
+  if(!IS_STUDENT) return;
+  const lockBanner = document.getElementById('feedback-lock-banner');
+  const reqNote    = document.getElementById('feedback-required-note');
+  const panel      = document.querySelector('[data-panel="feedback"] .card');
+  const submitted  = !!(STU.feedback && STU.feedback.submittedAt);
+  const frozen     = STU.examUnlocked && submitted;
+  if(lockBanner) lockBanner.style.display = frozen ? 'block' : 'none';
+  if(reqNote)    reqNote.style.display    = !submitted ? 'block' : 'none';
+  if(panel){
+    panel.querySelectorAll('select,button,input,textarea').forEach(el=>{ el.disabled=frozen; });
+    panel.querySelectorAll('[data-fb] button').forEach(b=>{ b.disabled=frozen; });
+  }
+}
 
 function toast(msg,color='#22C55E'){
   const t=document.createElement('div');t.className='toast';t.textContent=msg;t.style.background=color;
@@ -521,6 +591,9 @@ function renderPreTest(){
 }
 renderPreTest();
 async function gradePreTest(){
+  if(STUDENT_SESS && !STU.modulesDone){
+    toast('Finish all 9 modules to unlock the pre-test','#EF4444'); return;
+  }
   let correct=0;
   PRETEST_QS.forEach((q,i)=>{
     const sel=document.querySelector('input[name="pre_q'+i+'"]:checked');
@@ -641,12 +714,14 @@ function renderExam(){
 renderExam();
 async function gradeExam(){
   if(STUDENT_SESS){
-    const state=await studentExamState();
-    const prog=(state&&state.progress)||{};
-    const doneCount=Object.values(prog).filter(Boolean).length;
-    if(doneCount<9){
-      toast('Complete all 9 modules before the final exam','#EF4444');
-      document.getElementById('exam_result').innerHTML=`<div class="card p-4 border-red-300 bg-red-50"><div class="font-bold">🔒 Final exam locked</div><div class="text-sm mt-1">You have completed ${doneCount}/9 modules. Finish the course modules in the Student Portal first.</div></div>`;
+    if(!STU.examUnlocked){
+      toast('The final exam is locked until your instructor unlocks it','#EF4444');
+      document.getElementById('exam_result').innerHTML=`<div class="card p-4 border-red-300 bg-red-50"><div class="font-bold">🔒 Final exam locked</div><div class="text-sm mt-1">Your instructor has not unlocked the final exam yet.</div></div>`;
+      return;
+    }
+    if(!(STU.feedback && STU.feedback.submittedAt)){
+      toast('Complete the course feedback first','#EF4444');
+      document.getElementById('exam_result').innerHTML=`<div class="card p-4 border-amber-300 bg-amber-50"><div class="font-bold">📝 Feedback required</div><div class="text-sm mt-1">Please submit the <a href="#feedback" onclick="switchTab('feedback');return false;" class="underline">Course Feedback</a> form before taking the final exam.</div></div>`;
       return;
     }
   }
@@ -683,15 +758,38 @@ function renderFB(){
 }
 renderFB();
 window._fb={};
+function prefillFeedback(fb){
+  if(!fb) return;
+  if(Array.isArray(fb.ratings)) fb.ratings.forEach((r,i)=>{ if(r&&r.score) setFB(i,r.score); });
+  if(fb.good!=null)   document.getElementById('fb_good').value=fb.good;
+  if(fb.improve!=null)document.getElementById('fb_improve').value=fb.improve;
+  if(fb.recommend)    document.getElementById('fb_recommend').value=fb.recommend;
+  if(fb.name && !document.getElementById('fb_name').value) document.getElementById('fb_name').value=fb.name;
+}
 function setFB(i,n){
   window._fb[i]=n;
   document.querySelectorAll(`[data-fb="${i}"] button`).forEach(b=>{
     const v=parseInt(b.dataset.fbn);b.style.background=v<=n?'#0891B2':'';b.style.color=v<=n?'#fff':'';b.style.borderColor=v<=n?'#0891B2':'';
   });
 }
-function saveFeedback(){
-  const e={timestamp:new Date().toISOString(),name:document.getElementById('fb_name').value,date:document.getElementById('fb_date').value,ratings:FB_ITEMS.map((it,i)=>({item:it,score:window._fb[i]||0})),good:document.getElementById('fb_good').value,improve:document.getElementById('fb_improve').value,recommend:document.getElementById('fb_recommend').value};
-  const arr=getStore('pals2025_feedback');arr.push(e);setStore('pals2025_feedback',arr);toast('Feedback submitted · thank you');
+async function saveFeedback(){
+  if(STUDENT_SESS && STU.examUnlocked && STU.feedback && STU.feedback.submittedAt){
+    toast('Feedback is locked — the exam has been unlocked','#EF4444'); return;
+  }
+  const payload={name:document.getElementById('fb_name').value,date:document.getElementById('fb_date').value,ratings:FB_ITEMS.map((it,i)=>({item:it,score:window._fb[i]||0})),good:document.getElementById('fb_good').value,improve:document.getElementById('fb_improve').value,recommend:document.getElementById('fb_recommend').value};
+  if(STUDENT_SESS){
+    const fb=await fbReady();
+    if(fb&&fb.saveFeedback){ await fb.saveFeedback(payload); }
+    STU.feedback={...payload,submittedAt:Date.now()};
+    STU._data.feedback=STU.feedback;
+    _fbPrefilled=true;
+    applyStudentState();   // refresh exam gate + notes now that feedback exists
+    toast('Feedback saved · thank you. You can edit it until the exam is unlocked.');
+  } else {
+    const e={timestamp:new Date().toISOString(),...payload};
+    const arr=getStore('pals2025_feedback');arr.push(e);setStore('pals2025_feedback',arr);
+    toast('Feedback submitted · thank you');
+  }
 }
 
 /* ===== CERTIFICATE ===== */

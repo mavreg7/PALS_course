@@ -127,10 +127,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
     <a href="pals_forms_portal.html#pretest" class="ql-card locked" id="ql-pretest">
       <span class="ql-icon">📝</span>
       <div class="ql-title">Pre-Test</div>
-      <div class="ql-sub">Entry knowledge check</div>
+      <div class="ql-sub">Knowledge check · unlocks after modules</div>
       <span class="lock-chip locked-state" id="chip-pretest">🔒 Not yet available</span>
     </a>
-    <a href="pals_forms_portal.html#exam" class="ql-card locked" id="ql-exam">
+    <a href="pals_forms_portal.html#feedback" class="ql-card locked" id="ql-feedback">
+      <span class="ql-icon">💬</span>
+      <div class="ql-title">Course Feedback</div>
+      <div class="ql-sub">Required before the final exam</div>
+      <span class="lock-chip locked-state" id="chip-feedback">🔒 Not yet available</span>
+    </a>
+    <a href="pals_forms_portal.html#exam" class="ql-card locked" id="ql-exam" style="display:none">
       <span class="ql-icon">📋</span>
       <div class="ql-title">Final Exam</div>
       <div class="ql-sub">25 questions · ≥84% to pass</div>
@@ -199,7 +205,11 @@ function applyRemoteData(data) {
   try { sessionStorage.setItem('pals_pretest', JSON.stringify(data.preTest || null)); } catch(e) {}
   try { sessionStorage.setItem('pals_finalexam', JSON.stringify(data.finalExam || null)); } catch(e) {}
   try { sessionStorage.setItem('pals_certificate', JSON.stringify(data.certificate || null)); } catch(e) {}
+  try { sessionStorage.setItem('pals_feedback', JSON.stringify(data.feedback || null)); } catch(e) {}
+  try { sessionStorage.setItem('pals_examunlock', data.examUnlocked ? '1' : '0'); } catch(e) {}
 }
+// Global exam-unlock flag (courseFlags/current.examUnlocked), watched live.
+let _globalExamUnlocked = false;
 function getExamData(key){try{return JSON.parse(sessionStorage.getItem(key)||'null')}catch(e){return null}}
 
 const MODULES = window.PALS_MODULES.filter(m => !m.staffOnly);  // megacodes are instructor-run
@@ -219,9 +229,21 @@ function render(){
   const completed=MODULES.filter((_,i)=>prog[i]).length;
   const allModulesDone=completed===MODULES.length;
   const examPassed=!!(finalExam&&finalExam.pct>=84);
-  // Pre-test is a pre-course self-study requirement — always open, never gated.
-  gate('ql-pretest','chip-pretest',true,preTest?`✅ Completed · ${preTest.pct}%`:'📝 Complete before Module 1');
-  gate('ql-exam','chip-exam',allModulesDone,allModulesDone?'✅ Open now':'🔒 Finish all 9 modules first');
+  const feedback=getExamData('pals_feedback');
+  const feedbackDone=!!(feedback&&feedback.submittedAt);
+  const examUnlocked=(()=>{try{return sessionStorage.getItem('pals_examunlock')==='1';}catch(e){return false;}})()||_globalExamUnlocked;
+  // Pre-test now unlocks only after all 9 modules are complete (knowledge check).
+  gate('ql-pretest','chip-pretest',allModulesDone,allModulesDone?(preTest?`✅ Completed · ${preTest.pct}%`:'✅ Open now'):'🔒 Finish all 9 modules first');
+  // Feedback: required before the final exam, editable until the exam is unlocked.
+  gate('ql-feedback','chip-feedback',true,feedbackDone?(examUnlocked?'✅ Submitted · locked':'✅ Submitted · editable'):'📝 Please complete');
+  // Final Exam: invisible until an instructor unlocks it (#4).
+  const examCard=document.getElementById('ql-exam');
+  if(examUnlocked){
+    examCard.style.display='';
+    gate('ql-exam','chip-exam',true,feedbackDone?'✅ Open now':'📝 Submit feedback first');
+  } else {
+    examCard.style.display='none';
+  }
   gate('ql-cert','chip-cert',examPassed,examPassed?'✅ Open now':'🔒 Pass the final exam first');
   const pct=Math.round(completed/MODULES.length*100);
   document.getElementById('prog-pct').textContent=pct+'%';
@@ -279,7 +301,9 @@ if(s && s.role === 'student') {
   setInterval(refresh, 15000);
   // live instructor broadcasts
   (function watchAnn(){
-    if(window.FB && window.FB.watchCourseFlags){ window.FB.watchCourseFlags(showAnnouncement); }
+    if(window.FB && window.FB.watchCourseFlags){
+      window.FB.watchCourseFlags(cf=>{ showAnnouncement(cf); _globalExamUnlocked=!!(cf&&cf.examUnlocked); render(); });
+    }
     else { setTimeout(watchAnn, 200); }
   })();
 }

@@ -95,7 +95,15 @@ async function fbLoadAndSync() {
   try {
     const data = await fbLoadMyData();
     if (!data) return {};
-    return { progress: data.progress || {}, flags: data.flags || {}, preTest: data.preTest || null, finalExam: data.finalExam || null, certificate: data.certificate || null };
+    return {
+      progress: data.progress || {},
+      flags: data.flags || {},
+      preTest: data.preTest || null,
+      finalExam: data.finalExam || null,
+      certificate: data.certificate || null,
+      feedback: data.feedback || null,
+      examUnlocked: !!data.examUnlocked,
+    };
   } catch(e) { console.warn('[PALS FB] loadAndSync:', e.message); return {}; }
 }
 
@@ -120,6 +128,19 @@ async function fbSaveExamScore(examType, score, total) {
       [field]: { score, total, pct: Math.round((score/total)*100), completedAt: Date.now() }
     }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveExamScore:', e.message); }
+}
+
+// ── STUDENT: Save course feedback ────────────────────────────
+// Stored once per student on their own doc. Editable until the final
+// exam is unlocked for them; the forms portal freezes it after that.
+async function fbSaveFeedback(feedback) {
+  try {
+    await _ensureAuthReady();
+    const uid = _uid(); if (!uid) return;
+    await setDoc(doc(_db,'students',uid), {
+      feedback: { ...feedback, submittedAt: Date.now() }
+    }, { merge:true });
+  } catch(e) { console.warn('[PALS FB] saveFeedback:', e.message); }
 }
 
 // ── STUDENT: Save certificate ────────────────────────────────
@@ -226,6 +247,7 @@ window.FB = {
   loadAndSync:           fbLoadAndSync,
   markModuleComplete:    fbMarkModuleComplete,
   saveExamScore:         fbSaveExamScore,
+  saveFeedback:          fbSaveFeedback,
   saveCertificate:       fbSaveCertificate,
   watchCourseFlags:      fbWatchCourseFlags,
   getAllStudents:         fbGetAllStudents,
