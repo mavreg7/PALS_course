@@ -124,7 +124,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
   </div>
   <div class="sec-hdr">Quick Access</div>
   <div class="quick-grid">
-    <a href="pals_forms_portal.html#pretest" class="ql-card locked" id="ql-pretest">
+    <a href="pals_forms_portal.html#pretest" class="ql-card locked" id="ql-pretest" style="display:none">
       <span class="ql-icon">📝</span>
       <div class="ql-title">Pre-Test</div>
       <div class="ql-sub">Knowledge check · unlocks after modules</div>
@@ -226,8 +226,14 @@ function render(){
   const feedback=getExamData('pals_feedback');
   const feedbackDone=!!(feedback&&feedback.submittedAt);
   const examUnlocked=(()=>{try{return sessionStorage.getItem('pals_examunlock')==='1';}catch(e){return false;}})()||_globalExamUnlocked;
-  // Pre-test now unlocks only after all 9 modules are complete (knowledge check).
-  gate('ql-pretest','chip-pretest',allModulesDone,allModulesDone?(preTest?`✅ Completed · ${preTest.pct}%`:'✅ Open now'):'🔒 Finish all 9 modules first');
+  // Pre-test is hidden entirely until all 9 modules are complete, then appears.
+  const pretestCard=document.getElementById('ql-pretest');
+  if(allModulesDone){
+    pretestCard.style.display='';
+    gate('ql-pretest','chip-pretest',true,preTest?`✅ Completed · ${preTest.pct}%`:'✅ Open now');
+  } else {
+    pretestCard.style.display='none';
+  }
   // Feedback: required before the final exam, editable until the exam is unlocked.
   gate('ql-feedback','chip-feedback',true,feedbackDone?(examUnlocked?'✅ Submitted · locked':'✅ Submitted · editable'):'📝 Please complete');
   // Final Exam: invisible until an instructor unlocks it (#4).
