@@ -1,5 +1,9 @@
 # Editor / local dev tooling
-.claude/
+.claude/*
+# …but keep committed skills/agents/commands so they load in cloud sessions
+!.claude/skills/
+!.claude/agents/
+!.claude/commands/
 
 # Source reference materials (kept local; not redistributed)
 references/
