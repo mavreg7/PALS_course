@@ -510,6 +510,8 @@ submitBtn.addEventListener('click', async () => {
 
     // 3. Show success with credentials
     showSuccess(fname, lname, email, pw, role, cohort);
+    // New account appears in the roster immediately.
+    try { loadRoster(); } catch(e) {}
 
   } catch (err) {
     await secondarySignOut(secondaryAuth).catch(() => {});
@@ -523,6 +525,13 @@ submitBtn.addEventListener('click', async () => {
 function showSuccess(fname, lname, email, pw, role, cohort) {
   submitBtn.textContent = '✓ Account Created';
   resultBox.className = 'create-result success';
+  const loginUrl = new URL('index.html', location.href).href;
+  const subject  = encodeURIComponent('Your PALS 2025 course login');
+  const body     = encodeURIComponent(
+    `Hello ${fname},\n\nYou have been enrolled in the PALS 2025 course as ${(role||'student').replace('_',' ')}.\n\n`+
+    `Sign in here: ${loginUrl}\nEmail: ${email}\nTemporary password: ${pw}\n\n`+
+    `Please change your password after your first sign-in.\n`);
+  const mailto = `mailto:${email}?subject=${subject}&body=${body}`;
   resultBox.innerHTML = `
     <strong>✅ Account created successfully!</strong><br>
     ${fname} ${lname} has been added to the roster.
@@ -533,7 +542,8 @@ function showSuccess(fname, lname, email, pw, role, cohort) {
       <strong>Role:</strong> ${role}<br>
       <strong>Cohort:</strong> ${cohort || 'Unassigned'}
     </div>
-    <div style="margin-top:.55rem;font-size:.75rem;color:var(--muted)">Copy these credentials and share them securely with the student. They can change their password after first login.</div>
+    <a class="btn-sm" href="${mailto}" style="display:inline-flex;align-items:center;gap:.4rem;margin-top:.6rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.45rem .9rem;text-decoration:none;font-weight:700">✉ Email login details to ${email}</a>
+    <div style="margin-top:.55rem;font-size:.75rem;color:var(--muted)">Opens your mail app with the sign-in link and credentials pre-filled. (Automatic server-side email needs a backend — not part of this static site.)</div>
   `;
   // Button becomes "Create Another"; the existing click handler sees
   // createdOnce and clears the form on the next click (no double handlers).
@@ -962,7 +972,9 @@ async function resetProgress() {
   const resultEl = document.getElementById('edit-result');
   resultEl.textContent = 'Resetting…';
   try {
-    await fsSetDoc(fsDoc(db, 'students', editUid), { progress: {}, updatedAt: Date.now() }, { merge: true });
+    // updateDoc (not setDoc+merge): merge deep-merges maps, so {progress:{}}
+    // would leave the old keys in place and the student still reads as complete.
+    await updateDoc(fsDoc(db, 'students', editUid), { progress: {}, updatedAt: Date.now() });
     // Uncheck all boxes
     for (let i = 0; i < MOD_COUNT; i++) {
       const cb = document.getElementById('mod-check-' + i);

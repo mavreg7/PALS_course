@@ -168,7 +168,6 @@
       <button class="btn btn-prim" onclick="exportRoster()">⬇ Export Roster CSV</button>
       <button class="btn btn-ghost" onclick="printAttendance()">🖨 Attendance Sheets</button>
       <button class="btn btn-sec" onclick="generateAllCerts()">🎓 Generate All Certificates</button>
-      <button class="btn btn-warn" onclick="exportAll()">⬇ Export All Forms (JSON)</button>
       <button class="btn" style="background:#fee2e2;color:#b91c1c" onclick="clearAll()">🗑 Clear All Data</button>
     </div>
   </section>
@@ -279,12 +278,13 @@ let fbLoaded = false;
 async function loadFirebaseUsers() {
   try {
     const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
-    // ── FIX: only keep student-role accounts in the roster ──
+    // Keep students AND instructors in the roster (admins are excluded).
     fbUsers = snap.docs
       .map(d => ({ ...d.data(), uid: d.id }))
-      .filter(u => !u.role || u.role === 'student');
+      .filter(u => !u.role || u.role === 'student' || u.role === 'instructor' || u.role === 'lead_instructor');
     fbLoaded = true;
-    showBanner(`✓ Firebase roster loaded — ${fbUsers.length} student(s) found`, 'green');
+    const nStu = fbUsers.filter(u => !u.role || u.role === 'student').length;
+    showBanner(`✓ Firebase roster loaded — ${fbUsers.length} account(s) (${nStu} student(s))`, 'green');
   } catch(e) {
     fbLoaded = true;
     showBanner(`⚠ Could not load Firebase accounts: ${e.message}`, 'yellow');
@@ -394,7 +394,7 @@ function buildRoster() {
 
 function renderStats(){
   const r = buildRoster();
-  document.getElementById('s_enrolled').textContent = r.length;
+  document.getElementById('s_enrolled').textContent = r.filter(x => !x.role || x.role==='student').length;
   document.getElementById('s_passed').textContent   = r.filter(x => x.examRaw==='Pass').length;
   document.getElementById('s_failed').textContent   = r.filter(x => x.examRaw==='Fail').length;
   document.getElementById('s_remed').textContent    = r.filter(x => x.bls==='Needs Remediation'||x.megacode==='Remediate').length;
@@ -444,7 +444,7 @@ function renderRoster(){
     const role  = encodeURIComponent(x.role   || 'student');
     const email = encodeURIComponent(x.email  || '');
     const editBtn = uid
-      ? `<button class="btn-edit no-print" onclick="openEditModal('${uid}','${fname}','${lname}','${cohort}','${role}','${email}')'">✏️ Edit</button>`
+      ? `<button class="btn-edit no-print" onclick="openEditModal('${uid}','${fname}','${lname}','${cohort}','${role}','${email}')">✏️ Edit</button>`
       : `<span class="text-xs text-slate-400 no-print">n/a</span>`;
     return `<tr>
       <td class="font-semibold">${x.name}</td>
@@ -549,14 +549,6 @@ window.generateAllCerts = function(){
   alert('Generated '+r.length+' certificates. View in Forms Portal → Certificate.');
   refreshAll();
 };
-window.exportAll = function(){
-  const all={};
-  ['pals2025_preregistration','pals2025_pretest','pals2025_attendance','pals2025_bls_skills','pals2025_megacode','pals2025_final_exam','pals2025_feedback','pals2025_certificates','pals2025_course_meta','pals2025_planner'].forEach(k=>{
-    try{all[k]=JSON.parse(localStorage.getItem(k)||'null')}catch(e){all[k]=null}
-  });
-  all['firebase_users'] = fbUsers.map(u => ({ name:u.name, email:u.email, role:u.role, cohort:u.cohort, uid:u.uid }));
-  download(new Blob([JSON.stringify(all,null,2)],{type:'application/json'}),'pals_full_export.json');
-};
 window.clearAll = function(){
   if(!confirm('This permanently clears ALL course data on this device. Continue?'))return;
   if(!confirm('Are you absolutely sure? This cannot be undone.'))return;
@@ -659,7 +651,8 @@ function computeCohortStats(){
   const by = {};
   const row = c => by[c] || (by[c] = { cohort:c, invited:0, registered:0, completed:0, inprog:0 });
   fbAllowlist.forEach(a => { row((a.cohort||'—')).invited++; });
-  fbUsers.forEach(u => {
+  // Only students contribute to registered/progress counts (instructors excluded).
+  fbUsers.filter(u => !u.role || u.role === 'student').forEach(u => {
     const r = row(u.cohort || '—');
     r.registered++;
     const pc = fbStudentProgress[u.uid] || 0;
