@@ -41,6 +41,34 @@ were confirmed already deployed and the first admin already bootstrapped.
 
 ---
 
+## Batch 2 (same June 18 session — second round of fixes)
+
+1. **Feedback: all fields mandatory; date auto-applied.** Every rating (1–5),
+   both text fields and the name are required to submit; the manual date input
+   was removed and the date is stamped automatically at submission. Student
+   name is locked to their session. (`pals_forms_portal.html`)
+2. **Certificate hidden from students.** Removed the Certificate tab from the
+   student forms-portal view and the cert quick-card from the student hub —
+   instructors issue certificates. (`pals_forms_portal.html`, `hub_student.html`)
+3. **More 3/4 ↔ 9 dedup.** Module 4's IO slide (duplicated Module 9's IO
+   landmark image + text) is now a shock-context IV-vs-IO decision slide that
+   defers landmark/technique to Module 9; Module 3's BVM card now points to
+   Module 9 for OPA/C-E technique. (`slides/pals_module_04_shock…`, `…module_03…`)
+4. **Cohort isolation ("can't be mixed") — UI + rules ("Both").**
+   - Hub roster: a cohort selector scopes roster, stats and CSV export to one
+     cohort at a time (persisted); roster merge now carries real student fields
+     (exam-unlock, feedback, scores). (`hub_instructor.html`)
+   - `firestore.rules`: admins & lead instructors see all cohorts; a plain
+     `instructor` can only read/write users + students in their **own** cohort
+     (student cohort resolved from the user profile — no duplication). Plain-
+     instructor roster load was adapted to cohort-scoped queries so it stays
+     rules-compatible. **Deploy needed:** `firebase deploy --only firestore:rules`.
+   - Note: the instructor *dashboard* still does unconstrained collection reads —
+     fine for admin/lead (Nitai); a plain instructor would see it empty and
+     should use the hub roster instead.
+
+---
+
 ## Repo state
 
 **Repo:** `mavreg7/PALS_course` · `main` auto-deploys to Vercel on push.

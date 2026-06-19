@@ -259,14 +259,16 @@
       </div>
       <div class="card p-6">
         <h2 class="text-xl font-bold mb-4">Course Feedback</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          <input class="field" id="fb_name" placeholder="Name (optional)">
-          <input class="field" id="fb_date" type="date">
+        <div class="mb-4">
+          <label class="lbl">Your name <span style="color:#EF4444">*</span></label>
+          <input class="field" id="fb_name" placeholder="Your full name">
+          <input type="hidden" id="fb_date">
+          <div class="text-xs text-slate-500 mt-1">All fields are required. The date is recorded automatically when you submit.</div>
         </div>
         <div id="fb_ratings" class="space-y-3"></div>
-        <div class="mt-4"><label class="lbl">What worked well?</label><textarea class="field" id="fb_good" rows="2"></textarea></div>
-        <div class="mt-3"><label class="lbl">Suggestions for improvement</label><textarea class="field" id="fb_improve" rows="2"></textarea></div>
-        <div class="mt-3"><label class="lbl">Would you recommend this course?</label>
+        <div class="mt-4"><label class="lbl">What worked well? <span style="color:#EF4444">*</span></label><textarea class="field" id="fb_good" rows="2"></textarea></div>
+        <div class="mt-3"><label class="lbl">Suggestions for improvement <span style="color:#EF4444">*</span></label><textarea class="field" id="fb_improve" rows="2"></textarea></div>
+        <div class="mt-3"><label class="lbl">Would you recommend this course? <span style="color:#EF4444">*</span></label>
           <select class="field" id="fb_recommend"><option>Definitely</option><option>Probably</option><option>Unsure</option><option>No</option></select>
         </div>
         <div class="flex flex-wrap gap-2 mt-5 no-print">
@@ -342,12 +344,12 @@ const ALL_TABS = [
 ];
 // Students never see the instructor-only forms. The Final Exam tab is hidden
 // entirely until an admin/instructor unlocks it (globally or per-student).
+// Certificate is intentionally NOT student-facing — instructors issue it.
 const STUDENT_BASE_TABS = [
   {id:'pretest',  label:'Pre-Test'},
   {id:'feedback', label:'Course Feedback'},
-  {id:'cert',     label:'Certificate'},
 ];
-const STUDENT_ALLOWED_TABS = ['pretest','feedback','cert','exam'];
+const STUDENT_ALLOWED_TABS = ['pretest','feedback','exam'];
 
 const tabsEl = document.getElementById('tabs');
 function buildTabs(arr){
@@ -377,7 +379,7 @@ if(IS_INSTRUCTOR){
 let _studentTabsSig = '';
 function rebuildStudentTabs(){
   const tabs = STU.examUnlocked
-    ? [STUDENT_BASE_TABS[0], STUDENT_BASE_TABS[1], {id:'exam',label:'Final Exam'}, STUDENT_BASE_TABS[2]]
+    ? [...STUDENT_BASE_TABS, {id:'exam',label:'Final Exam'}]
     : STUDENT_BASE_TABS;
   const sig = tabs.map(t=>t.id).join(',');
   if(sig===_studentTabsSig) return;
@@ -494,7 +496,7 @@ if(STUDENT_SESS){
   const lock=(id,val)=>{const el=document.getElementById(id);if(el){el.value=val;el.readOnly=true;el.style.background='#f1f5f9'}};
   lock('pre_name',STUDENT_SESS.name);lock('pre_email',STUDENT_SESS.email||'');
   lock('ex_name',STUDENT_SESS.name);lock('ex_email',STUDENT_SESS.email||'');
-  lock('ct_name',STUDENT_SESS.name);
+  lock('ct_name',STUDENT_SESS.name);lock('fb_name',STUDENT_SESS.name);
 }
 
 function exportData(key,fmt){
@@ -776,7 +778,16 @@ async function saveFeedback(){
   if(STUDENT_SESS && STU.examUnlocked && STU.feedback && STU.feedback.submittedAt){
     toast('Feedback is locked — the exam has been unlocked','#EF4444'); return;
   }
-  const payload={name:document.getElementById('fb_name').value,date:document.getElementById('fb_date').value,ratings:FB_ITEMS.map((it,i)=>({item:it,score:window._fb[i]||0})),good:document.getElementById('fb_good').value,improve:document.getElementById('fb_improve').value,recommend:document.getElementById('fb_recommend').value};
+  // All parts are mandatory; the date is auto-applied at submission time.
+  const name=document.getElementById('fb_name').value.trim();
+  const ratings=FB_ITEMS.map((it,i)=>({item:it,score:window._fb[i]||0}));
+  const good=document.getElementById('fb_good').value.trim();
+  const improve=document.getElementById('fb_improve').value.trim();
+  const recommend=document.getElementById('fb_recommend').value;
+  if(!name){ toast('Please enter your name','#EF4444'); return; }
+  if(ratings.some(r=>!r.score)){ toast('Please rate every item (1–5)','#EF4444'); return; }
+  if(!good || !improve){ toast('Please complete all written fields','#EF4444'); return; }
+  const payload={name,date:new Date().toISOString().slice(0,10),ratings,good,improve,recommend};
   if(STUDENT_SESS){
     const fb=await fbReady();
     if(fb&&fb.saveFeedback){ await fb.saveFeedback(payload); }

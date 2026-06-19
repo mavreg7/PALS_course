@@ -20,6 +20,20 @@ service cloud.firestore {
     function isAdmin() {
       return myRole() == 'admin';
     }
+    // ── Cohort isolation ──────────────────────────────────────────
+    // Admins and lead instructors see every cohort. A plain "instructor"
+    // is walled to their own cohort so cohorts can never be mixed.
+    function myCohort() {
+      return signedIn()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.cohort
+        : null;
+    }
+    function userCohort(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data.cohort;
+    }
+    function seesAllCohorts() {
+      return isAdmin() || myRole() == 'lead_instructor';
+    }
     // Keys a user is NOT allowed to change on their own profile
     function touchesPrivileged() {
       return request.resource.data.diff(resource.data)
@@ -28,12 +42,19 @@ service cloud.firestore {
 
     // ── USERS: profile + role ────────────────────────────────────
     match /users/{uid} {
-      allow read: if signedIn() && (request.auth.uid == uid || isStaff());
+      // Self, all-cohort staff, or a same-cohort instructor.
+      allow read: if signedIn() && (
+        request.auth.uid == uid
+        || seesAllCohorts()
+        || (myRole() == 'instructor' && resource.data.cohort == myCohort())
+      );
 
       // Self may update own profile but never role/canAdmin
       allow update: if signedIn() && request.auth.uid == uid && !touchesPrivileged();
-      // Staff may update profiles; only admin may change role/canAdmin
-      allow update: if isStaff() && (!touchesPrivileged() || isAdmin());
+      // Staff may update profiles; only admin may change role/canAdmin;
+      // a plain instructor may only touch users in their own cohort.
+      allow update: if isStaff() && (!touchesPrivileged() || isAdmin())
+        && (seesAllCohorts() || resource.data.cohort == myCohort());
 
       // Account creation: an admin (Create Student tool), OR an invited
       // person registering themselves — only if their email is on the
@@ -49,8 +70,14 @@ service cloud.firestore {
     }
 
     // ── STUDENTS: progress, flags, exam scores, certificate ──────
+    // Own doc, all-cohort staff, or a same-cohort instructor. The student's
+    // cohort is resolved from their users/{uid} profile (no duplication).
     match /students/{uid} {
-      allow read, write: if signedIn() && (request.auth.uid == uid || isStaff());
+      allow read, write: if signedIn() && (
+        request.auth.uid == uid
+        || seesAllCohorts()
+        || (myRole() == 'instructor' && userCohort(uid) == myCohort())
+      );
     }
 
     // ── ALLOWLIST: invited people (admin uploads via CSV/XLSX) ───

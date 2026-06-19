@@ -260,12 +260,16 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
   </div>
 
   <div class="roster-header">
-    <input class="roster-search" id="roster-search" type="search" placeholder="🔍  Search by name, email or cohort…" oninput="filterRoster()">
+    <select id="cohort-filter" class="roster-search" style="max-width:240px;cursor:pointer" onchange="setCohortView(this.value)" title="Each cohort is shown separately — pick one to view its roster, stats and exports.">
+      <option value="ALL">All cohorts</option>
+    </select>
+    <input class="roster-search" id="roster-search" type="search" placeholder="🔍  Search within cohort…" oninput="filterRoster()">
     <div class="roster-actions">
       <button class="btn-sm btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
       <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px" onclick="loadRoster()">↺ Refresh</button>
     </div>
   </div>
+  <div id="cohort-scope-note" style="font-size:.78rem;color:var(--muted);margin:-.4rem 0 .8rem">Viewing <strong>all cohorts</strong>. Cohorts are kept separate — select one above to isolate its roster, statistics and CSV export.</div>
 
   <div class="roster-table-wrap">
     <table class="roster-table">
@@ -336,6 +340,7 @@ import {
   getFirestore,
   doc, setDoc, getDoc, getDocs,
   collection, onSnapshot, updateDoc,
+  query, where,
   serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
@@ -671,31 +676,52 @@ async function loadRoster() {
   try {
     document.querySelector('#roster-tbody').innerHTML = '<tr><td colspan="7" class="roster-empty">Loading…</td></tr>';
 
-    // Load users collection (has name/email/cohort/role)
-    const usersSnap = await getDocs(collection(db,'users'));
     allUsers = {};
-    usersSnap.forEach(d => { allUsers[d.id] = d.data(); });
+    const progMap = {};
+    const seesAll = s.role === 'admin' || s.role === 'lead_instructor';
 
-    // Load students collection (has progress)
-    const studSnap = await getDocs(collection(db,'students'));
-    const progMap  = {};
-    studSnap.forEach(d => { progMap[d.id] = d.data(); });
+    if (seesAll) {
+      // Admin / lead instructor — full cross-cohort view.
+      const usersSnap = await getDocs(collection(db,'users'));
+      usersSnap.forEach(d => { allUsers[d.id] = d.data(); });
+      const studSnap = await getDocs(collection(db,'students'));
+      studSnap.forEach(d => { progMap[d.id] = d.data(); });
+    } else {
+      // Plain instructor — strictly limited to their own cohort (rules enforce this).
+      const meSnap = await getDoc(doc(db,'users',s.uid));
+      const myCohort = (meSnap.exists() && meSnap.data().cohort) || 'Unassigned';
+      const usersSnap = await getDocs(query(collection(db,'users'), where('cohort','==', myCohort)));
+      const ids = [];
+      usersSnap.forEach(d => { allUsers[d.id] = d.data(); ids.push(d.id); });
+      // Student docs are fetched individually — the collection list is cohort-restricted.
+      await Promise.all(ids.map(async uid => {
+        try { const sd = await getDoc(doc(db,'students',uid)); if (sd.exists()) progMap[uid] = sd.data(); } catch(e){}
+      }));
+    }
 
-    // Merge
-    allStudents = Object.entries(allUsers).map(([uid, u]) => ({
-      uid,
-      name:     u.name || (u.firstName + ' ' + u.lastName) || 'Unknown',
-      email:    u.email || '',
-      cohort:   u.cohort || 'Unassigned',
-      role:     u.role  || 'student',
-      notes:    u.notes || '',
-      progress: (progMap[uid] && progMap[uid].progress) || {},
-      updatedAt:(progMap[uid] && progMap[uid].updatedAt) || null,
-    })).filter(s => s.role === 'student' || s.role === 'instructor');
+    // Merge (carry through the full student record: scores, feedback, exam unlock)
+    allStudents = Object.entries(allUsers).map(([uid, u]) => {
+      const sd = progMap[uid] || {};
+      return {
+        uid,
+        name:     u.name || (u.firstName + ' ' + u.lastName) || 'Unknown',
+        email:    u.email || '',
+        cohort:   u.cohort || 'Unassigned',
+        role:     u.role  || 'student',
+        notes:    u.notes || '',
+        progress: sd.progress || {},
+        updatedAt: sd.updatedAt || null,
+        examUnlocked: !!sd.examUnlocked,
+        feedback: sd.feedback || null,
+        preTest:  sd.preTest || null,
+        finalExam: sd.finalExam || null,
+      };
+    }).filter(s => s.role === 'student' || s.role === 'instructor');
 
-    updateStats();
-    renderRoster(allStudents);
     populateCohortOptions();
+    populateCohortFilter();
+    updateStats();
+    applyRosterView();
   } catch(e) {
     document.querySelector('#roster-tbody').innerHTML =
       '<tr><td colspan="7" class="roster-empty">Error loading roster: ' + e.message + '</td></tr>';
@@ -709,15 +735,60 @@ function populateCohortOptions() {
   dl.innerHTML = cohorts.map(c => `<option value="${c}"></option>`).join('');
 }
 
+// ── Cohort isolation: each cohort is viewed as its own section ──────────────
+let activeCohort = (()=>{ try { return localStorage.getItem('pals_active_cohort') || 'ALL'; } catch(e) { return 'ALL'; } })();
+
+function cohortList() {
+  return [...new Set(allStudents.map(s => s.cohort || 'Unassigned'))].sort();
+}
+function populateCohortFilter() {
+  const sel = document.getElementById('cohort-filter');
+  if (!sel) return;
+  const cohorts = cohortList();
+  if (!cohorts.includes(activeCohort)) activeCohort = 'ALL';
+  sel.innerHTML = '<option value="ALL">All cohorts</option>' +
+    cohorts.map(c => `<option value="${c}">${c}</option>`).join('');
+  sel.value = activeCohort;
+}
+function inActiveCohort(s) {
+  return activeCohort === 'ALL' || (s.cohort || 'Unassigned') === activeCohort;
+}
+function visibleStudents() {
+  return allStudents.filter(inActiveCohort);
+}
+function setCohortView(v) {
+  activeCohort = v || 'ALL';
+  try { localStorage.setItem('pals_active_cohort', activeCohort); } catch(e) {}
+  const note = document.getElementById('cohort-scope-note');
+  if (note) note.innerHTML = activeCohort === 'ALL'
+    ? 'Viewing <strong>all cohorts</strong>. Cohorts are kept separate — select one above to isolate its roster, statistics and CSV export.'
+    : `Viewing cohort <strong>${activeCohort}</strong> only. Roster, statistics and CSV export are limited to this cohort.`;
+  updateStats();
+  applyRosterView();
+}
+window.setCohortView = setCohortView;
+
+// Apply the active cohort + the search box together.
+function applyRosterView() {
+  const q = (document.getElementById('roster-search').value || '').toLowerCase();
+  let list = visibleStudents();
+  if (q) list = list.filter(s =>
+    s.name.toLowerCase().includes(q) ||
+    s.email.toLowerCase().includes(q) ||
+    (s.cohort || '').toLowerCase().includes(q));
+  renderRoster(list);
+}
+
 function modCount(progress) {
   return Object.keys(progress).filter(k => progress[k]).length;
 }
 
 function updateStats() {
-  const total   = allStudents.length;
-  const done    = allStudents.filter(s => modCount(s.progress) >= MOD_COUNT).length;
-  const inprog  = allStudents.filter(s => { const c=modCount(s.progress); return c>0 && c<MOD_COUNT; }).length;
-  const notst   = allStudents.filter(s => modCount(s.progress) === 0).length;
+  const scope   = visibleStudents();
+  const total   = scope.length;
+  const done    = scope.filter(s => modCount(s.progress) >= MOD_COUNT).length;
+  const inprog  = scope.filter(s => { const c=modCount(s.progress); return c>0 && c<MOD_COUNT; }).length;
+  const notst   = scope.filter(s => modCount(s.progress) === 0).length;
   document.getElementById('stat-total').textContent      = total;
   document.getElementById('stat-done').textContent       = done;
   document.getElementById('stat-progress').textContent   = inprog;
@@ -772,19 +843,14 @@ function renderRoster(students) {
 }
 
 function filterRoster() {
-  const q = document.getElementById('roster-search').value.toLowerCase();
-  if (!q) { renderRoster(allStudents); return; }
-  renderRoster(allStudents.filter(s =>
-    s.name.toLowerCase().includes(q) ||
-    s.email.toLowerCase().includes(q) ||
-    s.cohort.toLowerCase().includes(q)
-  ));
+  // Search is always scoped to the active cohort so cohorts are never mixed.
+  applyRosterView();
 }
 
 // ── EXPORT CSV ────────────────────────────────────────────────
 function exportCSV() {
   const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Pre-Test %','Final Exam %','Feedback','Exam Access','Last Active']];
-  allStudents.forEach(s => {
+  visibleStudents().forEach(s => {
     const count = modCount(s.progress);
     rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/MOD_COUNT*100)+'%',
       (s.preTest&&s.preTest.pct!=null)?s.preTest.pct+'%':'',
@@ -797,7 +863,8 @@ function exportCSV() {
   const blob = new Blob([csv], {type:'text/csv'});
   const a    = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'pals_roster_' + new Date().toISOString().slice(0,10) + '.csv';
+  const cohortTag = activeCohort === 'ALL' ? 'all' : activeCohort.replace(/[^A-Za-z0-9_-]+/g,'_');
+  a.download = 'pals_roster_' + cohortTag + '_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
 }
 window.exportCSV = exportCSV;
@@ -878,7 +945,7 @@ async function saveEdit() {
     if (s) { s.progress = progress; s.notes = notes; s.updatedAt = Date.now(); }
 
     updateStats();
-    renderRoster(allStudents);
+    applyRosterView();
     resultEl.textContent = '✅ Saved successfully!';
     resultEl.style.color = 'var(--success)';
     setTimeout(closeEditModal, 1200);
@@ -904,7 +971,7 @@ async function resetProgress() {
     const s = allStudents.find(x => x.uid === editUid);
     if (s) { s.progress = {}; s.updatedAt = Date.now(); }
     updateStats();
-    renderRoster(allStudents);
+    applyRosterView();
     resultEl.textContent = '✅ Progress reset!';
     resultEl.style.color = 'var(--success)';
     setTimeout(closeEditModal, 1200);
