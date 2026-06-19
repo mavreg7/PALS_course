@@ -1,0 +1,22 @@
+{"users": [
+{
+  "localId": "RvrQwjNwUvfUsWE9irea39PzdOl1",
+  "email": "nitai.tal@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "4Qfxe41mcpnXXpB6fBxvn82SiZ27IY9ggG8iNpy6IRd0lOBOFa2En0kVMFHK+16CZHO+KLGD7FBtcnzYgB7ZfA==",
+  "salt": "KnFiWQEW6qDldQ==",
+  "lastSignedInAt": "1781633536796",
+  "createdAt": "1780810200964",
+  "disabled": false,
+  "providerUserInfo": []
+},
+{
+  "localId": "iJ7TlYQ2GicSj6AgQjJKiPZjCxv2",
+  "email": "nitai.tal+palstest@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "Gof0hdll8zHjnflTdSoKFNKVvSVdqoaFqIEwx/NOwp6CTKM9Y1RadmHipVOjvg71R/Mrmoct1ulcXMRg9SCUVg==",
+  "salt": "JRCm/jRNXOxzFw==",
+  "lastSignedInAt": "1781708288061",
+  "createdAt": "1780941652175",
+  "providerUserInfo": []
+}]}

@@ -1,0 +1,745 @@
+diff --git a/HANDOFF.md b/HANDOFF.md
+index 16e9ad4..da479be 100644
+--- a/HANDOFF.md
++++ b/HANDOFF.md
+@@ -41,6 +41,69 @@ were confirmed already deployed and the first admin already bootstrapped.
+ 
+ ---
+ 
++## Batch 2 (same June 18 session — second round of fixes)
++
++1. **Feedback: all fields mandatory; date auto-applied.** Every rating (1–5),
++   both text fields and the name are required to submit; the manual date input
++   was removed and the date is stamped automatically at submission. Student
++   name is locked to their session. (`pals_forms_portal.html`)
++2. **Certificate hidden from students.** Removed the Certificate tab from the
++   student forms-portal view and the cert quick-card from the student hub —
++   instructors issue certificates. (`pals_forms_portal.html`, `hub_student.html`)
++3. **More 3/4 ↔ 9 dedup.** Module 4's IO slide (duplicated Module 9's IO
++   landmark image + text) is now a shock-context IV-vs-IO decision slide that
++   defers landmark/technique to Module 9; Module 3's BVM card now points to
++   Module 9 for OPA/C-E technique. (`slides/pals_module_04_shock…`, `…module_03…`)
++4. **Cohort isolation ("can't be mixed") — UI + rules ("Both").**
++   - Hub roster: a cohort selector scopes roster, stats and CSV export to one
++     cohort at a time (persisted); roster merge now carries real student fields
++     (exam-unlock, feedback, scores). (`hub_instructor.html`)
++   - `firestore.rules`: admins & lead instructors see all cohorts; a plain
++     `instructor` can only read/write users + students in their **own** cohort
++     (student cohort resolved from the user profile — no duplication). Plain-
++     instructor roster load was adapted to cohort-scoped queries so it stays
++     rules-compatible. **Deploy needed:** `firebase deploy --only firestore:rules`.
++   - Note: the instructor *dashboard* still does unconstrained collection reads —
++     fine for admin/lead (Nitai); a plain instructor would see it empty and
++     should use the hub roster instead.
++
++---
++
++## Batch 3 (bug-fix round)
++
++1. **Pre-test now hidden (not just locked)** until all 9 modules are complete —
++   student tabs are fully dynamic; the Pre-Test tab and hub card only appear
++   once modules are done. (`pals_forms_portal.html`, `hub_student.html`)
++2. **Admin "Reset Progress" actually clears** now — was `setDoc({progress:{}},
++   {merge:true})`, which deep-merges maps and left the old keys (student still
++   read as complete). Switched to `updateDoc` (overwrites the field).
++   (`hub_instructor.html`)
++3. **Every submitted form embeds the current date, non-editable** — pre-test,
++   attendance, BLS, megacode, final-exam and certificate date fields are
++   auto-set to today, `readOnly`, `min=max=today`. (`pals_forms_portal.html`;
++   feedback was already auto.)
++4. **Dashboard roster edit fixed** — a stray quote in the edit button's
++   `onclick` (`…')'"`) broke every edit; removed. (`pals_instructor_dashboard.html`)
++5. **Instructors now appear in the roster** — dashboard no longer filters the
++   roster to students-only (enrolled stat + cohort progress still count
++   students only). Plus: creating an account now refreshes the hub roster
++   immediately, and the success panel has an **✉ Email login details** button
++   (mailto with the sign-in link + credentials pre-filled — true server-side
++   email needs a backend, which this static site doesn't have).
++   (`pals_instructor_dashboard.html`, `hub_instructor.html`)
++6. **Removed non-essential bits** — "Export JSON" (forms pre-reg + dashboard
++   "Export All Forms"), and the QR-share buttons.
++7. **QR audit** — removed the forms-portal QR buttons (they encoded the
++   auth-gated portal URL, i.e. instructor-only). The course-planner QR points
++   to the public, un-gated planner page, so it was left as-is.
++
++**Still open from the handoff list (NOT done — need source material / large
++content effort):** audit modules 01–02 & 04–08, per-slide quizzes for all
++decks, full cross-module see-also pass, AHA 2025 errata (needs the reference
++PDFs Nitai holds locally). Cross-module pointers were added for M3/M4 ↔ M9.
++
++---
++
+ ## Repo state
+ 
+ **Repo:** `mavreg7/PALS_course` · `main` auto-deploys to Vercel on push.
+diff --git a/firestore.rules b/firestore.rules
+index 07a69c7..bb777ad 100644
+--- a/firestore.rules
++++ b/firestore.rules
+@@ -20,6 +20,20 @@ service cloud.firestore {
+     function isAdmin() {
+       return myRole() == 'admin';
+     }
++    // ── Cohort isolation ──────────────────────────────────────────
++    // Admins and lead instructors see every cohort. A plain "instructor"
++    // is walled to their own cohort so cohorts can never be mixed.
++    function myCohort() {
++      return signedIn()
++        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.cohort
++        : null;
++    }
++    function userCohort(uid) {
++      return get(/databases/$(database)/documents/users/$(uid)).data.cohort;
++    }
++    function seesAllCohorts() {
++      return isAdmin() || myRole() == 'lead_instructor';
++    }
+     // Keys a user is NOT allowed to change on their own profile
+     function touchesPrivileged() {
+       return request.resource.data.diff(resource.data)
+@@ -28,12 +42,19 @@ service cloud.firestore {
+ 
+     // ── USERS: profile + role ────────────────────────────────────
+     match /users/{uid} {
+-      allow read: if signedIn() && (request.auth.uid == uid || isStaff());
++      // Self, all-cohort staff, or a same-cohort instructor.
++      allow read: if signedIn() && (
++        request.auth.uid == uid
++        || seesAllCohorts()
++        || (myRole() == 'instructor' && resource.data.cohort == myCohort())
++      );
+ 
+       // Self may update own profile but never role/canAdmin
+       allow update: if signedIn() && request.auth.uid == uid && !touchesPrivileged();
+-      // Staff may update profiles; only admin may change role/canAdmin
+-      allow update: if isStaff() && (!touchesPrivileged() || isAdmin());
++      // Staff may update profiles; only admin may change role/canAdmin;
++      // a plain instructor may only touch users in their own cohort.
++      allow update: if isStaff() && (!touchesPrivileged() || isAdmin())
++        && (seesAllCohorts() || resource.data.cohort == myCohort());
+ 
+       // Account creation: an admin (Create Student tool), OR an invited
+       // person registering themselves — only if their email is on the
+@@ -49,8 +70,14 @@ service cloud.firestore {
+     }
+ 
+     // ── STUDENTS: progress, flags, exam scores, certificate ──────
++    // Own doc, all-cohort staff, or a same-cohort instructor. The student's
++    // cohort is resolved from their users/{uid} profile (no duplication).
+     match /students/{uid} {
+-      allow read, write: if signedIn() && (request.auth.uid == uid || isStaff());
++      allow read, write: if signedIn() && (
++        request.auth.uid == uid
++        || seesAllCohorts()
++        || (myRole() == 'instructor' && userCohort(uid) == myCohort())
++      );
+     }
+ 
+     // ── ALLOWLIST: invited people (admin uploads via CSV/XLSX) ───
+diff --git a/hub_instructor.html b/hub_instructor.html
+index fdb2c97..a6fb751 100644
+--- a/hub_instructor.html
++++ b/hub_instructor.html
+@@ -260,12 +260,16 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
+   </div>
+ 
+   <div class="roster-header">
+-    <input class="roster-search" id="roster-search" type="search" placeholder="🔍  Search by name, email or cohort…" oninput="filterRoster()">
++    <select id="cohort-filter" class="roster-search" style="max-width:240px;cursor:pointer" onchange="setCohortView(this.value)" title="Each cohort is shown separately — pick one to view its roster, stats and exports.">
++      <option value="ALL">All cohorts</option>
++    </select>
++    <input class="roster-search" id="roster-search" type="search" placeholder="🔍  Search within cohort…" oninput="filterRoster()">
+     <div class="roster-actions">
+       <button class="btn-sm btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+       <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px" onclick="loadRoster()">↺ Refresh</button>
+     </div>
+   </div>
++  <div id="cohort-scope-note" style="font-size:.78rem;color:var(--muted);margin:-.4rem 0 .8rem">Viewing <strong>all cohorts</strong>. Cohorts are kept separate — select one above to isolate its roster, statistics and CSV export.</div>
+ 
+   <div class="roster-table-wrap">
+     <table class="roster-table">
+@@ -336,6 +340,7 @@ import {
+   getFirestore,
+   doc, setDoc, getDoc, getDocs,
+   collection, onSnapshot, updateDoc,
++  query, where,
+   serverTimestamp
+ } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+ 
+@@ -505,6 +510,8 @@ submitBtn.addEventListener('click', async () => {
+ 
+     // 3. Show success with credentials
+     showSuccess(fname, lname, email, pw, role, cohort);
++    // New account appears in the roster immediately.
++    try { loadRoster(); } catch(e) {}
+ 
+   } catch (err) {
+     await secondarySignOut(secondaryAuth).catch(() => {});
+@@ -518,6 +525,13 @@ submitBtn.addEventListener('click', async () => {
+ function showSuccess(fname, lname, email, pw, role, cohort) {
+   submitBtn.textContent = '✓ Account Created';
+   resultBox.className = 'create-result success';
++  const loginUrl = new URL('index.html', location.href).href;
++  const subject  = encodeURIComponent('Your PALS 2025 course login');
++  const body     = encodeURIComponent(
++    `Hello ${fname},\n\nYou have been enrolled in the PALS 2025 course as ${(role||'student').replace('_',' ')}.\n\n`+
++    `Sign in here: ${loginUrl}\nEmail: ${email}\nTemporary password: ${pw}\n\n`+
++    `Please change your password after your first sign-in.\n`);
++  const mailto = `mailto:${email}?subject=${subject}&body=${body}`;
+   resultBox.innerHTML = `
+     <strong>✅ Account created successfully!</strong><br>
+     ${fname} ${lname} has been added to the roster.
+@@ -528,7 +542,8 @@ function showSuccess(fname, lname, email, pw, role, cohort) {
+       <strong>Role:</strong> ${role}<br>
+       <strong>Cohort:</strong> ${cohort || 'Unassigned'}
+     </div>
+-    <div style="margin-top:.55rem;font-size:.75rem;color:var(--muted)">Copy these credentials and share them securely with the student. They can change their password after first login.</div>
++    <a class="btn-sm" href="${mailto}" style="display:inline-flex;align-items:center;gap:.4rem;margin-top:.6rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.45rem .9rem;text-decoration:none;font-weight:700">✉ Email login details to ${email}</a>
++    <div style="margin-top:.55rem;font-size:.75rem;color:var(--muted)">Opens your mail app with the sign-in link and credentials pre-filled. (Automatic server-side email needs a backend — not part of this static site.)</div>
+   `;
+   // Button becomes "Create Another"; the existing click handler sees
+   // createdOnce and clears the form on the next click (no double handlers).
+@@ -671,31 +686,52 @@ async function loadRoster() {
+   try {
+     document.querySelector('#roster-tbody').innerHTML = '<tr><td colspan="7" class="roster-empty">Loading…</td></tr>';
+ 
+-    // Load users collection (has name/email/cohort/role)
+-    const usersSnap = await getDocs(collection(db,'users'));
+     allUsers = {};
+-    usersSnap.forEach(d => { allUsers[d.id] = d.data(); });
+-
+-    // Load students collection (has progress)
+-    const studSnap = await getDocs(collection(db,'students'));
+-    const progMap  = {};
+-    studSnap.forEach(d => { progMap[d.id] = d.data(); });
++    const progMap = {};
++    const seesAll = s.role === 'admin' || s.role === 'lead_instructor';
++
++    if (seesAll) {
++      // Admin / lead instructor — full cross-cohort view.
++      const usersSnap = await getDocs(collection(db,'users'));
++      usersSnap.forEach(d => { allUsers[d.id] = d.data(); });
++      const studSnap = await getDocs(collection(db,'students'));
++      studSnap.forEach(d => { progMap[d.id] = d.data(); });
++    } else {
++      // Plain instructor — strictly limited to their own cohort (rules enforce this).
++      const meSnap = await getDoc(doc(db,'users',s.uid));
++      const myCohort = (meSnap.exists() && meSnap.data().cohort) || 'Unassigned';
++      const usersSnap = await getDocs(query(collection(db,'users'), where('cohort','==', myCohort)));
++      const ids = [];
++      usersSnap.forEach(d => { allUsers[d.id] = d.data(); ids.push(d.id); });
++      // Student docs are fetched individually — the collection list is cohort-restricted.
++      await Promise.all(ids.map(async uid => {
++        try { const sd = await getDoc(doc(db,'students',uid)); if (sd.exists()) progMap[uid] = sd.data(); } catch(e){}
++      }));
++    }
+ 
+-    // Merge
+-    allStudents = Object.entries(allUsers).map(([uid, u]) => ({
+-      uid,
+-      name:     u.name || (u.firstName + ' ' + u.lastName) || 'Unknown',
+-      email:    u.email || '',
+-      cohort:   u.cohort || 'Unassigned',
+-      role:     u.role  || 'student',
+-      notes:    u.notes || '',
+-      progress: (progMap[uid] && progMap[uid].progress) || {},
+-      updatedAt:(progMap[uid] && progMap[uid].updatedAt) || null,
+-    })).filter(s => s.role === 'student' || s.role === 'instructor');
++    // Merge (carry through the full student record: scores, feedback, exam unlock)
++    allStudents = Object.entries(allUsers).map(([uid, u]) => {
++      const sd = progMap[uid] || {};
++      return {
++        uid,
++        name:     u.name || (u.firstName + ' ' + u.lastName) || 'Unknown',
++        email:    u.email || '',
++        cohort:   u.cohort || 'Unassigned',
++        role:     u.role  || 'student',
++        notes:    u.notes || '',
++        progress: sd.progress || {},
++        updatedAt: sd.updatedAt || null,
++        examUnlocked: !!sd.examUnlocked,
++        feedback: sd.feedback || null,
++        preTest:  sd.preTest || null,
++        finalExam: sd.finalExam || null,
++      };
++    }).filter(s => s.role === 'student' || s.role === 'instructor');
+ 
+-    updateStats();
+-    renderRoster(allStudents);
+     populateCohortOptions();
++    populateCohortFilter();
++    updateStats();
++    applyRosterView();
+   } catch(e) {
+     document.querySelector('#roster-tbody').innerHTML =
+       '<tr><td colspan="7" class="roster-empty">Error loading roster: ' + e.message + '</td></tr>';
+@@ -709,15 +745,60 @@ function populateCohortOptions() {
+   dl.innerHTML = cohorts.map(c => `<option value="${c}"></option>`).join('');
+ }
+ 
++// ── Cohort isolation: each cohort is viewed as its own section ──────────────
++let activeCohort = (()=>{ try { return localStorage.getItem('pals_active_cohort') || 'ALL'; } catch(e) { return 'ALL'; } })();
++
++function cohortList() {
++  return [...new Set(allStudents.map(s => s.cohort || 'Unassigned'))].sort();
++}
++function populateCohortFilter() {
++  const sel = document.getElementById('cohort-filter');
++  if (!sel) return;
++  const cohorts = cohortList();
++  if (!cohorts.includes(activeCohort)) activeCohort = 'ALL';
++  sel.innerHTML = '<option value="ALL">All cohorts</option>' +
++    cohorts.map(c => `<option value="${c}">${c}</option>`).join('');
++  sel.value = activeCohort;
++}
++function inActiveCohort(s) {
++  return activeCohort === 'ALL' || (s.cohort || 'Unassigned') === activeCohort;
++}
++function visibleStudents() {
++  return allStudents.filter(inActiveCohort);
++}
++function setCohortView(v) {
++  activeCohort = v || 'ALL';
++  try { localStorage.setItem('pals_active_cohort', activeCohort); } catch(e) {}
++  const note = document.getElementById('cohort-scope-note');
++  if (note) note.innerHTML = activeCohort === 'ALL'
++    ? 'Viewing <strong>all cohorts</strong>. Cohorts are kept separate — select one above to isolate its roster, statistics and CSV export.'
++    : `Viewing cohort <strong>${activeCohort}</strong> only. Roster, statistics and CSV export are limited to this cohort.`;
++  updateStats();
++  applyRosterView();
++}
++window.setCohortView = setCohortView;
++
++// Apply the active cohort + the search box together.
++function applyRosterView() {
++  const q = (document.getElementById('roster-search').value || '').toLowerCase();
++  let list = visibleStudents();
++  if (q) list = list.filter(s =>
++    s.name.toLowerCase().includes(q) ||
++    s.email.toLowerCase().includes(q) ||
++    (s.cohort || '').toLowerCase().includes(q));
++  renderRoster(list);
++}
++
+ function modCount(progress) {
+   return Object.keys(progress).filter(k => progress[k]).length;
+ }
+ 
+ function updateStats() {
+-  const total   = allStudents.length;
+-  const done    = allStudents.filter(s => modCount(s.progress) >= MOD_COUNT).length;
+-  const inprog  = allStudents.filter(s => { const c=modCount(s.progress); return c>0 && c<MOD_COUNT; }).length;
+-  const notst   = allStudents.filter(s => modCount(s.progress) === 0).length;
++  const scope   = visibleStudents();
++  const total   = scope.length;
++  const done    = scope.filter(s => modCount(s.progress) >= MOD_COUNT).length;
++  const inprog  = scope.filter(s => { const c=modCount(s.progress); return c>0 && c<MOD_COUNT; }).length;
++  const notst   = scope.filter(s => modCount(s.progress) === 0).length;
+   document.getElementById('stat-total').textContent      = total;
+   document.getElementById('stat-done').textContent       = done;
+   document.getElementById('stat-progress').textContent   = inprog;
+@@ -772,19 +853,14 @@ function renderRoster(students) {
+ }
+ 
+ function filterRoster() {
+-  const q = document.getElementById('roster-search').value.toLowerCase();
+-  if (!q) { renderRoster(allStudents); return; }
+-  renderRoster(allStudents.filter(s =>
+-    s.name.toLowerCase().includes(q) ||
+-    s.email.toLowerCase().includes(q) ||
+-    s.cohort.toLowerCase().includes(q)
+-  ));
++  // Search is always scoped to the active cohort so cohorts are never mixed.
++  applyRosterView();
+ }
+ 
+ // ── EXPORT CSV ────────────────────────────────────────────────
+ function exportCSV() {
+   const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Pre-Test %','Final Exam %','Feedback','Exam Access','Last Active']];
+-  allStudents.forEach(s => {
++  visibleStudents().forEach(s => {
+     const count = modCount(s.progress);
+     rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/MOD_COUNT*100)+'%',
+       (s.preTest&&s.preTest.pct!=null)?s.preTest.pct+'%':'',
+@@ -797,7 +873,8 @@ function exportCSV() {
+   const blob = new Blob([csv], {type:'text/csv'});
+   const a    = document.createElement('a');
+   a.href = URL.createObjectURL(blob);
+-  a.download = 'pals_roster_' + new Date().toISOString().slice(0,10) + '.csv';
++  const cohortTag = activeCohort === 'ALL' ? 'all' : activeCohort.replace(/[^A-Za-z0-9_-]+/g,'_');
++  a.download = 'pals_roster_' + cohortTag + '_' + new Date().toISOString().slice(0,10) + '.csv';
+   a.click();
+ }
+ window.exportCSV = exportCSV;
+@@ -878,7 +955,7 @@ async function saveEdit() {
+     if (s) { s.progress = progress; s.notes = notes; s.updatedAt = Date.now(); }
+ 
+     updateStats();
+-    renderRoster(allStudents);
++    applyRosterView();
+     resultEl.textContent = '✅ Saved successfully!';
+     resultEl.style.color = 'var(--success)';
+     setTimeout(closeEditModal, 1200);
+@@ -895,7 +972,9 @@ async function resetProgress() {
+   const resultEl = document.getElementById('edit-result');
+   resultEl.textContent = 'Resetting…';
+   try {
+-    await fsSetDoc(fsDoc(db, 'students', editUid), { progress: {}, updatedAt: Date.now() }, { merge: true });
++    // updateDoc (not setDoc+merge): merge deep-merges maps, so {progress:{}}
++    // would leave the old keys in place and the student still reads as complete.
++    await updateDoc(fsDoc(db, 'students', editUid), { progress: {}, updatedAt: Date.now() });
+     // Uncheck all boxes
+     for (let i = 0; i < MOD_COUNT; i++) {
+       const cb = document.getElementById('mod-check-' + i);
+@@ -904,7 +983,7 @@ async function resetProgress() {
+     const s = allStudents.find(x => x.uid === editUid);
+     if (s) { s.progress = {}; s.updatedAt = Date.now(); }
+     updateStats();
+-    renderRoster(allStudents);
++    applyRosterView();
+     resultEl.textContent = '✅ Progress reset!';
+     resultEl.style.color = 'var(--success)';
+     setTimeout(closeEditModal, 1200);
+diff --git a/hub_student.html b/hub_student.html
+index fc5f389..ea636fc 100644
+--- a/hub_student.html
++++ b/hub_student.html
+@@ -124,7 +124,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
+   </div>
+   <div class="sec-hdr">Quick Access</div>
+   <div class="quick-grid">
+-    <a href="pals_forms_portal.html#pretest" class="ql-card locked" id="ql-pretest">
++    <a href="pals_forms_portal.html#pretest" class="ql-card locked" id="ql-pretest" style="display:none">
+       <span class="ql-icon">📝</span>
+       <div class="ql-title">Pre-Test</div>
+       <div class="ql-sub">Knowledge check · unlocks after modules</div>
+@@ -142,12 +142,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
+       <div class="ql-sub">25 questions · ≥84% to pass</div>
+       <span class="lock-chip locked-state" id="chip-exam">🔒 Not yet available</span>
+     </a>
+-    <a href="pals_forms_portal.html#cert" class="ql-card locked" id="ql-cert">
+-      <span class="ql-icon">🏆</span>
+-      <div class="ql-title">Certificate</div>
+-      <div class="ql-sub">View &amp; print your cert</div>
+-      <span class="lock-chip locked-state" id="chip-cert">🔒 Not yet available</span>
+-    </a>
+   </div>
+   <div class="sec-hdr">9 Learning Modules</div>
+   <div class="mod-grid" id="mod-grid"></div>
+@@ -232,8 +226,14 @@ function render(){
+   const feedback=getExamData('pals_feedback');
+   const feedbackDone=!!(feedback&&feedback.submittedAt);
+   const examUnlocked=(()=>{try{return sessionStorage.getItem('pals_examunlock')==='1';}catch(e){return false;}})()||_globalExamUnlocked;
+-  // Pre-test now unlocks only after all 9 modules are complete (knowledge check).
+-  gate('ql-pretest','chip-pretest',allModulesDone,allModulesDone?(preTest?`✅ Completed · ${preTest.pct}%`:'✅ Open now'):'🔒 Finish all 9 modules first');
++  // Pre-test is hidden entirely until all 9 modules are complete, then appears.
++  const pretestCard=document.getElementById('ql-pretest');
++  if(allModulesDone){
++    pretestCard.style.display='';
++    gate('ql-pretest','chip-pretest',true,preTest?`✅ Completed · ${preTest.pct}%`:'✅ Open now');
++  } else {
++    pretestCard.style.display='none';
++  }
+   // Feedback: required before the final exam, editable until the exam is unlocked.
+   gate('ql-feedback','chip-feedback',true,feedbackDone?(examUnlocked?'✅ Submitted · locked':'✅ Submitted · editable'):'📝 Please complete');
+   // Final Exam: invisible until an instructor unlocks it (#4).
+@@ -244,7 +244,7 @@ function render(){
+   } else {
+     examCard.style.display='none';
+   }
+-  gate('ql-cert','chip-cert',examPassed,examPassed?'✅ Open now':'🔒 Pass the final exam first');
++  // Certificate is issued by instructors — not shown in the student portal.
+   const pct=Math.round(completed/MODULES.length*100);
+   document.getElementById('prog-pct').textContent=pct+'%';
+   document.getElementById('prog-fill').style.width=pct+'%';
+diff --git a/pals_forms_portal.html b/pals_forms_portal.html
+index 32e8aa9..1fff8d1 100644
+--- a/pals_forms_portal.html
++++ b/pals_forms_portal.html
+@@ -6,7 +6,6 @@
+ <title>PALS 2025 Forms Portal · v2026-06-18b</title>
+ <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+ <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+ <script src="firebase-config.js"></script>
+ <script type="module" src="firebase-sync.js"></script>
+ <style>
+@@ -106,8 +105,6 @@
+         <div class="flex flex-wrap gap-2 mt-5 no-print">
+           <button class="btn btn-prim" onclick="savePrereg()">💾 Save Registration</button>
+           <button class="btn btn-ghost" onclick="exportData('pals2025_preregistration','csv')">⬇ CSV</button>
+-          <button class="btn btn-ghost" onclick="exportData('pals2025_preregistration','json')">⬇ JSON</button>
+-          <button class="btn btn-ghost" onclick="genQR('prereg')">📱 QR Share</button>
+           <button class="btn btn-warn" onclick="clearForm('prereg')">↻ Clear</button>
+         </div>
+         <div id="prereg_qr" class="mt-4"></div>
+@@ -162,7 +159,6 @@
+         <div class="flex flex-wrap gap-2 mt-5 no-print">
+           <button class="btn btn-prim" onclick="saveAttendance()">💾 Save</button>
+           <button class="btn btn-ghost" onclick="exportData('pals2025_attendance','csv')">⬇ CSV</button>
+-          <button class="btn btn-ghost" onclick="genQR('attendance')">📱 QR Share</button>
+         </div>
+         <div id="attendance_qr" class="mt-4"></div>
+         <div id="attendance_list" class="mt-6"></div>
+@@ -259,20 +255,21 @@
+       </div>
+       <div class="card p-6">
+         <h2 class="text-xl font-bold mb-4">Course Feedback</h2>
+-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+-          <input class="field" id="fb_name" placeholder="Name (optional)">
+-          <input class="field" id="fb_date" type="date">
++        <div class="mb-4">
++          <label class="lbl">Your name <span style="color:#EF4444">*</span></label>
++          <input class="field" id="fb_name" placeholder="Your full name">
++          <input type="hidden" id="fb_date">
++          <div class="text-xs text-slate-500 mt-1">All fields are required. The date is recorded automatically when you submit.</div>
+         </div>
+         <div id="fb_ratings" class="space-y-3"></div>
+-        <div class="mt-4"><label class="lbl">What worked well?</label><textarea class="field" id="fb_good" rows="2"></textarea></div>
+-        <div class="mt-3"><label class="lbl">Suggestions for improvement</label><textarea class="field" id="fb_improve" rows="2"></textarea></div>
+-        <div class="mt-3"><label class="lbl">Would you recommend this course?</label>
++        <div class="mt-4"><label class="lbl">What worked well? <span style="color:#EF4444">*</span></label><textarea class="field" id="fb_good" rows="2"></textarea></div>
++        <div class="mt-3"><label class="lbl">Suggestions for improvement <span style="color:#EF4444">*</span></label><textarea class="field" id="fb_improve" rows="2"></textarea></div>
++        <div class="mt-3"><label class="lbl">Would you recommend this course? <span style="color:#EF4444">*</span></label>
+           <select class="field" id="fb_recommend"><option>Definitely</option><option>Probably</option><option>Unsure</option><option>No</option></select>
+         </div>
+         <div class="flex flex-wrap gap-2 mt-5 no-print">
+           <button class="btn btn-prim" onclick="saveFeedback()">💾 Submit Feedback</button>
+           <button class="btn btn-ghost" onclick="exportData('pals2025_feedback','csv')">⬇ CSV</button>
+-          <button class="btn btn-ghost" onclick="genQR('feedback')">📱 QR Share</button>
+         </div>
+         <div id="feedback_qr" class="mt-4"></div>
+       </div>
+@@ -342,12 +339,16 @@ const ALL_TABS = [
+ ];
+ // Students never see the instructor-only forms. The Final Exam tab is hidden
+ // entirely until an admin/instructor unlocks it (globally or per-student).
+-const STUDENT_BASE_TABS = [
+-  {id:'pretest',  label:'Pre-Test'},
+-  {id:'feedback', label:'Course Feedback'},
+-  {id:'cert',     label:'Certificate'},
+-];
+-const STUDENT_ALLOWED_TABS = ['pretest','feedback','cert','exam'];
++// Student tabs are fully dynamic: Pre-Test is hidden until all 9 modules are
++// done, the Final Exam is hidden until an admin unlocks it, and the
++// Certificate is never student-facing (instructors issue it).
++const STUDENT_ALLOWED_TABS = ['pretest','feedback','exam'];
++function studentTabs(){
++  const t = [{id:'feedback', label:'Course Feedback'}];
++  if (STU.modulesDone)  t.unshift({id:'pretest', label:'Pre-Test'});
++  if (STU.examUnlocked) t.push({id:'exam', label:'Final Exam'});
++  return t;
++}
+ 
+ const tabsEl = document.getElementById('tabs');
+ function buildTabs(arr){
+@@ -368,23 +369,22 @@ if(IS_INSTRUCTOR){
+   buildTabs(ALL_TABS);
+   switchTab(_hash || 'prereg');
+ } else {
+-  // Student: build base tabs now; the Final Exam tab is added only once unlocked.
+-  buildTabs(STUDENT_BASE_TABS);
+-  switchTab(STUDENT_ALLOWED_TABS.includes(_hash) && _hash!=='exam' ? _hash : 'pretest');
++  // Student: build whatever tabs are currently available (feedback always is).
++  buildTabs(studentTabs());
++  const want = STUDENT_ALLOWED_TABS.includes(_hash) ? _hash : 'feedback';
++  switchTab(studentTabs().some(t=>t.id===want) ? want : 'feedback');
+ }
+ 
+ // Rebuild the student tab bar, adding the Final Exam tab only when unlocked.
+ let _studentTabsSig = '';
+ function rebuildStudentTabs(){
+-  const tabs = STU.examUnlocked
+-    ? [STUDENT_BASE_TABS[0], STUDENT_BASE_TABS[1], {id:'exam',label:'Final Exam'}, STUDENT_BASE_TABS[2]]
+-    : STUDENT_BASE_TABS;
++  const tabs = studentTabs();
+   const sig = tabs.map(t=>t.id).join(',');
+   if(sig===_studentTabsSig) return;
+   _studentTabsSig = sig;
+   const active = document.querySelector('.tab.active')?.dataset.tab;
+   buildTabs(tabs);
+-  switchTab(tabs.some(t=>t.id===active) ? active : 'pretest');
++  switchTab(tabs.some(t=>t.id===active) ? active : tabs[0].id);
+ }
+ 
+ // ── Apply all student gates from a loadAndSync snapshot ──────────────────────
+@@ -494,9 +494,18 @@ if(STUDENT_SESS){
+   const lock=(id,val)=>{const el=document.getElementById(id);if(el){el.value=val;el.readOnly=true;el.style.background='#f1f5f9'}};
+   lock('pre_name',STUDENT_SESS.name);lock('pre_email',STUDENT_SESS.email||'');
+   lock('ex_name',STUDENT_SESS.name);lock('ex_email',STUDENT_SESS.email||'');
+-  lock('ct_name',STUDENT_SESS.name);
++  lock('ct_name',STUDENT_SESS.name);lock('fb_name',STUDENT_SESS.name);
+ }
+ 
++// Every submitted form embeds the current date — auto-filled and not editable.
++(function lockSubmissionDates(){
++  const today = new Date().toISOString().slice(0,10);
++  ['pre_date','att_date','bls_date','mc_date','ex_date','ct_date'].forEach(id=>{
++    const el=document.getElementById(id);
++    if(el){ el.value=today; el.min=today; el.max=today; el.readOnly=true; el.style.background='#f1f5f9'; el.title='Recorded automatically — today'; }
++  });
++})();
++
+ function exportData(key,fmt){
+   const data=getStore(key);
+   if(!data.length){toast('No data to export','#F59E0B');return}
+@@ -516,14 +525,6 @@ function exportData(key,fmt){
+   toast('Exported '+fmt.toUpperCase());
+ }
+ 
+-function genQR(form){
+-  const target=document.getElementById(form+'_qr');
+-  if(!target)return;
+-  target.innerHTML='<div class="bg-white p-3 inline-block rounded-lg border border-slate-200"><div id="qr_'+form+'"></div><div class="text-xs text-slate-500 mt-2 text-center">Scan to view link</div></div>';
+-  const url=location.href.split('#')[0]+'#'+form;
+-  new QRCode(document.getElementById('qr_'+form),{text:url,width:160,height:160,colorDark:'#0891B2',colorLight:'#fff'});
+-}
+-
+ function clearForm(name){
+   if(!confirm('Clear current form?'))return;
+   document.querySelectorAll('[data-panel="'+name+'"] input, [data-panel="'+name+'"] textarea').forEach(el=>{
+@@ -776,7 +777,16 @@ async function saveFeedback(){
+   if(STUDENT_SESS && STU.examUnlocked && STU.feedback && STU.feedback.submittedAt){
+     toast('Feedback is locked — the exam has been unlocked','#EF4444'); return;
+   }
+-  const payload={name:document.getElementById('fb_name').value,date:document.getElementById('fb_date').value,ratings:FB_ITEMS.map((it,i)=>({item:it,score:window._fb[i]||0})),good:document.getElementById('fb_good').value,improve:document.getElementById('fb_improve').value,recommend:document.getElementById('fb_recommend').value};
++  // All parts are mandatory; the date is auto-applied at submission time.
++  const name=document.getElementById('fb_name').value.trim();
++  const ratings=FB_ITEMS.map((it,i)=>({item:it,score:window._fb[i]||0}));
++  const good=document.getElementById('fb_good').value.trim();
++  const improve=document.getElementById('fb_improve').value.trim();
++  const recommend=document.getElementById('fb_recommend').value;
++  if(!name){ toast('Please enter your name','#EF4444'); return; }
++  if(ratings.some(r=>!r.score)){ toast('Please rate every item (1–5)','#EF4444'); return; }
++  if(!good || !improve){ toast('Please complete all written fields','#EF4444'); return; }
++  const payload={name,date:new Date().toISOString().slice(0,10),ratings,good,improve,recommend};
+   if(STUDENT_SESS){
+     const fb=await fbReady();
+     if(fb&&fb.saveFeedback){ await fb.saveFeedback(payload); }
+diff --git a/pals_instructor_dashboard.html b/pals_instructor_dashboard.html
+index 4a07f49..d2e7b82 100644
+--- a/pals_instructor_dashboard.html
++++ b/pals_instructor_dashboard.html
+@@ -168,7 +168,6 @@
+       <button class="btn btn-prim" onclick="exportRoster()">⬇ Export Roster CSV</button>
+       <button class="btn btn-ghost" onclick="printAttendance()">🖨 Attendance Sheets</button>
+       <button class="btn btn-sec" onclick="generateAllCerts()">🎓 Generate All Certificates</button>
+-      <button class="btn btn-warn" onclick="exportAll()">⬇ Export All Forms (JSON)</button>
+       <button class="btn" style="background:#fee2e2;color:#b91c1c" onclick="clearAll()">🗑 Clear All Data</button>
+     </div>
+   </section>
+@@ -279,12 +278,13 @@ let fbLoaded = false;
+ async function loadFirebaseUsers() {
+   try {
+     const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
+-    // ── FIX: only keep student-role accounts in the roster ──
++    // Keep students AND instructors in the roster (admins are excluded).
+     fbUsers = snap.docs
+       .map(d => ({ ...d.data(), uid: d.id }))
+-      .filter(u => !u.role || u.role === 'student');
++      .filter(u => !u.role || u.role === 'student' || u.role === 'instructor' || u.role === 'lead_instructor');
+     fbLoaded = true;
+-    showBanner(`✓ Firebase roster loaded — ${fbUsers.length} student(s) found`, 'green');
++    const nStu = fbUsers.filter(u => !u.role || u.role === 'student').length;
++    showBanner(`✓ Firebase roster loaded — ${fbUsers.length} account(s) (${nStu} student(s))`, 'green');
+   } catch(e) {
+     fbLoaded = true;
+     showBanner(`⚠ Could not load Firebase accounts: ${e.message}`, 'yellow');
+@@ -394,7 +394,7 @@ function buildRoster() {
+ 
+ function renderStats(){
+   const r = buildRoster();
+-  document.getElementById('s_enrolled').textContent = r.length;
++  document.getElementById('s_enrolled').textContent = r.filter(x => !x.role || x.role==='student').length;
+   document.getElementById('s_passed').textContent   = r.filter(x => x.examRaw==='Pass').length;
+   document.getElementById('s_failed').textContent   = r.filter(x => x.examRaw==='Fail').length;
+   document.getElementById('s_remed').textContent    = r.filter(x => x.bls==='Needs Remediation'||x.megacode==='Remediate').length;
+@@ -444,7 +444,7 @@ function renderRoster(){
+     const role  = encodeURIComponent(x.role   || 'student');
+     const email = encodeURIComponent(x.email  || '');
+     const editBtn = uid
+-      ? `<button class="btn-edit no-print" onclick="openEditModal('${uid}','${fname}','${lname}','${cohort}','${role}','${email}')'">✏️ Edit</button>`
++      ? `<button class="btn-edit no-print" onclick="openEditModal('${uid}','${fname}','${lname}','${cohort}','${role}','${email}')">✏️ Edit</button>`
+       : `<span class="text-xs text-slate-400 no-print">n/a</span>`;
+     return `<tr>
+       <td class="font-semibold">${x.name}</td>
+@@ -549,14 +549,6 @@ window.generateAllCerts = function(){
+   alert('Generated '+r.length+' certificates. View in Forms Portal → Certificate.');
+   refreshAll();
+ };
+-window.exportAll = function(){
+-  const all={};
+-  ['pals2025_preregistration','pals2025_pretest','pals2025_attendance','pals2025_bls_skills','pals2025_megacode','pals2025_final_exam','pals2025_feedback','pals2025_certificates','pals2025_course_meta','pals2025_planner'].forEach(k=>{
+-    try{all[k]=JSON.parse(localStorage.getItem(k)||'null')}catch(e){all[k]=null}
+-  });
+-  all['firebase_users'] = fbUsers.map(u => ({ name:u.name, email:u.email, role:u.role, cohort:u.cohort, uid:u.uid }));
+-  download(new Blob([JSON.stringify(all,null,2)],{type:'application/json'}),'pals_full_export.json');
+-};
+ window.clearAll = function(){
+   if(!confirm('This permanently clears ALL course data on this device. Continue?'))return;
+   if(!confirm('Are you absolutely sure? This cannot be undone.'))return;
+@@ -659,7 +651,8 @@ function computeCohortStats(){
+   const by = {};
+   const row = c => by[c] || (by[c] = { cohort:c, invited:0, registered:0, completed:0, inprog:0 });
+   fbAllowlist.forEach(a => { row((a.cohort||'—')).invited++; });
+-  fbUsers.forEach(u => {
++  // Only students contribute to registered/progress counts (instructors excluded).
++  fbUsers.filter(u => !u.role || u.role === 'student').forEach(u => {
+     const r = row(u.cohort || '—');
+     r.registered++;
+     const pc = fbStudentProgress[u.uid] || 0;
+diff --git a/slides/pals_module_03_respiratory.slides.html b/slides/pals_module_03_respiratory.slides.html
+index ed53200..cc7a189 100644
+--- a/slides/pals_module_03_respiratory.slides.html
++++ b/slides/pals_module_03_respiratory.slides.html
+@@ -239,6 +239,7 @@
+             <li>קצב נשימה &gt;70/דק' בתינוק · &gt;50/דק' בילד</li>
+             <li>שינוי הכרה — אגיטציה פתאומית או נמנום</li>
+             <li>עייפות נשימתית גוברת (עבודה גוברת, ספורדית)</li>
++            <li><strong>טכניקה:</strong> מדידת OPA, אחיזת C-E וחמצן 100% — ב<strong>מודול 9</strong>.</li>
+           </ul>
+         </div>
+         <div class="card" style="border-top:4px solid var(--red)">
+@@ -262,6 +263,7 @@
+             <li>RR &gt;70/min (infant) · &gt;50/min (child)</li>
+             <li>Altered mental status — sudden agitation or drowsiness</li>
+             <li>Increasing respiratory fatigue (worsening effort, episodic)</li>
++            <li><strong>Technique:</strong> OPA sizing, C-E grip &amp; 100% O₂ — see <strong>Module 9</strong>.</li>
+           </ul>
+         </div>
+         <div class="card" style="border-top:4px solid var(--red)">
+diff --git a/slides/pals_module_04_shock.slides.html b/slides/pals_module_04_shock.slides.html
+index 56e9b86..761ec7c 100644
+--- a/slides/pals_module_04_shock.slides.html
++++ b/slides/pals_module_04_shock.slides.html
+@@ -266,17 +266,20 @@
+       <p class="src">Monitor SpO₂, HR, BP, neuro and temperature — and reassess after every intervention.</p></div>
+   </section>
+ 
+-  <!-- 9b VASCULAR ACCESS (figure) -->
++  <!-- 9b VASCULAR ACCESS (shock context; IO technique lives in Module 9) -->
+   <section class="slide">
+-    <div class="he"><h3 class="ey">גישה ורידית בהלם</h3><h2>עירוי תוך-גרמי (IO) — מהיר ובטוח</h2></div>
+-    <div class="en"><h3 class="ey">Vascular access in shock</h3><h2>Intraosseous (IO) — fast &amp; reliable</h2></div>
+-    <div class="figrow mt-3" style="justify-content:center">
+-      <div style="flex:0 0 58%;max-width:600px"><div class="fig" style="height:54vh"><img src="assets/io_landmark.png" alt="Intraosseous landmark - proximal tibia"></div>
+-        <div class="capt he">מיקום ה-IO — proximal tibia (1–2 ס"מ מתחת ומדיאלית ל-tibial tuberosity)</div>
+-        <div class="capt en">IO site — proximal tibia (1–2 cm below &amp; medial to the tibial tuberosity)</div></div>
+-    </div>
+-    <div class="he"><p class="src">כשאין גישה ורידית מהירה — עבור ל-IO. אותם מינונים כמו IV; שטוף 5–10 מ"ל לאחר כל תרופה.</p></div>
+-    <div class="en"><p class="src">No fast IV? Go IO. Same doses as IV; flush 5–10 mL after each drug.</p></div>
++    <div class="he"><h3 class="ey">גישה ורידית בהלם</h3><h2>IV או IO — מהר, בלי לעכב טיפול</h2>
++      <div class="grid2 mt-3">
++        <div class="card"><strong style="color:var(--cyan-d)">גישה ורידית (IV)</strong><ul class="mt-2"><li>בחירה ראשונה — קו היקפי זמין ומהיר.</li><li>בילד בהלם: נסה עד 90 שניות, ואם נכשל — עבור ל-IO.</li><li>נתיב ישיר למתן נוזלים ותרופות.</li></ul></div>
++        <div class="card" style="border-inline-start:5px solid var(--red)"><strong style="color:var(--red)">גישה תוך-גרמית (IO)</strong><ul class="mt-2"><li>כשאין IV מהיר — IO מיידי ובטוח.</li><li><strong>אותם מינונים כמו IV</strong>; שטוף 5–10 מ"ל לאחר כל תרופה.</li><li>אתר ה-IO וטכניקת ההחדרה מפורטים ב<strong>מודול 9</strong>.</li></ul></div>
++      </div>
++      <p class="src">העיקרון בהלם: לא לעכב את הטיפול בחיפוש קו — IV מהיר או IO, ואז בולוס נוזלים.</p></div>
++    <div class="en"><h3 class="ey">Vascular access in shock</h3><h2>IV or IO — fast, without delaying care</h2>
++      <div class="grid2 mt-3">
++        <div class="card"><strong style="color:var(--cyan-d)">Intravenous (IV)</strong><ul class="mt-2"><li>First choice — a quick peripheral line.</li><li>Shocked child: try up to 90 sec, then switch to IO.</li><li>Direct route for fluids and drugs.</li></ul></div>
++        <div class="card" style="border-inline-start:5px solid var(--red)"><strong style="color:var(--red)">Intraosseous (IO)</strong><ul class="mt-2"><li>No fast IV? IO is immediate and reliable.</li><li><strong>Same doses as IV</strong>; flush 5–10 mL after each drug.</li><li>IO site &amp; insertion technique are detailed in <strong>Module 9</strong>.</li></ul></div>
++      </div>
++      <p class="src">Principle in shock: don't delay care hunting for a line — fast IV or IO, then the fluid bolus.</p></div>
+   </section>
+ 
+   <!-- 10 SUMMARY -->
