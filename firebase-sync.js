@@ -213,6 +213,24 @@ async function fbSetCourseFlag(key, value) {
   } catch(e) { console.warn('[PALS FB] setCourseFlag:', e.message); }
 }
 
+// ── INSTRUCTOR: publish the course plan (schedule + meta) ────
+// Shared at coursePlan/current so students can view a read-only agenda.
+async function fbSaveCoursePlan(plan) {
+  try {
+    _ensureInit();
+    await setDoc(doc(_db,'coursePlan','current'),
+      { ...plan, updatedAt: Date.now() }, { merge:true });
+  } catch(e) { console.warn('[PALS FB] saveCoursePlan:', e.message); }
+}
+
+// ── STUDENT: watch the published course plan ────────────────
+function fbWatchCoursePlan(callback) {
+  _ensureInit();
+  return onSnapshot(doc(_db,'coursePlan','current'), snap => {
+    callback(snap.exists() ? snap.data() : null);
+  });
+}
+
 // ── STUDENT: watch course flags ───────────────────────────────
 function fbWatchCourseFlags(callback) {
   _ensureInit();
@@ -256,6 +274,8 @@ window.FB = {
   pushFlagsToStudent:    fbPushFlagsToStudent,
   broadcastAnnouncement: fbBroadcastAnnouncement,
   setCourseFlag:         fbSetCourseFlag,
+  saveCoursePlan:        fbSaveCoursePlan,
+  watchCoursePlan:       fbWatchCoursePlan,
   setStudentExamUnlock:  fbSetStudentExamUnlock,
   watchAllStudents:      fbWatchAllStudents,
 };

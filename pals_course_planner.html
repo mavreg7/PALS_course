@@ -6,6 +6,8 @@
 <title>PALS 2025 Course Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="firebase-config.js"></script>
+<script type="module" src="firebase-sync.js"></script>
 <style>
   *{font-family:'Manrope',system-ui,sans-serif}
   body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);min-height:100vh;color:#1E293B}
@@ -164,6 +166,7 @@ document.getElementById('course_loc').value=meta.site||'';
     cur.site=document.getElementById('course_loc').value;
     cur.timestamp=new Date().toISOString();
     localStorage.setItem('pals2025_course_meta',JSON.stringify(cur));
+    publishPlan();
   });
 });
 
@@ -228,7 +231,24 @@ function moveSession(e,d,i,delta){
 }
 function deleteSession(e,d,i){e.stopPropagation();if(!confirm('Delete this session?'))return;schedule[d].splice(i,1);persist();render()}
 function addSession(d){schedule[d].push({time:'00:00-00:00',title:'New session',type:'didactic',instr:'',room:'',notes:''});persist();render()}
-function persist(){localStorage.setItem(KEY,JSON.stringify(schedule));toast('Saved')}
+// Publish schedule + meta to Firestore so students see the plan live, and
+// they get a pop-up whenever it changes. A content signature (`sig`) drives
+// student change-detection so simply re-opening the planner never triggers a
+// false "updated" notification. Debounced to coalesce rapid edits.
+let _publishTimer=null;
+function currentMeta(){try{return JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}')}catch(e){return{}}}
+function publishPlan(){
+  clearTimeout(_publishTimer);
+  _publishTimer=setTimeout(()=>{
+    const m=currentMeta();
+    const sig=JSON.stringify({schedule, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
+    if(sig===localStorage.getItem('pals_plan_pub_sig')) return;  // nothing actually changed
+    const save=fb=>{ if(fb&&fb.saveCoursePlan){ fb.saveCoursePlan({ schedule, meta:m, sig }); localStorage.setItem('pals_plan_pub_sig',sig); } };
+    if(window.FB&&window.FB.saveCoursePlan) save(window.FB);
+    else if(window.FB_READY) window.FB_READY.then(save);
+  },600);
+}
+function persist(){localStorage.setItem(KEY,JSON.stringify(schedule));publishPlan();toast('Saved')}
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1500)}
 function resetSchedule(){if(!confirm('Reset to default schedule? This discards your edits.'))return;schedule=structuredClone(DEFAULT_SCHEDULE);persist();render()}
 
@@ -264,6 +284,10 @@ function exportCSV(){
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
 
 render();
+// Publish whatever plan is currently saved locally so students see it even if
+// it was last edited before live sync existed. Deduped via the content
+// signature, so this is a no-op when nothing has changed.
+if(window.FB_READY){ window.FB_READY.then(()=>publishPlan()); }
 </script>
 </body>
 </html>

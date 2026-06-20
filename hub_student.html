@@ -55,6 +55,28 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
 .progress-sub{font-size:.75rem;color:var(--tm);margin-top:.5rem}
 .sec-hdr{font-size:.77rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.7px;margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
 .sec-hdr::after{content:'';flex:1;height:1px;background:var(--b)}
+/* Read-only course plan */
+.plan-wrap{background:var(--s);border:1.5px solid var(--b);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1.75rem}
+.plan-meta{font-size:.82rem;color:var(--tm);margin-bottom:.75rem;display:flex;flex-wrap:wrap;gap:.4rem 1rem}
+.plan-meta b{color:var(--t)}
+.plan-tabs{display:flex;gap:.5rem;margin-bottom:.85rem}
+.plan-tab{padding:.4rem .9rem;border-radius:8px;font-weight:700;font-size:.8rem;color:var(--tm);cursor:pointer;border:1px solid var(--b);background:var(--s2)}
+.plan-tab.active{background:var(--p);color:#fff;border-color:var(--p)}
+.plan-row{display:flex;gap:.75rem;padding:.6rem .2rem;border-bottom:1px solid var(--b2)}
+.plan-row:last-child{border-bottom:none}
+.plan-bar{width:5px;border-radius:3px;flex-shrink:0}
+.plan-time{font-weight:700;font-size:.78rem;color:var(--tm);min-width:96px;letter-spacing:.2px}
+.plan-info{flex:1}
+.plan-title{font-weight:700;font-size:.88rem;color:var(--t)}
+.plan-sub{font-size:.74rem;color:var(--tf);margin-top:.15rem}
+.plan-tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:.64rem;font-weight:700;margin-left:.4rem;vertical-align:middle}
+.plan-foot{font-size:.72rem;color:var(--tf);margin-top:.7rem}
+.tD{background:#0891B2}.tS{background:#22C55E}.tM{background:#F59E0B}.tB{background:#94a3b8}.tE{background:#EF4444}
+.gD{background:rgba(8,145,178,.14);color:#0e7490}.gS{background:rgba(34,197,94,.16);color:#15803d}
+.gM{background:rgba(245,158,11,.18);color:#b45309}.gB{background:rgba(100,116,139,.16);color:#475569}.gE{background:rgba(239,68,68,.16);color:#b91c1c}
+.plan-pop{position:fixed;bottom:20px;right:20px;background:var(--p);color:#fff;padding:.8rem 1rem;border-radius:11px;font-size:.86rem;box-shadow:0 8px 24px rgba(0,0,0,.25);display:none;align-items:center;gap:.6rem;z-index:2000;max-width:340px}
+.plan-pop.show{display:flex;animation:popin .25s ease}
+@keyframes popin{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
 .quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,260px));gap:.9rem;margin-bottom:1.75rem}
 .ql-card{background:var(--s);border:1.5px solid var(--b);border-radius:12px;padding:1.1rem 1rem;text-decoration:none;color:var(--t);transition:var(--tr);display:flex;flex-direction:column;gap:.35rem;position:relative;overflow:hidden}
 .ql-card.locked{opacity:.5;pointer-events:none;cursor:not-allowed;filter:grayscale(.4)}
@@ -147,7 +169,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
   </div>
   <div class="sec-hdr">9 Learning Modules</div>
   <div class="mod-grid" id="mod-grid"></div>
+
+  <div class="sec-hdr" id="plan-hdr" style="display:none">📅 Course Plan</div>
+  <div class="plan-wrap" id="plan-wrap" style="display:none">
+    <div class="plan-meta" id="plan-meta"></div>
+    <div class="plan-tabs" id="plan-tabs"></div>
+    <div id="plan-body"></div>
+    <div class="plan-foot" id="plan-foot"></div>
+  </div>
 </main>
+
+<div class="plan-pop" id="plan-pop" role="status" aria-live="polite">
+  <span style="font-size:1.1rem">📅</span>
+  <div><strong>Course plan updated</strong><div id="plan-pop-sub" style="font-size:.78rem;opacity:.85"></div></div>
+  <button onclick="document.getElementById('plan-pop').classList.remove('show')" aria-label="Dismiss" style="background:none;border:none;color:inherit;font-size:1.1rem;cursor:pointer;margin-left:.4rem">×</button>
+</div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -299,6 +335,71 @@ function showAnnouncement(cf){
   } else { banner.style.display = 'none'; }
 }
 
+// ── Read-only Course Plan (coursePlan/current), watched live ───────────
+const PLAN_SEEN_KEY = 'pals_plan_seen_sig';
+let _planDay = 'day1';
+let _planData = null;
+const TAGS = {
+  didactic:{bar:'tD',pill:'gD',label:'Didactic'},
+  skills:  {bar:'tS',pill:'gS',label:'Skills'},
+  megacode:{bar:'tM',pill:'gM',label:'Megacode'},
+  break:   {bar:'tB',pill:'gB',label:'Break'},
+  exam:    {bar:'tE',pill:'gE',label:'Exam'}
+};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function planDayLabel(d){return d==='day2'?'Day 2':'Day 1';}
+function renderPlan(){
+  const hdr=document.getElementById('plan-hdr'), wrap=document.getElementById('plan-wrap');
+  const sched=_planData&&_planData.schedule;
+  if(!sched||(!(_planData.schedule.day1||[]).length && !(_planData.schedule.day2||[]).length)){
+    hdr.style.display='none'; wrap.style.display='none'; return;
+  }
+  hdr.style.display=''; wrap.style.display='';
+  const m=_planData.meta||{};
+  const metaBits=[];
+  if(m.dates)      metaBits.push(`<span>🗓️ <b>${esc(m.dates)}</b></span>`);
+  if(m.instructor) metaBits.push(`<span>👤 <b>${esc(m.instructor)}</b></span>`);
+  if(m.site)       metaBits.push(`<span>📍 <b>${esc(m.site)}</b></span>`);
+  document.getElementById('plan-meta').innerHTML=metaBits.join('');
+  const days=['day1','day2'].filter(d=>(sched[d]||[]).length);
+  if(!days.includes(_planDay)) _planDay=days[0];
+  document.getElementById('plan-tabs').innerHTML=days.map(d=>
+    `<button class="plan-tab ${d===_planDay?'active':''}" onclick="setPlanDay('${d}')">${planDayLabel(d)}</button>`).join('');
+  const rows=(sched[_planDay]||[]).map(s=>{
+    const t=TAGS[s.type]||TAGS.didactic;
+    const sub=[s.instr?'👤 '+esc(s.instr):'', s.room?'📍 '+esc(s.room):'', s.notes?'📝 '+esc(s.notes):''].filter(Boolean).join(' · ');
+    return `<div class="plan-row"><div class="plan-bar ${t.bar}"></div><div class="plan-time">${esc(s.time)}</div>`+
+      `<div class="plan-info"><div class="plan-title">${esc(s.title)}<span class="plan-tag ${t.pill}">${t.label}</span></div>`+
+      (sub?`<div class="plan-sub">${sub}</div>`:'')+`</div></div>`;
+  }).join('');
+  document.getElementById('plan-body').innerHTML=rows;
+  document.getElementById('plan-foot').textContent=_planData.updatedAt
+    ? 'Last updated '+new Date(_planData.updatedAt).toLocaleString() : '';
+}
+window.setPlanDay=function(d){_planDay=d;renderPlan();};
+function showPlanPop(updatedAt){
+  const pop=document.getElementById('plan-pop');
+  document.getElementById('plan-pop-sub').textContent='Your instructor changed the schedule — '+new Date(updatedAt).toLocaleString();
+  pop.classList.add('show');
+  clearTimeout(showPlanPop._t);
+  showPlanPop._t=setTimeout(()=>pop.classList.remove('show'),9000);
+}
+function onPlanUpdate(plan){
+  if(!plan){ _planData=null; renderPlan(); return; }
+  _planData=plan; renderPlan();
+  // Change-detection keys on the content signature, so an instructor merely
+  // re-opening the planner (no edits) never notifies students.
+  const sig=plan.sig || JSON.stringify({schedule:plan.schedule||{}, meta:plan.meta||{}});
+  let seen=null; try{seen=localStorage.getItem(PLAN_SEEN_KEY);}catch(e){}
+  if(sig!==seen){
+    // Notify on any change the student hasn't seen — whether it lands while
+    // they're here or happened before they opened the hub — but stay silent
+    // the very first time they ever see a plan (no prior signature stored).
+    if(seen) showPlanPop(plan.updatedAt||Date.now());
+    try{localStorage.setItem(PLAN_SEEN_KEY,sig);}catch(e){}
+  }
+}
+
 // ── FIX: loadAndSync result is now applied to sessionStorage before render ──
 // Only re-render when the remote snapshot actually changes (no flicker).
 let _lastSnap = null;
@@ -319,10 +420,11 @@ if(s && s.role === 'student') {
   setInterval(refresh, 15000);
   // Re-render on a timer so feedback flips open the moment the start time passes.
   setInterval(render, 15000);
-  // live instructor broadcasts
+  // live instructor broadcasts + course plan
   (function watchAnn(){
     if(window.FB && window.FB.watchCourseFlags){
       window.FB.watchCourseFlags(cf=>{ showAnnouncement(cf); _globalExamUnlocked=!!(cf&&cf.examUnlocked); _feedbackOpenManual=!!(cf&&cf.feedbackOpen); _courseStart=Number(cf&&cf.courseStart)||0; render(); });
+      if(window.FB.watchCoursePlan) window.FB.watchCoursePlan(onPlanUpdate);
     }
     else { setTimeout(watchAnn, 200); }
   })();
