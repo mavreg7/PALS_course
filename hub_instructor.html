@@ -551,7 +551,7 @@ function showSuccess(fname, lname, email, pw, role, cohort) {
     `Hello ${fname},\n\nYou have been enrolled in the PALS 2025 course as ${(role||'student').replace('_',' ')}.\n\n`+
     `Sign in here: ${loginUrl}\nEmail: ${email}\nTemporary password: ${pw}\n\n`+
     `Please change your password after your first sign-in.\n`);
-  const mailto = `mailto:${email}?subject=${subject}&body=${body}`;
+  const mailto = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${subject}&body=${body}`;
   resultBox.innerHTML = `
     <strong>✅ Account created successfully!</strong><br>
     ${fname} ${lname} has been added to the roster.
@@ -562,8 +562,8 @@ function showSuccess(fname, lname, email, pw, role, cohort) {
       <strong>Role:</strong> ${role}<br>
       <strong>Cohort:</strong> ${cohort || 'Unassigned'}
     </div>
-    <a class="btn-sm" href="${mailto}" style="display:inline-flex;align-items:center;gap:.4rem;margin-top:.6rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.45rem .9rem;text-decoration:none;font-weight:700">✉ Email login details to ${email}</a>
-    <div style="margin-top:.55rem;font-size:.75rem;color:var(--muted)">Opens your mail app with the sign-in link and credentials pre-filled. (Automatic server-side email needs a backend — not part of this static site.)</div>
+    <a class="btn-sm" href="${mailto}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.4rem;margin-top:.6rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.45rem .9rem;text-decoration:none;font-weight:700">✉ Email login details via Gmail</a>
+    <div style="margin-top:.55rem;font-size:.75rem;color:var(--muted)">Opens a Gmail compose window with the sign-in link and credentials pre-filled — just press Send. (Sign in to the Gmail account you want to send from.)</div>
   `;
   // Button becomes "Create Another"; the existing click handler sees
   // createdOnce and clears the form on the next click (no double handlers).
