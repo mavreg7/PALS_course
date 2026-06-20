@@ -249,30 +249,36 @@
       <div id="feedback-lock-banner" style="display:none;background:#DCFCE7;border:1.5px solid #22C55E;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#166534;font-size:15px;">
         ✅ Thank you — your feedback has been recorded and is now locked.
         <br><small style="font-weight:400">The final exam has been unlocked, so feedback responses can no longer be changed.</small>
+        <br><span dir="rtl" style="display:block">✅ תודה — המשוב שלך נשמר וננעל. המבחן הסופי נפתח, ולכן לא ניתן עוד לשנות את תשובות המשוב.</span>
       </div>
       <div id="feedback-required-note" style="display:none;background:#EFF6FF;border:1.5px solid #0891B2;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#0e7490;font-size:15px;">
         📝 Please complete this short feedback form. It must be submitted before the final exam unlocks — you can edit it any time while feedback is open.
+        <br><span dir="rtl" style="display:block">📝 נא למלא את טופס המשוב הקצר. יש לשלוח אותו לפני שהמבחן הסופי נפתח — ניתן לערוך אותו בכל עת כל עוד המשוב פתוח.</span>
       </div>
       <div id="feedback-closed-banner" style="display:none;background:#FEF9C3;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#92400E;font-size:15px;">
         🚫 Course feedback isn't open right now.
         <br><small style="font-weight:400">Your instructor opens feedback during the course. It opens here when they do.</small>
+        <br><span dir="rtl" style="display:block">🚫 המשוב על הקורס אינו פתוח כעת. המדריך פותח את המשוב במהלך הקורס, והוא יופיע כאן ברגע שייפתח.</span>
       </div>
-      <div class="card p-6">
-        <h2 class="text-xl font-bold mb-4">Course Feedback</h2>
+      <div class="card p-6" id="fb-card">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <h2 class="text-xl font-bold" id="fb-title">Course Feedback</h2>
+          <button class="btn btn-ghost no-print" id="fb-lang-btn" onclick="toggleFbLang()" style="white-space:nowrap">עברית</button>
+        </div>
         <div class="mb-4">
-          <label class="lbl">Your name <span style="color:#EF4444">*</span></label>
+          <label class="lbl" id="fb-name-lbl">Your name <span style="color:#EF4444">*</span></label>
           <input class="field" id="fb_name" placeholder="Your full name">
           <input type="hidden" id="fb_date">
-          <div class="text-xs text-slate-500 mt-1">All fields are required. The date is recorded automatically when you submit.</div>
+          <div class="text-xs text-slate-500 mt-1" id="fb-allreq">All fields are required. The date is recorded automatically when you submit.</div>
         </div>
         <div id="fb_ratings" class="space-y-3"></div>
-        <div class="mt-4"><label class="lbl">What worked well? <span style="color:#EF4444">*</span></label><textarea class="field" id="fb_good" rows="2"></textarea></div>
-        <div class="mt-3"><label class="lbl">Suggestions for improvement <span style="color:#EF4444">*</span></label><textarea class="field" id="fb_improve" rows="2"></textarea></div>
-        <div class="mt-3"><label class="lbl">Would you recommend this course? <span style="color:#EF4444">*</span></label>
-          <select class="field" id="fb_recommend"><option>Definitely</option><option>Probably</option><option>Unsure</option><option>No</option></select>
+        <div class="mt-4"><label class="lbl" id="fb-good-lbl">What worked well? <span style="color:#EF4444">*</span></label><textarea class="field" id="fb_good" rows="2"></textarea></div>
+        <div class="mt-3"><label class="lbl" id="fb-improve-lbl">Suggestions for improvement <span style="color:#EF4444">*</span></label><textarea class="field" id="fb_improve" rows="2"></textarea></div>
+        <div class="mt-3"><label class="lbl" id="fb-recommend-lbl">Would you recommend this course? <span style="color:#EF4444">*</span></label>
+          <select class="field" id="fb_recommend"></select>
         </div>
         <div class="flex flex-wrap gap-2 mt-5 no-print">
-          <button class="btn btn-prim" onclick="saveFeedback()">💾 Submit Feedback</button>
+          <button class="btn btn-prim" id="fb-submit-btn" onclick="saveFeedback()">💾 Submit Feedback</button>
           <button class="btn btn-ghost" onclick="exportData('pals2025_feedback','csv')">⬇ CSV</button>
         </div>
       </div>
@@ -768,20 +774,67 @@ async function gradeExam(){
 }
 
 /* ===== FEEDBACK ===== */
+// Canonical (English) item labels + recommend values are ALWAYS what we store,
+// so instructor summaries aggregate consistently regardless of the language the
+// student filled the form in. Only the on-screen text is translated.
 const FB_ITEMS=['Course organization','Instructor knowledge','Hands-on skills time','Megacode realism','Quality of slides','Pace of course','Materials provided','Likelihood to recommend'];
+const FB_REC=['Definitely','Probably','Unsure','No'];
+const FB_I18N={
+  en:{ dir:'ltr', langBtn:'עברית',
+    title:'Course Feedback',
+    name:'Your name', namePh:'Your full name',
+    allreq:'All fields are required. The date is recorded automatically when you submit.',
+    good:'What worked well?', improve:'Suggestions for improvement',
+    recommend:'Would you recommend this course?', submit:'💾 Submit Feedback',
+    items:FB_ITEMS, rec:FB_REC },
+  he:{ dir:'rtl', langBtn:'English',
+    title:'משוב על הקורס',
+    name:'השם שלך', namePh:'שם מלא',
+    allreq:'כל השדות הם חובה. התאריך נרשם אוטומטית עם השליחה.',
+    good:'מה עבד טוב?', improve:'הצעות לשיפור',
+    recommend:'האם תמליץ/י על הקורס?', submit:'💾 שליחת משוב',
+    items:['ארגון הקורס','ידע המדריך','זמן תרגול מעשי','ריאליזם של תרחישי המגה-קוד','איכות המצגות','קצב הקורס','החומרים שסופקו','הסבירות להמליץ'],
+    rec:['בהחלט','כנראה','לא בטוח/ה','לא'] }
+};
+let _fbLang='en';
+function reqStar(txt){ return `${txt} <span style="color:#EF4444">*</span>`; }
 function renderFB(){
-  document.getElementById('fb_ratings').innerHTML=FB_ITEMS.map((it,i)=>`
+  const t=FB_I18N[_fbLang];
+  document.getElementById('fb_ratings').innerHTML=t.items.map((it,i)=>`
     <div class="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-slate-50">
       <div class="text-sm flex-1">${it}</div>
       <div class="flex gap-1" data-fb="${i}">
         ${[1,2,3,4,5].map(n=>`<button onclick="setFB(${i},${n})" class="w-8 h-8 rounded-full border border-slate-300 text-xs font-bold" data-fbn="${n}">${n}</button>`).join('')}
       </div>
     </div>`).join('');
+  // restore any selected scores after re-render
+  Object.keys(window._fb||{}).forEach(i=>{ if(window._fb[i]) setFB(+i,window._fb[i]); });
 }
-renderFB();
+function applyFbLang(){
+  const t=FB_I18N[_fbLang];
+  const card=document.getElementById('fb-card');
+  if(card){ card.dir=t.dir; card.style.textAlign=t.dir==='rtl'?'right':''; }
+  document.getElementById('fb-title').textContent=t.title;
+  document.getElementById('fb-name-lbl').innerHTML=reqStar(t.name);
+  document.getElementById('fb_name').placeholder=t.namePh;
+  document.getElementById('fb-allreq').textContent=t.allreq;
+  document.getElementById('fb-good-lbl').innerHTML=reqStar(t.good);
+  document.getElementById('fb-improve-lbl').innerHTML=reqStar(t.improve);
+  document.getElementById('fb-recommend-lbl').innerHTML=reqStar(t.recommend);
+  document.getElementById('fb-submit-btn').textContent=t.submit;
+  document.getElementById('fb-lang-btn').textContent=t.langBtn;
+  // Rebuild recommend options: value stays canonical English, text is translated.
+  const sel=document.getElementById('fb_recommend'); const prev=sel.value;
+  sel.innerHTML=FB_REC.map((v,i)=>`<option value="${v}">${t.rec[i]}</option>`).join('');
+  if(prev) sel.value=prev;
+  renderFB();
+}
+function toggleFbLang(){ _fbLang=_fbLang==='en'?'he':'en'; applyFbLang(); }
+applyFbLang();
 window._fb={};
 function prefillFeedback(fb){
   if(!fb) return;
+  if(fb.lang && FB_I18N[fb.lang]){ _fbLang=fb.lang; applyFbLang(); }
   if(Array.isArray(fb.ratings)) fb.ratings.forEach((r,i)=>{ if(r&&r.score) setFB(i,r.score); });
   if(fb.good!=null)   document.getElementById('fb_good').value=fb.good;
   if(fb.improve!=null)document.getElementById('fb_improve').value=fb.improve;
@@ -802,15 +855,17 @@ async function saveFeedback(){
     toast("Course feedback isn't open right now",'#EF4444'); return;
   }
   // All parts are mandatory; the date is auto-applied at submission time.
+  // Errors are shown in whichever language the student is filling the form in.
+  const he=_fbLang==='he';
   const name=document.getElementById('fb_name').value.trim();
   const ratings=FB_ITEMS.map((it,i)=>({item:it,score:window._fb[i]||0}));
   const good=document.getElementById('fb_good').value.trim();
   const improve=document.getElementById('fb_improve').value.trim();
-  const recommend=document.getElementById('fb_recommend').value;
-  if(!name){ toast('Please enter your name','#EF4444'); return; }
-  if(ratings.some(r=>!r.score)){ toast('Please rate every item (1–5)','#EF4444'); return; }
-  if(!good || !improve){ toast('Please complete all written fields','#EF4444'); return; }
-  const payload={name,date:new Date().toISOString().slice(0,10),ratings,good,improve,recommend};
+  const recommend=document.getElementById('fb_recommend').value;  // canonical English
+  if(!name){ toast(he?'נא להזין את שמך':'Please enter your name','#EF4444'); return; }
+  if(ratings.some(r=>!r.score)){ toast(he?'נא לדרג כל פריט (1–5)':'Please rate every item (1–5)','#EF4444'); return; }
+  if(!good || !improve){ toast(he?'נא למלא את כל שדות הטקסט':'Please complete all written fields','#EF4444'); return; }
+  const payload={name,date:new Date().toISOString().slice(0,10),ratings,good,improve,recommend,lang:_fbLang};
   if(STUDENT_SESS){
     const fb=await fbReady();
     if(fb&&fb.saveFeedback){ await fb.saveFeedback(payload); }

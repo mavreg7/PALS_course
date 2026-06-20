@@ -248,6 +248,42 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     <div id="fb-ctrl-result" style="margin-top:.5rem;font-size:.82rem"></div>
   </div>
 
+  <div class="section-title">Daily Attendance Check-in</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem">
+      <div style="min-width:130px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Day</div>
+        <select id="att-day" style="padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700">
+          <option>Day 1</option><option>Day 2</option>
+        </select>
+      </div>
+      <div style="min-width:120px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Window (min)</div>
+        <input id="att-dur" type="number" value="45" min="5" max="240" style="width:90px;padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700">
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button onclick="openAttendance()" id="btn-att-open"
+          style="background:var(--success,#22c55e);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          📣 Open Check-in
+        </button>
+        <button onclick="closeAttendance()" id="btn-att-close"
+          style="background:var(--danger,#ef4444);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          🛑 Close
+        </button>
+      </div>
+    </div>
+    <div id="att-code-box" style="display:none;text-align:center;background:var(--bg);border:2px dashed var(--success,#22c55e);border-radius:12px;padding:1rem;margin-bottom:1rem">
+      <div style="font-size:.8rem;color:var(--muted);font-weight:700">Show this code to the class — students enter it to check in</div>
+      <div id="att-code" style="font-size:2.4rem;font-weight:800;letter-spacing:.4rem;color:var(--text);margin:.3rem 0">—</div>
+      <div id="att-code-sub" style="font-size:.78rem;color:var(--muted)"></div>
+    </div>
+    <div id="att-status" style="font-size:1rem;font-weight:700;color:var(--danger);margin-bottom:.75rem">⏳ Checking…</div>
+    <div id="att-list" style="font-size:.82rem;color:var(--muted)"></div>
+    <div style="font-size:.74rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.75rem;margin-top:.75rem">
+      Open the window at the start of each day and read out / display the code in the room. Only students physically present can enter it, and it stops working when the window closes or expires.
+    </div>
+  </div>
+
   <div class="section-title">Broadcast Announcement</div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
     <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end">
@@ -1231,10 +1267,72 @@ async function quickToggleExam(uid, currentlyUnlocked) {
   } catch(e) { alert('Error toggling exam: ' + e.message); }
 }
 
+// ══ DAILY ATTENDANCE CHECK-IN ════════════════════════════════
+function daySlug(day){ return String(day||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
+function genCode(){ // unambiguous chars only (no 0/O/1/I)
+  const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s='';
+  for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)];
+  return s;
+}
+let _attWindow = null;       // last-known public window {open,day,expiresAt}
+let _attRows = [];           // all check-ins (live)
+
+async function openAttendance(){
+  const day = document.getElementById('att-day').value;
+  const dur = Math.max(5, Math.min(240, parseInt(document.getElementById('att-dur').value)||45));
+  const code = genCode();
+  const expiresAt = Date.now() + dur*60*1000;
+  try {
+    await setDoc(doc(db,'attendanceCode','current'), { code, day, open:true, openedAt:Date.now(), expiresAt }, { merge:false });
+    await setDoc(doc(db,'courseFlags','current'), { attendance:{ open:true, day, expiresAt } }, { merge:true });
+  } catch(e){ alert('Error opening check-in: '+e.message); }
+}
+async function closeAttendance(){
+  try {
+    await setDoc(doc(db,'attendanceCode','current'), { open:false }, { merge:true });
+    await setDoc(doc(db,'courseFlags','current'), { attendance:{ open:false } }, { merge:true });
+  } catch(e){ alert('Error closing check-in: '+e.message); }
+}
+function renderAttList(){
+  const day = document.getElementById('att-day')?.value;
+  const box = document.getElementById('att-list'); if(!box) return;
+  const forDay = _attRows.filter(r => r.day===day).sort((a,b)=>(a.checkedInAt||0)-(b.checkedInAt||0));
+  const names = forDay.map(r => `${r.name||r.uid.slice(0,6)} · ${new Date(r.checkedInAt).toLocaleTimeString()}`);
+  box.innerHTML = `<strong>${forDay.length}</strong> checked in for ${day}` +
+    (names.length ? `<div style="margin-top:.4rem;line-height:1.6">${names.map(n=>'• '+n).join('<br>')}</div>` : '');
+}
+function startAttendanceWatchers(){
+  // Secret code doc (staff-readable) → drives the code display + status.
+  onSnapshot(doc(db,'attendanceCode','current'), snap => {
+    const d = snap.exists() ? snap.data() : {};
+    _attWindow = d;
+    const open = !!d.open && d.expiresAt && Date.now() < d.expiresAt;
+    const box = document.getElementById('att-code-box');
+    const status = document.getElementById('att-status');
+    if(box){ box.style.display = open ? '' : 'none'; }
+    if(open){
+      document.getElementById('att-code').textContent = d.code || '—';
+      document.getElementById('att-code-sub').textContent = `${d.day} · open until ${new Date(d.expiresAt).toLocaleTimeString()}`;
+      if(status){ status.textContent = `✅ Check-in OPEN for ${d.day}`; status.style.color = '#15803d'; }
+    } else {
+      if(status){ status.textContent = '🛑 Check-in closed'; status.style.color = '#dc2626'; }
+    }
+  });
+  // All check-ins (live count + list).
+  onSnapshot(collection(db,'attendance'), snap => {
+    _attRows = []; snap.forEach(x => _attRows.push({ id:x.id, ...x.data() }));
+    renderAttList();
+  });
+  document.getElementById('att-day')?.addEventListener('change', renderAttList);
+}
+document.addEventListener('DOMContentLoaded', startAttendanceWatchers);
+
 // Expose access-control actions to the inline onclick handlers (module scope).
 window.setGlobalExam   = setGlobalExam;
 window.quickToggleExam = quickToggleExam;
 window.setFeedbackOpen = setFeedbackOpen;
+window.openAttendance  = openAttendance;
+window.closeAttendance = closeAttendance;
 
 </script>
 </body>
