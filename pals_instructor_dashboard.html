@@ -177,7 +177,7 @@
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
       <div>
         <h2 class="font-bold text-lg">Student Roster</h2>
-        <p class="text-xs text-slate-400 mt-0.5">🔵 Firebase account &nbsp;·&nbsp; ⚪ Pre-registration only &nbsp;·&nbsp; Click ✏️ to edit any row</p>
+        <p class="text-xs text-slate-400 mt-0.5">🔵 Firebase account &nbsp;·&nbsp; ⚪ Pre-registration only &nbsp;·&nbsp; read-only — <a href="hub_instructor.html" style="color:#0891B2;font-weight:600">edit students in the Instructor Hub</a></p>
       </div>
       <div class="flex gap-2 flex-wrap">
         <input class="field" id="search" placeholder="Search name / email…" oninput="renderRoster()">
@@ -194,7 +194,7 @@
     <div class="overflow-x-auto">
       <table>
         <thead><tr>
-          <th>Name</th><th>Email</th><th>Role</th><th>Cohort</th><th>Source</th><th>Attend</th><th>Pre-Test</th><th>BLS</th><th>Megacode</th><th>Final Exam</th><th>Cert</th><th class="no-print">Edit</th>
+          <th>Name</th><th>Email</th><th>Role</th><th>Cohort</th><th>Source</th><th>Attend</th><th>Pre-Test</th><th>BLS</th><th>Megacode</th><th>Final Exam</th><th>Cert</th>
         </tr></thead>
         <tbody id="roster_body"></tbody>
       </table>
@@ -216,47 +216,7 @@
 
 </div>
 
-<!-- ── EDIT STUDENT MODAL ────────────────────────────────────────── -->
-<div class="modal-overlay" id="edit-overlay" role="dialog" aria-modal="true">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h3>✏️ Edit Student</h3>
-      <button class="modal-close" onclick="closeEditModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="edit-uid">
-      <div class="form-row">
-        <div class="fg">
-          <label for="edit-fname">First Name</label>
-          <input type="text" id="edit-fname" autocomplete="off">
-        </div>
-        <div class="fg">
-          <label for="edit-lname">Last Name</label>
-          <input type="text" id="edit-lname" autocomplete="off">
-        </div>
-      </div>
-      <div class="fg">
-        <label for="edit-cohort">Cohort / Group</label>
-        <input type="text" id="edit-cohort" list="cohort-options" placeholder="e.g. June 2026" autocomplete="off">
-      </div>
-      <datalist id="cohort-options"></datalist>
-      <div class="fg">
-        <label for="edit-role">Role</label>
-        <select id="edit-role">
-          <option value="student">Student</option>
-          <option value="instructor">Instructor</option>
-          <option value="lead_instructor">Lead Instructor</option>
-        </select>
-      </div>
-      <div class="fg" id="edit-email-wrap">
-        <label>Email (read-only)</label>
-        <input type="email" id="edit-email" disabled style="opacity:.6;cursor:not-allowed">
-      </div>
-      <button class="btn-save" id="edit-save-btn" onclick="saveEditStudent()">Save Changes</button>
-      <div class="edit-result" id="edit-result"></div>
-    </div>
-  </div>
-</div>
+<!-- Student editing is consolidated into the Instructor Hub roster. -->
 
 <script type="module">
 import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -436,16 +396,6 @@ function renderRoster(){
   if(f==='local')    rows = rows.filter(x => x.source==='local');
   document.getElementById('roster_empty').classList.toggle('hidden', rows.length > 0);
   document.getElementById('roster_body').innerHTML = rows.map(x => {
-    const uid   = x.uid || '';
-    const parts = (x.name || '').trim().split(' ');
-    const fname = encodeURIComponent(parts[0] || '');
-    const lname = encodeURIComponent(parts.slice(1).join(' ') || '');
-    const cohort= encodeURIComponent(x.cohort || '');
-    const role  = encodeURIComponent(x.role   || 'student');
-    const email = encodeURIComponent(x.email  || '');
-    const editBtn = uid
-      ? `<button class="btn-edit no-print" onclick="openEditModal('${uid}','${fname}','${lname}','${cohort}','${role}','${email}')">✏️ Edit</button>`
-      : `<span class="text-xs text-slate-400 no-print">n/a</span>`;
     return `<tr>
       <td class="font-semibold">${x.name}</td>
       <td class="text-slate-500 text-xs">${x.email}</td>
@@ -458,7 +408,6 @@ function renderRoster(){
       <td>${pillFor(x.megacode)}</td>
       <td>${pillFor(x.exam)}</td>
       <td>${pillFor(x.cert)}</td>
-      <td>${editBtn}</td>
     </tr>`;
   }).join('');
 }
@@ -557,64 +506,8 @@ window.clearAll = function(){
 };
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
 
-/* ── EDIT STUDENT MODAL ── */
-window.openEditModal = function(uid, fname, lname, cohort, role, email) {
-  document.getElementById('edit-uid').value    = uid;
-  document.getElementById('edit-fname').value  = decodeURIComponent(fname);
-  document.getElementById('edit-lname').value  = decodeURIComponent(lname);
-  document.getElementById('edit-cohort').value = decodeURIComponent(cohort);
-  document.getElementById('edit-role').value   = decodeURIComponent(role);
-  document.getElementById('edit-email').value  = decodeURIComponent(email);
-  const res = document.getElementById('edit-result');
-  res.className = 'edit-result'; res.style.display = 'none'; res.textContent = '';
-  document.getElementById('edit-save-btn').disabled = false;
-  document.getElementById('edit-overlay').classList.add('open');
-};
-
-window.closeEditModal = function() {
-  document.getElementById('edit-overlay').classList.remove('open');
-};
-
-document.getElementById('edit-overlay').addEventListener('click', function(e) {
-  if (e.target === this) window.closeEditModal();
-});
-
-window.saveEditStudent = async function() {
-  const uid    = document.getElementById('edit-uid').value.trim();
-  const fname  = document.getElementById('edit-fname').value.trim();
-  const lname  = document.getElementById('edit-lname').value.trim();
-  const cohort = document.getElementById('edit-cohort').value.trim();
-  const role   = document.getElementById('edit-role').value;
-  const res    = document.getElementById('edit-result');
-  const btn    = document.getElementById('edit-save-btn');
-
-  if (!uid)   { showResult(res, 'err', 'No UID found — this account cannot be edited here.'); return; }
-  if (!fname) { showResult(res, 'err', 'First name is required.'); return; }
-
-  btn.disabled = true;
-  btn.textContent = 'Saving…';
-
-  try {
-    const fullName = (fname + ' ' + lname).trim();
-    await setDoc(doc(db, 'users', uid), { name: fullName, cohort, role }, { merge: true });
-    // Update local cache so roster re-renders immediately
-    const idx = fbUsers.findIndex(u => u.uid === uid);
-    if (idx !== -1) { fbUsers[idx].name = fullName; fbUsers[idx].cohort = cohort; fbUsers[idx].role = role; }
-    showResult(res, 'ok', `✅ Saved! "${fullName}" updated successfully.`);
-    refreshAll();
-    setTimeout(() => window.closeEditModal(), 1800);
-  } catch(e) {
-    showResult(res, 'err', 'Save failed: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Save Changes';
-  }
-};
-
-function showResult(el, type, msg) {
-  el.className = 'edit-result ' + type;
-  el.textContent = msg;
-}
+/* Student editing (name / cohort / role / progress / exam / notes) is
+   consolidated into the Instructor Hub roster — this dashboard is read-only. */
 
 // ── Cohort statistics ──────────────────────────────────────────
 const MODULE_COUNT = 9;   // student-required modules (the 2 megacodes are instructor-run, not self-paced)

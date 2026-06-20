@@ -299,6 +299,25 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
       </div>
       <div class="edit-modal-body">
         <input type="hidden" id="edit-uid">
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">First / Last name</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+            <input type="text" id="edit-fname" placeholder="First" autocomplete="off">
+            <input type="text" id="edit-lname" placeholder="Last" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Cohort / Group</label>
+          <input type="text" id="edit-cohort" list="cohort-options" placeholder="e.g. June 2026" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:1rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Role</label>
+          <select id="edit-role">
+            <option value="student">Student</option>
+            <option value="instructor">Instructor</option>
+            <option value="lead_instructor">Lead Instructor</option>
+          </select>
+        </div>
         <div style="margin-bottom:1rem">
           <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Module Completion</label>
           <div class="mod-toggles" id="mod-toggles"></div>
@@ -714,7 +733,9 @@ async function loadRoster() {
       const sd = progMap[uid] || {};
       return {
         uid,
-        name:     u.name || (u.firstName + ' ' + u.lastName) || 'Unknown',
+        name:     u.name || ((u.firstName||'') + ' ' + (u.lastName||'')).trim() || 'Unknown',
+        firstName: u.firstName || '',
+        lastName:  u.lastName  || '',
         email:    u.email || '',
         cohort:   u.cohort || 'Unassigned',
         role:     u.role  || 'student',
@@ -726,7 +747,7 @@ async function loadRoster() {
         preTest:  sd.preTest || null,
         finalExam: sd.finalExam || null,
       };
-    }).filter(s => s.role === 'student' || s.role === 'instructor');
+    }).filter(s => s.role === 'student' || s.role === 'instructor' || s.role === 'lead_instructor');
 
     populateCohortOptions();
     populateCohortFilter();
@@ -890,6 +911,10 @@ function openEditModal(uid) {
   if (!s) return;
   document.getElementById('edit-uid').value   = uid;
   document.getElementById('edit-modal-title').textContent = '✏️ ' + s.name;
+  document.getElementById('edit-fname').value = s.firstName || (s.name||'').split(' ')[0] || '';
+  document.getElementById('edit-lname').value = s.lastName  || (s.name||'').split(' ').slice(1).join(' ') || '';
+  document.getElementById('edit-cohort').value = (s.cohort && s.cohort !== 'Unassigned') ? s.cohort : '';
+  document.getElementById('edit-role').value  = s.role || 'student';
   document.getElementById('edit-notes').value = s.notes || '';
   document.getElementById('edit-result').textContent = '';
 
@@ -930,6 +955,14 @@ async function saveEdit() {
   const resultEl = document.getElementById('edit-result');
   resultEl.textContent = 'Saving…';
   resultEl.style.color = 'var(--muted)';
+    // Identity fields (name / cohort / role) — this is now the single edit surface
+    const fname  = document.getElementById('edit-fname').value.trim();
+    const lname  = document.getElementById('edit-lname').value.trim();
+    const cohort = document.getElementById('edit-cohort').value.trim() || 'Unassigned';
+    const role   = document.getElementById('edit-role').value;
+    if (!fname) { resultEl.textContent = '❌ First name is required.'; resultEl.style.color = 'var(--danger)'; return; }
+    const fullName = (fname + ' ' + lname).trim();
+
   try {
     // Build new progress object from checkboxes
     const progress = {};
@@ -947,13 +980,15 @@ async function saveEdit() {
       const s2 = allStudents.find(x => x.uid === editUid);
       if (s2) s2.examUnlocked = examCb.checked;
     }
-    // Update users/{uid}.notes
-    await fsSetDoc(fsDoc(db, 'users', editUid), { notes }, { merge: true });
+    // Update users/{uid}: identity + notes
+    await fsSetDoc(fsDoc(db, 'users', editUid), { name: fullName, firstName: fname, lastName: lname, cohort, role, notes }, { merge: true });
 
     // Update local cache
     const s = allStudents.find(x => x.uid === editUid);
-    if (s) { s.progress = progress; s.notes = notes; s.updatedAt = Date.now(); }
+    if (s) { s.progress = progress; s.notes = notes; s.name = fullName; s.firstName = fname; s.lastName = lname; s.cohort = cohort; s.role = role; s.updatedAt = Date.now(); }
 
+    populateCohortOptions();
+    populateCohortFilter();
     updateStats();
     applyRosterView();
     resultEl.textContent = '✅ Saved successfully!';
