@@ -337,6 +337,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
         <div class="edit-actions">
           <button class="btn-sm btn-ghost" onclick="closeEditModal()">Cancel</button>
           <button class="btn-sm" style="background:#ef4444;color:#fff;border:none;border-radius:8px" onclick="resetProgress()">🗑 Reset Progress</button>
+          <button class="btn-sm" style="background:#b45309;color:#fff;border:none;border-radius:8px" onclick="resetFeedback()" title="Clear this student's feedback so they can submit again (password required)">💬 Reset Feedback</button>
           <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px" onclick="saveEdit()">💾 Save Changes</button>
         </div>
         <div id="edit-result" style="margin-top:.75rem;font-size:.8rem"></div>
@@ -348,7 +349,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 
 <script type="module">
 import { initializeApp }                    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, signOut }                 from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getAuth, signOut, EmailAuthProvider, reauthenticateWithCredential } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { initializeApp as initSecondary }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getAuth as getSecondaryAuth,
@@ -358,7 +359,7 @@ import {
 import {
   getFirestore,
   doc, setDoc, getDoc, getDocs,
-  collection, onSnapshot, updateDoc,
+  collection, onSnapshot, updateDoc, deleteField,
   query, where,
   serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
@@ -1028,6 +1029,45 @@ async function resetProgress() {
   }
 }
 window.resetProgress = resetProgress;
+
+// ── Re-authenticate the signed-in instructor with their account password ──
+// Used to gate destructive resets. Firebase verifies the password server-side.
+async function reauthInstructor() {
+  const u = auth.currentUser;
+  if (!u || !u.email) { alert('You must be signed in to do this.'); return false; }
+  const pw = prompt('Enter your account password to confirm:');
+  if (pw === null) return false;            // cancelled
+  if (!pw) { alert('Password required.'); return false; }
+  try {
+    await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pw));
+    return true;
+  } catch(e) {
+    alert('Password incorrect — reset cancelled.');
+    return false;
+  }
+}
+
+// ── Reset one student's course feedback (so they can submit again) ──
+async function resetFeedback() {
+  if (!editUid) return;
+  if (!confirm("Reset this student's course feedback so they can submit it again?")) return;
+  if (!(await reauthInstructor())) return;
+  const resultEl = document.getElementById('edit-result');
+  resultEl.textContent = 'Resetting feedback…'; resultEl.style.color = 'var(--muted)';
+  try {
+    await updateDoc(fsDoc(db, 'students', editUid), { feedback: deleteField(), feedbackResetAt: Date.now() });
+    const s = allStudents.find(x => x.uid === editUid);
+    if (s) s.feedback = null;
+    updateStats();
+    applyRosterView();
+    resultEl.textContent = '✅ Feedback reset — the student can submit it again.';
+    resultEl.style.color = 'var(--success)';
+  } catch(e) {
+    resultEl.textContent = '❌ ' + e.message;
+    resultEl.style.color = 'var(--danger)';
+  }
+}
+window.resetFeedback = resetFeedback;
 
 // Close edit modal on overlay click
 document.getElementById('edit-overlay').addEventListener('click', e => {
