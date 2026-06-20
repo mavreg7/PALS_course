@@ -168,6 +168,7 @@
       <button class="btn btn-prim" onclick="exportRoster()">⬇ Export Roster CSV</button>
       <button class="btn btn-ghost" onclick="printAttendance()">🖨 Attendance Sheets</button>
       <button class="btn btn-sec" onclick="generateAllCerts()">🎓 Generate All Certificates</button>
+      <button class="btn" style="background:#fef3c7;color:#b45309" onclick="resetAllFeedback()">💬 Reset All Feedback</button>
       <button class="btn" style="background:#fee2e2;color:#b91c1c" onclick="clearAll()">🗑 Clear All Data</button>
     </div>
   </section>
@@ -220,10 +221,10 @@
 
 <script type="module">
 import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getAuth, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore,
-  collection, getDocs, doc, setDoc, query, orderBy
+  collection, getDocs, doc, setDoc, updateDoc, deleteField, query, orderBy
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const app  = initializeApp(FIREBASE_CONFIG);
@@ -503,6 +504,28 @@ window.clearAll = function(){
   if(!confirm('Are you absolutely sure? This cannot be undone.'))return;
   ['pals2025_preregistration','pals2025_pretest','pals2025_attendance','pals2025_bls_skills','pals2025_megacode','pals2025_final_exam','pals2025_feedback','pals2025_certificates'].forEach(k=>localStorage.removeItem(k));
   refreshAll();alert('Cleared.');
+};
+// ── Reset (clear) course feedback for ALL students — password-gated ──
+window.resetAllFeedback = async function(){
+  if(!confirm('Reset (clear) course feedback for ALL students? They will each be able to submit again.')) return;
+  if(!confirm('Are you sure? This clears every student\'s feedback in Firestore.')) return;
+  const u = auth.currentUser;
+  if(!u || !u.email){ alert('You must be signed in to do this.'); return; }
+  const pw = prompt('Enter your account password to confirm:');
+  if(pw === null) return;
+  if(!pw){ alert('Password required.'); return; }
+  try { await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pw)); }
+  catch(e){ alert('Password incorrect — reset cancelled.'); return; }
+  try {
+    const snap = await getDocs(collection(db,'students'));
+    let n = 0;
+    await Promise.all(snap.docs.map(async d => {
+      const data = d.data() || {};
+      if(data.feedback){ await updateDoc(doc(db,'students',d.id), { feedback: deleteField(), feedbackResetAt: Date.now() }); n++; }
+    }));
+    alert('✅ Reset feedback for ' + n + ' student(s). They can submit again.');
+    refreshAll();
+  } catch(e){ alert('Error: ' + e.message); }
 };
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
 
