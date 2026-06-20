@@ -206,12 +206,18 @@ function applyRemoteData(data) {
 }
 // Global course flags (courseFlags/current), watched live.
 let _globalExamUnlocked = false;
-let _feedbackOpen = false;
+let _feedbackOpen = false;          // effective state (computed each render)
+let _feedbackOpenManual = false;    // instructor's manual open/close toggle
+let _courseStart = 0;               // cohort start (epoch ms) from the dashboard
 function getExamData(key){try{return JSON.parse(sessionStorage.getItem(key)||'null')}catch(e){return null}}
 
 const MODULES = window.PALS_MODULES.filter(m => !m.staffOnly);  // megacodes are instructor-run
 
 function render(){
+  // When a cohort start date is set it governs the feedback window (opens
+  // automatically once the course starts); otherwise fall back to the
+  // instructor's manual open/close toggle.
+  _feedbackOpen = _courseStart>0 ? (Date.now()>=_courseStart) : _feedbackOpenManual;
   const f=getFlags();
   const prog=getProgress();
   const preTest=getExamData('pals_pretest');
@@ -311,10 +317,12 @@ function refresh(force){
 if(s && s.role === 'student') {
   refresh(true);
   setInterval(refresh, 15000);
+  // Re-render on a timer so feedback flips open the moment the start time passes.
+  setInterval(render, 15000);
   // live instructor broadcasts
   (function watchAnn(){
     if(window.FB && window.FB.watchCourseFlags){
-      window.FB.watchCourseFlags(cf=>{ showAnnouncement(cf); _globalExamUnlocked=!!(cf&&cf.examUnlocked); _feedbackOpen=!!(cf&&cf.feedbackOpen); render(); });
+      window.FB.watchCourseFlags(cf=>{ showAnnouncement(cf); _globalExamUnlocked=!!(cf&&cf.examUnlocked); _feedbackOpenManual=!!(cf&&cf.feedbackOpen); _courseStart=Number(cf&&cf.courseStart)||0; render(); });
     }
     else { setTimeout(watchAnn, 200); }
   })();

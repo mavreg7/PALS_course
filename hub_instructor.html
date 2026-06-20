@@ -243,7 +243,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
       </div>
     </div>
     <div style="font-size:.76rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.75rem">
-      Open course feedback <strong>during the course</strong>. Students must complete it before the Final Exam becomes available; keep it closed outside the course window.
+      Feedback opens <strong>automatically</strong> when the course start date (set on the Instructor Dashboard) arrives. Students must complete it before the Final Exam becomes available. The buttons below are a manual fallback used only when no start date is set.
     </div>
     <div id="fb-ctrl-result" style="margin-top:.5rem;font-size:.82rem"></div>
   </div>
@@ -1167,11 +1167,21 @@ function startExamFlagWatcher() {
       el.textContent = unlocked ? '✅ Unlocked for all students' : '🔒 Locked — students cannot access exam';
       el.style.color = unlocked ? '#15803d' : '#dc2626';
     }
-    const fbOpen = !!flags.feedbackOpen;
+    const courseStart = Number(flags.courseStart) || 0;
+    // When a start date is set it governs the window; the manual flag is the fallback.
+    const fbOpen = courseStart > 0 ? (Date.now() >= courseStart) : !!flags.feedbackOpen;
     const fel = document.getElementById('fb-global-status');
     if (fel) {
-      fel.textContent = fbOpen ? '✅ Open — students can submit feedback' : '🚫 Closed — feedback hidden from students';
-      fel.style.color = fbOpen ? '#15803d' : '#dc2626';
+      if (courseStart > 0 && !fbOpen) {
+        fel.textContent = '⏳ Opens automatically at course start — ' + new Date(courseStart).toLocaleString();
+        fel.style.color = '#b45309';
+      } else if (courseStart > 0) {
+        fel.textContent = '✅ Open (course has started) — students can submit feedback';
+        fel.style.color = '#15803d';
+      } else {
+        fel.textContent = fbOpen ? '✅ Open — students can submit feedback' : '🚫 Closed — feedback hidden from students';
+        fel.style.color = fbOpen ? '#15803d' : '#dc2626';
+      }
     }
   });
 }

@@ -529,8 +529,17 @@ function renderSessions(){
 
 /* COUNTDOWN */
 const CK='pals2025_course_start';
-window.setStart = function(v){if(v){localStorage.setItem(CK,v);tickCountdown()}};
-window.clearStart = function(){localStorage.removeItem(CK);document.getElementById('course_start').value='';document.getElementById('countdown').textContent='—'};
+// Publish the cohort start to Firestore so students' Course Feedback opens
+// automatically the moment the course begins (courseStart = epoch ms, or
+// deleted to fall back to the manual feedback toggle).
+async function syncCourseStart(ms){
+  try{
+    if(ms==null){ await setDoc(doc(db,'courseFlags','current'),{courseStart:deleteField()},{merge:true}); }
+    else        { await setDoc(doc(db,'courseFlags','current'),{courseStart:ms},{merge:true}); }
+  }catch(e){ console.warn('[PALS] syncCourseStart:',e.message); }
+}
+window.setStart = function(v){if(v){localStorage.setItem(CK,v);tickCountdown();syncCourseStart(new Date(v).getTime())}};
+window.clearStart = function(){localStorage.removeItem(CK);document.getElementById('course_start').value='';document.getElementById('countdown').textContent='—';syncCourseStart(null)};
 function tickCountdown(){
   const v=localStorage.getItem(CK);if(!v){document.getElementById('countdown').textContent='Set a course start time →';return}
   document.getElementById('course_start').value=v;
@@ -540,6 +549,9 @@ function tickCountdown(){
   document.getElementById('countdown').textContent=`${d}d ${h}h ${m}m ${s}s until course`;
 }
 setInterval(tickCountdown,1000);tickCountdown();
+// Publish any previously-set start date so students get it even if it was
+// configured before this auto-open feature existed.
+(function(){ const v=localStorage.getItem(CK); if(v) syncCourseStart(new Date(v).getTime()); })();
 
 /* BULK ACTIONS */
 window.exportRoster = function(){

@@ -366,7 +366,7 @@ function switchTab(id){
 }
 
 // ── Live student state (progress / exam-unlock / feedback) ───────────────────
-let STU = { _data:{}, modulesDone:false, globalExam:false, perExam:false, examUnlocked:false, feedbackOpen:false, feedback:null };
+let STU = { _data:{}, modulesDone:false, globalExam:false, perExam:false, examUnlocked:false, feedbackOpen:false, feedbackOpenManual:false, courseStart:0, feedback:null };
 let _fbPrefilled = false;
 
 const _hash = location.hash.replace('#','');
@@ -401,6 +401,10 @@ function applyStudentState(data){
   STU.perExam      = !!(STU._data && STU._data.examUnlocked);
   STU.examUnlocked = !!(STU.globalExam || STU.perExam);
   STU.feedback     = (STU._data && STU._data.feedback) || null;
+  // When a cohort start date is set it governs the feedback window (opens
+  // automatically once the course starts); otherwise fall back to the
+  // instructor's manual open/close toggle.
+  STU.feedbackOpen = STU.courseStart > 0 ? (Date.now() >= STU.courseStart) : !!STU.feedbackOpenManual;
 
   applyPretestGate(!STU.modulesDone);
   applyFeedbackLock();
@@ -413,11 +417,13 @@ if(IS_STUDENT){
   (async()=>{
     const fb = await fbReady(4000);
     if(fb && fb.watchCourseFlags){
-      fb.watchCourseFlags(flags => { STU.globalExam = !!flags.examUnlocked; STU.feedbackOpen = !!flags.feedbackOpen; applyStudentState(); });
+      fb.watchCourseFlags(flags => { STU.globalExam = !!flags.examUnlocked; STU.feedbackOpenManual = !!flags.feedbackOpen; STU.courseStart = Number(flags.courseStart)||0; applyStudentState(); });
     }
     const load = async()=>{ if(fb&&fb.loadAndSync){ const d=await fb.loadAndSync().catch(()=>null); applyStudentState(d); } };
     await load();
     setInterval(load, 15000);
+    // Re-apply on a timer so feedback unlocks the moment the start time passes.
+    setInterval(()=>applyStudentState(), 15000);
   })();
 }
 
