@@ -380,14 +380,27 @@ if(IS_INSTRUCTOR){
   switchTab(studentTabs().some(t=>t.id===want) ? want : 'feedback');
 }
 
+// The tab the student asked for via the URL hash (e.g. #pretest from the hub).
+// On first load that tab may not exist yet — Pre-Test is hidden until progress
+// loads from Firestore — so we remember it and switch to it once it appears,
+// instead of silently leaving them on the Feedback fallback.
+let _wantTab = (IS_STUDENT && STUDENT_ALLOWED_TABS.includes(_hash) && _hash !== 'feedback') ? _hash : null;
+
 // Rebuild the student tab bar, adding the Final Exam tab only when unlocked.
 let _studentTabsSig = '';
 function rebuildStudentTabs(){
   const tabs = studentTabs();
   const sig = tabs.map(t=>t.id).join(',');
-  if(sig===_studentTabsSig) return;
+  // Honor a pending requested tab even if the signature hasn't changed.
+  if(sig===_studentTabsSig){
+    if(_wantTab && tabs.some(t=>t.id===_wantTab)){ switchTab(_wantTab); _wantTab=null; }
+    return;
+  }
   _studentTabsSig = sig;
   const active = document.querySelector('.tab.active')?.dataset.tab;
+  if(_wantTab && tabs.some(t=>t.id===_wantTab)){
+    buildTabs(tabs); switchTab(_wantTab); _wantTab=null; return;
+  }
   buildTabs(tabs);
   switchTab(tabs.some(t=>t.id===active) ? active : tabs[0].id);
 }

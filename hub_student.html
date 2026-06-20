@@ -271,13 +271,14 @@ function render(){
   const feedback=getExamData('pals_feedback');
   const feedbackDone=!!(feedback&&feedback.submittedAt);
   const examUnlocked=(()=>{try{return sessionStorage.getItem('pals_examunlock')==='1';}catch(e){return false;}})()||_globalExamUnlocked;
-  // Pre-test is hidden entirely until all 9 modules are complete, then appears.
+  // Pre-test card is always visible so students know it exists; it stays locked
+  // (with an x/9 progress hint) until all 9 learning modules are complete.
   const pretestCard=document.getElementById('ql-pretest');
+  pretestCard.style.display='';
   if(allModulesDone){
-    pretestCard.style.display='';
     gate('ql-pretest','chip-pretest',true,preTest?`✅ Completed · ${preTest.pct}%`:'✅ Open now');
   } else {
-    pretestCard.style.display='none';
+    gate('ql-pretest','chip-pretest',false,`🔒 Complete all modules (${completed}/${MODULES.length})`);
   }
   // Feedback: closed/unavailable until the instructor opens the window (course
   // start). It stays openable afterward if already submitted so it can be reviewed.
