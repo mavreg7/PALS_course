@@ -122,6 +122,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
     <a id="continue-btn" href="#" style="display:none;margin-top:.9rem;background:var(--p);color:#fff;font-weight:700;font-size:.85rem;padding:.55rem 1.1rem;border-radius:9px;text-decoration:none;width:fit-content;align-items:center;gap:.4rem">▶ Continue</a>
   </div>
   <div class="sec-hdr">Quick Access</div>
+  <div style="background:var(--pl2);border:1px solid var(--b);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--tm);line-height:1.5">
+    📝 The <strong>Pre-Test</strong> unlocks automatically once you complete all 9 modules. Your instructor opens <strong>Course Feedback</strong> during the course, and the <strong>Final Exam</strong> unlocks after your feedback is submitted.
+  </div>
   <div class="quick-grid">
     <a href="pals_forms_portal.html#pretest" class="ql-card locked" id="ql-pretest" style="display:none">
       <span class="ql-icon">📝</span>
@@ -201,8 +204,9 @@ function applyRemoteData(data) {
   try { sessionStorage.setItem('pals_feedback', JSON.stringify(data.feedback || null)); } catch(e) {}
   try { sessionStorage.setItem('pals_examunlock', data.examUnlocked ? '1' : '0'); } catch(e) {}
 }
-// Global exam-unlock flag (courseFlags/current.examUnlocked), watched live.
+// Global course flags (courseFlags/current), watched live.
 let _globalExamUnlocked = false;
+let _feedbackOpen = false;
 function getExamData(key){try{return JSON.parse(sessionStorage.getItem(key)||'null')}catch(e){return null}}
 
 const MODULES = window.PALS_MODULES.filter(m => !m.staffOnly);  // megacodes are instructor-run
@@ -233,13 +237,16 @@ function render(){
   } else {
     pretestCard.style.display='none';
   }
-  // Feedback: required before the final exam, editable until the exam is unlocked.
-  gate('ql-feedback','chip-feedback',true,feedbackDone?(examUnlocked?'✅ Submitted · locked':'✅ Submitted · editable'):'📝 Please complete');
-  // Final Exam: invisible until an instructor unlocks it (#4).
+  // Feedback: opens during the course (instructor-controlled), required before the exam.
+  const fbChip = feedbackDone
+    ? (examUnlocked ? '✅ Submitted · locked' : (_feedbackOpen ? '✅ Submitted · editable' : '✅ Submitted'))
+    : (_feedbackOpen ? '📝 Please complete' : '🔒 Opens during the course');
+  gate('ql-feedback','chip-feedback',true,fbChip);
+  // Final Exam: hidden until the instructor unlocks it AND feedback is complete.
   const examCard=document.getElementById('ql-exam');
-  if(examUnlocked){
+  if(examUnlocked && feedbackDone){
     examCard.style.display='';
-    gate('ql-exam','chip-exam',true,feedbackDone?'✅ Open now':'📝 Submit feedback first');
+    gate('ql-exam','chip-exam',true,'✅ Open now');
   } else {
     examCard.style.display='none';
   }
@@ -303,7 +310,7 @@ if(s && s.role === 'student') {
   // live instructor broadcasts
   (function watchAnn(){
     if(window.FB && window.FB.watchCourseFlags){
-      window.FB.watchCourseFlags(cf=>{ showAnnouncement(cf); _globalExamUnlocked=!!(cf&&cf.examUnlocked); render(); });
+      window.FB.watchCourseFlags(cf=>{ showAnnouncement(cf); _globalExamUnlocked=!!(cf&&cf.examUnlocked); _feedbackOpen=!!(cf&&cf.feedbackOpen); render(); });
     }
     else { setTimeout(watchAnn, 200); }
   })();
