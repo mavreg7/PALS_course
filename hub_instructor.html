@@ -224,6 +224,30 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     <div id="exam-ctrl-result" style="margin-top:.5rem;font-size:.82rem"></div>
   </div>
 
+  <div class="section-title">Feedback Window</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Course Feedback Status</div>
+        <div id="fb-global-status" style="font-size:1rem;font-weight:700;color:var(--danger)">⏳ Checking…</div>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button onclick="setFeedbackOpen(true)"  id="btn-fb-open"
+          style="background:var(--success,#22c55e);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          📝 Open Feedback
+        </button>
+        <button onclick="setFeedbackOpen(false)" id="btn-fb-close"
+          style="background:var(--danger,#ef4444);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          🚫 Close Feedback
+        </button>
+      </div>
+    </div>
+    <div style="font-size:.76rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.75rem">
+      Open course feedback <strong>during the course</strong>. Students must complete it before the Final Exam becomes available; keep it closed outside the course window.
+    </div>
+    <div id="fb-ctrl-result" style="margin-top:.5rem;font-size:.82rem"></div>
+  </div>
+
   <div class="section-title">Broadcast Announcement</div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
     <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end">
@@ -936,7 +960,7 @@ function openEditModal(uid) {
     `Hello ${s.firstName || s.name || ''},\n\n`+
     `Here is your sign-in link for the PALS 2025 course:\n${loginUrl}\n\n`+
     `Your sign-in email: ${acctEmail}\n\n`+
-    `If you don't know your password, click "Forgot password" on the sign-in page, or ask your instructor to send you a reset link.\n`);
+    `If you don't know your password, ask your instructor to send you a password-reset link.\n`);
   const resend = document.getElementById('edit-resend-email');
   resend.href = acctEmail ? `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(acctEmail)}&su=${su}&body=${bd}` : '#';
   resend.style.pointerEvents = acctEmail ? 'auto' : 'none';
@@ -1143,9 +1167,28 @@ function startExamFlagWatcher() {
       el.textContent = unlocked ? '✅ Unlocked for all students' : '🔒 Locked — students cannot access exam';
       el.style.color = unlocked ? '#15803d' : '#dc2626';
     }
+    const fbOpen = !!flags.feedbackOpen;
+    const fel = document.getElementById('fb-global-status');
+    if (fel) {
+      fel.textContent = fbOpen ? '✅ Open — students can submit feedback' : '🚫 Closed — feedback hidden from students';
+      fel.style.color = fbOpen ? '#15803d' : '#dc2626';
+    }
   });
 }
 document.addEventListener('DOMContentLoaded', startExamFlagWatcher);
+
+async function setFeedbackOpen(open) {
+  const r = document.getElementById('fb-ctrl-result');
+  r.style.color = 'var(--muted)'; r.textContent = open ? 'Opening…' : 'Closing…';
+  try {
+    await setDoc(doc(db, 'courseFlags', 'current'), { feedbackOpen: open }, { merge: true });
+    r.style.color = open ? '#15803d' : '#dc2626';
+    r.textContent = open ? '✅ Feedback opened for all students.' : '🚫 Feedback closed for all students.';
+    setTimeout(() => { r.textContent = ''; }, 4000);
+  } catch(e) {
+    r.style.color = '#dc2626'; r.textContent = '❌ Error: ' + e.message;
+  }
+}
 
 async function setGlobalExam(unlock) {
   const r = document.getElementById('exam-ctrl-result');
@@ -1166,6 +1209,11 @@ async function quickToggleExam(uid, currentlyUnlocked) {
     await loadRoster();
   } catch(e) { alert('Error toggling exam: ' + e.message); }
 }
+
+// Expose access-control actions to the inline onclick handlers (module scope).
+window.setGlobalExam   = setGlobalExam;
+window.quickToggleExam = quickToggleExam;
+window.setFeedbackOpen = setFeedbackOpen;
 
 </script>
 </body>

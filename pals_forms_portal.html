@@ -251,7 +251,11 @@
         <br><small style="font-weight:400">The final exam has been unlocked, so feedback responses can no longer be changed.</small>
       </div>
       <div id="feedback-required-note" style="display:none;background:#EFF6FF;border:1.5px solid #0891B2;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#0e7490;font-size:15px;">
-        📝 Please complete this short feedback form. It must be submitted before you can take the final exam — and you can edit it any time until the exam is unlocked.
+        📝 Please complete this short feedback form. It must be submitted before the final exam unlocks — you can edit it any time while feedback is open.
+      </div>
+      <div id="feedback-closed-banner" style="display:none;background:#FEF9C3;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#92400E;font-size:15px;">
+        🚫 Course feedback isn't open right now.
+        <br><small style="font-weight:400">Your instructor opens feedback during the course. It opens here when they do.</small>
       </div>
       <div class="card p-6">
         <h2 class="text-xl font-bold mb-4">Course Feedback</h2>
@@ -343,9 +347,11 @@ const ALL_TABS = [
 // Certificate is never student-facing (instructors issue it).
 const STUDENT_ALLOWED_TABS = ['pretest','feedback','exam'];
 function studentTabs(){
+  const feedbackDone = !!(STU.feedback && STU.feedback.submittedAt);
   const t = [{id:'feedback', label:'Course Feedback'}];
   if (STU.modulesDone)  t.unshift({id:'pretest', label:'Pre-Test'});
-  if (STU.examUnlocked) t.push({id:'exam', label:'Final Exam'});
+  // Final Exam only unlocks once the instructor has unlocked it AND feedback is complete.
+  if (STU.examUnlocked && feedbackDone) t.push({id:'exam', label:'Final Exam'});
   return t;
 }
 
@@ -360,7 +366,7 @@ function switchTab(id){
 }
 
 // ── Live student state (progress / exam-unlock / feedback) ───────────────────
-let STU = { _data:{}, modulesDone:false, globalExam:false, perExam:false, examUnlocked:false, feedback:null };
+let STU = { _data:{}, modulesDone:false, globalExam:false, perExam:false, examUnlocked:false, feedbackOpen:false, feedback:null };
 let _fbPrefilled = false;
 
 const _hash = location.hash.replace('#','');
@@ -407,7 +413,7 @@ if(IS_STUDENT){
   (async()=>{
     const fb = await fbReady(4000);
     if(fb && fb.watchCourseFlags){
-      fb.watchCourseFlags(flags => { STU.globalExam = !!flags.examUnlocked; applyStudentState(); });
+      fb.watchCourseFlags(flags => { STU.globalExam = !!flags.examUnlocked; STU.feedbackOpen = !!flags.feedbackOpen; applyStudentState(); });
     }
     const load = async()=>{ if(fb&&fb.loadAndSync){ const d=await fb.loadAndSync().catch(()=>null); applyStudentState(d); } };
     await load();
@@ -454,16 +460,20 @@ function applyExamGate(){
 // never submitted may still record it once (otherwise the exam is unreachable).
 function applyFeedbackLock(){
   if(!IS_STUDENT) return;
-  const lockBanner = document.getElementById('feedback-lock-banner');
-  const reqNote    = document.getElementById('feedback-required-note');
-  const panel      = document.querySelector('[data-panel="feedback"] .card');
-  const submitted  = !!(STU.feedback && STU.feedback.submittedAt);
-  const frozen     = STU.examUnlocked && submitted;
-  if(lockBanner) lockBanner.style.display = frozen ? 'block' : 'none';
-  if(reqNote)    reqNote.style.display    = !submitted ? 'block' : 'none';
+  const lockBanner   = document.getElementById('feedback-lock-banner');
+  const reqNote      = document.getElementById('feedback-required-note');
+  const closedBanner = document.getElementById('feedback-closed-banner');
+  const panel        = document.querySelector('[data-panel="feedback"] .card');
+  const submitted = !!(STU.feedback && STU.feedback.submittedAt);
+  const frozen    = STU.examUnlocked && submitted;          // already recorded + exam open
+  const closed    = !STU.feedbackOpen && !frozen;           // instructor hasn't opened the window
+  const editable  = STU.feedbackOpen && !frozen;            // open during the course
+  if(lockBanner)   lockBanner.style.display   = frozen ? 'block' : 'none';
+  if(closedBanner) closedBanner.style.display = closed ? 'block' : 'none';
+  if(reqNote)      reqNote.style.display      = (editable && !submitted) ? 'block' : 'none';
   if(panel){
-    panel.querySelectorAll('select,button,input,textarea').forEach(el=>{ el.disabled=frozen; });
-    panel.querySelectorAll('[data-fb] button').forEach(b=>{ b.disabled=frozen; });
+    panel.querySelectorAll('select,button,input,textarea').forEach(el=>{ el.disabled = !editable; });
+    panel.querySelectorAll('[data-fb] button').forEach(b=>{ b.disabled = !editable; });
   }
 }
 
@@ -768,6 +778,9 @@ function setFB(i,n){
 async function saveFeedback(){
   if(STUDENT_SESS && STU.examUnlocked && STU.feedback && STU.feedback.submittedAt){
     toast('Feedback is locked — the exam has been unlocked','#EF4444'); return;
+  }
+  if(STUDENT_SESS && !STU.feedbackOpen){
+    toast("Course feedback isn't open right now",'#EF4444'); return;
   }
   // All parts are mandatory; the date is auto-applied at submission time.
   const name=document.getElementById('fb_name').value.trim();
