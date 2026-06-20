@@ -600,7 +600,7 @@ async function gradePreTest(){
     const fb=await fbReady();
     if(fb&&fb.saveExamScore){ await fb.saveExamScore('pretest',correct,PRETEST_QS.length); savedNote='Saved to your course record — visible to your instructor.'; }
   }
-  document.getElementById('pretest_result').innerHTML=`<div class="card p-4 ${pct>=70?'border-green-300 bg-green-50':'border-amber-300 bg-amber-50'}"><div class="text-xl font-bold">Pre-Test Score: ${correct}/${PRETEST_QS.length} (${pct}%)</div><div class="text-sm mt-1">Diagnostic only — not a pass/fail gate. Use it to focus your pre-course reading. ${savedNote}</div></div>`;
+  document.getElementById('pretest_result').innerHTML=`<div class="card p-4 ${pct>=70?'border-green-300 bg-green-50':'border-amber-300 bg-amber-50'}"><div class="text-xl font-bold">Pre-Test Score: ${correct}/${PRETEST_QS.length} (${pct}%)</div><div class="text-sm mt-1">Knowledge check — not a pass/fail gate. Review any topics you missed before the final exam. ${savedNote}</div></div>`;
   toast('Pre-test graded · '+pct+'%');
 }
 
