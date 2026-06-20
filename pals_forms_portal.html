@@ -50,7 +50,9 @@
     .no-print{display:none!important}
     body{background:#fff}
     .card{box-shadow:none;border:1px solid #ccc}
-    .panel{display:block!important}
+    /* Print only the active panel — never expose hidden/locked forms (e.g. the exam). */
+    .panel{display:none!important}
+    .panel.active{display:block!important}
     .tabbar{display:none}
   }
 </style>
