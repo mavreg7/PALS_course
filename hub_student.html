@@ -237,11 +237,13 @@ function render(){
   } else {
     pretestCard.style.display='none';
   }
-  // Feedback: opens during the course (instructor-controlled), required before the exam.
+  // Feedback: closed/unavailable until the instructor opens the window (course
+  // start). It stays openable afterward if already submitted so it can be reviewed.
+  const feedbackAvailable = _feedbackOpen || feedbackDone;
   const fbChip = feedbackDone
     ? (examUnlocked ? '✅ Submitted · locked' : (_feedbackOpen ? '✅ Submitted · editable' : '✅ Submitted'))
     : (_feedbackOpen ? '📝 Please complete' : '🔒 Opens during the course');
-  gate('ql-feedback','chip-feedback',true,fbChip);
+  gate('ql-feedback','chip-feedback',feedbackAvailable,fbChip);
   // Final Exam: hidden until the instructor unlocks it AND feedback is complete.
   const examCard=document.getElementById('ql-exam');
   if(examUnlocked && feedbackDone){
@@ -257,7 +259,9 @@ function render(){
   document.getElementById('prog-sub').textContent=
     pct===100?(examUnlocked
         ? (feedbackDone ? '🎉 The final exam is open — good luck!' : '🎉 Modules done! Submit your course feedback, then the final exam opens.')
-        : '🎉 All modules complete! Take the pre-test and submit your feedback — your instructor will open the final exam.')
+        : (_feedbackOpen
+            ? '🎉 All modules complete! Take the pre-test and submit your feedback — your instructor will open the final exam.'
+            : '🎉 All modules complete! Take the pre-test — course feedback opens during the course, then your instructor opens the final exam.'))
     :completed===0?'Start with Module 1 to begin your journey.'
     :`${completed} of ${MODULES.length} modules completed — keep going!`;
   // Continue where you left off → first incomplete (unlocked) module
