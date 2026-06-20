@@ -1005,6 +1005,7 @@ window.saveEdit = saveEdit;
 async function resetProgress() {
   if (!editUid) return;
   if (!confirm('Reset ALL progress for this student? This cannot be undone.')) return;
+  if (!(await reauthInstructor())) return;
   const resultEl = document.getElementById('edit-result');
   resultEl.textContent = 'Resetting…';
   try {

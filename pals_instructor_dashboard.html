@@ -560,9 +560,22 @@ window.printAttendance = function(){
   </tbody></table></body></html>`);
   w.print();
 };
-window.generateAllCerts = function(){
+// ── Re-authenticate with the signed-in instructor's password (gates sensitive actions) ──
+async function reauthAdmin(){
+  const u = auth.currentUser;
+  if(!u || !u.email){ alert('You must be signed in to do this.'); return false; }
+  const pw = prompt('Enter your account password to confirm:');
+  if(pw === null) return false;
+  if(!pw){ alert('Password required.'); return false; }
+  try { await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pw)); return true; }
+  catch(e){ alert('Password incorrect — action cancelled.'); return false; }
+}
+
+window.generateAllCerts = async function(){
   const r=buildRoster().filter(x=>x.examRaw==='Pass');
   if(!r.length){alert('No passing students yet');return}
+  if(!confirm('Generate certificates for all '+r.length+' passing student(s)?')) return;
+  if(!(await reauthAdmin())) return;
   const arr=get('pals2025_certificates');
   const meta=JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}');
   const today=new Date().toISOString().slice(0,10);
@@ -574,9 +587,10 @@ window.generateAllCerts = function(){
   alert('Generated '+r.length+' certificates. View in Forms Portal → Certificate.');
   refreshAll();
 };
-window.clearAll = function(){
+window.clearAll = async function(){
   if(!confirm('This permanently clears ALL course data on this device. Continue?'))return;
   if(!confirm('Are you absolutely sure? This cannot be undone.'))return;
+  if(!(await reauthAdmin())) return;
   ['pals2025_preregistration','pals2025_pretest','pals2025_attendance','pals2025_bls_skills','pals2025_megacode','pals2025_final_exam','pals2025_feedback','pals2025_certificates'].forEach(k=>localStorage.removeItem(k));
   refreshAll();alert('Cleared.');
 };
@@ -584,13 +598,7 @@ window.clearAll = function(){
 window.resetAllFeedback = async function(){
   if(!confirm('Reset (clear) course feedback for ALL students? They will each be able to submit again.')) return;
   if(!confirm('Are you sure? This clears every student\'s feedback in Firestore.')) return;
-  const u = auth.currentUser;
-  if(!u || !u.email){ alert('You must be signed in to do this.'); return; }
-  const pw = prompt('Enter your account password to confirm:');
-  if(pw === null) return;
-  if(!pw){ alert('Password required.'); return; }
-  try { await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pw)); }
-  catch(e){ alert('Password incorrect — reset cancelled.'); return; }
+  if(!(await reauthAdmin())) return;
   try {
     const snap = await getDocs(collection(db,'students'));
     let n = 0;
