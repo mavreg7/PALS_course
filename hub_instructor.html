@@ -334,6 +334,15 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
           <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Instructor Notes</label>
           <textarea class="edit-notes" id="edit-notes" placeholder="Optional notes about this student…"></textarea>
         </div>
+        <div style="margin-bottom:1rem;border-top:1px solid var(--border);padding-top:.9rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Account &amp; access</label>
+          <div style="font-size:.82rem;color:var(--muted);margin-bottom:.55rem">Sign-in email: <strong id="edit-email-display" style="color:var(--text)">—</strong></div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn-sm" style="background:#0e7490;color:#fff;border:none;border-radius:8px" onclick="sendPasswordReset()" title="Firebase emails this person a password-reset link">🔑 Send password reset</button>
+            <a class="btn-sm" id="edit-resend-email" target="_blank" rel="noopener" style="background:#0891B2;color:#fff;border:none;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .85rem">✉ Resend login email</a>
+          </div>
+          <div style="font-size:.72rem;color:var(--muted);margin-top:.45rem">The sign-in email can't be changed here (it's the Firebase login). To use a new address, create a new account for it.</div>
+        </div>
         <div class="edit-actions">
           <button class="btn-sm btn-ghost" onclick="closeEditModal()">Cancel</button>
           <button class="btn-sm" style="background:#ef4444;color:#fff;border:none;border-radius:8px" onclick="resetProgress()">🗑 Reset Progress</button>
@@ -349,7 +358,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 
 <script type="module">
 import { initializeApp }                    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, signOut, EmailAuthProvider, reauthenticateWithCredential } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getAuth, signOut, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { initializeApp as initSecondary }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getAuth as getSecondaryAuth,
@@ -917,6 +926,21 @@ function openEditModal(uid) {
   document.getElementById('edit-cohort').value = (s.cohort && s.cohort !== 'Unassigned') ? s.cohort : '';
   document.getElementById('edit-role').value  = s.role || 'student';
   document.getElementById('edit-notes').value = s.notes || '';
+
+  // Account & access actions (work for students and instructors)
+  const acctEmail = s.email || '';
+  document.getElementById('edit-email-display').textContent = acctEmail || '—';
+  const loginUrl = new URL('index.html', location.href).href;
+  const su = encodeURIComponent('Your PALS 2025 course sign-in');
+  const bd = encodeURIComponent(
+    `Hello ${s.firstName || s.name || ''},\n\n`+
+    `Here is your sign-in link for the PALS 2025 course:\n${loginUrl}\n\n`+
+    `Your sign-in email: ${acctEmail}\n\n`+
+    `If you don't know your password, click "Forgot password" on the sign-in page, or ask your instructor to send you a reset link.\n`);
+  const resend = document.getElementById('edit-resend-email');
+  resend.href = acctEmail ? `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(acctEmail)}&su=${su}&body=${bd}` : '#';
+  resend.style.pointerEvents = acctEmail ? 'auto' : 'none';
+  resend.style.opacity = acctEmail ? '1' : '.5';
   document.getElementById('edit-result').textContent = '';
 
   // Build module toggles
@@ -1069,6 +1093,28 @@ async function resetFeedback() {
   }
 }
 window.resetFeedback = resetFeedback;
+
+// ── Send a Firebase password-reset email to this account (students & staff) ──
+async function sendPasswordReset() {
+  if (!editUid) return;
+  const s = allStudents.find(x => x.uid === editUid);
+  const email = s && s.email;
+  if (!email) { alert('No email on file for this account.'); return; }
+  if (!confirm('Send a password-reset email to ' + email + '?')) return;
+  const resultEl = document.getElementById('edit-result');
+  resultEl.textContent = 'Sending reset email…'; resultEl.style.color = 'var(--muted)';
+  try {
+    await sendPasswordResetEmail(auth, email);
+    resultEl.textContent = '✅ Password-reset email sent to ' + email + '.';
+    resultEl.style.color = 'var(--success)';
+  } catch(e) {
+    resultEl.textContent = '❌ ' + (e.code === 'auth/user-not-found'
+      ? 'No Firebase account for this email yet (they may not have registered).'
+      : (e.code || e.message));
+    resultEl.style.color = 'var(--danger)';
+  }
+}
+window.sendPasswordReset = sendPasswordReset;
 
 // Close edit modal on overlay click
 document.getElementById('edit-overlay').addEventListener('click', e => {
