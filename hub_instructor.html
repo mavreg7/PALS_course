@@ -730,8 +730,16 @@ function applyTheme() {
 
 
 // ── ROSTER GLOBALS ─────────────────────────────────────────────
+// MOD_LABELS / MOD_COUNT cover ALL modules (incl. the two instructor-run
+// megacodes) — used to render and persist every checkbox in the edit form.
 const MOD_LABELS = window.PALS_MODULES.map(m => m.label);
 const MOD_COUNT  = MOD_LABELS.length;
+// "Modules complete" for roster stats counts only the student-facing learning
+// modules (indices 0–8), matching the student hub / Pre-Test gate. The
+// megacodes are tracked separately and don't count toward completion.
+const LEARNING_IDX   = window.PALS_MODULES
+  .map((m, i) => (m.staffOnly ? -1 : i)).filter(i => i >= 0);
+const LEARNING_COUNT = LEARNING_IDX.length;
 let allStudents = [];
 let allUsers    = {};
 
@@ -844,15 +852,18 @@ function applyRosterView() {
   renderRoster(list);
 }
 
+// Count completed *learning* modules only (excludes the megacodes), so the
+// roster agrees with the student-side "all modules done" gate.
 function modCount(progress) {
-  return Object.keys(progress).filter(k => progress[k]).length;
+  if (!progress) return 0;
+  return LEARNING_IDX.filter(i => progress[i]).length;
 }
 
 function updateStats() {
   const scope   = visibleStudents();
   const total   = scope.length;
-  const done    = scope.filter(s => modCount(s.progress) >= MOD_COUNT).length;
-  const inprog  = scope.filter(s => { const c=modCount(s.progress); return c>0 && c<MOD_COUNT; }).length;
+  const done    = scope.filter(s => modCount(s.progress) >= LEARNING_COUNT).length;
+  const inprog  = scope.filter(s => { const c=modCount(s.progress); return c>0 && c<LEARNING_COUNT; }).length;
   const notst   = scope.filter(s => modCount(s.progress) === 0).length;
   document.getElementById('stat-total').textContent      = total;
   document.getElementById('stat-done').textContent       = done;
@@ -877,7 +888,7 @@ function renderRoster(students) {
   }
   tbody.innerHTML = students.map(s => {
     const count = modCount(s.progress);
-    const pct   = Math.round(count/MOD_COUNT*100);
+    const pct   = Math.round(count/LEARNING_COUNT*100);
     const roleClass = s.role === 'student' ? 'badge-student' : 'badge-instructor';
     return `<tr>
       <td><strong>${s.name}</strong></td>
@@ -887,7 +898,7 @@ function renderRoster(students) {
       <td>
         <div class="prog-bar-wrap">
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
-          <span class="prog-pct">${count}/${MOD_COUNT}</span>
+          <span class="prog-pct">${count}/${LEARNING_COUNT}</span>
         </div>
       </td>
       <td style="font-size:.78rem;color:var(--muted)">${timeAgo(s.updatedAt)}</td>
@@ -917,7 +928,7 @@ function exportCSV() {
   const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Pre-Test %','Final Exam %','Feedback','Exam Access','Last Active']];
   visibleStudents().forEach(s => {
     const count = modCount(s.progress);
-    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/MOD_COUNT*100)+'%',
+    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/LEARNING_COUNT*100)+'%',
       (s.preTest&&s.preTest.pct!=null)?s.preTest.pct+'%':'',
       (s.finalExam&&s.finalExam.pct!=null)?s.finalExam.pct+'%':'',
       (s.feedback&&s.feedback.submittedAt)?'Submitted':'',
