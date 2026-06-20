@@ -6,7 +6,6 @@
 <title>PALS 2025 Course Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
   *{font-family:'Manrope',system-ui,sans-serif}
   body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);min-height:100vh;color:#1E293B}
@@ -62,10 +61,9 @@
       <p class="text-slate-500 text-sm">Drag to reorder · click to expand · auto-save</p>
     </div>
     <div class="flex gap-2 flex-wrap">
-      <a href="index.html" class="btn btn-ghost">← Hub</a>
+      <a href="hub_instructor.html" class="btn btn-ghost">← Hub</a>
       <button class="btn btn-ghost" onclick="resetSchedule()">↻ Reset Default</button>
       <button class="btn btn-ghost" onclick="window.print()">🖨️ Print</button>
-      <button class="btn btn-prim" onclick="genQR()">📱 Share QR</button>
     </div>
   </header>
 
@@ -96,42 +94,49 @@
   </div>
 
   <section class="card p-5 mt-6 no-print">
-    <h3 class="font-bold mb-2">Share with Students</h3>
-    <p class="text-sm text-slate-500 mb-3">Generate a QR code or export the schedule.</p>
+    <h3 class="font-bold mb-2">Export schedule</h3>
+    <p class="text-sm text-slate-500 mb-3">Instructor planning tool. Print or export the schedule; share it with students as a PDF/printout, not an editable link.</p>
     <div class="flex flex-wrap gap-2 items-start">
-      <button class="btn btn-prim" onclick="genQR()">📱 Generate QR</button>
-      <button class="btn btn-ghost" onclick="exportJSON()">⬇ Export JSON</button>
+      <button class="btn btn-ghost" onclick="window.print()">🖨️ Print / Save PDF</button>
       <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
-      <div id="qr_box" class="ml-3"></div>
     </div>
   </section>
 
 </div>
 
 <script>
+// ── Auth gate: instructors only (the planner is an editable staff tool) ──────
+(function(){
+  const INSTRUCTOR_ROLES = ['admin','lead_instructor','instructor'];
+  let sess = null;
+  try { sess = JSON.parse(sessionStorage.getItem('pals_sess_v2') || 'null'); } catch(e) {}
+  if (!sess) { location.replace('index.html'); throw new Error('auth'); }
+  if (!INSTRUCTOR_ROLES.includes(sess.role)) { location.replace('hub_student.html'); throw new Error('auth'); }
+})();
+
 const DEFAULT_SCHEDULE = {
   day1: [
     {time:'08:00-08:30',title:'Registration & Pre-Course Self-Assessment Review',type:'break',instr:'Course coordinator',room:'Lobby / Classroom A',notes:'Sign-in, name tags, distribute manuals'},
     {time:'08:30-09:00',title:'Course Introduction & 2025 AHA Updates Overview',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Module 1 slides · 2025 updates highlights'},
     {time:'09:00-09:45',title:'Pediatric BLS & High-Quality CPR',type:'skills',instr:'BLS faculty (1:6)',room:'Skills Bay 1-3',notes:'Infant + child manikins, AED pediatric pads'},
-    {time:'09:45-10:30',title:'Systematic Pediatric Assessment',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Module 3 · PAT, ABCDE, vital signs tables'},
+    {time:'09:45-10:30',title:'Systematic Pediatric Assessment',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Module 2 · PAT, ABCDE, vital signs tables'},
     {time:'10:30-10:45',title:'Break',type:'break',instr:'',room:'',notes:'Refreshments'},
-    {time:'10:45-11:45',title:'Respiratory Emergencies',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 4 · BVM technique demo'},
-    {time:'11:45-12:30',title:'Shock Recognition & Management',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 5 · case-based discussion'},
+    {time:'10:45-11:45',title:'Respiratory Emergencies',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 3 · BVM technique demo'},
+    {time:'11:45-12:30',title:'Shock Recognition & Management',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 4 · case-based discussion'},
     {time:'12:30-13:15',title:'Lunch',type:'break',instr:'',room:'Dining Area',notes:''},
-    {time:'13:15-14:00',title:'Rhythm Recognition',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 6 · annotated rhythm strips'},
-    {time:'14:00-15:00',title:'Bradycardia & Tachycardia Algorithms',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 7 · IV sotalol update'},
+    {time:'13:15-14:00',title:'Rhythm Recognition',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 5 · annotated rhythm strips'},
+    {time:'14:00-15:00',title:'Bradycardia & Tachycardia Algorithms',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 6 · IV sotalol update'},
     {time:'15:00-15:15',title:'Break',type:'break',instr:'',room:'',notes:''},
-    {time:'15:15-16:00',title:'Megacode Station 1 — Respiratory Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 1',notes:'Module 8 · high-fidelity manikin'},
-    {time:'16:00-16:45',title:'Megacode Station 2 — Shock Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 2',notes:'Module 9 · septic shock scenario'},
+    {time:'15:15-16:00',title:'Megacode Station 1 — Respiratory Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 1',notes:'Module 10 · high-fidelity manikin'},
+    {time:'16:00-16:45',title:'Megacode Station 2 — Shock Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 2',notes:'Module 11 · septic shock scenario'},
     {time:'16:45-17:30',title:'Day 1 Debrief & Q&A',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Pre-read for Day 2'}
   ],
   day2: [
     {time:'08:00-08:15',title:'Day 2 Intro & Review',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:''},
-    {time:'08:15-09:15',title:'Pediatric Cardiac Arrest Algorithm & 2025 Updates',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 10 · physiology-directed CPR, DBP targets'},
-    {time:'09:15-10:00',title:'Post-Cardiac Arrest Care',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 11 · SpO2 94-99%, PaCO2 35-45'},
+    {time:'08:15-09:15',title:'Pediatric Cardiac Arrest Algorithm & 2025 Updates',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 7 · physiology-directed CPR, DBP targets'},
+    {time:'09:15-10:00',title:'Post-Cardiac Arrest Care',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 8 · SpO2 94-99%, PaCO2 35-45'},
     {time:'10:00-10:15',title:'Break',type:'break',instr:'',room:'',notes:''},
-    {time:'10:15-11:15',title:'Advanced Airway Management & Pharmacology',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 12 · live drug calculator'},
+    {time:'10:15-11:15',title:'Advanced Airway Management & Pharmacology',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 9 · live drug calculator'},
     {time:'11:15-12:00',title:'Megacode Station 3 — Cardiac Arrest Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 1',notes:'VF / pulseless VT'},
     {time:'12:00-12:30',title:'Lunch',type:'break',instr:'',room:'Dining Area',notes:''},
     {time:'12:30-13:30',title:'Megacode Station 4 — Full Team Scenario',type:'megacode',instr:'All faculty',room:'Sim Bay 1-2',notes:'Multi-rescuer integrated case'},
@@ -249,16 +254,6 @@ function attachDragHandlers(){
   });
 }
 
-function genQR(){
-  const box=document.getElementById('qr_box');
-  box.innerHTML='<div class="bg-white p-3 rounded-lg border border-slate-200 inline-block"><div id="qr_inner"></div><div class="text-xs text-slate-500 mt-2 text-center">Scan to open planner</div></div>';
-  new QRCode(document.getElementById('qr_inner'),{text:location.href,width:160,height:160,colorDark:'#0891B2',colorLight:'#fff'});
-}
-
-function exportJSON(){
-  const blob=new Blob([JSON.stringify(schedule,null,2)],{type:'application/json'});
-  download(blob,'pals_schedule.json');
-}
 function exportCSV(){
   const rows=['Day,Time,Title,Type,Instructor,Room,Notes'];
   ['day1','day2'].forEach((d,di)=>schedule[d].forEach(s=>{

@@ -205,7 +205,7 @@ async function fbBroadcastAnnouncement(msg, expiresInMs) {
 }
 
 // ── INSTRUCTOR: set global course flag ──────────────────────
-// key: 'preTestUnlocked' | 'finalExamUnlocked' | 'certUnlocked'
+// key: 'examUnlocked' (global Final-Exam gate) plus any future flags
 async function fbSetCourseFlag(key, value) {
   try {
     _ensureInit();
