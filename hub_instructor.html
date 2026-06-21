@@ -923,32 +923,49 @@ async function loadRoster() {
 }
 
 // ── Pending registrations: invited people who haven't signed up yet ──────────
+// Uses a live listener so people drop off automatically the moment they
+// register (their allowlist doc flips registered:true), with no manual reload.
+let _pendingWatching = false;
 async function loadPending() {
+  if (_pendingWatching) return;          // listener already live — it self-updates
   try {
-    // Resolve scope independently of loadRoster timing.
+    // Resolve scope once.
     const seesAllLocal = s.role === 'admin' || s.role === 'lead_instructor';
     let cohortLocal = myCohort;
     if (!seesAllLocal) {
       try { const me = await getDoc(doc(db,'users',s.uid)); cohortLocal = (me.exists() && me.data().cohort) || 'Unassigned'; } catch(e){}
     }
-    const snap = await getDocs(collection(db,'allowlist'));
-    const rows = [];
-    snap.forEach(d => {
-      const a = d.data() || {};
-      if (a.registered) return;                       // already signed up
-      if (!seesAllLocal && (a.cohort||'Unassigned') !== cohortLocal) return;  // cohort isolation
-      rows.push({
-        email: d.id,
-        name:  a.name || ((a.firstName||'')+' '+(a.lastName||'')).trim() || d.id,
-        firstName: a.firstName||'', lastName: a.lastName||'',
-        role:  a.role || 'student',
-        cohort: a.cohort || 'Unassigned',
+    _pendingWatching = true;
+    let first = true;
+    onSnapshot(collection(db,'allowlist'), snap => {
+      const rows = [];
+      snap.forEach(d => {
+        const a = d.data() || {};
+        if (a.registered) return;                       // already signed up
+        if (!seesAllLocal && (a.cohort||'Unassigned') !== cohortLocal) return;  // cohort isolation
+        rows.push({
+          email: d.id,
+          name:  a.name || ((a.firstName||'')+' '+(a.lastName||'')).trim() || d.id,
+          firstName: a.firstName||'', lastName: a.lastName||'',
+          role:  a.role || 'student',
+          cohort: a.cohort || 'Unassigned',
+        });
       });
+      allPending = rows.sort((a,b)=> (a.cohort+a.name).localeCompare(b.cohort+b.name));
+      renderBulkList();
+      try{ updateStats(); }catch(e){}
+      // On any change after the initial load (e.g. someone just registered),
+      // refresh the registered roster so they move from Invited → Registered.
+      if (!first) { try{ loadRoster(); }catch(e){} }
+      first = false;
+    }, err => {
+      _pendingWatching = false;
+      allPending = [];
+      const box = document.getElementById('ba-list');
+      if (box) box.innerHTML = `<div class="ba-empty">Couldn't load pending invites: ${err.message}</div>`;
     });
-    allPending = rows.sort((a,b)=> (a.cohort+a.name).localeCompare(b.cohort+b.name));
-    renderBulkList();
-    try{ updateStats(); }catch(e){}
   } catch(e) {
+    _pendingWatching = false;
     allPending = [];
     const box = document.getElementById('ba-list');
     if (box) box.innerHTML = `<div class="ba-empty">Couldn't load pending invites: ${e.message}</div>`;
