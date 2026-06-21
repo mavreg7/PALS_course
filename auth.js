@@ -66,8 +66,15 @@ async function getUser() {
 async function signIn(email, password) {
   try {
     const cred = await signInWithEmailAndPassword(_auth, email, password);
-    const u    = await getUser();
-    if (!u) return { ok: false, error: 'Account exists but profile not found. Contact your administrator.' };
+    let u      = await getUser();
+    if (!u) {
+      // Self-heal an orphaned registration: the Firebase Auth account exists but
+      // its users/{uid} profile was never created (a registration that
+      // half-completed). Re-provision it from the invite (allowlist) entry so
+      // the person can sign in and shows up on the roster.
+      u = await repairMissingProfile(cred.user);
+    }
+    if (!u) return { ok: false, error: 'Account exists but profile not found. Ask your administrator to re-invite this email, then sign in again.' };
     // Write last login timestamp
     await setDoc(doc(_db, 'users', cred.user.uid), { lastLogin: serverTimestamp() }, { merge: true });
     return { ok: true, user: u };
@@ -81,6 +88,41 @@ async function signIn(email, password) {
       'auth/invalid-credential':   'Incorrect email or password.',
     }[e.code] || 'Sign-in failed. Please try again.';
     return { ok: false, error: msg };
+  }
+}
+
+// ── Recover a registered-in-Auth but profile-less account ──────────────────
+// Rebuilds users/{uid} from the person's allowlist invite. Only works while the
+// invite is still present and not yet marked registered (which is the case when
+// the original registration failed before writing the profile), and the
+// Firestore rules permit a self-create whose role matches the invite.
+async function repairMissingProfile(authUser) {
+  try {
+    const email = (authUser.email || '').toLowerCase();
+    if (!email) return null;
+    const inv = await getDoc(doc(_db, 'allowlist', email));
+    if (!inv.exists()) return null;
+    const a = inv.data() || {};
+    if (a.registered) return null;          // rules require registered==false to self-create
+    const role = a.role || 'student';
+    const parts = (a.name || '').split(/\s+/);
+    await setDoc(doc(_db, 'users', authUser.uid), {
+      uid:       authUser.uid,
+      email,
+      name:      a.name || ((a.firstName||'') + ' ' + (a.lastName||'')).trim() || email.split('@')[0],
+      firstName: a.firstName || parts[0] || '',
+      lastName:  a.lastName  || parts.slice(1).join(' ') || '',
+      role,
+      cohort:    a.cohort || 'Unassigned',
+      createdAt: serverTimestamp(),
+      viaInvite: true,
+      progress:  {},
+    });
+    await setDoc(doc(_db, 'allowlist', email), { registered: true, registeredAt: serverTimestamp() }, { merge: true });
+    return await getUser();
+  } catch(e) {
+    console.warn('[PALS AUTH] repairMissingProfile:', e.message);
+    return null;
   }
 }
 
