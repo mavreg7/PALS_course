@@ -74,6 +74,24 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 .btn-edit{padding:.3rem .7rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s}
 .btn-edit:hover{border-color:var(--primary);color:var(--primary)}
 .roster-empty{padding:2.5rem;text-align:center;color:var(--muted);font-size:.9rem}
+/* Bulk assign */
+.ba-controls{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-bottom:.85rem}
+.ba-input{padding:.5rem .7rem;border:1px solid var(--border);border-radius:8px;font-size:.85rem;background:var(--surface);color:var(--text);outline:none}
+.ba-check{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;cursor:pointer}
+.ba-list{max-height:320px;overflow:auto;border:1px solid var(--border);border-radius:10px}
+.ba-empty{padding:1.4rem;text-align:center;color:var(--muted);font-size:.85rem}
+.ba-row{display:flex;align-items:center;gap:.7rem;padding:.5rem .8rem;border-bottom:1px solid var(--border);font-size:.85rem}
+.ba-row:last-child{border-bottom:none}
+.ba-row:hover{background:var(--surface2)}
+.ba-row input[type=checkbox]{width:16px;height:16px;flex:0 0 auto}
+.ba-nm{font-weight:700;color:var(--text)}
+.ba-em{color:var(--muted);font-size:.78rem}
+.ba-meta{margin-inline-start:auto;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ba-badge{font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:999px}
+.ba-reg{background:rgba(34,197,94,.14);color:#15803d}
+.ba-inv{background:rgba(245,158,11,.16);color:#b45309}
+.ba-tag{font-size:.72rem;color:var(--muted)}
+.ba-apply{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.85rem}
 .roster-stats{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
 .stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.4rem .85rem;font-size:.78rem;color:var(--muted)}
 .stat-chip strong{color:var(--text);font-weight:700}
@@ -198,6 +216,35 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
         <button class="btn-sm btn-ghost" style="margin-inline-start:.4rem" onclick="copyRegLink()">Copy link</button>
       </div>
     </div>
+  </div>
+
+  <div class="section-title">Participants — Pending Invites &amp; Bulk Assign</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:.85rem">
+      Everyone in your cohort(s) — <strong>registered</strong> students/instructors and <strong>invited</strong> people who haven't signed up yet. Tick people and set a cohort and/or role, then <strong>Apply</strong>.
+    </div>
+    <div class="ba-controls">
+      <input id="ba-search" class="roster-search" type="search" placeholder="🔍 filter by name / email / cohort" oninput="renderBulkList()" style="max-width:260px">
+      <select id="ba-status" class="ba-input" onchange="renderBulkList()">
+        <option value="all">All</option>
+        <option value="registered">Registered only</option>
+        <option value="invited">Invited (pending) only</option>
+      </select>
+      <label class="ba-check"><input type="checkbox" id="ba-all" onclick="toggleAllBulk(this.checked)"> Select all shown</label>
+      <span id="ba-count" style="font-size:.8rem;color:var(--muted)"></span>
+    </div>
+    <div id="ba-list" class="ba-list"></div>
+    <div class="ba-apply">
+      <input id="ba-cohort" class="ba-input" list="cohort-options" placeholder="Target cohort (blank = keep)">
+      <select id="ba-role" class="ba-input">
+        <option value="">— keep role —</option>
+        <option value="student">student</option>
+        <option value="instructor">instructor</option>
+        <option value="lead_instructor">lead_instructor</option>
+      </select>
+      <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.55rem 1.1rem" onclick="applyBulkAssign()">Apply to selected</button>
+    </div>
+    <div id="ba-result" style="font-size:.83rem;margin-top:.6rem;white-space:pre-line"></div>
   </div>
 
   <div class="section-title">Exam Access Control</div>
@@ -418,7 +465,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 
 <script type="module">
 import { initializeApp }                    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, signOut, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getAuth, signOut, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { initializeApp as initSecondary }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getAuth as getSecondaryAuth,
@@ -778,6 +825,10 @@ const LEARNING_IDX   = window.PALS_MODULES
 const LEARNING_COUNT = LEARNING_IDX.length;
 let allStudents = [];
 let allUsers    = {};
+let allPending  = [];                 // invited (allowlist) people not yet registered
+let seesAll     = false;              // admin / lead instructor → cross-cohort
+let myCohort    = 'Unassigned';       // a plain instructor's own cohort
+const baSelected = new Set();         // bulk-assign selection (keys)
 
 async function loadRoster() {
   try {
@@ -785,7 +836,7 @@ async function loadRoster() {
 
     allUsers = {};
     const progMap = {};
-    const seesAll = s.role === 'admin' || s.role === 'lead_instructor';
+    seesAll = s.role === 'admin' || s.role === 'lead_instructor';
 
     if (seesAll) {
       // Admin / lead instructor — full cross-cohort view.
@@ -796,7 +847,7 @@ async function loadRoster() {
     } else {
       // Plain instructor — strictly limited to their own cohort (rules enforce this).
       const meSnap = await getDoc(doc(db,'users',s.uid));
-      const myCohort = (meSnap.exists() && meSnap.data().cohort) || 'Unassigned';
+      myCohort = (meSnap.exists() && meSnap.data().cohort) || 'Unassigned';
       const usersSnap = await getDocs(query(collection(db,'users'), where('cohort','==', myCohort)));
       const ids = [];
       usersSnap.forEach(d => { allUsers[d.id] = d.data(); ids.push(d.id); });
@@ -831,11 +882,142 @@ async function loadRoster() {
     populateCohortFilter();
     updateStats();
     applyRosterView();
+    renderBulkList();
   } catch(e) {
     document.querySelector('#roster-tbody').innerHTML =
       '<tr><td colspan="7" class="roster-empty">Error loading roster: ' + e.message + '</td></tr>';
   }
 }
+
+// ── Pending registrations: invited people who haven't signed up yet ──────────
+async function loadPending() {
+  try {
+    // Resolve scope independently of loadRoster timing.
+    const seesAllLocal = s.role === 'admin' || s.role === 'lead_instructor';
+    let cohortLocal = myCohort;
+    if (!seesAllLocal) {
+      try { const me = await getDoc(doc(db,'users',s.uid)); cohortLocal = (me.exists() && me.data().cohort) || 'Unassigned'; } catch(e){}
+    }
+    const snap = await getDocs(collection(db,'allowlist'));
+    const rows = [];
+    snap.forEach(d => {
+      const a = d.data() || {};
+      if (a.registered) return;                       // already signed up
+      if (!seesAllLocal && (a.cohort||'Unassigned') !== cohortLocal) return;  // cohort isolation
+      rows.push({
+        email: d.id,
+        name:  a.name || ((a.firstName||'')+' '+(a.lastName||'')).trim() || d.id,
+        firstName: a.firstName||'', lastName: a.lastName||'',
+        role:  a.role || 'student',
+        cohort: a.cohort || 'Unassigned',
+      });
+    });
+    allPending = rows.sort((a,b)=> (a.cohort+a.name).localeCompare(b.cohort+b.name));
+    renderBulkList();
+  } catch(e) {
+    allPending = [];
+    const box = document.getElementById('ba-list');
+    if (box) box.innerHTML = `<div class="ba-empty">Couldn't load pending invites: ${e.message}</div>`;
+  }
+}
+
+// ── Bulk assign (cohort + role) over registered + invited people ─────────────
+function bulkRows(){
+  // Registered users (from the roster) + invited people (pending), unified.
+  const reg = allStudents.map(s => ({
+    key:'u:'+s.uid, type:'user', id:s.uid,
+    name:s.name, email:s.email, role:s.role, cohort:s.cohort, status:'registered'
+  }));
+  const inv = allPending.map(p => ({
+    key:'a:'+p.email, type:'allowlist', id:p.email,
+    name:p.name, email:p.email, role:p.role, cohort:p.cohort, status:'invited'
+  }));
+  return reg.concat(inv);
+}
+function filteredBulkRows(){
+  const q = (document.getElementById('ba-search')?.value||'').trim().toLowerCase();
+  const st = document.getElementById('ba-status')?.value || 'all';
+  return bulkRows().filter(r =>
+    (st==='all' || r.status===st) &&
+    (!q || (r.name||'').toLowerCase().includes(q) || (r.email||'').toLowerCase().includes(q) || (r.cohort||'').toLowerCase().includes(q))
+  );
+}
+function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function renderBulkList(){
+  const box = document.getElementById('ba-list'); if(!box) return;
+  const rows = filteredBulkRows();
+  // Drop selections that are no longer present.
+  const present = new Set(rows.map(r=>r.key));
+  [...baSelected].forEach(k => { if(!present.has(k)) baSelected.delete(k); });
+  if(!rows.length){ box.innerHTML = '<div class="ba-empty">No matching people.</div>'; updateBulkCount(rows); return; }
+  box.innerHTML = rows.map(r => `
+    <label class="ba-row">
+      <input type="checkbox" data-key="${esc(r.key)}" ${baSelected.has(r.key)?'checked':''} onchange="onBulkCheck(this)">
+      <span>
+        <span class="ba-nm">${esc(r.name)}</span>
+        <span class="ba-em"> · ${esc(r.email)}</span>
+      </span>
+      <span class="ba-meta">
+        <span class="ba-tag">${esc(r.cohort)} · ${esc(r.role)}</span>
+        <span class="ba-badge ${r.status==='registered'?'ba-reg':'ba-inv'}">${r.status==='registered'?'Registered':'Invited'}</span>
+      </span>
+    </label>`).join('');
+  const allBox = document.getElementById('ba-all');
+  if(allBox) allBox.checked = rows.every(r=>baSelected.has(r.key));
+  updateBulkCount(rows);
+}
+function updateBulkCount(rows){
+  const c = document.getElementById('ba-count');
+  if(c) c.textContent = `${baSelected.size} selected · ${rows.length} shown`;
+}
+window.onBulkCheck = function(cb){
+  const k = cb.dataset.key;
+  if(cb.checked) baSelected.add(k); else baSelected.delete(k);
+  updateBulkCount(filteredBulkRows());
+  const allBox = document.getElementById('ba-all');
+  if(allBox){ const rows=filteredBulkRows(); allBox.checked = rows.length>0 && rows.every(r=>baSelected.has(r.key)); }
+};
+window.toggleAllBulk = function(checked){
+  filteredBulkRows().forEach(r => { if(checked) baSelected.add(r.key); else baSelected.delete(r.key); });
+  renderBulkList();
+};
+async function applyBulkAssign(){
+  const result = document.getElementById('ba-result');
+  const cohort = document.getElementById('ba-cohort').value.trim();
+  const role   = document.getElementById('ba-role').value;
+  const sel = bulkRows().filter(r => baSelected.has(r.key));
+  if(!sel.length){ result.style.color='var(--danger)'; result.textContent='Select at least one person.'; return; }
+  if(!cohort && !role){ result.style.color='var(--danger)'; result.textContent='Set a target cohort and/or a role first.'; return; }
+  const changingRole = !!role;
+  // Changing the role of a REGISTERED user is privileged (admin only, per rules).
+  if(changingRole && sel.some(r=>r.type==='user') && s.role!=='admin'){
+    result.style.color='var(--danger)';
+    result.textContent='Only an admin can change the role of already-registered users. Leave role as “keep”, or ask an admin.';
+    return;
+  }
+  if(!confirm(`Apply ${cohort?`cohort “${cohort}”`:''}${cohort&&role?' and ':''}${role?`role “${role}”`:''} to ${sel.length} ${sel.length===1?'person':'people'}?`)) return;
+  if(!(await reauthInstructor())) return;
+  result.style.color='var(--muted)'; result.textContent='Applying…';
+  let ok=0, fail=0; const errs=[];
+  for(const r of sel){
+    try{
+      const data = {};
+      if(cohort) data.cohort = cohort;
+      if(role)   data.role   = role;
+      const ref = r.type==='user' ? fsDoc(db,'users',r.id) : fsDoc(db,'allowlist',r.id);
+      await updateDoc(ref, data);
+      ok++;
+    }catch(e){ fail++; if(errs.length<4) errs.push(r.email+': '+e.message); }
+  }
+  result.style.color = fail ? 'var(--danger)' : '#15803d';
+  result.textContent = `✅ Updated ${ok} ${ok===1?'person':'people'}.` + (fail?` ${fail} failed:\n`+errs.join('\n'):'');
+  baSelected.clear();
+  await loadRoster();   // refresh registered view + bulk list
+  await loadPending();  // refresh invited view
+}
+window.applyBulkAssign = applyBulkAssign;
+window.loadPending     = loadPending;
+window.renderBulkList  = renderBulkList;
 
 function populateCohortOptions() {
   const dl = document.getElementById('cohort-options');
@@ -1192,8 +1374,19 @@ document.getElementById('edit-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('edit-overlay')) closeEditModal();
 });
 
-// Auto-load roster on page init (after auth check passes)
-setTimeout(loadRoster, 800);
+// Load roster + pending invites once Firebase auth is actually restored.
+// (Firing on a fixed timer raced auth on refresh — the reads hit
+// permission-denied and the lists came up empty.)
+let _instrDataLoaded = false;
+function loadInstructorData(){
+  _instrDataLoaded = true;
+  try{ loadRoster(); }catch(e){}
+  try{ loadPending(); }catch(e){}
+}
+onAuthStateChanged(auth, user => { if(user) loadInstructorData(); });
+// Belt-and-braces: if auth was already settled before the listener attached.
+if (auth.currentUser) loadInstructorData();
+setTimeout(()=>{ if(!_instrDataLoaded && auth.currentUser) loadInstructorData(); }, 1200);
 
 
 
