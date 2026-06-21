@@ -244,6 +244,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
         <option value="lead_instructor">lead_instructor</option>
       </select>
       <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.55rem 1.1rem" onclick="applyBulkAssign()">Apply to selected</button>
+      <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.55rem 1.1rem" onclick="resendInvites()">✉ Resend invite to selected</button>
     </div>
     <div id="ba-result" style="font-size:.83rem;margin-top:.6rem;white-space:pre-line"></div>
   </div>
@@ -805,20 +806,21 @@ window.uploadAllowlist = async function(){
 // Bulk invites are not auto-sent (no mail backend). This opens ONE Gmail
 // compose window with every invitee BCC'd and the self-registration link
 // pre-filled — the instructor just presses Send.
-function renderBulkMailButton(emails){
-  const box = document.getElementById('bulk-mail');
-  if(!box) return;
-  if(!emails || !emails.length){ box.innerHTML=''; return; }
+function inviteGmailUrl(emails){
   const regUrl  = (document.getElementById('reg-link')?.textContent || (location.href.replace(/[^/]*(\?.*)?(#.*)?$/, '') + 'register.html'));
   const subject = encodeURIComponent('You’re invited to the PALS 2025 course');
   const body    = encodeURIComponent(
     `Hello,\n\nYou have been invited to the PALS 2025 course.\n\n`+
     `Please register here using this same email address:\n${regUrl}\n\n`+
     `Once registered you can sign in and access your course materials.\n`);
-  const bcc = encodeURIComponent(emails.join(','));
-  const gmail = `https://mail.google.com/mail/?view=cm&fs=1&to=&bcc=${bcc}&su=${subject}&body=${body}`;
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=&bcc=${encodeURIComponent(emails.join(','))}&su=${subject}&body=${body}`;
+}
+function renderBulkMailButton(emails){
+  const box = document.getElementById('bulk-mail');
+  if(!box) return;
+  if(!emails || !emails.length){ box.innerHTML=''; return; }
   box.innerHTML = `
-    <a class="btn-sm" href="${gmail}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.4rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem;text-decoration:none;font-weight:700">✉ Email all ${emails.length} invitee${emails.length===1?'':'s'} via Gmail</a>
+    <a class="btn-sm" href="${inviteGmailUrl(emails)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.4rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem;text-decoration:none;font-weight:700">✉ Email all ${emails.length} invitee${emails.length===1?'':'s'} via Gmail</a>
     <button class="btn-sm btn-ghost" style="margin-inline-start:.5rem" onclick="copyInviteEmails()">Copy addresses</button>
     <div style="margin-top:.45rem;font-size:.75rem;color:var(--muted)">Opens one Gmail compose with everyone BCC'd and the registration link pre-filled — just press Send. (Sign in to the Gmail account you want to send from.)</div>`;
   box._emails = emails;
@@ -1047,6 +1049,21 @@ async function applyBulkAssign(){
   await loadRoster();   // refresh registered view + bulk list
   await loadPending();  // refresh invited view
 }
+// Resend the invite email to already-invited (pending) people who are selected.
+// Registered people don't need an invite, so they're ignored here.
+window.resendInvites = function(){
+  const result = document.getElementById('ba-result');
+  const sel = bulkRows().filter(r => baSelected.has(r.key) && r.status === 'invited');
+  if(!sel.length){
+    result.style.color='var(--danger)';
+    result.textContent='Select one or more invited (pending) people first. Already-registered people don’t need an invite.';
+    return;
+  }
+  const emails = sel.map(r => r.email);
+  window.open(inviteGmailUrl(emails), '_blank', 'noopener');
+  result.style.color='var(--muted)';
+  result.textContent=`Opened a Gmail compose to re-invite ${emails.length} ${emails.length===1?'person':'people'} (BCC). Press Send in Gmail.`;
+};
 window.applyBulkAssign = applyBulkAssign;
 window.loadPending     = loadPending;
 window.renderBulkList  = renderBulkList;
