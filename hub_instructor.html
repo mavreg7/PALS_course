@@ -74,6 +74,24 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 .btn-edit{padding:.3rem .7rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s}
 .btn-edit:hover{border-color:var(--primary);color:var(--primary)}
 .roster-empty{padding:2.5rem;text-align:center;color:var(--muted);font-size:.9rem}
+/* Bulk assign */
+.ba-controls{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-bottom:.85rem}
+.ba-input{padding:.5rem .7rem;border:1px solid var(--border);border-radius:8px;font-size:.85rem;background:var(--surface);color:var(--text);outline:none}
+.ba-check{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;cursor:pointer}
+.ba-list{max-height:320px;overflow:auto;border:1px solid var(--border);border-radius:10px}
+.ba-empty{padding:1.4rem;text-align:center;color:var(--muted);font-size:.85rem}
+.ba-row{display:flex;align-items:center;gap:.7rem;padding:.5rem .8rem;border-bottom:1px solid var(--border);font-size:.85rem}
+.ba-row:last-child{border-bottom:none}
+.ba-row:hover{background:var(--surface2)}
+.ba-row input[type=checkbox]{width:16px;height:16px;flex:0 0 auto}
+.ba-nm{font-weight:700;color:var(--text)}
+.ba-em{color:var(--muted);font-size:.78rem}
+.ba-meta{margin-inline-start:auto;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ba-badge{font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:999px}
+.ba-reg{background:rgba(34,197,94,.14);color:#15803d}
+.ba-inv{background:rgba(245,158,11,.16);color:#b45309}
+.ba-tag{font-size:.72rem;color:var(--muted)}
+.ba-apply{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.85rem}
 .roster-stats{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
 .stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.4rem .85rem;font-size:.78rem;color:var(--muted)}
 .stat-chip strong{color:var(--text);font-weight:700}
@@ -187,17 +205,48 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
   <div id="bulk-section" style="display:none">
     <div class="section-title">Bulk Enrollment — invite by CSV / Excel</div>
     <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
-      <p style="font-size:.85rem;color:var(--muted);margin-bottom:.85rem">Upload a <strong>CSV</strong> or <strong>Excel</strong> file of participants. Recognised columns: <strong>email</strong> (required), <strong>name</strong> (or <strong>first</strong>/<strong>last</strong>), <strong>role</strong> (student / instructor / lead_instructor — default student), optional <strong>cohort</strong>. Each listed person can then self-register <em>once</em> using the link below.</p>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:.85rem">Upload a <strong>CSV</strong> or <strong>Excel</strong> file of participants. Recognised columns: <strong>email</strong> (required), <strong>name</strong> (or <strong>first</strong>/<strong>last</strong>), <strong>role</strong> (student / instructor / lead_instructor — default student), optional <strong>cohort</strong>. Each listed person can then self-register <em>once</em> using the link below. After uploading, use the <strong>“Email all invitees”</strong> button to send the invite — uploading alone does not email anyone.</p>
       <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
         <input type="file" id="bulk-file" accept=".csv,.xlsx,.xls" style="font-size:.85rem;color:var(--text)">
         <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.6rem 1.1rem" onclick="uploadAllowlist()">⬆ Upload &amp; invite</button>
       </div>
       <div id="bulk-result" style="font-size:.83rem;margin-top:.7rem;color:var(--muted);white-space:pre-line"></div>
+      <div id="bulk-mail" style="margin-top:.6rem"></div>
       <div style="margin-top:.95rem;font-size:.8rem;color:var(--muted)">Self-registration link to share:<br>
         <code id="reg-link" style="display:inline-block;margin-top:.3rem;background:var(--surface2);padding:4px 9px;border-radius:6px;user-select:all;word-break:break-all"></code>
         <button class="btn-sm btn-ghost" style="margin-inline-start:.4rem" onclick="copyRegLink()">Copy link</button>
       </div>
     </div>
+  </div>
+
+  <div class="section-title">Participants — Pending Invites &amp; Bulk Assign</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:.85rem">
+      Everyone in your cohort(s) — <strong>registered</strong> students/instructors and <strong>invited</strong> people who haven't signed up yet. Tick people and set a cohort and/or role, then <strong>Apply</strong>.
+    </div>
+    <div class="ba-controls">
+      <input id="ba-search" class="roster-search" type="search" placeholder="🔍 filter by name / email / cohort" oninput="renderBulkList()" style="max-width:260px">
+      <select id="ba-status" class="ba-input" onchange="renderBulkList()">
+        <option value="all">All</option>
+        <option value="registered">Registered only</option>
+        <option value="invited">Invited (pending) only</option>
+      </select>
+      <label class="ba-check"><input type="checkbox" id="ba-all" onclick="toggleAllBulk(this.checked)"> Select all shown</label>
+      <span id="ba-count" style="font-size:.8rem;color:var(--muted)"></span>
+    </div>
+    <div id="ba-list" class="ba-list"></div>
+    <div class="ba-apply">
+      <input id="ba-cohort" class="ba-input" list="cohort-options" placeholder="Target cohort (blank = keep)">
+      <select id="ba-role" class="ba-input">
+        <option value="">— keep role —</option>
+        <option value="student">student</option>
+        <option value="instructor">instructor</option>
+        <option value="lead_instructor">lead_instructor</option>
+      </select>
+      <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.55rem 1.1rem" onclick="applyBulkAssign()">Apply to selected</button>
+      <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.55rem 1.1rem" onclick="resendInvites()">✉ Resend invite to selected</button>
+    </div>
+    <div id="ba-result" style="font-size:.83rem;margin-top:.6rem;white-space:pre-line"></div>
   </div>
 
   <div class="section-title">Exam Access Control</div>
@@ -243,9 +292,45 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
       </div>
     </div>
     <div style="font-size:.76rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.75rem">
-      Open course feedback <strong>during the course</strong>. Students must complete it before the Final Exam becomes available; keep it closed outside the course window.
+      Feedback opens <strong>automatically</strong> when the course start date (set on the Instructor Dashboard) arrives. Students must complete it before the Final Exam becomes available. The buttons below are a manual fallback used only when no start date is set.
     </div>
     <div id="fb-ctrl-result" style="margin-top:.5rem;font-size:.82rem"></div>
+  </div>
+
+  <div class="section-title">Daily Attendance Check-in</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem">
+      <div style="min-width:130px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Day</div>
+        <select id="att-day" style="padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700">
+          <option>Day 1</option><option>Day 2</option>
+        </select>
+      </div>
+      <div style="min-width:120px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Window (min)</div>
+        <input id="att-dur" type="number" value="45" min="5" max="240" style="width:90px;padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700">
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button onclick="openAttendance()" id="btn-att-open"
+          style="background:var(--success,#22c55e);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          📣 Open Check-in
+        </button>
+        <button onclick="closeAttendance()" id="btn-att-close"
+          style="background:var(--danger,#ef4444);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          🛑 Close
+        </button>
+      </div>
+    </div>
+    <div id="att-code-box" style="display:none;text-align:center;background:var(--bg);border:2px dashed var(--success,#22c55e);border-radius:12px;padding:1rem;margin-bottom:1rem">
+      <div style="font-size:.8rem;color:var(--muted);font-weight:700">Show this code to the class — students enter it to check in</div>
+      <div id="att-code" style="font-size:2.4rem;font-weight:800;letter-spacing:.4rem;color:var(--text);margin:.3rem 0">—</div>
+      <div id="att-code-sub" style="font-size:.78rem;color:var(--muted)"></div>
+    </div>
+    <div id="att-status" style="font-size:1rem;font-weight:700;color:var(--danger);margin-bottom:.75rem">⏳ Checking…</div>
+    <div id="att-list" style="font-size:.82rem;color:var(--muted)"></div>
+    <div style="font-size:.74rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.75rem;margin-top:.75rem">
+      Open the window at the start of each day and read out / display the code in the room. Only students physically present can enter it, and it stops working when the window closes or expires.
+    </div>
   </div>
 
   <div class="section-title">Broadcast Announcement</div>
@@ -281,6 +366,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     <div class="stat-chip">Completed all: <strong id="stat-done">—</strong></div>
     <div class="stat-chip">In progress: <strong id="stat-progress">—</strong></div>
     <div class="stat-chip">Not started: <strong id="stat-notstarted">—</strong></div>
+    <div class="stat-chip">Invited / pending: <strong id="stat-pending">—</strong></div>
   </div>
 
   <div class="roster-header">
@@ -382,7 +468,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 
 <script type="module">
 import { initializeApp }                    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, signOut, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getAuth, signOut, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { initializeApp as initSecondary }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getAuth as getSecondaryAuth,
@@ -703,16 +789,46 @@ window.uploadAllowlist = async function(){
     const people = normalizeRows(rows);
     if(!people.length){ r.style.color='var(--danger)'; r.textContent='No valid rows found (each row needs an email).'; return; }
     r.textContent='Inviting '+people.length+'…';
-    let ok=0, fail=0; const errs=[]; const uid=(getSession()&&getSession().uid)||'admin';
+    let ok=0, fail=0; const errs=[]; const invited=[]; const uid=(getSession()&&getSession().uid)||'admin';
     for(const p of people){
       try{
         await fsSetDoc(fsDoc(db,'allowlist',p.email), { name:p.name, firstName:p.firstName, lastName:p.lastName, email:p.email, role:p.role, cohort:p.cohort, registered:false, addedAt:serverTimestamp(), addedBy:uid }, {merge:true});
-        ok++;
+        ok++; invited.push(p.email);
       }catch(e){ fail++; if(errs.length<3) errs.push(p.email+': '+e.message); }
     }
     r.style.color = fail? 'var(--warning)' : 'var(--success)';
-    r.textContent = '✅ Invited '+ok+(ok===1?' person.':' people.') + (fail?(' '+fail+' failed:\n'+errs.join('\n')):'') + '\nThey can now self-register at the link below.';
+    r.textContent = '✅ Invited '+ok+(ok===1?' person.':' people.') + (fail?(' '+fail+' failed:\n'+errs.join('\n')):'') + '\nNow email them the invite below, or share the self-registration link.';
+    renderBulkMailButton(invited);
+    try{ loadPending(); }catch(e){}   // refresh the pending list with the new invites
   }catch(e){ r.style.color='var(--danger)'; r.textContent='❌ '+e.message; }
+};
+
+// Bulk invites are not auto-sent (no mail backend). This opens ONE Gmail
+// compose window with every invitee BCC'd and the self-registration link
+// pre-filled — the instructor just presses Send.
+function inviteGmailUrl(emails){
+  const regUrl  = (document.getElementById('reg-link')?.textContent || (location.href.replace(/[^/]*(\?.*)?(#.*)?$/, '') + 'register.html'));
+  const subject = encodeURIComponent('You’re invited to the PALS 2025 course');
+  const body    = encodeURIComponent(
+    `Hello,\n\nYou have been invited to the PALS 2025 course.\n\n`+
+    `Please register here using this same email address:\n${regUrl}\n\n`+
+    `Once registered you can sign in and access your course materials.\n`);
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=&bcc=${encodeURIComponent(emails.join(','))}&su=${subject}&body=${body}`;
+}
+function renderBulkMailButton(emails){
+  const box = document.getElementById('bulk-mail');
+  if(!box) return;
+  if(!emails || !emails.length){ box.innerHTML=''; return; }
+  box.innerHTML = `
+    <a class="btn-sm" href="${inviteGmailUrl(emails)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.4rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem;text-decoration:none;font-weight:700">✉ Email all ${emails.length} invitee${emails.length===1?'':'s'} via Gmail</a>
+    <button class="btn-sm btn-ghost" style="margin-inline-start:.5rem" onclick="copyInviteEmails()">Copy addresses</button>
+    <div style="margin-top:.45rem;font-size:.75rem;color:var(--muted)">Opens one Gmail compose with everyone BCC'd and the registration link pre-filled — just press Send. (Sign in to the Gmail account you want to send from.)</div>`;
+  box._emails = emails;
+}
+window.copyInviteEmails = function(){
+  const box = document.getElementById('bulk-mail');
+  const emails = (box && box._emails) || [];
+  navigator.clipboard.writeText(emails.join(', ')).catch(()=>{});
 };
 window.copyRegLink = function(){ const t=document.getElementById('reg-link').textContent; navigator.clipboard.writeText(t).catch(()=>{}); };
 
@@ -730,10 +846,22 @@ function applyTheme() {
 
 
 // ── ROSTER GLOBALS ─────────────────────────────────────────────
+// MOD_LABELS / MOD_COUNT cover ALL modules (incl. the two instructor-run
+// megacodes) — used to render and persist every checkbox in the edit form.
 const MOD_LABELS = window.PALS_MODULES.map(m => m.label);
 const MOD_COUNT  = MOD_LABELS.length;
+// "Modules complete" for roster stats counts only the student-facing learning
+// modules (indices 0–8), matching the student hub / Pre-Test gate. The
+// megacodes are tracked separately and don't count toward completion.
+const LEARNING_IDX   = window.PALS_MODULES
+  .map((m, i) => (m.staffOnly ? -1 : i)).filter(i => i >= 0);
+const LEARNING_COUNT = LEARNING_IDX.length;
 let allStudents = [];
 let allUsers    = {};
+let allPending  = [];                 // invited (allowlist) people not yet registered
+let seesAll     = false;              // admin / lead instructor → cross-cohort
+let myCohort    = 'Unassigned';       // a plain instructor's own cohort
+const baSelected = new Set();         // bulk-assign selection (keys)
 
 async function loadRoster() {
   try {
@@ -741,7 +869,7 @@ async function loadRoster() {
 
     allUsers = {};
     const progMap = {};
-    const seesAll = s.role === 'admin' || s.role === 'lead_instructor';
+    seesAll = s.role === 'admin' || s.role === 'lead_instructor';
 
     if (seesAll) {
       // Admin / lead instructor — full cross-cohort view.
@@ -752,7 +880,7 @@ async function loadRoster() {
     } else {
       // Plain instructor — strictly limited to their own cohort (rules enforce this).
       const meSnap = await getDoc(doc(db,'users',s.uid));
-      const myCohort = (meSnap.exists() && meSnap.data().cohort) || 'Unassigned';
+      myCohort = (meSnap.exists() && meSnap.data().cohort) || 'Unassigned';
       const usersSnap = await getDocs(query(collection(db,'users'), where('cohort','==', myCohort)));
       const ids = [];
       usersSnap.forEach(d => { allUsers[d.id] = d.data(); ids.push(d.id); });
@@ -787,11 +915,158 @@ async function loadRoster() {
     populateCohortFilter();
     updateStats();
     applyRosterView();
+    renderBulkList();
   } catch(e) {
     document.querySelector('#roster-tbody').innerHTML =
       '<tr><td colspan="7" class="roster-empty">Error loading roster: ' + e.message + '</td></tr>';
   }
 }
+
+// ── Pending registrations: invited people who haven't signed up yet ──────────
+async function loadPending() {
+  try {
+    // Resolve scope independently of loadRoster timing.
+    const seesAllLocal = s.role === 'admin' || s.role === 'lead_instructor';
+    let cohortLocal = myCohort;
+    if (!seesAllLocal) {
+      try { const me = await getDoc(doc(db,'users',s.uid)); cohortLocal = (me.exists() && me.data().cohort) || 'Unassigned'; } catch(e){}
+    }
+    const snap = await getDocs(collection(db,'allowlist'));
+    const rows = [];
+    snap.forEach(d => {
+      const a = d.data() || {};
+      if (a.registered) return;                       // already signed up
+      if (!seesAllLocal && (a.cohort||'Unassigned') !== cohortLocal) return;  // cohort isolation
+      rows.push({
+        email: d.id,
+        name:  a.name || ((a.firstName||'')+' '+(a.lastName||'')).trim() || d.id,
+        firstName: a.firstName||'', lastName: a.lastName||'',
+        role:  a.role || 'student',
+        cohort: a.cohort || 'Unassigned',
+      });
+    });
+    allPending = rows.sort((a,b)=> (a.cohort+a.name).localeCompare(b.cohort+b.name));
+    renderBulkList();
+    try{ updateStats(); }catch(e){}
+  } catch(e) {
+    allPending = [];
+    const box = document.getElementById('ba-list');
+    if (box) box.innerHTML = `<div class="ba-empty">Couldn't load pending invites: ${e.message}</div>`;
+  }
+}
+
+// ── Bulk assign (cohort + role) over registered + invited people ─────────────
+function bulkRows(){
+  // Registered users (from the roster) + invited people (pending), unified.
+  const reg = allStudents.map(s => ({
+    key:'u:'+s.uid, type:'user', id:s.uid,
+    name:s.name, email:s.email, role:s.role, cohort:s.cohort, status:'registered'
+  }));
+  const inv = allPending.map(p => ({
+    key:'a:'+p.email, type:'allowlist', id:p.email,
+    name:p.name, email:p.email, role:p.role, cohort:p.cohort, status:'invited'
+  }));
+  return reg.concat(inv);
+}
+function filteredBulkRows(){
+  const q = (document.getElementById('ba-search')?.value||'').trim().toLowerCase();
+  const st = document.getElementById('ba-status')?.value || 'all';
+  return bulkRows().filter(r =>
+    (st==='all' || r.status===st) &&
+    (!q || (r.name||'').toLowerCase().includes(q) || (r.email||'').toLowerCase().includes(q) || (r.cohort||'').toLowerCase().includes(q))
+  );
+}
+function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function renderBulkList(){
+  const box = document.getElementById('ba-list'); if(!box) return;
+  const rows = filteredBulkRows();
+  // Drop selections that are no longer present.
+  const present = new Set(rows.map(r=>r.key));
+  [...baSelected].forEach(k => { if(!present.has(k)) baSelected.delete(k); });
+  if(!rows.length){ box.innerHTML = '<div class="ba-empty">No matching people.</div>'; updateBulkCount(rows); return; }
+  box.innerHTML = rows.map(r => `
+    <label class="ba-row">
+      <input type="checkbox" data-key="${esc(r.key)}" ${baSelected.has(r.key)?'checked':''} onchange="onBulkCheck(this)">
+      <span>
+        <span class="ba-nm">${esc(r.name)}</span>
+        <span class="ba-em"> · ${esc(r.email)}</span>
+      </span>
+      <span class="ba-meta">
+        <span class="ba-tag">${esc(r.cohort)} · ${esc(r.role)}</span>
+        <span class="ba-badge ${r.status==='registered'?'ba-reg':'ba-inv'}">${r.status==='registered'?'Registered':'Invited'}</span>
+      </span>
+    </label>`).join('');
+  const allBox = document.getElementById('ba-all');
+  if(allBox) allBox.checked = rows.every(r=>baSelected.has(r.key));
+  updateBulkCount(rows);
+}
+function updateBulkCount(rows){
+  const c = document.getElementById('ba-count');
+  if(c) c.textContent = `${baSelected.size} selected · ${rows.length} shown`;
+}
+window.onBulkCheck = function(cb){
+  const k = cb.dataset.key;
+  if(cb.checked) baSelected.add(k); else baSelected.delete(k);
+  updateBulkCount(filteredBulkRows());
+  const allBox = document.getElementById('ba-all');
+  if(allBox){ const rows=filteredBulkRows(); allBox.checked = rows.length>0 && rows.every(r=>baSelected.has(r.key)); }
+};
+window.toggleAllBulk = function(checked){
+  filteredBulkRows().forEach(r => { if(checked) baSelected.add(r.key); else baSelected.delete(r.key); });
+  renderBulkList();
+};
+async function applyBulkAssign(){
+  const result = document.getElementById('ba-result');
+  const cohort = document.getElementById('ba-cohort').value.trim();
+  const role   = document.getElementById('ba-role').value;
+  const sel = bulkRows().filter(r => baSelected.has(r.key));
+  if(!sel.length){ result.style.color='var(--danger)'; result.textContent='Select at least one person.'; return; }
+  if(!cohort && !role){ result.style.color='var(--danger)'; result.textContent='Set a target cohort and/or a role first.'; return; }
+  const changingRole = !!role;
+  // Changing the role of a REGISTERED user is privileged (admin only, per rules).
+  if(changingRole && sel.some(r=>r.type==='user') && s.role!=='admin'){
+    result.style.color='var(--danger)';
+    result.textContent='Only an admin can change the role of already-registered users. Leave role as “keep”, or ask an admin.';
+    return;
+  }
+  if(!confirm(`Apply ${cohort?`cohort “${cohort}”`:''}${cohort&&role?' and ':''}${role?`role “${role}”`:''} to ${sel.length} ${sel.length===1?'person':'people'}?`)) return;
+  if(!(await reauthInstructor())) return;
+  result.style.color='var(--muted)'; result.textContent='Applying…';
+  let ok=0, fail=0; const errs=[];
+  for(const r of sel){
+    try{
+      const data = {};
+      if(cohort) data.cohort = cohort;
+      if(role)   data.role   = role;
+      const ref = r.type==='user' ? fsDoc(db,'users',r.id) : fsDoc(db,'allowlist',r.id);
+      await updateDoc(ref, data);
+      ok++;
+    }catch(e){ fail++; if(errs.length<4) errs.push(r.email+': '+e.message); }
+  }
+  result.style.color = fail ? 'var(--danger)' : '#15803d';
+  result.textContent = `✅ Updated ${ok} ${ok===1?'person':'people'}.` + (fail?` ${fail} failed:\n`+errs.join('\n'):'');
+  baSelected.clear();
+  await loadRoster();   // refresh registered view + bulk list
+  await loadPending();  // refresh invited view
+}
+// Resend the invite email to already-invited (pending) people who are selected.
+// Registered people don't need an invite, so they're ignored here.
+window.resendInvites = function(){
+  const result = document.getElementById('ba-result');
+  const sel = bulkRows().filter(r => baSelected.has(r.key) && r.status === 'invited');
+  if(!sel.length){
+    result.style.color='var(--danger)';
+    result.textContent='Select one or more invited (pending) people first. Already-registered people don’t need an invite.';
+    return;
+  }
+  const emails = sel.map(r => r.email);
+  window.open(inviteGmailUrl(emails), '_blank', 'noopener');
+  result.style.color='var(--muted)';
+  result.textContent=`Opened a Gmail compose to re-invite ${emails.length} ${emails.length===1?'person':'people'} (BCC). Press Send in Gmail.`;
+};
+window.applyBulkAssign = applyBulkAssign;
+window.loadPending     = loadPending;
+window.renderBulkList  = renderBulkList;
 
 function populateCohortOptions() {
   const dl = document.getElementById('cohort-options');
@@ -844,20 +1119,26 @@ function applyRosterView() {
   renderRoster(list);
 }
 
+// Count completed *learning* modules only (excludes the megacodes), so the
+// roster agrees with the student-side "all modules done" gate.
 function modCount(progress) {
-  return Object.keys(progress).filter(k => progress[k]).length;
+  if (!progress) return 0;
+  return LEARNING_IDX.filter(i => progress[i]).length;
 }
 
 function updateStats() {
   const scope   = visibleStudents();
   const total   = scope.length;
-  const done    = scope.filter(s => modCount(s.progress) >= MOD_COUNT).length;
-  const inprog  = scope.filter(s => { const c=modCount(s.progress); return c>0 && c<MOD_COUNT; }).length;
+  const done    = scope.filter(s => modCount(s.progress) >= LEARNING_COUNT).length;
+  const inprog  = scope.filter(s => { const c=modCount(s.progress); return c>0 && c<LEARNING_COUNT; }).length;
   const notst   = scope.filter(s => modCount(s.progress) === 0).length;
   document.getElementById('stat-total').textContent      = total;
   document.getElementById('stat-done').textContent       = done;
   document.getElementById('stat-progress').textContent   = inprog;
   document.getElementById('stat-notstarted').textContent = notst;
+  // Invited but not yet registered, matching the current cohort view.
+  const pending = (allPending||[]).filter(p => activeCohort === 'ALL' || (p.cohort||'Unassigned') === activeCohort).length;
+  document.getElementById('stat-pending').textContent = pending;
 }
 
 function timeAgo(ts) {
@@ -877,7 +1158,7 @@ function renderRoster(students) {
   }
   tbody.innerHTML = students.map(s => {
     const count = modCount(s.progress);
-    const pct   = Math.round(count/MOD_COUNT*100);
+    const pct   = Math.round(count/LEARNING_COUNT*100);
     const roleClass = s.role === 'student' ? 'badge-student' : 'badge-instructor';
     return `<tr>
       <td><strong>${s.name}</strong></td>
@@ -887,7 +1168,7 @@ function renderRoster(students) {
       <td>
         <div class="prog-bar-wrap">
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
-          <span class="prog-pct">${count}/${MOD_COUNT}</span>
+          <span class="prog-pct">${count}/${LEARNING_COUNT}</span>
         </div>
       </td>
       <td style="font-size:.78rem;color:var(--muted)">${timeAgo(s.updatedAt)}</td>
@@ -917,7 +1198,7 @@ function exportCSV() {
   const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Pre-Test %','Final Exam %','Feedback','Exam Access','Last Active']];
   visibleStudents().forEach(s => {
     const count = modCount(s.progress);
-    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/MOD_COUNT*100)+'%',
+    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/LEARNING_COUNT*100)+'%',
       (s.preTest&&s.preTest.pct!=null)?s.preTest.pct+'%':'',
       (s.finalExam&&s.finalExam.pct!=null)?s.finalExam.pct+'%':'',
       (s.feedback&&s.feedback.submittedAt)?'Submitted':'',
@@ -1145,8 +1426,19 @@ document.getElementById('edit-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('edit-overlay')) closeEditModal();
 });
 
-// Auto-load roster on page init (after auth check passes)
-setTimeout(loadRoster, 800);
+// Load roster + pending invites once Firebase auth is actually restored.
+// (Firing on a fixed timer raced auth on refresh — the reads hit
+// permission-denied and the lists came up empty.)
+let _instrDataLoaded = false;
+function loadInstructorData(){
+  _instrDataLoaded = true;
+  try{ loadRoster(); }catch(e){}
+  try{ loadPending(); }catch(e){}
+}
+onAuthStateChanged(auth, user => { if(user) loadInstructorData(); });
+// Belt-and-braces: if auth was already settled before the listener attached.
+if (auth.currentUser) loadInstructorData();
+setTimeout(()=>{ if(!_instrDataLoaded && auth.currentUser) loadInstructorData(); }, 1200);
 
 
 
@@ -1167,11 +1459,21 @@ function startExamFlagWatcher() {
       el.textContent = unlocked ? '✅ Unlocked for all students' : '🔒 Locked — students cannot access exam';
       el.style.color = unlocked ? '#15803d' : '#dc2626';
     }
-    const fbOpen = !!flags.feedbackOpen;
+    const courseStart = Number(flags.courseStart) || 0;
+    // When a start date is set it governs the window; the manual flag is the fallback.
+    const fbOpen = courseStart > 0 ? (Date.now() >= courseStart) : !!flags.feedbackOpen;
     const fel = document.getElementById('fb-global-status');
     if (fel) {
-      fel.textContent = fbOpen ? '✅ Open — students can submit feedback' : '🚫 Closed — feedback hidden from students';
-      fel.style.color = fbOpen ? '#15803d' : '#dc2626';
+      if (courseStart > 0 && !fbOpen) {
+        fel.textContent = '⏳ Opens automatically at course start — ' + new Date(courseStart).toLocaleString();
+        fel.style.color = '#b45309';
+      } else if (courseStart > 0) {
+        fel.textContent = '✅ Open (course has started) — students can submit feedback';
+        fel.style.color = '#15803d';
+      } else {
+        fel.textContent = fbOpen ? '✅ Open — students can submit feedback' : '🚫 Closed — feedback hidden from students';
+        fel.style.color = fbOpen ? '#15803d' : '#dc2626';
+      }
     }
   });
 }
@@ -1210,10 +1512,72 @@ async function quickToggleExam(uid, currentlyUnlocked) {
   } catch(e) { alert('Error toggling exam: ' + e.message); }
 }
 
+// ══ DAILY ATTENDANCE CHECK-IN ════════════════════════════════
+function daySlug(day){ return String(day||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
+function genCode(){ // unambiguous chars only (no 0/O/1/I)
+  const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s='';
+  for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)];
+  return s;
+}
+let _attWindow = null;       // last-known public window {open,day,expiresAt}
+let _attRows = [];           // all check-ins (live)
+
+async function openAttendance(){
+  const day = document.getElementById('att-day').value;
+  const dur = Math.max(5, Math.min(240, parseInt(document.getElementById('att-dur').value)||45));
+  const code = genCode();
+  const expiresAt = Date.now() + dur*60*1000;
+  try {
+    await setDoc(doc(db,'attendanceCode','current'), { code, day, open:true, openedAt:Date.now(), expiresAt }, { merge:false });
+    await setDoc(doc(db,'courseFlags','current'), { attendance:{ open:true, day, expiresAt } }, { merge:true });
+  } catch(e){ alert('Error opening check-in: '+e.message); }
+}
+async function closeAttendance(){
+  try {
+    await setDoc(doc(db,'attendanceCode','current'), { open:false }, { merge:true });
+    await setDoc(doc(db,'courseFlags','current'), { attendance:{ open:false } }, { merge:true });
+  } catch(e){ alert('Error closing check-in: '+e.message); }
+}
+function renderAttList(){
+  const day = document.getElementById('att-day')?.value;
+  const box = document.getElementById('att-list'); if(!box) return;
+  const forDay = _attRows.filter(r => r.day===day).sort((a,b)=>(a.checkedInAt||0)-(b.checkedInAt||0));
+  const names = forDay.map(r => `${r.name||r.uid.slice(0,6)} · ${new Date(r.checkedInAt).toLocaleTimeString()}`);
+  box.innerHTML = `<strong>${forDay.length}</strong> checked in for ${day}` +
+    (names.length ? `<div style="margin-top:.4rem;line-height:1.6">${names.map(n=>'• '+n).join('<br>')}</div>` : '');
+}
+function startAttendanceWatchers(){
+  // Secret code doc (staff-readable) → drives the code display + status.
+  onSnapshot(doc(db,'attendanceCode','current'), snap => {
+    const d = snap.exists() ? snap.data() : {};
+    _attWindow = d;
+    const open = !!d.open && d.expiresAt && Date.now() < d.expiresAt;
+    const box = document.getElementById('att-code-box');
+    const status = document.getElementById('att-status');
+    if(box){ box.style.display = open ? '' : 'none'; }
+    if(open){
+      document.getElementById('att-code').textContent = d.code || '—';
+      document.getElementById('att-code-sub').textContent = `${d.day} · open until ${new Date(d.expiresAt).toLocaleTimeString()}`;
+      if(status){ status.textContent = `✅ Check-in OPEN for ${d.day}`; status.style.color = '#15803d'; }
+    } else {
+      if(status){ status.textContent = '🛑 Check-in closed'; status.style.color = '#dc2626'; }
+    }
+  });
+  // All check-ins (live count + list).
+  onSnapshot(collection(db,'attendance'), snap => {
+    _attRows = []; snap.forEach(x => _attRows.push({ id:x.id, ...x.data() }));
+    renderAttList();
+  });
+  document.getElementById('att-day')?.addEventListener('change', renderAttList);
+}
+document.addEventListener('DOMContentLoaded', startAttendanceWatchers);
+
 // Expose access-control actions to the inline onclick handlers (module scope).
 window.setGlobalExam   = setGlobalExam;
 window.quickToggleExam = quickToggleExam;
 window.setFeedbackOpen = setFeedbackOpen;
+window.openAttendance  = openAttendance;
+window.closeAttendance = closeAttendance;
 
 </script>
 </body>

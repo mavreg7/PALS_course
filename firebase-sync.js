@@ -21,7 +21,8 @@ import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebase
 import {
   getFirestore,
   doc, setDoc, getDoc,
-  onSnapshot, collection, getDocs
+  onSnapshot, collection, getDocs,
+  query, where
 }                            from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
@@ -213,6 +214,87 @@ async function fbSetCourseFlag(key, value) {
   } catch(e) { console.warn('[PALS FB] setCourseFlag:', e.message); }
 }
 
+// ── INSTRUCTOR: publish the course plan (schedule + meta) ────
+// Shared at coursePlan/current so students can view a read-only agenda.
+async function fbSaveCoursePlan(plan) {
+  try {
+    _ensureInit();
+    await setDoc(doc(_db,'coursePlan','current'),
+      { ...plan, updatedAt: Date.now() }, { merge:true });
+  } catch(e) { console.warn('[PALS FB] saveCoursePlan:', e.message); }
+}
+
+// ── STUDENT: watch the published course plan ────────────────
+function fbWatchCoursePlan(callback) {
+  _ensureInit();
+  return onSnapshot(doc(_db,'coursePlan','current'), snap => {
+    callback(snap.exists() ? snap.data() : null);
+  });
+}
+
+// ══ DAILY ATTENDANCE CHECK-IN ════════════════════════════════
+// A daily class code proves a student is physically present. The code lives in
+// a staff-only doc (students can't read it); a code-free "window open" status
+// is mirrored to courseFlags so students know when check-in is live. The
+// student's check-in is accepted only if the submitted code matches the secret
+// (enforced by Firestore rules), so it can't be done remotely or in advance.
+function _daySlug(day){ return String(day||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
+
+// INSTRUCTOR: open the check-in window for a day with a code.
+async function fbOpenAttendance(day, code, durationMs) {
+  try {
+    _ensureInit();
+    const expiresAt = Date.now() + (durationMs || 45*60*1000);
+    await setDoc(doc(_db,'attendanceCode','current'),
+      { code:String(code), day, open:true, openedAt:Date.now(), expiresAt }, { merge:false });
+    // Public, code-free status so students see the window is open.
+    await setDoc(doc(_db,'courseFlags','current'),
+      { attendance:{ open:true, day, expiresAt } }, { merge:true });
+    return { day, code, expiresAt };
+  } catch(e) { console.warn('[PALS FB] openAttendance:', e.message); return null; }
+}
+
+// INSTRUCTOR: close the check-in window.
+async function fbCloseAttendance() {
+  try {
+    _ensureInit();
+    await setDoc(doc(_db,'attendanceCode','current'), { open:false }, { merge:true });
+    await setDoc(doc(_db,'courseFlags','current'), { attendance:{ open:false } }, { merge:true });
+  } catch(e) { console.warn('[PALS FB] closeAttendance:', e.message); }
+}
+
+// INSTRUCTOR: live list of all check-ins.
+function fbWatchAttendance(callback) {
+  _ensureInit();
+  return onSnapshot(collection(_db,'attendance'), snap => {
+    const rows = []; snap.forEach(d => rows.push({ id:d.id, ...d.data() }));
+    callback(rows);
+  });
+}
+
+// STUDENT: submit a check-in. Resolves true on success, false otherwise.
+async function fbCheckIn(day, code, name) {
+  try {
+    await _ensureAuthReady();
+    const uid = _uid(); if (!uid) return false;
+    const id = `${uid}_${_daySlug(day)}`;
+    await setDoc(doc(_db,'attendance',id),
+      { uid, day, code:String(code), name: name||'', checkedInAt: Date.now() }, { merge:false });
+    return true;
+  } catch(e) { console.warn('[PALS FB] checkIn:', e.message); return false; }
+}
+
+// STUDENT: live view of own check-ins (to show "already checked in today").
+function fbWatchMyAttendance(callback) {
+  _ensureInit();
+  const uid = _uid();
+  if (!uid) { _ensureAuthReady().then(()=>{ const u=_uid(); if(u) fbWatchMyAttendance(callback); }); return ()=>{}; }
+  return onSnapshot(query(collection(_db,'attendance'), where('uid','==',uid)), snap => {
+    const rows = []; snap.forEach(d => rows.push({ id:d.id, ...d.data() }));
+    callback(rows);
+  });
+}
+
 // ── STUDENT: watch course flags ───────────────────────────────
 function fbWatchCourseFlags(callback) {
   _ensureInit();
@@ -256,6 +338,13 @@ window.FB = {
   pushFlagsToStudent:    fbPushFlagsToStudent,
   broadcastAnnouncement: fbBroadcastAnnouncement,
   setCourseFlag:         fbSetCourseFlag,
+  saveCoursePlan:        fbSaveCoursePlan,
+  watchCoursePlan:       fbWatchCoursePlan,
+  openAttendance:        fbOpenAttendance,
+  closeAttendance:       fbCloseAttendance,
+  watchAttendance:       fbWatchAttendance,
+  checkIn:               fbCheckIn,
+  watchMyAttendance:     fbWatchMyAttendance,
   setStudentExamUnlock:  fbSetStudentExamUnlock,
   watchAllStudents:      fbWatchAllStudents,
 };

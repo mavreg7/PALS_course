@@ -232,7 +232,7 @@ import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/fire
 import { getAuth, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore,
-  collection, getDocs, doc, setDoc, updateDoc, deleteField, query, orderBy
+  collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteField, query, orderBy
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const app  = initializeApp(FIREBASE_CONFIG);
@@ -529,8 +529,17 @@ function renderSessions(){
 
 /* COUNTDOWN */
 const CK='pals2025_course_start';
-window.setStart = function(v){if(v){localStorage.setItem(CK,v);tickCountdown()}};
-window.clearStart = function(){localStorage.removeItem(CK);document.getElementById('course_start').value='';document.getElementById('countdown').textContent='—'};
+// Publish the cohort start to Firestore so students' Course Feedback opens
+// automatically the moment the course begins (courseStart = epoch ms, or
+// deleted to fall back to the manual feedback toggle).
+async function syncCourseStart(ms){
+  try{
+    if(ms==null){ await setDoc(doc(db,'courseFlags','current'),{courseStart:deleteField()},{merge:true}); }
+    else        { await setDoc(doc(db,'courseFlags','current'),{courseStart:ms},{merge:true}); }
+  }catch(e){ console.warn('[PALS] syncCourseStart:',e.message); }
+}
+window.setStart = function(v){if(v){localStorage.setItem(CK,v);tickCountdown();syncCourseStart(new Date(v).getTime())}};
+window.clearStart = function(){localStorage.removeItem(CK);document.getElementById('course_start').value='';document.getElementById('countdown').textContent='—';syncCourseStart(null)};
 function tickCountdown(){
   const v=localStorage.getItem(CK);if(!v){document.getElementById('countdown').textContent='Set a course start time →';return}
   document.getElementById('course_start').value=v;
@@ -540,6 +549,27 @@ function tickCountdown(){
   document.getElementById('countdown').textContent=`${d}d ${h}h ${m}m ${s}s until course`;
 }
 setInterval(tickCountdown,1000);tickCountdown();
+// The course start lives in Firestore (courseFlags/current.courseStart) so it
+// survives across browsers/devices and cleared localStorage. Load it back on
+// init — otherwise the countdown looks "reset" even though a date was saved.
+async function loadCourseStart(){
+  try{
+    const snap = await getDoc(doc(db,'courseFlags','current'));
+    const ms = snap.exists() ? Number(snap.data().courseStart) : 0;
+    if(ms>0){
+      // datetime-local expects local wall-clock — shift out the tz offset.
+      const d = new Date(ms);
+      const local = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+      localStorage.setItem(CK, local);
+      tickCountdown();
+    } else {
+      // No saved date — if we have a local one, publish it (legacy carry-over).
+      const v=localStorage.getItem(CK); if(v) syncCourseStart(new Date(v).getTime());
+    }
+  }catch(e){ console.warn('[PALS] loadCourseStart:',e.message);
+    const v=localStorage.getItem(CK); if(v) syncCourseStart(new Date(v).getTime()); }
+}
+loadCourseStart();
 
 /* BULK ACTIONS */
 window.exportRoster = function(){
