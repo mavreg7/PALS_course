@@ -515,8 +515,19 @@ function getStudentSession(){
 }
 const STUDENT_SESS = getStudentSession();
 async function fbReady(timeoutMs){
-  try{ return await Promise.race([window.FB_READY||Promise.resolve(window.FB), new Promise(r=>setTimeout(()=>r(window.FB),timeoutMs||3000))]); }
-  catch(e){ return window.FB; }
+  // This page's main script is a classic <script>, so it runs BEFORE the
+  // deferred firebase-sync.js module — window.FB / window.FB_READY may not exist
+  // yet. Poll briefly until the module has registered them, then await readiness.
+  const deadline = Date.now() + (timeoutMs||4000);
+  while(!window.FB_READY && !window.FB && Date.now() < deadline){
+    await new Promise(r=>setTimeout(r,40));
+  }
+  if(window.FB) return window.FB;
+  if(window.FB_READY){
+    try{ return await Promise.race([window.FB_READY, new Promise(r=>setTimeout(()=>r(window.FB), Math.max(0,deadline-Date.now())))]); }
+    catch(e){ return window.FB; }
+  }
+  return window.FB;
 }
 async function studentExamState(){
   if(!STUDENT_SESS) return null;
@@ -530,6 +541,10 @@ if(STUDENT_SESS){
   lock('ex_name',STUDENT_SESS.name);lock('ex_email',STUDENT_SESS.email||'');
   lock('ct_name',STUDENT_SESS.name);lock('fb_name',STUDENT_SESS.name);
 }
+// Apply safe defaults immediately (feedback closed, pre-test locked) so the
+// gates are correct from first paint — before Firebase resolves. The async
+// loader above then refreshes them with live data.
+if(IS_STUDENT){ try{ applyStudentState(); }catch(e){} }
 
 // Every submitted form embeds the current date — auto-filled and not editable.
 (function lockSubmissionDates(){
