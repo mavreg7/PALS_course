@@ -93,6 +93,16 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 .ba-inv{background:rgba(245,158,11,.16);color:#b45309}
 .ba-tag{font-size:.72rem;color:var(--muted)}
 .ba-apply{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.85rem}
+/* Teaching assignments */
+.ta-table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:760px}
+.ta-table th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700;padding:.4rem .5rem;border-bottom:2px solid var(--border)}
+.ta-table td{padding:.3rem .4rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.ta-table input{width:100%;box-sizing:border-box;padding:.4rem .5rem;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--text);font-size:.84rem;font-family:inherit}
+.ta-table input:hover{border-color:var(--border)}
+.ta-table input:focus{outline:none;border-color:var(--primary);background:var(--surface)}
+.ta-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;line-height:1;padding:.2rem .35rem;border-radius:6px}
+.ta-del:hover{color:var(--danger);background:rgba(239,68,68,.1)}
+.ta-empty{padding:1.2rem;text-align:center;color:var(--muted);font-size:.85rem}
 .ba-edit{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer}
 .ba-edit:hover{border-color:var(--primary);color:var(--primary)}
 .roster-stats{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
@@ -334,6 +344,43 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     <div style="font-size:.74rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.75rem;margin-top:.75rem">
       Open the window at the start of each day and read out / display the code in the room. Only students physically present can enter it, and it stops working when the window closes or expires.
     </div>
+  </div>
+
+  <div class="section-title">Teaching Assignments</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem">
+      Shared instructor schedule — allocate staff to sessions, frontal talks, skill stations and scenarios. Visible to all instructors and saved live; anyone on the team can edit.
+    </div>
+    <div style="overflow-x:auto">
+      <table id="ta-table" class="ta-table">
+        <thead>
+          <tr>
+            <th style="width:90px">Day</th>
+            <th style="width:110px">Time</th>
+            <th style="width:150px">Type</th>
+            <th>Session / Topic</th>
+            <th style="width:170px">Instructor(s)</th>
+            <th style="width:120px">Location</th>
+            <th>Notes</th>
+            <th style="width:38px"></th>
+          </tr>
+        </thead>
+        <tbody id="ta-body"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.85rem">
+      <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem" onclick="taAddRow()">＋ Add row</button>
+      <span id="ta-status" style="font-size:.78rem;color:var(--muted)"></span>
+    </div>
+    <datalist id="ta-instructors"></datalist>
+    <datalist id="ta-types">
+      <option value="Frontal talk"></option>
+      <option value="Skill station"></option>
+      <option value="Scenario / Megacode"></option>
+      <option value="Small group"></option>
+      <option value="Assessment"></option>
+      <option value="Break"></option>
+    </datalist>
   </div>
 
   <div class="section-title">Broadcast Announcement</div>
@@ -1004,6 +1051,7 @@ async function loadRoster() {
     updateStats();
     applyRosterView();
     renderBulkList();
+    try{ taPopulateInstructors(); }catch(e){}
   } catch(e) {
     document.querySelector('#roster-tbody').innerHTML =
       '<tr><td colspan="7" class="roster-empty">Error loading roster: ' + e.message + '</td></tr>';
@@ -1231,6 +1279,92 @@ window.deleteInvite = async function(){
     setTimeout(()=>closeInviteEdit(), 600);
   }catch(e){ res.style.color='var(--danger)'; res.textContent='❌ '+e.message; }
 };
+
+// ── Teaching Assignments: shared, live-synced instructor schedule ────────────
+let taRows = [];
+let _taWatching = false;
+let taSaveTimer = null;
+function taNewId(){ return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function watchTeachingPlan(){
+  if (_taWatching) return; _taWatching = true;
+  onSnapshot(doc(db,'teachingPlan','current'), snap => {
+    const rows = (snap.exists() && Array.isArray(snap.data().rows)) ? snap.data().rows : [];
+    // Don't clobber someone who is mid-edit in the table.
+    const active = document.activeElement;
+    if (active && active.closest && active.closest('#ta-body')) return;
+    taRows = rows.map(r => ({
+      id: r.id || taNewId(), day:r.day||'', time:r.time||'', type:r.type||'',
+      topic:r.topic||'', instructor:r.instructor||'', location:r.location||'', notes:r.notes||''
+    }));
+    taRender();
+  }, err => {
+    _taWatching = false;
+    const st = document.getElementById('ta-status');
+    if (st){ st.style.color='var(--danger)'; st.textContent='Couldn’t load schedule: '+err.message; }
+  });
+}
+function taPopulateInstructors(){
+  const dl = document.getElementById('ta-instructors'); if(!dl) return;
+  const names = [...new Set(allStudents
+    .filter(s => s.role === 'instructor' || s.role === 'lead_instructor')
+    .map(s => s.name).filter(Boolean))].sort();
+  dl.innerHTML = names.map(n => `<option value="${esc(n)}"></option>`).join('');
+}
+function taRender(){
+  const body = document.getElementById('ta-body'); if(!body) return;
+  taPopulateInstructors();
+  if(!taRows.length){
+    body.innerHTML = '<tr><td colspan="8" class="ta-empty">No sessions yet — click “Add row” to start building the schedule.</td></tr>';
+    return;
+  }
+  body.innerHTML = taRows.map(r => `
+    <tr data-id="${esc(r.id)}">
+      <td><input data-id="${esc(r.id)}" data-f="day"        value="${esc(r.day)}"        placeholder="Day 1"        oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="time"       value="${esc(r.time)}"       placeholder="09:00"        oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="type"       value="${esc(r.type)}"       placeholder="Frontal talk" list="ta-types" oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="topic"      value="${esc(r.topic)}"      placeholder="Session / topic" oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="instructor" value="${esc(r.instructor)}" placeholder="Name(s)"      list="ta-instructors" oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="location"   value="${esc(r.location)}"   placeholder="Room"         oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="notes"      value="${esc(r.notes)}"      placeholder="—"            oninput="taEdit(this)"></td>
+      <td style="text-align:center"><button class="ta-del" title="Delete row" onclick="taDelRow('${esc(r.id)}')">✕</button></td>
+    </tr>`).join('');
+}
+window.taEdit = function(el){
+  const row = taRows.find(x => x.id === el.dataset.id);
+  if(!row) return;
+  row[el.dataset.f] = el.value;
+  taScheduleSave();
+};
+window.taAddRow = function(){
+  taRows.push({ id: taNewId(), day:'', time:'', type:'', topic:'', instructor:'', location:'', notes:'' });
+  taRender();
+  const body = document.getElementById('ta-body');
+  const last = body && body.querySelector('tr:last-child input');
+  if(last) last.focus();
+  taScheduleSave();
+};
+window.taDelRow = function(id){
+  taRows = taRows.filter(r => r.id !== id);
+  taRender();
+  taScheduleSave();
+};
+function taScheduleSave(){
+  const st = document.getElementById('ta-status');
+  if(st){ st.style.color='var(--muted)'; st.textContent='Saving…'; }
+  clearTimeout(taSaveTimer);
+  taSaveTimer = setTimeout(taSave, 600);
+}
+async function taSave(){
+  const st = document.getElementById('ta-status');
+  try{
+    await setDoc(doc(db,'teachingPlan','current'),
+      { rows: taRows, updatedAt: serverTimestamp(), updatedBy: getSession()?.uid || '' }, { merge:true });
+    if(st){ st.style.color='#15803d'; st.textContent='✓ Saved · ' + new Date().toLocaleTimeString(); }
+  }catch(e){
+    if(st){ st.style.color='var(--danger)'; st.textContent='Save failed: ' + e.message; }
+  }
+}
 
 function populateCohortOptions() {
   const dl = document.getElementById('cohort-options');
@@ -1598,6 +1732,7 @@ function loadInstructorData(){
   _instrDataLoaded = true;
   try{ loadRoster(); }catch(e){}
   try{ loadPending(); }catch(e){}
+  try{ watchTeachingPlan(); }catch(e){}
 }
 onAuthStateChanged(auth, user => { if(user) loadInstructorData(); });
 // Belt-and-braces: if auth was already settled before the listener attached.
