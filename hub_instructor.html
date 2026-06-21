@@ -92,12 +92,14 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 .ba-inv{background:rgba(245,158,11,.16);color:#b45309}
 .ba-tag{font-size:.72rem;color:var(--muted)}
 .ba-apply{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.85rem}
+.ba-edit{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer}
+.ba-edit:hover{border-color:var(--primary);color:var(--primary)}
 .roster-stats{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
 .stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.4rem .85rem;font-size:.78rem;color:var(--muted)}
 .stat-chip strong{color:var(--text);font-weight:700}
 /* Edit modal */
-#edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
-#edit-overlay.open{opacity:1;pointer-events:all}
+#edit-overlay,#invite-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+#edit-overlay.open,#invite-overlay.open{opacity:1;pointer-events:all}
 .edit-modal{background:var(--surface);border-radius:var(--radius);width:min(540px,95vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.25)}
 .edit-modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)}
 .edit-modal-header h3{font-size:1rem;font-weight:700}
@@ -464,6 +466,49 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     </div>
   </div>
 
+  <!-- Edit an INVITED (not-yet-registered) person's allowlist entry -->
+  <div id="invite-overlay">
+    <div class="edit-modal">
+      <div class="edit-modal-header">
+        <h3 id="invite-modal-title">✏️ Edit invite</h3>
+        <button class="modal-close" onclick="closeInviteEdit()">✕</button>
+      </div>
+      <div class="edit-modal-body">
+        <input type="hidden" id="invite-orig-email">
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">First / Last name</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+            <input type="text" id="invite-fname" placeholder="First" autocomplete="off">
+            <input type="text" id="invite-lname" placeholder="Last" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Sign-in email</label>
+          <input type="email" id="invite-email" placeholder="name@example.com" autocomplete="off">
+          <div style="font-size:.72rem;color:var(--muted);margin-top:.35rem">They register with this exact address. Changing it moves the invite to the new email.</div>
+        </div>
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Cohort / Group</label>
+          <input type="text" id="invite-cohort" list="cohort-options" placeholder="e.g. June 2026" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:1rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Role</label>
+          <select id="invite-role">
+            <option value="student">Student</option>
+            <option value="instructor">Instructor</option>
+            <option value="lead_instructor">Lead Instructor</option>
+          </select>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-sm btn-ghost" onclick="closeInviteEdit()">Cancel</button>
+          <button class="btn-sm" style="background:#ef4444;color:#fff;border:none;border-radius:8px" onclick="deleteInvite()">🗑 Delete invite</button>
+          <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px" onclick="saveInviteEdit()">💾 Save</button>
+        </div>
+        <div id="invite-result" style="margin-top:.75rem;font-size:.8rem"></div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script type="module">
@@ -477,7 +522,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore,
-  doc, setDoc, getDoc, getDocs,
+  doc, setDoc, getDoc, getDocs, deleteDoc,
   collection, onSnapshot, updateDoc, deleteField,
   query, where,
   serverTimestamp
@@ -1011,6 +1056,7 @@ function renderBulkList(){
       <span class="ba-meta">
         <span class="ba-tag">${esc(r.cohort)} · ${esc(r.role)}</span>
         <span class="ba-badge ${r.status==='registered'?'ba-reg':'ba-inv'}">${r.status==='registered'?'Registered':'Invited'}</span>
+        <button type="button" class="ba-edit" title="Edit this person" onclick="event.preventDefault();event.stopPropagation();${r.status==='invited'?`openInviteEdit('${esc(r.email)}')`:`openEditModal('${esc(r.id)}')`}">✏️ Edit</button>
       </span>
     </label>`).join('');
   const allBox = document.getElementById('ba-all');
@@ -1084,6 +1130,64 @@ window.resendInvites = function(){
 window.applyBulkAssign = applyBulkAssign;
 window.loadPending     = loadPending;
 window.renderBulkList  = renderBulkList;
+
+// ── Edit an invited (not-yet-registered) person's allowlist entry ────────────
+window.openInviteEdit = function(email){
+  const p = allPending.find(x => x.email === email);
+  if(!p) return;
+  document.getElementById('invite-orig-email').value = p.email;
+  document.getElementById('invite-fname').value  = p.firstName || (p.name||'').split(/\s+/)[0] || '';
+  document.getElementById('invite-lname').value  = p.lastName  || (p.name||'').split(/\s+/).slice(1).join(' ') || '';
+  document.getElementById('invite-email').value  = p.email;
+  document.getElementById('invite-cohort').value = p.cohort && p.cohort!=='Unassigned' ? p.cohort : '';
+  document.getElementById('invite-role').value   = p.role || 'student';
+  document.getElementById('invite-modal-title').textContent = '✏️ ' + (p.name || p.email);
+  document.getElementById('invite-result').textContent = '';
+  document.getElementById('invite-overlay').classList.add('open');
+};
+window.closeInviteEdit = function(){
+  document.getElementById('invite-overlay').classList.remove('open');
+};
+window.saveInviteEdit = async function(){
+  const res = document.getElementById('invite-result');
+  const orig = document.getElementById('invite-orig-email').value;
+  const fname = document.getElementById('invite-fname').value.trim();
+  const lname = document.getElementById('invite-lname').value.trim();
+  const newEmail = document.getElementById('invite-email').value.trim().toLowerCase();
+  const cohort = document.getElementById('invite-cohort').value.trim() || 'Unassigned';
+  const role = document.getElementById('invite-role').value;
+  if(!newEmail || !newEmail.includes('@')){ res.style.color='var(--danger)'; res.textContent='Enter a valid email.'; return; }
+  const name = (fname+' '+lname).trim() || newEmail.split('@')[0];
+  const data = { name, firstName:fname, lastName:lname, email:newEmail, role, cohort };
+  res.style.color='var(--muted)'; res.textContent='Saving…';
+  try{
+    if(newEmail !== orig){
+      // Email is the doc id — moving the invite means new doc + remove old.
+      const existing = await getDoc(doc(db,'allowlist',newEmail));
+      if(existing.exists() && existing.data().registered){
+        res.style.color='var(--danger)'; res.textContent='That email already belongs to a registered account.'; return;
+      }
+      await setDoc(doc(db,'allowlist',newEmail), { ...data, registered:false, addedAt:serverTimestamp(), addedBy:(getSession()&&getSession().uid)||'admin' }, { merge:true });
+      await deleteDoc(doc(db,'allowlist',orig));
+    } else {
+      await updateDoc(doc(db,'allowlist',orig), data);
+    }
+    res.style.color='#15803d'; res.textContent='✅ Saved.';
+    setTimeout(()=>closeInviteEdit(), 600);
+    // The live allowlist listener refreshes the pending list automatically.
+  }catch(e){ res.style.color='var(--danger)'; res.textContent='❌ '+e.message; }
+};
+window.deleteInvite = async function(){
+  const res = document.getElementById('invite-result');
+  const orig = document.getElementById('invite-orig-email').value;
+  if(!confirm('Delete this invite? They will no longer be able to self-register with this email.')) return;
+  res.style.color='var(--muted)'; res.textContent='Deleting…';
+  try{
+    await deleteDoc(doc(db,'allowlist',orig));
+    res.style.color='#15803d'; res.textContent='✅ Invite deleted.';
+    setTimeout(()=>closeInviteEdit(), 600);
+  }catch(e){ res.style.color='var(--danger)'; res.textContent='❌ '+e.message; }
+};
 
 function populateCohortOptions() {
   const dl = document.getElementById('cohort-options');
