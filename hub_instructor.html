@@ -1110,16 +1110,23 @@ async function loadPending() {
 
 // ── Bulk assign (cohort + role) over registered + invited people ─────────────
 function bulkRows(){
-  // Registered users (from the roster) + invited people (pending), unified.
+  // Registered users (from the roster) + invited people who have NOT registered.
   const reg = allStudents.map(s => ({
     key:'u:'+s.uid, type:'user', id:s.uid,
     name:s.name, email:s.email, role:s.role, cohort:s.cohort, status:'registered'
   }));
-  const inv = allPending.map(p => ({
+  const inv = pendingPeople().map(p => ({
     key:'a:'+p.email, type:'allowlist', id:p.email,
     name:p.name, email:p.email, role:p.role, cohort:p.cohort, status:'invited'
   }));
   return reg.concat(inv);
+}
+// Invited people who genuinely have no account yet — excludes anyone whose
+// email already belongs to a registered user (guards against a stale
+// allowlist.registered flag leaving real accounts stuck in "pending").
+function pendingPeople(){
+  const regEmails = new Set(allStudents.map(s => (s.email||'').toLowerCase()).filter(Boolean));
+  return allPending.filter(p => !regEmails.has((p.email||'').toLowerCase()));
 }
 function filteredBulkRows(){
   const q = (document.getElementById('ba-search')?.value||'').trim().toLowerCase();
@@ -1435,7 +1442,7 @@ function updateStats() {
   document.getElementById('stat-progress').textContent   = inprog;
   document.getElementById('stat-notstarted').textContent = notst;
   // Invited but not yet registered, matching the current cohort view.
-  const pending = (allPending||[]).filter(p => activeCohort === 'ALL' || (p.cohort||'Unassigned') === activeCohort).length;
+  const pending = pendingPeople().filter(p => activeCohort === 'ALL' || (p.cohort||'Unassigned') === activeCohort).length;
   document.getElementById('stat-pending').textContent = pending;
 }
 
