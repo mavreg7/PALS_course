@@ -605,26 +605,26 @@ renderPrereg();
 
 /* ===== PRE-TEST (20 Q) ===== */
 const PRETEST_QS=[
-  {q:'When should CPR begin in an infant with a heart rate < 60/min?',a:['Only if pulseless','When there are signs of poor perfusion','After 2 min of bag-mask','Never if pulse present'],c:1},
-  {q:'Minimum compression depth for a child?',a:['3 cm','4 cm','At least 5 cm (1/3 AP diameter)','7 cm'],c:2},
-  {q:'Compression rate per AHA 2025?',a:['80-100/min','100-120/min','120-140/min','60-100/min'],c:1},
-  {q:'Initial defibrillation dose in pediatric VF?',a:['1 J/kg','2 J/kg','4 J/kg','10 J/kg'],c:1},
-  {q:'Normal resting respiratory rate for a 2-year-old is approximately:',a:['10-15/min','20-30/min','40-60/min','60-80/min'],c:1},
-  {q:'Epinephrine dose for cardiac arrest?',a:['0.1 mg/kg','0.01 mg/kg IV/IO','1 mg IV push','0.001 mg/kg'],c:1},
-  {q:'Initial fluid bolus for hypovolemic shock?',a:['5 mL/kg','10-20 mL/kg isotonic','40 mL/kg colloid','2 mL/kg D5W'],c:1},
-  {q:'Post-ROSC SpO2 target?',a:['100%','94-99%','>88%','85-92%'],c:1},
-  {q:'Post-ROSC PaCO2 target?',a:['25-30','35-45','45-55','<30'],c:1},
-  {q:'Intraosseous (IO) access is indicated when:',a:['IV access is obtained in under 2 minutes','Reliable IV access cannot be established rapidly in a critically ill child','Only in cardiac arrest','Only for fluid resuscitation'],c:1},
-  {q:'A child with inspiratory stridor, barky cough and mild retractions most likely has:',a:['Epiglottitis — call for advanced airway team','Croup (laryngotracheobronchitis) — nebulized epinephrine + dexamethasone','Anaphylaxis — give IM epinephrine','Foreign-body aspiration — abdominal thrusts'],c:1},
-  {q:'Atropine dose for symptomatic bradycardia?',a:['0.01 mg/kg','0.02 mg/kg (min 0.1 mg)','0.1 mg/kg','0.5 mg fixed'],c:1},
-  {q:'Synchronized cardioversion start dose?',a:['0.1 J/kg','0.5-1 J/kg','2 J/kg','4 J/kg'],c:1},
-  {q:'Amiodarone dose for VF/pulseless VT?',a:['1 mg/kg','5 mg/kg IV/IO bolus','10 mg/kg','15 mg/kg'],c:1},
-  {q:'New 2025 endorsed agent for refractory SVT?',a:['Procainamide only','IV sotalol','Digoxin','Verapamil'],c:1},
-  {q:'2025 added reversible causes include?',a:['Trauma & toxin','Intracranial hypertension & heart block','Hypoxia only','Hypothermia only'],c:1},
-  {q:'DBP CPR target in older children (invasive line)?',a:['≥15 mmHg','≥25 mmHg','≥30 mmHg','≥45 mmHg'],c:2},
-  {q:'Signs of hypovolemic shock in an infant include all of the following EXCEPT:',a:['Tachycardia','Prolonged capillary refill >2 s','Bounding pulses','Decreased urine output'],c:2},
-  {q:'For distributive (septic) shock, the first fluid choice and volume is:',a:['5% albumin 5 mL/kg','Isotonic crystalloid 10-20 mL/kg, reassess after each bolus','D5W 20 mL/kg','Blood products only'],c:1},
-  {q:'Septic shock first hour priority?',a:['Diuretics','Early antibiotics + fluid bolus + reassess','High-dose steroids','Vasopressor only'],c:1}
+  {q:'An infant has a heart rate below 60/min with signs of poor perfusion despite effective oxygenation and ventilation. What is the next step?',a:['Give atropine 0.02 mg/kg','Begin chest compressions','Observe and recheck in 2 minutes','Defibrillate at 2 J/kg'],c:1},
+  {q:'What is the correct chest-compression depth for a child (1 year to puberty)?',a:['About 2 cm','About 3 cm','At least one-third the chest depth, roughly 5 cm (2 in)','At least 7–8 cm'],c:2},
+  {q:'What is the recommended chest-compression rate during CPR?',a:['100–120/min','60–80/min','140–160/min','As fast as possible'],c:0},
+  {q:'What is the compression-to-ventilation ratio for 2-rescuer infant CPR?',a:['30:2','5:1','3:1','15:2'],c:3},
+  {q:'What is the first defibrillation energy dose for pediatric VF / pulseless VT?',a:['0.5 J/kg','2 J/kg','4 J/kg','10 J/kg'],c:1},
+  {q:'After the first shock fails, what is the second defibrillation dose?',a:['Repeat 2 J/kg','3 J/kg','4 J/kg','Always 10 J/kg'],c:2},
+  {q:'What is the epinephrine dose in pediatric cardiac arrest?',a:['0.01 mg/kg (0.1 mL/kg of 0.1 mg/mL) IV/IO','0.1 mg/kg IV/IO','1 mg IV regardless of weight','0.001 mg/kg'],c:0},
+  {q:'How often is epinephrine repeated during cardiac arrest?',a:['Every 1 minute','Once only','Every 10 minutes','Every 3–5 minutes'],c:3},
+  {q:'What is the amiodarone dose for shock-refractory VF / pulseless VT?',a:['1 mg/kg','5 mg/kg IV/IO bolus','15 mg/kg over 20 minutes','0.5 mg/kg'],c:1},
+  {q:'What is the first dose of adenosine for stable SVT?',a:['6 mg fixed dose','0.2 mg/kg','0.1 mg/kg (max 6 mg) rapid IV/IO push','1 mg/kg'],c:2},
+  {q:'What is the initial synchronized cardioversion dose for unstable SVT or VT with a pulse?',a:['0.5–1 J/kg','2 J/kg','4 J/kg','0.1 J/kg'],c:0},
+  {q:'What is the initial fluid bolus for a child in hypovolemic or septic shock?',a:['5 mL/kg of D5W','10–20 mL/kg isotonic crystalloid, reassess after each bolus','40 mL/kg colloid','2 mL/kg, reassess in 1 hour'],c:1},
+  {q:'Once reliable monitoring is available after ROSC, what is the target oxygen saturation?',a:['100%','85–90%','94–99%','Below 88%'],c:2},
+  {q:'What is the target PaCO2 after ROSC (normocapnia)?',a:['20–30 mmHg','35–45 mmHg','50–60 mmHg','As low as possible'],c:1},
+  {q:'What is the atropine dose for bradycardia from increased vagal tone or AV block?',a:['0.1 mg/kg','0.5 mg/kg','0.001 mg/kg','0.02 mg/kg'],c:3},
+  {q:'A toddler has a barky cough, inspiratory stridor and mild retractions. The most likely diagnosis and treatment is:',a:['Epiglottitis — immediate intubation','Anaphylaxis — IM epinephrine','Croup — dexamethasone (± nebulized epinephrine)','Asthma — albuterol only'],c:2},
+  {q:'What is the first-line treatment for anaphylaxis?',a:['IM epinephrine 0.01 mg/kg (0.1 mg/mL, i.e. 1:1000)','IV epinephrine 0.1 mg/kg','Diphenhydramine alone','Nebulized epinephrine alone'],c:0},
+  {q:'All of the following are signs of hypovolemic shock in an infant EXCEPT:',a:['Tachycardia','Capillary refill greater than 2 seconds','Bounding pulses','Decreased urine output'],c:2},
+  {q:'Intraosseous (IO) access is indicated when:',a:['IV access is obtained within 2 minutes','Reliable vascular access cannot be rapidly established in a critically ill child','Only during cardiac arrest','Only for fluids, never for drugs'],c:1},
+  {q:'What are the priority interventions in the first hour of pediatric septic shock?',a:['Diuretics and fluid restriction','High-dose corticosteroids first','Vasopressors before any fluids','Early antibiotics, fluid boluses, and frequent reassessment'],c:3}
 ];
 function renderPreTest(){
   document.getElementById('pretest_questions').innerHTML = PRETEST_QS.map((q,i)=>`
