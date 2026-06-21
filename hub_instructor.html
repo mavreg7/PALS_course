@@ -364,6 +364,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     <div class="stat-chip">Completed all: <strong id="stat-done">—</strong></div>
     <div class="stat-chip">In progress: <strong id="stat-progress">—</strong></div>
     <div class="stat-chip">Not started: <strong id="stat-notstarted">—</strong></div>
+    <div class="stat-chip">Invited / pending: <strong id="stat-pending">—</strong></div>
   </div>
 
   <div class="roster-header">
@@ -914,6 +915,7 @@ async function loadPending() {
     });
     allPending = rows.sort((a,b)=> (a.cohort+a.name).localeCompare(b.cohort+b.name));
     renderBulkList();
+    try{ updateStats(); }catch(e){}
   } catch(e) {
     allPending = [];
     const box = document.getElementById('ba-list');
@@ -1087,6 +1089,9 @@ function updateStats() {
   document.getElementById('stat-done').textContent       = done;
   document.getElementById('stat-progress').textContent   = inprog;
   document.getElementById('stat-notstarted').textContent = notst;
+  // Invited but not yet registered, matching the current cohort view.
+  const pending = (allPending||[]).filter(p => activeCohort === 'ALL' || (p.cohort||'Unassigned') === activeCohort).length;
+  document.getElementById('stat-pending').textContent = pending;
 }
 
 function timeAgo(ts) {
