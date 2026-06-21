@@ -699,12 +699,54 @@ submitBtn.addEventListener('click', async () => {
 
   } catch (err) {
     await secondarySignOut(secondaryAuth).catch(() => {});
-    const msg = firebaseErrorMessage(err.code);
-    showError(msg);
+    if (err.code === 'auth/email-already-in-use') {
+      await recoverExistingAccount(fname, lname, email, role, cohort);
+    } else {
+      showError(firebaseErrorMessage(err.code));
+    }
     submitBtn.disabled = false;
     submitBtn.textContent = 'Create Account';
   }
 });
+
+// When the email already has a Firebase Auth account, you can't (and shouldn't)
+// re-create it. Instead refresh their invite so that the next time they sign in
+// their roster profile is rebuilt automatically (see repairProfileFromInvite in
+// index.html / auth.js), and offer a password reset in case they forgot it.
+async function recoverExistingAccount(fname, lname, email, role, cohort) {
+  resultBox.className = 'create-result';
+  resultBox.innerHTML = 'This email already has a sign-in account — preparing recovery…';
+  let inviteOk = false;
+  try {
+    await setDoc(doc(db, 'allowlist', email), {
+      name: `${fname} ${lname}`.trim(), firstName: fname, lastName: lname, email,
+      role, cohort: cohort || 'Unassigned', registered: false,
+      addedAt: serverTimestamp(), addedBy: getSession()?.uid || 'admin'
+    }, { merge: true });
+    inviteOk = true;
+  } catch(e) { /* staff allowlist write; non-fatal */ }
+  const loginUrl = new URL('index.html', location.href).href;
+  resultBox.innerHTML = `
+    <strong>⚠️ This email already has a sign-in account.</strong><br>
+    You don't need to create it again.${inviteOk ? ` Their invite has been refreshed (role <em>${esc(role)}</em>, cohort <em>${esc(cohort||'Unassigned')}</em>), so the moment they sign in their roster profile is restored automatically.` : ''}
+    <div style="margin-top:.6rem;font-size:.85rem">To finish:</div>
+    <ol style="margin:.3rem 0 .7rem 1.1rem;font-size:.85rem;line-height:1.5">
+      <li>Have them <strong>sign in</strong> at <span style="word-break:break-all">${esc(loginUrl)}</span> with the password they chose.</li>
+      <li>Forgot it? Send a reset below — they set a new password, then sign in.</li>
+    </ol>
+    <button class="btn-sm" style="background:#0e7490;color:#fff;border:none;border-radius:8px;padding:.45rem .9rem" onclick="sendResetTo('${esc(email)}')">🔑 Send password reset</button>
+    <span id="cs-reset-note" style="margin-inline-start:.5rem;font-size:.8rem;color:var(--muted)"></span>
+  `;
+}
+window.sendResetTo = async function(email) {
+  const note = document.getElementById('cs-reset-note');
+  try {
+    await sendPasswordResetEmail(auth, email);
+    if (note) { note.style.color = '#15803d'; note.textContent = '✅ Reset email sent.'; }
+  } catch(e) {
+    if (note) { note.style.color = 'var(--danger)'; note.textContent = '❌ ' + e.message; }
+  }
+};
 
 function showSuccess(fname, lname, email, pw, role, cohort) {
   submitBtn.textContent = '✓ Account Created';
