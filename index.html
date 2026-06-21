@@ -291,9 +291,18 @@ window.signIn = async function() {
         name = data.name || data.displayName || name;
         await setDoc(doc(db, 'users', cred.user.uid), { lastLogin: serverTimestamp() }, { merge: true });
       } else {
-        document.getElementById('si-err-msg').textContent = 'Account found but no course profile exists. Contact your instructor.';
-        errEl.style.display = 'flex';
-        btn.disabled = false; btnTxt.textContent = 'Sign In'; return;
+        // Self-heal an orphaned registration: the Auth account exists but its
+        // course profile was never written. Rebuild it from the invite if the
+        // invite is still pending, so the person can sign in / appear on roster.
+        const repaired = await repairProfileFromInvite(cred.user);
+        if (repaired) {
+          role = repaired.role || 'student';
+          name = repaired.name || name;
+        } else {
+          document.getElementById('si-err-msg').textContent = 'Account found but no course profile exists. Ask your instructor to re-invite this email, then sign in again.';
+          errEl.style.display = 'flex';
+          btn.disabled = false; btnTxt.textContent = 'Sign In'; return;
+        }
       }
     } catch(e) { console.warn('Firestore read failed:', e.message); }
     writeSession(cred.user.uid, role, name, cred.user.email);
@@ -314,6 +323,38 @@ window.signIn = async function() {
     btn.disabled = false; btnTxt.textContent = 'Sign In';
   }
 };
+
+// ── Recover an orphaned account (Auth exists, course profile missing) ────────
+// Rebuilds users/{uid} from the person's allowlist invite. Works while the
+// invite is still pending (registered:false), which is the case when the
+// original registration failed before writing the profile.
+async function repairProfileFromInvite(authUser) {
+  try {
+    const em = (authUser.email || '').toLowerCase();
+    if (!em) return null;
+    const inv = await getDoc(doc(db, 'allowlist', em));
+    if (!inv.exists()) return null;
+    const a = inv.data() || {};
+    if (a.registered) return null;          // rules require registered==false to self-create
+    const role  = a.role || 'student';
+    const parts = (a.name || '').split(/\s+/);
+    const profile = {
+      uid:       authUser.uid,
+      email:     em,
+      name:      a.name || ((a.firstName||'') + ' ' + (a.lastName||'')).trim() || em.split('@')[0],
+      firstName: a.firstName || parts[0] || '',
+      lastName:  a.lastName  || parts.slice(1).join(' ') || '',
+      role,
+      cohort:    a.cohort || 'Unassigned',
+      createdAt: serverTimestamp(),
+      viaInvite: true,
+      progress:  {},
+    };
+    await setDoc(doc(db, 'users', authUser.uid), profile);
+    await setDoc(doc(db, 'allowlist', em), { registered: true, registeredAt: serverTimestamp() }, { merge: true });
+    return profile;
+  } catch(e) { console.warn('[PALS] repairProfileFromInvite:', e.message); return null; }
+}
 
 // ── REGISTER (disabled — closed enrollment; accounts are admin-provisioned) ──
 window.register = function() {
