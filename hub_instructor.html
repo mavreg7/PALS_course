@@ -232,36 +232,6 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
     </div>
   </div>
 
-  <div class="section-title">Participants — Pending Invites &amp; Bulk Assign</div>
-  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
-    <div style="font-size:.8rem;color:var(--muted);margin-bottom:.85rem">
-      Everyone in your cohort(s) — <strong>registered</strong> students/instructors and <strong>invited</strong> people who haven't signed up yet. Tick people and set a cohort and/or role, then <strong>Apply</strong>.
-    </div>
-    <div class="ba-controls">
-      <input id="ba-search" class="roster-search" type="search" placeholder="🔍 filter by name / email / cohort" oninput="renderBulkList()" style="max-width:260px">
-      <select id="ba-status" class="ba-input" onchange="renderBulkList()">
-        <option value="all">All</option>
-        <option value="registered">Registered only</option>
-        <option value="invited">Invited (pending) only</option>
-      </select>
-      <label class="ba-check"><input type="checkbox" id="ba-all" onclick="toggleAllBulk(this.checked)"> Select all shown</label>
-      <span id="ba-count" style="font-size:.8rem;color:var(--muted)"></span>
-    </div>
-    <div id="ba-list" class="ba-list"></div>
-    <div class="ba-apply">
-      <input id="ba-cohort" class="ba-input" list="cohort-options" placeholder="Target cohort (blank = keep)">
-      <select id="ba-role" class="ba-input">
-        <option value="">— keep role —</option>
-        <option value="student">student</option>
-        <option value="instructor">instructor</option>
-        <option value="lead_instructor">lead_instructor</option>
-      </select>
-      <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.55rem 1.1rem" onclick="applyBulkAssign()">Apply to selected</button>
-      <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.55rem 1.1rem" onclick="resendInvites()">✉ Resend invite to selected</button>
-    </div>
-    <div id="ba-result" style="font-size:.83rem;margin-top:.6rem;white-space:pre-line"></div>
-  </div>
-
   <div class="section-title">Exam Access Control</div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
@@ -408,8 +378,8 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
   <div class="section-title">11 Learning Modules</div>
   <div class="modules-grid" id="modules-grid"></div>
 
-  <!-- ── Student Roster ──────────────────────────────────────── -->
-  <div class="section-title" style="margin-top:2.5rem">Student Roster &amp; Progress</div>
+  <!-- ── Roster: registered people + pending invites, with bulk actions ── -->
+  <div class="section-title" style="margin-top:2.5rem">Roster &amp; Participants</div>
 
   <div class="roster-stats">
     <div class="stat-chip">Total students: <strong id="stat-total">—</strong></div>
@@ -420,8 +390,13 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
   </div>
 
   <div class="roster-header">
-    <select id="cohort-filter" class="roster-search" style="max-width:240px;cursor:pointer" onchange="setCohortView(this.value)" title="Each cohort is shown separately — pick one to view its roster, stats and exports.">
+    <select id="cohort-filter" class="roster-search" style="max-width:200px;cursor:pointer" onchange="setCohortView(this.value)" title="Each cohort is shown separately — pick one to view its roster, stats and exports.">
       <option value="ALL">All cohorts</option>
+    </select>
+    <select id="roster-status" class="roster-search" style="max-width:170px;cursor:pointer" onchange="applyRosterView()" title="Show registered people, pending invites, or both.">
+      <option value="all">Registered + invited</option>
+      <option value="registered">Registered only</option>
+      <option value="invited">Invited (pending) only</option>
     </select>
     <input class="roster-search" id="roster-search" type="search" placeholder="🔍  Search within cohort…" oninput="filterRoster()">
     <div class="roster-actions">
@@ -431,21 +406,38 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
   </div>
   <div id="cohort-scope-note" style="font-size:.78rem;color:var(--muted);margin:-.4rem 0 .8rem">Viewing <strong>all cohorts</strong>. Cohorts are kept separate — select one above to isolate its roster, statistics and CSV export.</div>
 
+  <!-- Bulk action bar — appears when one or more people are ticked -->
+  <div id="roster-bulk-bar" style="display:none;gap:.55rem;flex-wrap:wrap;align-items:center;background:var(--surface2,rgba(148,163,184,.08));border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;margin-bottom:.7rem">
+    <strong id="rb-count" style="font-size:.8rem">0 selected</strong>
+    <input id="rb-cohort" class="ba-input" list="cohort-options" placeholder="Set cohort (blank = keep)">
+    <select id="rb-role" class="ba-input">
+      <option value="">— keep role —</option>
+      <option value="student">student</option>
+      <option value="instructor">instructor</option>
+      <option value="lead_instructor">lead_instructor</option>
+    </select>
+    <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem" onclick="applyBulkAssign()">Apply</button>
+    <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem 1rem" onclick="resendInvites()">✉ Resend invite</button>
+    <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem" onclick="clearRosterSel()">Clear</button>
+  </div>
+  <div id="rb-result" style="font-size:.82rem;margin:-.2rem 0 .7rem;white-space:pre-line"></div>
+
   <div class="roster-table-wrap">
     <table class="roster-table">
       <thead>
         <tr>
+          <th style="width:34px;text-align:center"><input type="checkbox" id="rb-all" onclick="toggleAllRoster(this.checked)" title="Select all shown"></th>
           <th>Name</th>
           <th>Email</th>
           <th>Cohort</th>
           <th>Role</th>
-          <th>Progress</th>
+          <th>Progress / Status</th>
           <th>Last Active</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody id="roster-tbody">
-        <tr><td colspan="7" class="roster-empty">Loading roster…</td></tr>
+        <tr><td colspan="8" class="roster-empty">Loading roster…</td></tr>
       </tbody>
     </table>
   </div>
@@ -1050,7 +1042,6 @@ async function loadRoster() {
     populateCohortFilter();
     updateStats();
     applyRosterView();
-    renderBulkList();
     try{ taPopulateInstructors(); }catch(e){}
   } catch(e) {
     document.querySelector('#roster-tbody').innerHTML =
@@ -1088,7 +1079,7 @@ async function loadPending() {
         });
       });
       allPending = rows.sort((a,b)=> (a.cohort+a.name).localeCompare(b.cohort+b.name));
-      renderBulkList();
+      try{ applyRosterView(); }catch(e){}
       try{ updateStats(); }catch(e){}
       // On any change after the initial load (e.g. someone just registered),
       // refresh the registered roster so they move from Invited → Registered.
@@ -1097,14 +1088,14 @@ async function loadPending() {
     }, err => {
       _pendingWatching = false;
       allPending = [];
-      const box = document.getElementById('ba-list');
-      if (box) box.innerHTML = `<div class="ba-empty">Couldn't load pending invites: ${err.message}</div>`;
+      const st = document.getElementById('rb-result');
+      if (st){ st.style.color='var(--danger)'; st.textContent='Couldn’t load pending invites: '+err.message; }
     });
   } catch(e) {
     _pendingWatching = false;
     allPending = [];
-    const box = document.getElementById('ba-list');
-    if (box) box.innerHTML = `<div class="ba-empty">Couldn't load pending invites: ${e.message}</div>`;
+    const st = document.getElementById('rb-result');
+    if (st){ st.style.color='var(--danger)'; st.textContent='Couldn’t load pending invites: '+e.message; }
   }
 }
 
@@ -1128,60 +1119,33 @@ function pendingPeople(){
   const regEmails = new Set(allStudents.map(s => (s.email||'').toLowerCase()).filter(Boolean));
   return allPending.filter(p => !regEmails.has((p.email||'').toLowerCase()));
 }
-function filteredBulkRows(){
-  const q = (document.getElementById('ba-search')?.value||'').trim().toLowerCase();
-  const st = document.getElementById('ba-status')?.value || 'all';
-  return bulkRows().filter(r =>
-    (st==='all' || r.status===st) &&
-    (!q || (r.name||'').toLowerCase().includes(q) || (r.email||'').toLowerCase().includes(q) || (r.cohort||'').toLowerCase().includes(q))
-  );
-}
 function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function renderBulkList(){
-  const box = document.getElementById('ba-list'); if(!box) return;
-  const rows = filteredBulkRows();
-  // Drop selections that are no longer present.
-  const present = new Set(rows.map(r=>r.key));
-  [...baSelected].forEach(k => { if(!present.has(k)) baSelected.delete(k); });
-  if(!rows.length){ box.innerHTML = '<div class="ba-empty">No matching people.</div>'; updateBulkCount(rows); return; }
-  box.innerHTML = rows.map(r => `
-    <label class="ba-row">
-      <input type="checkbox" data-key="${esc(r.key)}" ${baSelected.has(r.key)?'checked':''} onchange="onBulkCheck(this)">
-      <span>
-        <span class="ba-nm">${esc(r.name)}</span>
-        <span class="ba-em"> · ${esc(r.email)}</span>
-      </span>
-      <span class="ba-meta">
-        <span class="ba-tag">${esc(r.cohort)} · ${esc(r.role)}</span>
-        <span class="ba-badge ${r.status==='registered'?'ba-reg':'ba-inv'}">${r.status==='registered'?'Registered':'Invited'}</span>
-        <button type="button" class="ba-edit" title="Edit this person" onclick="event.preventDefault();event.stopPropagation();${r.status==='invited'?`openInviteEdit('${esc(r.email)}')`:`openEditModal('${esc(r.id)}')`}">✏️ Edit</button>
-      </span>
-    </label>`).join('');
-  const allBox = document.getElementById('ba-all');
-  if(allBox) allBox.checked = rows.every(r=>baSelected.has(r.key));
-  updateBulkCount(rows);
+// ── Roster selection + bulk actions (checkboxes live in the roster table) ────
+function updateBulkBar(rows){
+  const bar = document.getElementById('roster-bulk-bar');
+  const count = document.getElementById('rb-count');
+  const all = document.getElementById('rb-all');
+  if(count) count.textContent = baSelected.size + ' selected';
+  if(bar) bar.style.display = baSelected.size ? 'flex' : 'none';
+  if(all && rows) all.checked = rows.length>0 && rows.every(r=>baSelected.has(r.key));
 }
-function updateBulkCount(rows){
-  const c = document.getElementById('ba-count');
-  if(c) c.textContent = `${baSelected.size} selected · ${rows.length} shown`;
-}
-window.onBulkCheck = function(cb){
-  const k = cb.dataset.key;
-  if(cb.checked) baSelected.add(k); else baSelected.delete(k);
-  updateBulkCount(filteredBulkRows());
-  const allBox = document.getElementById('ba-all');
-  if(allBox){ const rows=filteredBulkRows(); allBox.checked = rows.length>0 && rows.every(r=>baSelected.has(r.key)); }
+window.onRosterCheck = function(cb){
+  if(cb.checked) baSelected.add(cb.dataset.key); else baSelected.delete(cb.dataset.key);
+  updateBulkBar(rosterView());
 };
-window.toggleAllBulk = function(checked){
-  filteredBulkRows().forEach(r => { if(checked) baSelected.add(r.key); else baSelected.delete(r.key); });
-  renderBulkList();
+window.toggleAllRoster = function(checked){
+  rosterView().forEach(r => { if(checked) baSelected.add(r.key); else baSelected.delete(r.key); });
+  applyRosterView();
 };
+window.clearRosterSel = function(){ baSelected.clear(); applyRosterView(); };
+window.resendOne = function(email){ window.open(inviteGmailUrl([email]), '_blank', 'noopener'); };
+
 async function applyBulkAssign(){
-  const result = document.getElementById('ba-result');
-  const cohort = document.getElementById('ba-cohort').value.trim();
-  const role   = document.getElementById('ba-role').value;
+  const result = document.getElementById('rb-result');
+  const cohort = document.getElementById('rb-cohort').value.trim();
+  const role   = document.getElementById('rb-role').value;
   const sel = bulkRows().filter(r => baSelected.has(r.key));
-  if(!sel.length){ result.style.color='var(--danger)'; result.textContent='Select at least one person.'; return; }
+  if(!sel.length){ result.style.color='var(--danger)'; result.textContent='Tick at least one person first.'; return; }
   if(!cohort && !role){ result.style.color='var(--danger)'; result.textContent='Set a target cohort and/or a role first.'; return; }
   const changingRole = !!role;
   // Changing the role of a REGISTERED user is privileged (admin only, per rules).
@@ -1207,17 +1171,18 @@ async function applyBulkAssign(){
   result.style.color = fail ? 'var(--danger)' : '#15803d';
   result.textContent = `✅ Updated ${ok} ${ok===1?'person':'people'}.` + (fail?` ${fail} failed:\n`+errs.join('\n'):'');
   baSelected.clear();
-  await loadRoster();   // refresh registered view + bulk list
-  await loadPending();  // refresh invited view
+  document.getElementById('rb-cohort').value = '';
+  document.getElementById('rb-role').value = '';
+  await loadRoster();   // pending refreshes itself via the live listener
 }
-// Resend the invite email to already-invited (pending) people who are selected.
-// Registered people don't need an invite, so they're ignored here.
+// Resend the invite email to ticked invited (pending) people. Registered
+// people don't need an invite, so they're ignored here.
 window.resendInvites = function(){
-  const result = document.getElementById('ba-result');
+  const result = document.getElementById('rb-result');
   const sel = bulkRows().filter(r => baSelected.has(r.key) && r.status === 'invited');
   if(!sel.length){
     result.style.color='var(--danger)';
-    result.textContent='Select one or more invited (pending) people first. Already-registered people don’t need an invite.';
+    result.textContent='Tick one or more invited (pending) people first. Registered people don’t need an invite.';
     return;
   }
   const emails = sel.map(r => r.email);
@@ -1227,7 +1192,6 @@ window.resendInvites = function(){
 };
 window.applyBulkAssign = applyBulkAssign;
 window.loadPending     = loadPending;
-window.renderBulkList  = renderBulkList;
 
 // ── Edit an invited (not-yet-registered) person's allowlist entry ────────────
 window.openInviteEdit = function(email){
@@ -1413,15 +1377,34 @@ function setCohortView(v) {
 }
 window.setCohortView = setCohortView;
 
-// Apply the active cohort + the search box together.
-function applyRosterView() {
+// Build the unified, filtered list of people for the roster: registered users
+// and/or pending invites, scoped by cohort, status filter and the search box.
+function rosterView() {
   const q = (document.getElementById('roster-search').value || '').toLowerCase();
-  let list = visibleStudents();
-  if (q) list = list.filter(s =>
-    s.name.toLowerCase().includes(q) ||
-    s.email.toLowerCase().includes(q) ||
-    (s.cohort || '').toLowerCase().includes(q));
-  renderRoster(list);
+  const status = (document.getElementById('roster-status') || {}).value || 'all';
+  const matchQ = o => !q ||
+    (o.name || '').toLowerCase().includes(q) ||
+    (o.email || '').toLowerCase().includes(q) ||
+    (o.cohort || '').toLowerCase().includes(q);
+  let rows = [];
+  if (status !== 'invited') {
+    rows = rows.concat(visibleStudents().filter(matchQ)
+      .map(s => Object.assign({}, s, { status:'registered', key:'u:'+s.uid })));
+  }
+  if (status !== 'registered') {
+    rows = rows.concat(pendingPeople()
+      .filter(p => activeCohort === 'ALL' || (p.cohort||'Unassigned') === activeCohort)
+      .filter(matchQ)
+      .map(p => ({ status:'invited', key:'a:'+p.email, name:p.name, email:p.email, role:p.role, cohort:p.cohort })));
+  }
+  return rows.sort((a,b) =>
+    (a.status===b.status ? 0 : a.status==='registered' ? -1 : 1) ||
+    (a.cohort||'').localeCompare(b.cohort||'') ||
+    (a.name||'').localeCompare(b.name||''));
+}
+// Apply the active cohort + status filter + search box together.
+function applyRosterView() {
+  renderRoster(rosterView());
 }
 
 // Count completed *learning* modules only (excludes the megacodes), so the
@@ -1455,21 +1438,43 @@ function timeAgo(ts) {
   return Math.floor(diff/86400000) + 'd ago';
 }
 
-function renderRoster(students) {
+function renderRoster(rows) {
   const tbody = document.getElementById('roster-tbody');
-  if (!students.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="roster-empty">No students found.</td></tr>';
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="roster-empty">No people found.</td></tr>';
+    updateBulkBar(rows);
     return;
   }
-  tbody.innerHTML = students.map(s => {
+  // Drop selections that scrolled out of the current view.
+  const present = new Set(rows.map(r => r.key));
+  [...baSelected].forEach(k => { if(!present.has(k)) baSelected.delete(k); });
+  tbody.innerHTML = rows.map(r => {
+    const cb = `<td style="text-align:center"><input type="checkbox" data-key="${esc(r.key)}" ${baSelected.has(r.key)?'checked':''} onchange="onRosterCheck(this)"></td>`;
+    const roleClass = r.role === 'student' ? 'badge-student' : 'badge-instructor';
+    if (r.status === 'invited') {
+      return `<tr style="background:rgba(245,158,11,.06)">
+        ${cb}
+        <td><strong>${esc(r.name)}</strong></td>
+        <td style="color:var(--muted);font-size:.8rem">${esc(r.email)}</td>
+        <td style="font-size:.8rem">${esc(r.cohort)}</td>
+        <td><span class="badge-role ${roleClass}">${esc(r.role)}</span></td>
+        <td><span class="ba-badge ba-inv">Invited — not registered</span></td>
+        <td style="font-size:.78rem;color:var(--muted)">—</td>
+        <td style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
+          <button class="btn-edit" onclick="openInviteEdit('${esc(r.email)}')">✏️ Edit invite</button>
+          <button class="btn-edit" onclick="resendOne('${esc(r.email)}')">✉ Resend</button>
+        </td>
+      </tr>`;
+    }
+    const s = r;
     const count = modCount(s.progress);
     const pct   = Math.round(count/LEARNING_COUNT*100);
-    const roleClass = s.role === 'student' ? 'badge-student' : 'badge-instructor';
     return `<tr>
-      <td><strong>${s.name}</strong></td>
-      <td style="color:var(--muted);font-size:.8rem">${s.email}</td>
-      <td style="font-size:.8rem">${s.cohort}</td>
-      <td><span class="badge-role ${roleClass}">${s.role}</span></td>
+      ${cb}
+      <td><strong>${esc(s.name)}</strong></td>
+      <td style="color:var(--muted);font-size:.8rem">${esc(s.email)}</td>
+      <td style="font-size:.8rem">${esc(s.cohort)}</td>
+      <td><span class="badge-role ${roleClass}">${esc(s.role)}</span></td>
       <td>
         <div class="prog-bar-wrap">
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
@@ -1491,6 +1496,7 @@ function renderRoster(students) {
       </td>
     </tr>`;
   }).join('');
+  updateBulkBar(rows);
 }
 
 function filterRoster() {
