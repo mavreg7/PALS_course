@@ -1,8 +1,15 @@
 // firebase-sync.js
 
 // ── FB_READY promise — modules await this before calling window.FB ──────────
+// firebase-config.js (a regular, non-deferred script) creates the promise
+// synchronously so plain-<script> pages can await it before this module runs.
+// Reuse it if present; otherwise create our own as a fallback.
 let _fbResolve;
-window.FB_READY = new Promise(res => { _fbResolve = res; });
+if (window.FB_READY && window.__FB_RESOLVE) {
+  _fbResolve = window.__FB_RESOLVE;
+} else {
+  window.FB_READY = new Promise(res => { _fbResolve = res; });
+}
 
 // ───────────────────────────────────────────────
 // PALS 2025 — Shared Firebase Sync Layer  (Phase 1 — UID-based)
@@ -219,6 +226,11 @@ async function fbSetCourseFlag(key, value) {
 async function fbSaveCoursePlan(plan) {
   try {
     _ensureInit();
+    // coursePlan writes require an authenticated staff user (isStaff()).
+    // Firebase auth restores asynchronously AFTER FB_READY resolves, so without
+    // this wait an early publish fires with request.auth==null → permission
+    // denied → silently caught, and the plan never syncs.
+    await _ensureAuthReady();
     await setDoc(doc(_db,'coursePlan','current'),
       { ...plan, updatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveCoursePlan:', e.message); }
@@ -227,9 +239,17 @@ async function fbSaveCoursePlan(plan) {
 // ── STUDENT: watch the published course plan ────────────────
 function fbWatchCoursePlan(callback) {
   _ensureInit();
-  return onSnapshot(doc(_db,'coursePlan','current'), snap => {
-    callback(snap.exists() ? snap.data() : null);
+  // Reads require signedIn(); subscribe only once auth has restored, otherwise
+  // the listener is immediately permission-denied and never recovers.
+  let unsub = () => {};
+  let cancelled = false;
+  _ensureAuthReady().then(() => {
+    if (cancelled) return;
+    unsub = onSnapshot(doc(_db,'coursePlan','current'), snap => {
+      callback(snap.exists() ? snap.data() : null);
+    }, err => console.warn('[PALS FB] watchCoursePlan:', err.message));
   });
+  return () => { cancelled = true; unsub(); };
 }
 
 // ══ DAILY ATTENDANCE CHECK-IN ════════════════════════════════
