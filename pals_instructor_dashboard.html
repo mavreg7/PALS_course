@@ -287,12 +287,29 @@ function showBanner(msg, color) {
 onAuthStateChanged(auth, (user) => {
   if (user) {
     loadFirebaseUsers();
+    watchSharedPlan();
   } else {
     fbLoaded = true;
     showBanner('⚠ Not signed in — Firebase roster unavailable.', 'yellow');
     refreshAll();
   }
 });
+
+// Mirror the shared course plan (coursePlan/current) so Session Progress (Today)
+// reflects live edits from the Course Planner instead of stale local data.
+let _planWatching = false;
+function watchSharedPlan() {
+  if (_planWatching) return;
+  _planWatching = true;
+  onSnapshot(doc(db, 'coursePlan', 'current'), snap => {
+    const data = snap.exists() ? snap.data() : null;
+    if (data && data.schedule) {
+      try { localStorage.setItem('pals2025_planner', JSON.stringify(data.schedule)); } catch(e) {}
+      if (data.meta) { try { localStorage.setItem('pals2025_course_meta', JSON.stringify(data.meta)); } catch(e) {} }
+    }
+    renderSessions();
+  }, err => console.warn('[PALS] watchCoursePlan:', err.message));
+}
 
 function get(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
 function pct(v){return Math.min(100,Math.max(0,v))+'%'}
@@ -520,11 +537,15 @@ window.printFeedback = function(){
   w.document.write(html); w.document.close(); w.focus(); w.print();
 };
 
+// Course content is authored in Hebrew (titleHe/instrHe/…) with English
+// fallbacks, matching the student plan view which defaults to Hebrew.
+function planF(s,f){ const v=s[f+'He']; return (v!=null && v!=='') ? v : (s[f]||''); }
 function renderSessions(){
   let sched={};try{sched=JSON.parse(localStorage.getItem('pals2025_planner')||'{}')}catch(e){}
   const box=document.getElementById('session_progress');
+  box.setAttribute('dir','rtl');
   const day1=sched.day1||[], day2=sched.day2||[];
-  if(!day1.length && !day2.length){box.innerHTML='<div class="text-sm text-slate-400 italic">No schedule loaded. Open the Course Planner to populate.</div>';return}
+  if(!day1.length && !day2.length){box.innerHTML='<div class="text-sm text-slate-400 italic">לא נטען לוח זמנים. פתחו את מתכנן הקורס כדי לאכלס.</div>';return}
 
   const now=new Date();
   const sameDate=(d1,d2)=> d1.getFullYear()===d2.getFullYear() && d1.getMonth()===d2.getMonth() && d1.getDate()===d2.getDate();
@@ -537,23 +558,24 @@ function renderSessions(){
   let todays=null, dayLabel='';
   if(start && !isNaN(start)){
     const day2date=new Date(start); day2date.setDate(day2date.getDate()+1);
-    if(sameDate(now,start)){ todays=day1; dayLabel='Day 1'; }
-    else if(sameDate(now,day2date)){ todays=day2; dayLabel='Day 2'; }
+    if(sameDate(now,start)){ todays=day1; dayLabel='יום 1'; }
+    else if(sameDate(now,day2date)){ todays=day2; dayLabel='יום 2'; }
   }
 
   const row=(s,status)=>{
     const color=status==='now'?'#22C55E':status==='done'?'#94a3b8':'#0891B2';
+    const label=status==='now'?'מתבצע כעת':status==='done'?'הסתיים':'';
     return `<div class="flex items-center gap-3"><div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
       <div class="text-xs text-slate-500 w-24">${s.time||'—'}</div>
-      <div class="text-sm flex-1">${s.title||''}</div>
-      <div class="text-xs ${status==='now'?'text-green-600 font-bold':'text-slate-400'}">${status==='now'?'IN PROGRESS':status==='done'?'done':''}</div></div>`;
+      <div class="text-sm flex-1">${escapeHtml(planF(s,'title'))}</div>
+      <div class="text-xs ${status==='now'?'text-green-600 font-bold':'text-slate-400'}">${label}</div></div>`;
   };
 
   if(!todays){
     // Not a course day — show the plan for reference, nothing "in progress".
     const note = start
-      ? `The course is not in session today. Day 1 is ${start.toLocaleDateString()}.`
-      : `No course start date set, so today isn’t treated as a course day.`;
+      ? `הקורס אינו מתקיים היום. יום 1 הוא ${start.toLocaleDateString('he-IL')}.`
+      : `לא הוגדר תאריך פתיחת קורס, ולכן היום אינו נחשב יום קורס.`;
     const all=[...day1,...day2].slice(0,12);
     box.innerHTML=`<div class="text-sm text-slate-400 italic mb-2">${note}</div>`+
       `<div class="space-y-2">${all.map(s=>row(s,'upcoming')).join('')}</div>`;
@@ -561,7 +583,7 @@ function renderSessions(){
   }
 
   const clock=now.toTimeString().slice(0,5);
-  box.innerHTML=`<div class="text-xs font-bold text-slate-500 mb-2">${dayLabel} — today</div>`+
+  box.innerHTML=`<div class="text-xs font-bold text-slate-500 mb-2">${dayLabel} — היום</div>`+
     `<div class="space-y-2">${todays.slice(0,12).map(s=>{
       const [a,b]=(s.time||'').split('-');
       const status=!b?'upcoming':(a<=clock&&clock<=b?'now':(b<clock?'done':'upcoming'));
