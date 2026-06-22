@@ -648,10 +648,25 @@ let examLang = (()=>{ try{ return localStorage.getItem('pals_exam_lang')||'en'; 
 const qText = q => examLang==='he' ? (q.qHe||q.q) : q.q;
 const qOpts = q => examLang==='he' ? (q.aHe||q.a) : q.a;
 const qDir  = ()=> examLang==='he' ? 'rtl' : 'ltr';
+function snapshotAnswers(prefix){
+  const m={};
+  document.querySelectorAll('input[type="radio"][name^="'+prefix+'"]:checked')
+    .forEach(r=>{ m[r.name]=r.value; });
+  return m;
+}
+function restoreAnswers(map){
+  Object.keys(map).forEach(name=>{
+    const r=document.querySelector('input[type="radio"][name="'+name+'"][value="'+map[name]+'"]');
+    if(r) r.checked=true;
+  });
+}
 window.setExamLang = function(l){
   examLang = l;
   try{ localStorage.setItem('pals_exam_lang', l); }catch(e){}
-  renderPreTest(); renderExam(); syncExamLangButtons();
+  const preSel=snapshotAnswers('pre_q'), exSel=snapshotAnswers('ex_q');
+  renderPreTest(); renderExam();
+  restoreAnswers(preSel); restoreAnswers(exSel);
+  syncExamLangButtons();
 };
 function syncExamLangButtons(){
   document.querySelectorAll('[data-lang-toggle] .lang-btn').forEach(b =>
