@@ -69,10 +69,6 @@
       <p class="text-slate-500 text-sm" data-i18n="appSub">גרור לסידור מחדש · לחץ להרחבה · שמירה אוטומטית</p>
     </div>
     <div class="flex gap-2 flex-wrap items-center">
-      <div class="lang-toggle" data-lang-toggle>
-        <button type="button" class="lang-btn" data-lang="he" onclick="setPlanLang('he')">עברית</button>
-        <button type="button" class="lang-btn" data-lang="en" onclick="setPlanLang('en')">EN</button>
-      </div>
       <a href="hub_instructor.html" class="btn btn-ghost" data-i18n="hub">→ מרכז</a>
       <button class="btn btn-ghost" onclick="resetSchedule()" data-i18n="reset">↻ איפוס לברירת מחדל</button>
       <button class="btn btn-ghost" onclick="window.print()" data-i18n="print">🖨️ הדפסה</button>
@@ -180,8 +176,10 @@ document.getElementById('course_loc').value=meta.site||'';
   });
 });
 
-// ── Language (Hebrew default, toggle to English) ─────────────────────────────
-let planLang = (()=>{ try{ return localStorage.getItem('pals_plan_lang')||'he'; }catch(e){ return 'he'; } })();
+// ── Language ─────────────────────────────────────────────────────────────────
+// The planner is Hebrew-only for now: edits write to the Hebrew fields, and an
+// English view here would show stale base text, so the toggle is disabled.
+let planLang = 'he';
 const UI = {
   he:{ appTitle:'מתכנן קורס PALS', appSub:'גרור לסידור מחדש · לחץ להרחבה · שמירה אוטומטית',
     hub:'→ מרכז', reset:'↻ איפוס לברירת מחדל', print:'🖨️ הדפסה',
@@ -231,7 +229,8 @@ function loadInstructors(){
   const apply=fb=>{ if(fb&&fb.getAllStudents){ fb.getAllStudents().then(list=>{
     INSTRUCTORS=[...new Set((list||[])
       .filter(p=>p.role==='instructor'||p.role==='lead_instructor')
-      .map(p=>p.name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'he'));
+      .map(p=>(p.firstName||'').trim() || (p.name||'').trim().split(/\s+/)[0] || '')
+      .filter(Boolean))].sort((a,b)=>a.localeCompare(b,'he'));
     render();
   }); } };
   if(window.FB&&window.FB.getAllStudents) apply(window.FB);
