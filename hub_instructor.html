@@ -986,6 +986,9 @@ const LEARNING_COUNT = LEARNING_IDX.length;
 let allStudents = [];
 let allUsers    = {};
 let allPending  = [];                 // invited (allowlist) people not yet registered
+let _allowlistDocs = [];              // raw allowlist snapshot {id,data}
+let _pendingCohort = 'Unassigned';    // scope cohort for a plain instructor
+let _pendingSeesAll = false;
 let seesAll     = false;              // admin / lead instructor → cross-cohort
 let myCohort    = 'Unassigned';       // a plain instructor's own cohort
 const baSelected = new Set();         // bulk-assign selection (keys)
@@ -1042,6 +1045,9 @@ async function loadRoster() {
     populateCohortFilter();
     updateStats();
     applyRosterView();
+    // Reconcile the pending list now that we know who's actually registered,
+    // so already-registered people drop off Invited immediately.
+    try{ if(_allowlistDocs.length) recomputePending(); }catch(e){}
     try{ taPopulateInstructors(); }catch(e){}
   } catch(e) {
     document.querySelector('#roster-tbody').innerHTML =
@@ -1057,30 +1063,17 @@ async function loadPending() {
   if (_pendingWatching) return;          // listener already live — it self-updates
   try {
     // Resolve scope once.
-    const seesAllLocal = s.role === 'admin' || s.role === 'lead_instructor';
-    let cohortLocal = myCohort;
-    if (!seesAllLocal) {
-      try { const me = await getDoc(doc(db,'users',s.uid)); cohortLocal = (me.exists() && me.data().cohort) || 'Unassigned'; } catch(e){}
+    _pendingSeesAll = s.role === 'admin' || s.role === 'lead_instructor';
+    _pendingCohort = myCohort;
+    if (!_pendingSeesAll) {
+      try { const me = await getDoc(doc(db,'users',s.uid)); _pendingCohort = (me.exists() && me.data().cohort) || 'Unassigned'; } catch(e){}
     }
     _pendingWatching = true;
     let first = true;
     onSnapshot(collection(db,'allowlist'), snap => {
-      const rows = [];
-      snap.forEach(d => {
-        const a = d.data() || {};
-        if (a.registered) return;                       // already signed up
-        if (!seesAllLocal && (a.cohort||'Unassigned') !== cohortLocal) return;  // cohort isolation
-        rows.push({
-          email: d.id,
-          name:  a.name || ((a.firstName||'')+' '+(a.lastName||'')).trim() || d.id,
-          firstName: a.firstName||'', lastName: a.lastName||'',
-          role:  a.role || 'student',
-          cohort: a.cohort || 'Unassigned',
-        });
-      });
-      allPending = rows.sort((a,b)=> (a.cohort+a.name).localeCompare(b.cohort+b.name));
-      try{ applyRosterView(); }catch(e){}
-      try{ updateStats(); }catch(e){}
+      _allowlistDocs = [];
+      snap.forEach(d => _allowlistDocs.push({ id: d.id, data: d.data() || {} }));
+      recomputePending();
       // On any change after the initial load (e.g. someone just registered),
       // refresh the registered roster so they move from Invited → Registered.
       if (!first) { try{ loadRoster(); }catch(e){} }
@@ -1097,6 +1090,43 @@ async function loadPending() {
     const st = document.getElementById('rb-result');
     if (st){ st.style.color='var(--danger)'; st.textContent='Couldn’t load pending invites: '+e.message; }
   }
+}
+
+// Set of emails that already have a registered account (users / students doc).
+function registeredEmailSet() {
+  const set = new Set();
+  Object.values(allUsers||{}).forEach(u => { if (u && u.email) set.add(String(u.email).toLowerCase()); });
+  (allStudents||[]).forEach(p => { if (p.email) set.add(String(p.email).toLowerCase()); });
+  return set;
+}
+
+// Rebuild the pending list from the cached allowlist docs, excluding anyone who
+// has already registered — even if their allowlist `registered` flag was never
+// flipped (the original bug). Stale flags are healed best-effort so the source
+// data converges too. Safe to call repeatedly (after roster or allowlist load).
+function recomputePending() {
+  const reg = registeredEmailSet();
+  const rows = [];
+  _allowlistDocs.forEach(({ id: email, data: a }) => {
+    const already = a.registered || reg.has(String(email).toLowerCase());
+    if (already) {
+      if (!a.registered && reg.has(String(email).toLowerCase())) {
+        try { fsSetDoc(fsDoc(db,'allowlist',email), { registered:true }, { merge:true }); } catch(e){}
+      }
+      return;                                          // already signed up — not pending
+    }
+    if (!_pendingSeesAll && (a.cohort||'Unassigned') !== _pendingCohort) return;  // cohort isolation
+    rows.push({
+      email,
+      name:  a.name || ((a.firstName||'')+' '+(a.lastName||'')).trim() || email,
+      firstName: a.firstName||'', lastName: a.lastName||'',
+      role:  a.role || 'student',
+      cohort: a.cohort || 'Unassigned',
+    });
+  });
+  allPending = rows.sort((a,b)=> (a.cohort+a.name).localeCompare(b.cohort+b.name));
+  try{ applyRosterView(); }catch(e){}
+  try{ updateStats(); }catch(e){}
 }
 
 // ── Bulk assign (cohort + role) over registered + invited people ─────────────
