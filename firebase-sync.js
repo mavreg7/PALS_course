@@ -1,8 +1,15 @@
 // firebase-sync.js
 
 // ── FB_READY promise — modules await this before calling window.FB ──────────
+// firebase-config.js (a regular, non-deferred script) creates the promise
+// synchronously so plain-<script> pages can await it before this module runs.
+// Reuse it if present; otherwise create our own as a fallback.
 let _fbResolve;
-window.FB_READY = new Promise(res => { _fbResolve = res; });
+if (window.FB_READY && window.__FB_RESOLVE) {
+  _fbResolve = window.__FB_RESOLVE;
+} else {
+  window.FB_READY = new Promise(res => { _fbResolve = res; });
+}
 
 // ───────────────────────────────────────────────
 // PALS 2025 — Shared Firebase Sync Layer  (Phase 1 — UID-based)
