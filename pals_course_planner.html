@@ -18,6 +18,12 @@
   .tab{padding:10px 24px;border-radius:10px;font-weight:600;font-size:14px;color:#64748b;cursor:pointer;transition:all .2s}
   .tab.active{background:#0891B2;color:#fff}
   .tab:not(.active):hover{background:#f0f9ff;color:#0891B2}
+  .lang-toggle{display:inline-flex;border:1px solid #cbd5e1;border-radius:10px;overflow:hidden}
+  .lang-btn{padding:8px 14px;font-size:13px;font-weight:700;background:#fff;color:#64748b;border:none;cursor:pointer}
+  .lang-btn.active{background:#0891B2;color:#fff}
+  body[dir="rtl"] .session-time{min-width:110px}
+  body[dir="rtl"] .pill{margin-left:0;margin-right:6px}
+  body[dir="rtl"] .session:hover{transform:translateX(-2px)}
   .session{display:flex;gap:14px;padding:14px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;margin-bottom:10px;cursor:grab;transition:all .2s}
   .session:hover{border-color:#0891B2;transform:translateX(2px)}
   .session.dragging{opacity:.4}
@@ -59,48 +65,52 @@
 
   <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 no-print">
     <div>
-      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">PALS Course Planner</h1>
-      <p class="text-slate-500 text-sm">Drag to reorder · click to expand · auto-save</p>
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight" data-i18n="appTitle">מתכנן קורס PALS</h1>
+      <p class="text-slate-500 text-sm" data-i18n="appSub">גרור לסידור מחדש · לחץ להרחבה · שמירה אוטומטית</p>
     </div>
-    <div class="flex gap-2 flex-wrap">
-      <a href="hub_instructor.html" class="btn btn-ghost">← Hub</a>
-      <button class="btn btn-ghost" onclick="resetSchedule()">↻ Reset Default</button>
-      <button class="btn btn-ghost" onclick="window.print()">🖨️ Print</button>
+    <div class="flex gap-2 flex-wrap items-center">
+      <div class="lang-toggle" data-lang-toggle>
+        <button type="button" class="lang-btn" data-lang="he" onclick="setPlanLang('he')">עברית</button>
+        <button type="button" class="lang-btn" data-lang="en" onclick="setPlanLang('en')">EN</button>
+      </div>
+      <a href="hub_instructor.html" class="btn btn-ghost" data-i18n="hub">→ מרכז</a>
+      <button class="btn btn-ghost" onclick="resetSchedule()" data-i18n="reset">↻ איפוס לברירת מחדל</button>
+      <button class="btn btn-ghost" onclick="window.print()" data-i18n="print">🖨️ הדפסה</button>
     </div>
   </header>
 
   <section class="card p-5 mb-6">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500">Course Date</label><input class="field mt-1" id="course_date" placeholder="e.g., May 28-29, 2026"></div>
-      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500">Lead Instructor</label><input class="field mt-1" id="course_instr" placeholder="Instructor name"></div>
-      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500">Location</label><input class="field mt-1" id="course_loc" placeholder="Training site"></div>
+      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500" data-i18n="fDate">תאריך הקורס</label><input class="field mt-1" id="course_date" placeholder="לדוגמה: 28-29 במאי 2026"></div>
+      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500" data-i18n="fInstr">מדריך/ה ראשי/ת</label><input class="field mt-1" id="course_instr" placeholder="שם המדריך/ה"></div>
+      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500" data-i18n="fLoc">מיקום</label><input class="field mt-1" id="course_loc" placeholder="אתר ההדרכה"></div>
     </div>
   </section>
 
   <div class="flex gap-2 mb-5 no-print">
-    <div class="tab active" data-day="1" onclick="switchDay(1)">Day 1</div>
-    <div class="tab" data-day="2" onclick="switchDay(2)">Day 2</div>
+    <div class="tab active" data-day="1" onclick="switchDay(1)" data-i18n="day1">יום 1</div>
+    <div class="tab" data-day="2" onclick="switchDay(2)" data-i18n="day2">יום 2</div>
     <div class="flex-1"></div>
     <div class="flex gap-2 text-xs items-center">
-      <span class="pill pill-d">Didactic</span><span class="pill pill-s">Skills</span><span class="pill pill-m">Megacode</span><span class="pill pill-b">Break</span><span class="pill pill-e">Exam</span>
+      <span class="pill pill-d" data-i18n="legD">עיוני</span><span class="pill pill-s" data-i18n="legS">מיומנויות</span><span class="pill pill-m" data-i18n="legM">מגה-קוד</span><span class="pill pill-b" data-i18n="legB">הפסקה</span><span class="pill pill-e" data-i18n="legE">מבחן</span>
     </div>
   </div>
 
   <div class="panel-day" id="day1_panel">
-    <div class="day-print-title">DAY 1 — Recognition, Algorithms, Megacodes</div>
+    <div class="day-print-title" data-i18n="day1Print">יום 1 — זיהוי, אלגוריתמים ומגה-קודים</div>
     <div id="day1_list"></div>
   </div>
   <div class="panel-day hidden" id="day2_panel">
-    <div class="day-print-title">DAY 2 — Cardiac Arrest, Post-Arrest, Testing</div>
+    <div class="day-print-title" data-i18n="day2Print">יום 2 — דום לב, טיפול לאחר דום לב ומבחנים</div>
     <div id="day2_list"></div>
   </div>
 
   <section class="card p-5 mt-6 no-print">
-    <h3 class="font-bold mb-2">Export schedule</h3>
-    <p class="text-sm text-slate-500 mb-3">Instructor planning tool. Print or export the schedule; share it with students as a PDF/printout, not an editable link.</p>
+    <h3 class="font-bold mb-2" data-i18n="expTitle">ייצוא לוח הזמנים</h3>
+    <p class="text-sm text-slate-500 mb-3" data-i18n="expSub">כלי תכנון למדריכים. הדפיסו או ייצאו את לוח הזמנים; שתפו אותו עם התלמידים כ-PDF/תדפיס, לא כקישור הניתן לעריכה.</p>
     <div class="flex flex-wrap gap-2 items-start">
-      <button class="btn btn-ghost" onclick="window.print()">🖨️ Print / Save PDF</button>
-      <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn btn-ghost" onclick="window.print()" data-i18n="expPrint">🖨️ הדפסה / שמירת PDF</button>
+      <button class="btn btn-ghost" onclick="exportCSV()" data-i18n="expCsv">⬇ ייצוא CSV</button>
     </div>
   </section>
 
@@ -118,35 +128,35 @@
 
 const DEFAULT_SCHEDULE = {
   day1: [
-    {time:'08:00-08:30',title:'Registration & Pre-Course Self-Assessment Review',type:'break',instr:'Course coordinator',room:'Lobby / Classroom A',notes:'Sign-in, name tags, distribute manuals'},
-    {time:'08:30-09:00',title:'Course Introduction & 2025 AHA Updates Overview',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Module 1 slides · 2025 updates highlights'},
-    {time:'09:00-09:45',title:'Pediatric BLS & High-Quality CPR',type:'skills',instr:'BLS faculty (1:6)',room:'Skills Bay 1-3',notes:'Infant + child manikins, AED pediatric pads'},
-    {time:'09:45-10:30',title:'Systematic Pediatric Assessment',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Module 2 · PAT, ABCDE, vital signs tables'},
-    {time:'10:30-10:45',title:'Break',type:'break',instr:'',room:'',notes:'Refreshments'},
-    {time:'10:45-11:45',title:'Respiratory Emergencies',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 3 · BVM technique demo'},
-    {time:'11:45-12:30',title:'Shock Recognition & Management',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 4 · case-based discussion'},
-    {time:'12:30-13:15',title:'Lunch',type:'break',instr:'',room:'Dining Area',notes:''},
-    {time:'13:15-14:00',title:'Rhythm Recognition',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 5 · annotated rhythm strips'},
-    {time:'14:00-15:00',title:'Bradycardia & Tachycardia Algorithms',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 6 · IV sotalol update'},
-    {time:'15:00-15:15',title:'Break',type:'break',instr:'',room:'',notes:''},
-    {time:'15:15-16:00',title:'Megacode Station 1 — Respiratory Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 1',notes:'Module 10 · high-fidelity manikin'},
-    {time:'16:00-16:45',title:'Megacode Station 2 — Shock Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 2',notes:'Module 11 · septic shock scenario'},
-    {time:'16:45-17:30',title:'Day 1 Debrief & Q&A',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Pre-read for Day 2'}
+    {time:'08:00-08:30',title:'Registration & Pre-Course Self-Assessment Review',titleHe:'רישום וסקירת הערכה עצמית טרום-קורס',type:'break',instr:'Course coordinator',instrHe:'רכז/ת הקורס',room:'Lobby / Classroom A',roomHe:'לובי / כיתה A',notes:'Sign-in, name tags, distribute manuals',notesHe:'רישום נוכחות, תגי שם, חלוקת חוברות'},
+    {time:'08:30-09:00',title:'Course Introduction & 2025 AHA Updates Overview',titleHe:'פתיחת הקורס וסקירת עדכוני AHA 2025',type:'didactic',instr:'Lead instructor',instrHe:'מדריך/ה ראשי/ת',room:'Classroom A',roomHe:'כיתה A',notes:'Module 1 slides · 2025 updates highlights',notesHe:'מצגת מודול 1 · עיקרי עדכוני 2025'},
+    {time:'09:00-09:45',title:'Pediatric BLS & High-Quality CPR',titleHe:'החייאה בסיסית בילדים (BLS) והחייאה איכותית',type:'skills',instr:'BLS faculty (1:6)',instrHe:'צוות BLS (1:6)',room:'Skills Bay 1-3',roomHe:'עמדות מיומנויות 1-3',notes:'Infant + child manikins, AED pediatric pads',notesHe:'בובות תינוק וילד, מדבקות AED לילדים'},
+    {time:'09:45-10:30',title:'Systematic Pediatric Assessment',titleHe:'הערכה שיטתית של הילד',type:'didactic',instr:'Lead instructor',instrHe:'מדריך/ה ראשי/ת',room:'Classroom A',roomHe:'כיתה A',notes:'Module 2 · PAT, ABCDE, vital signs tables',notesHe:'מודול 2 · PAT, ABCDE, טבלאות סימנים חיוניים'},
+    {time:'10:30-10:45',title:'Break',titleHe:'הפסקה',type:'break',instr:'',instrHe:'',room:'',roomHe:'',notes:'Refreshments',notesHe:'כיבוד'},
+    {time:'10:45-11:45',title:'Respiratory Emergencies',titleHe:'מצבי חירום נשימתיים',type:'didactic',instr:'Faculty',instrHe:'צוות הוראה',room:'Classroom A',roomHe:'כיתה A',notes:'Module 3 · BVM technique demo',notesHe:'מודול 3 · הדגמת טכניקת BVM'},
+    {time:'11:45-12:30',title:'Shock Recognition & Management',titleHe:'זיהוי וטיפול בשוק',type:'didactic',instr:'Faculty',instrHe:'צוות הוראה',room:'Classroom A',roomHe:'כיתה A',notes:'Module 4 · case-based discussion',notesHe:'מודול 4 · דיון מבוסס מקרים'},
+    {time:'12:30-13:15',title:'Lunch',titleHe:'ארוחת צהריים',type:'break',instr:'',instrHe:'',room:'Dining Area',roomHe:'אזור האוכל',notes:'',notesHe:''},
+    {time:'13:15-14:00',title:'Rhythm Recognition',titleHe:'זיהוי קצב',type:'didactic',instr:'Faculty',instrHe:'צוות הוראה',room:'Classroom A',roomHe:'כיתה A',notes:'Module 5 · annotated rhythm strips',notesHe:'מודול 5 · רצועות קצב מבוארות'},
+    {time:'14:00-15:00',title:'Bradycardia & Tachycardia Algorithms',titleHe:'אלגוריתמי ברדיקרדיה וטכיקרדיה',type:'didactic',instr:'Faculty',instrHe:'צוות הוראה',room:'Classroom A',roomHe:'כיתה A',notes:'Module 6 · IV sotalol update',notesHe:'מודול 6 · עדכון סוטלול תוך-ורידי'},
+    {time:'15:00-15:15',title:'Break',titleHe:'הפסקה',type:'break',instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''},
+    {time:'15:15-16:00',title:'Megacode Station 1 — Respiratory Case',titleHe:'תחנת מגה-קוד 1 — מקרה נשימתי',type:'megacode',instr:'Megacode faculty (1:6)',instrHe:'צוות מגה-קוד (1:6)',room:'Sim Bay 1',roomHe:'עמדת סימולציה 1',notes:'Module 10 · high-fidelity manikin',notesHe:'מודול 10 · בובת סימולציה עתירת-נאמנות'},
+    {time:'16:00-16:45',title:'Megacode Station 2 — Shock Case',titleHe:'תחנת מגה-קוד 2 — מקרה שוק',type:'megacode',instr:'Megacode faculty (1:6)',instrHe:'צוות מגה-קוד (1:6)',room:'Sim Bay 2',roomHe:'עמדת סימולציה 2',notes:'Module 11 · septic shock scenario',notesHe:'מודול 11 · תרחיש שוק ספטי'},
+    {time:'16:45-17:30',title:'Day 1 Debrief & Q&A',titleHe:'תחקיר יום 1 ושאלות',type:'didactic',instr:'Lead instructor',instrHe:'מדריך/ה ראשי/ת',room:'Classroom A',roomHe:'כיתה A',notes:'Pre-read for Day 2',notesHe:'קריאה מקדימה ליום 2'}
   ],
   day2: [
-    {time:'08:00-08:15',title:'Day 2 Intro & Review',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:''},
-    {time:'08:15-09:15',title:'Pediatric Cardiac Arrest Algorithm & 2025 Updates',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 7 · physiology-directed CPR, DBP targets'},
-    {time:'09:15-10:00',title:'Post-Cardiac Arrest Care',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 8 · SpO2 94-99%, PaCO2 35-45'},
-    {time:'10:00-10:15',title:'Break',type:'break',instr:'',room:'',notes:''},
-    {time:'10:15-11:15',title:'Advanced Airway Management & Pharmacology',type:'didactic',instr:'Faculty',room:'Classroom A',notes:'Module 9 · live drug calculator'},
-    {time:'11:15-12:00',title:'Megacode Station 3 — Cardiac Arrest Case',type:'megacode',instr:'Megacode faculty (1:6)',room:'Sim Bay 1',notes:'VF / pulseless VT'},
-    {time:'12:00-12:30',title:'Lunch',type:'break',instr:'',room:'Dining Area',notes:''},
-    {time:'12:30-13:30',title:'Megacode Station 4 — Full Team Scenario',type:'megacode',instr:'All faculty',room:'Sim Bay 1-2',notes:'Multi-rescuer integrated case'},
-    {time:'13:30-14:15',title:'Written Exam (Open-Resource)',type:'exam',instr:'Lead instructor',room:'Classroom A',notes:'25 Q · ≥84% to pass · AHA 2025 policy'},
-    {time:'14:15-14:30',title:'Break',type:'break',instr:'',room:'',notes:''},
-    {time:'14:30-15:00',title:'Skills Testing',type:'skills',instr:'Skills faculty',room:'Skills Bay 1-3',notes:'BLS + megacode skills sign-off'},
-    {time:'15:00-15:30',title:'Debrief, Remediation, Certificates',type:'didactic',instr:'Lead instructor',room:'Classroom A',notes:'Hand out cards / digital certificates'},
-    {time:'15:30',title:'Course End',type:'break',instr:'',room:'',notes:''}
+    {time:'08:00-08:15',title:'Day 2 Intro & Review',titleHe:'פתיחת יום 2 וחזרה',type:'didactic',instr:'Lead instructor',instrHe:'מדריך/ה ראשי/ת',room:'Classroom A',roomHe:'כיתה A',notes:'',notesHe:''},
+    {time:'08:15-09:15',title:'Pediatric Cardiac Arrest Algorithm & 2025 Updates',titleHe:'אלגוריתם דום לב בילדים ועדכוני 2025',type:'didactic',instr:'Faculty',instrHe:'צוות הוראה',room:'Classroom A',roomHe:'כיתה A',notes:'Module 7 · physiology-directed CPR, DBP targets',notesHe:'מודול 7 · החייאה מונחית-פיזיולוגיה, יעדי DBP'},
+    {time:'09:15-10:00',title:'Post-Cardiac Arrest Care',titleHe:'טיפול לאחר דום לב',type:'didactic',instr:'Faculty',instrHe:'צוות הוראה',room:'Classroom A',roomHe:'כיתה A',notes:'Module 8 · SpO2 94-99%, PaCO2 35-45',notesHe:'מודול 8 · SpO2 94-99%, PaCO2 35-45'},
+    {time:'10:00-10:15',title:'Break',titleHe:'הפסקה',type:'break',instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''},
+    {time:'10:15-11:15',title:'Advanced Airway Management & Pharmacology',titleHe:'ניהול נתיב אוויר מתקדם ופרמקולוגיה',type:'didactic',instr:'Faculty',instrHe:'צוות הוראה',room:'Classroom A',roomHe:'כיתה A',notes:'Module 9 · live drug calculator',notesHe:'מודול 9 · מחשבון תרופות חי'},
+    {time:'11:15-12:00',title:'Megacode Station 3 — Cardiac Arrest Case',titleHe:'תחנת מגה-קוד 3 — מקרה דום לב',type:'megacode',instr:'Megacode faculty (1:6)',instrHe:'צוות מגה-קוד (1:6)',room:'Sim Bay 1',roomHe:'עמדת סימולציה 1',notes:'VF / pulseless VT',notesHe:'VF / VT ללא דופק'},
+    {time:'12:00-12:30',title:'Lunch',titleHe:'ארוחת צהריים',type:'break',instr:'',instrHe:'',room:'Dining Area',roomHe:'אזור האוכל',notes:'',notesHe:''},
+    {time:'12:30-13:30',title:'Megacode Station 4 — Full Team Scenario',titleHe:'תחנת מגה-קוד 4 — תרחיש צוות מלא',type:'megacode',instr:'All faculty',instrHe:'כל צוות ההוראה',room:'Sim Bay 1-2',roomHe:'עמדות סימולציה 1-2',notes:'Multi-rescuer integrated case',notesHe:'מקרה משולב מרובה-מצילים'},
+    {time:'13:30-14:15',title:'Written Exam (Open-Resource)',titleHe:'מבחן עיוני (חומר פתוח)',type:'exam',instr:'Lead instructor',instrHe:'מדריך/ה ראשי/ת',room:'Classroom A',roomHe:'כיתה A',notes:'25 Q · ≥84% to pass · AHA 2025 policy',notesHe:'25 שאלות · ≥84% למעבר · מדיניות AHA 2025'},
+    {time:'14:15-14:30',title:'Break',titleHe:'הפסקה',type:'break',instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''},
+    {time:'14:30-15:00',title:'Skills Testing',titleHe:'מבחן מיומנויות',type:'skills',instr:'Skills faculty',instrHe:'צוות מיומנויות',room:'Skills Bay 1-3',roomHe:'עמדות מיומנויות 1-3',notes:'BLS + megacode skills sign-off',notesHe:'אישור מיומנויות BLS ומגה-קוד'},
+    {time:'15:00-15:30',title:'Debrief, Remediation, Certificates',titleHe:'תחקיר, השלמות ותעודות',type:'didactic',instr:'Lead instructor',instrHe:'מדריך/ה ראשי/ת',room:'Classroom A',roomHe:'כיתה A',notes:'Hand out cards / digital certificates',notesHe:'חלוקת כרטיסים / תעודות דיגיטליות'},
+    {time:'15:30',title:'Course End',titleHe:'סיום הקורס',type:'break',instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''}
   ]
 };
 
@@ -170,8 +180,45 @@ document.getElementById('course_loc').value=meta.site||'';
   });
 });
 
+// ── Language (Hebrew default, toggle to English) ─────────────────────────────
+let planLang = (()=>{ try{ return localStorage.getItem('pals_plan_lang')||'he'; }catch(e){ return 'he'; } })();
+const UI = {
+  he:{ appTitle:'מתכנן קורס PALS', appSub:'גרור לסידור מחדש · לחץ להרחבה · שמירה אוטומטית',
+    hub:'→ מרכז', reset:'↻ איפוס לברירת מחדל', print:'🖨️ הדפסה',
+    fDate:'תאריך הקורס', fInstr:'מדריך/ה ראשי/ת', fLoc:'מיקום',
+    day1:'יום 1', day2:'יום 2', day1Print:'יום 1 — זיהוי, אלגוריתמים ומגה-קודים', day2Print:'יום 2 — דום לב, טיפול לאחר דום לב ומבחנים',
+    legD:'עיוני', legS:'מיומנויות', legM:'מגה-קוד', legB:'הפסקה', legE:'מבחן',
+    expTitle:'ייצוא לוח הזמנים', expSub:'כלי תכנון למדריכים. הדפיסו או ייצאו את לוח הזמנים; שתפו אותו עם התלמידים כ-PDF/תדפיס, לא כקישור הניתן לעריכה.', expPrint:'🖨️ הדפסה / שמירת PDF', expCsv:'⬇ ייצוא CSV',
+    eTitle:'כותרת', eTime:'שעה', eType:'סוג', eInstr:'מדריך/ה', eRoom:'חדר / חומרים', eNotes:'הערות',
+    up:'↑ למעלה', down:'↓ למטה', del:'🗑 מחיקה', add:'+ הוספת מקטע' },
+  en:{ appTitle:'PALS Course Planner', appSub:'Drag to reorder · click to expand · auto-save',
+    hub:'← Hub', reset:'↻ Reset Default', print:'🖨️ Print',
+    fDate:'Course Date', fInstr:'Lead Instructor', fLoc:'Location',
+    day1:'Day 1', day2:'Day 2', day1Print:'DAY 1 — Recognition, Algorithms, Megacodes', day2Print:'DAY 2 — Cardiac Arrest, Post-Arrest, Testing',
+    legD:'Didactic', legS:'Skills', legM:'Megacode', legB:'Break', legE:'Exam',
+    expTitle:'Export schedule', expSub:'Instructor planning tool. Print or export the schedule; share it with students as a PDF/printout, not an editable link.', expPrint:'🖨️ Print / Save PDF', expCsv:'⬇ Export CSV',
+    eTitle:'Title', eTime:'Time', eType:'Type', eInstr:'Instructor', eRoom:'Room / Materials', eNotes:'Notes',
+    up:'↑ Up', down:'↓ Down', del:'🗑 Delete', add:'+ Add Session' }
+};
+function t(k){ return (UI[planLang]||UI.he)[k]||k; }
+// Language-specific field accessor / key (title/instr/room/notes have He variants)
+function fKey(f){ return planLang==='he' ? f+'He' : f; }
+function fVal(s,f){ const he=planLang==='he'; return he ? (s[f+'He']!=null && s[f+'He']!=='' ? s[f+'He'] : (s[f]||'')) : (s[f]||''); }
+function applyUiLang(){
+  document.body.setAttribute('dir', planLang==='he'?'rtl':'ltr');
+  document.documentElement.lang = planLang==='he'?'he':'en';
+  document.title = planLang==='he' ? 'מתכנן קורס PALS 2025' : 'PALS 2025 Course Planner';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.dataset.i18n; if(UI[planLang][k]!=null) el.textContent=UI[planLang][k]; });
+  document.querySelectorAll('[data-lang-toggle] .lang-btn').forEach(b=>b.classList.toggle('active', b.dataset.lang===planLang));
+}
+window.setPlanLang = function(l){
+  planLang=l;
+  try{ localStorage.setItem('pals_plan_lang', l); }catch(e){}
+  applyUiLang(); render();
+};
+
 function pillClass(t){return {didactic:'pill-d',skills:'pill-s',megacode:'pill-m',break:'pill-b',exam:'pill-e'}[t]||'pill-b'}
-function pillLabel(t){return {didactic:'Didactic',skills:'Skills',megacode:'Megacode',break:'Break',exam:'Exam'}[t]||t}
+function pillLabel(ty){return {didactic:t('legD'),skills:t('legS'),megacode:t('legM'),break:t('legB'),exam:t('legE')}[ty]||ty}
 
 function durationOf(time){
   if(!time||!time.includes('-'))return '';
@@ -189,39 +236,43 @@ function render(){
         <div class="session-color type-${s.type}"></div>
         <div class="session-time">${s.time}</div>
         <div class="session-body">
-          <div class="session-title">${s.title}<span class="pill ${pillClass(s.type)}">${pillLabel(s.type)}</span>${durationOf(s.time)?`<span class="text-xs text-slate-400 ml-2">${durationOf(s.time)}</span>`:''}</div>
-          <div class="session-meta">${s.instr?'👤 '+s.instr+' · ':''}${s.room?'📍 '+s.room:''}</div>
+          <div class="session-title">${escHtml(fVal(s,'title'))}<span class="pill ${pillClass(s.type)}">${pillLabel(s.type)}</span>${durationOf(s.time)?`<span class="text-xs text-slate-400 mx-2">${durationOf(s.time)}</span>`:''}</div>
+          <div class="session-meta">${fVal(s,'instr')?'👤 '+escHtml(fVal(s,'instr'))+' · ':''}${fVal(s,'room')?'📍 '+escHtml(fVal(s,'room')):''}</div>
           <div class="details" id="det_${d}_${i}">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-              <div><label class="text-xs font-semibold text-slate-500">Title</label><input class="field" value="${escAttr(s.title)}" onchange="updateField('${d}',${i},'title',this.value)" onclick="event.stopPropagation()"></div>
-              <div><label class="text-xs font-semibold text-slate-500">Time</label><input class="field" value="${s.time}" onchange="updateField('${d}',${i},'time',this.value)" onclick="event.stopPropagation()"></div>
-              <div><label class="text-xs font-semibold text-slate-500">Type</label>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eTitle')}</label><input class="field" value="${escAttr(fVal(s,'title'))}" onchange="updateField('${d}',${i},'title',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eTime')}</label><input class="field" value="${s.time}" onchange="updateField('${d}',${i},'time',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eType')}</label>
                 <select class="field" onchange="updateField('${d}',${i},'type',this.value)" onclick="event.stopPropagation()">
-                  ${['didactic','skills','megacode','break','exam'].map(t=>`<option ${t===s.type?'selected':''} value="${t}">${pillLabel(t)}</option>`).join('')}
+                  ${['didactic','skills','megacode','break','exam'].map(ty=>`<option ${ty===s.type?'selected':''} value="${ty}">${pillLabel(ty)}</option>`).join('')}
                 </select>
               </div>
-              <div><label class="text-xs font-semibold text-slate-500">Instructor</label><input class="field" value="${escAttr(s.instr)}" onchange="updateField('${d}',${i},'instr',this.value)" onclick="event.stopPropagation()"></div>
-              <div><label class="text-xs font-semibold text-slate-500">Room / Materials</label><input class="field" value="${escAttr(s.room)}" onchange="updateField('${d}',${i},'room',this.value)" onclick="event.stopPropagation()"></div>
-              <div><label class="text-xs font-semibold text-slate-500">Notes</label><input class="field" value="${escAttr(s.notes)}" onchange="updateField('${d}',${i},'notes',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eInstr')}</label><input class="field" value="${escAttr(fVal(s,'instr'))}" onchange="updateField('${d}',${i},'instr',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eRoom')}</label><input class="field" value="${escAttr(fVal(s,'room'))}" onchange="updateField('${d}',${i},'room',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eNotes')}</label><input class="field" value="${escAttr(fVal(s,'notes'))}" onchange="updateField('${d}',${i},'notes',this.value)" onclick="event.stopPropagation()"></div>
             </div>
             <div class="flex gap-2 mt-3">
-              <button class="btn btn-ghost" onclick="moveSession(event,'${d}',${i},-1)">↑ Up</button>
-              <button class="btn btn-ghost" onclick="moveSession(event,'${d}',${i},1)">↓ Down</button>
-              <button class="btn" style="background:#fee2e2;color:#b91c1c" onclick="deleteSession(event,'${d}',${i})">🗑 Delete</button>
+              <button class="btn btn-ghost" onclick="moveSession(event,'${d}',${i},-1)">${t('up')}</button>
+              <button class="btn btn-ghost" onclick="moveSession(event,'${d}',${i},1)">${t('down')}</button>
+              <button class="btn" style="background:#fee2e2;color:#b91c1c" onclick="deleteSession(event,'${d}',${i})">${t('del')}</button>
             </div>
           </div>
         </div>
       </div>
-    `).join('') + `<button class="btn btn-ghost no-print w-full justify-center mt-2" onclick="addSession('${d}')">+ Add Session</button>`;
+    `).join('') + `<button class="btn btn-ghost no-print w-full justify-center mt-2" onclick="addSession('${d}')">${t('add')}</button>`;
   });
   attachDragHandlers();
 }
-function escAttr(s){return (s||'').replace(/"/g,'&quot;')}
+function escAttr(s){return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}
+function escHtml(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function toggleDetails(e,d,i){
   if(e.target.closest('.field')||e.target.tagName==='BUTTON')return;
   const el=document.getElementById(`det_${d}_${i}`);el.classList.toggle('show');
 }
-function updateField(d,i,f,v){schedule[d][i][f]=v;persist();
+function updateField(d,i,f,v){
+  // Time and type are language-independent; text fields edit the active language.
+  const key = (f==='time'||f==='type') ? f : fKey(f);
+  schedule[d][i][key]=v;persist();
   if(f==='type'||f==='time'||f==='title')render();
 }
 function moveSession(e,d,i,delta){
@@ -229,8 +280,8 @@ function moveSession(e,d,i,delta){
   const j=i+delta;if(j<0||j>=schedule[d].length)return;
   [schedule[d][i],schedule[d][j]]=[schedule[d][j],schedule[d][i]];persist();render();
 }
-function deleteSession(e,d,i){e.stopPropagation();if(!confirm('Delete this session?'))return;schedule[d].splice(i,1);persist();render()}
-function addSession(d){schedule[d].push({time:'00:00-00:00',title:'New session',type:'didactic',instr:'',room:'',notes:''});persist();render()}
+function deleteSession(e,d,i){e.stopPropagation();if(!confirm(planLang==='he'?'למחוק את המקטע?':'Delete this session?'))return;schedule[d].splice(i,1);persist();render()}
+function addSession(d){const nt=planLang==='he'?'מקטע חדש':'New session';schedule[d].push({time:'00:00-00:00',title:nt,titleHe:nt,type:'didactic',instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''});persist();render()}
 // Publish schedule + meta to Firestore so students see the plan live, and
 // they get a pop-up whenever it changes. A content signature (`sig`) drives
 // student change-detection so simply re-opening the planner never triggers a
@@ -248,9 +299,9 @@ function publishPlan(){
     else if(window.FB_READY) window.FB_READY.then(save);
   },600);
 }
-function persist(){localStorage.setItem(KEY,JSON.stringify(schedule));publishPlan();toast('Saved')}
-function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1500)}
-function resetSchedule(){if(!confirm('Reset to default schedule? This discards your edits.'))return;schedule=structuredClone(DEFAULT_SCHEDULE);persist();render()}
+function persist(){localStorage.setItem(KEY,JSON.stringify(schedule));publishPlan();toast(planLang==='he'?'נשמר':'Saved')}
+function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1500)}
+function resetSchedule(){if(!confirm(planLang==='he'?'לאפס ללוח ברירת המחדל? פעולה זו תמחק את העריכות שלך.':'Reset to default schedule? This discards your edits.'))return;schedule=structuredClone(DEFAULT_SCHEDULE);persist();render()}
 
 function switchDay(n){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.day==n));
@@ -275,14 +326,16 @@ function attachDragHandlers(){
 }
 
 function exportCSV(){
-  const rows=['Day,Time,Title,Type,Instructor,Room,Notes'];
+  const hdr=planLang==='he'?'יום,שעה,כותרת,סוג,מדריך,חדר,הערות':'Day,Time,Title,Type,Instructor,Room,Notes';
+  const rows=[hdr];
   ['day1','day2'].forEach((d,di)=>schedule[d].forEach(s=>{
-    rows.push([di+1,s.time,s.title,s.type,s.instr,s.room,s.notes].map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(','));
+    rows.push([di+1,s.time,fVal(s,'title'),pillLabel(s.type),fVal(s,'instr'),fVal(s,'room'),fVal(s,'notes')].map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(','));
   }));
-  download(new Blob([rows.join('\n')],{type:'text/csv'}),'pals_schedule.csv');
+  download(new Blob(['﻿'+rows.join('\n')],{type:'text/csv;charset=utf-8'}),'pals_schedule.csv');
 }
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
 
+applyUiLang();
 render();
 // Publish whatever plan is currently saved locally so students see it even if
 // it was last edited before live sync existed. Deduped via the content
