@@ -490,6 +490,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
           <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Account &amp; access</label>
           <div style="font-size:.82rem;color:var(--muted);margin-bottom:.55rem">Sign-in email: <strong id="edit-email-display" style="color:var(--text)">—</strong></div>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button id="edit-setpw-btn" class="btn-sm" style="background:#7C3AED;color:#fff;border:none;border-radius:8px;display:none" onclick="setUserPassword()" title="Set a new password for this account directly (admin only)">🔐 Set password…</button>
             <button class="btn-sm" style="background:#0e7490;color:#fff;border:none;border-radius:8px" onclick="sendPasswordReset()" title="Firebase emails this person a password-reset link">🔑 Send password reset</button>
             <a class="btn-sm" id="edit-resend-email" target="_blank" rel="noopener" style="background:#0891B2;color:#fff;border:none;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .85rem">✉ Resend login email</a>
           </div>
@@ -1592,6 +1593,9 @@ function openEditModal(uid) {
   // Account & access actions (work for students and instructors)
   const acctEmail = s.email || '';
   document.getElementById('edit-email-display').textContent = acctEmail || '—';
+  // Direct password-setting is admin-only (enforced again server-side).
+  document.getElementById('edit-setpw-btn').style.display =
+    (getSession()?.role === 'admin') ? '' : 'none';
   const loginUrl = new URL('index.html', location.href).href;
   const su = encodeURIComponent('Your PALS 2025 course sign-in');
   const bd = encodeURIComponent(
@@ -1777,6 +1781,42 @@ async function sendPasswordReset() {
   }
 }
 window.sendPasswordReset = sendPasswordReset;
+
+// Admin-only: set a user's password directly via the Netlify function
+// (/.netlify/functions/set-user-password), which runs the Firebase Admin SDK.
+// The client sends the admin's ID token; the server re-checks the admin role.
+async function setUserPassword() {
+  if (!editUid) return;
+  const s = allStudents.find(x => x.uid === editUid);
+  const email = s && s.email;
+  const resultEl = document.getElementById('edit-result');
+  const pw = prompt('Enter a new password for ' + (email || 'this user') + ' (minimum 6 characters):');
+  if (pw == null) return;                       // cancelled
+  if (pw.length < 6) {
+    resultEl.textContent = '❌ Password must be at least 6 characters.';
+    resultEl.style.color = 'var(--danger)';
+    return;
+  }
+  if (!confirm('Set a new password for ' + (email || 'this account') + '?\nThey will be able to sign in with it immediately.')) return;
+  resultEl.textContent = 'Setting password…'; resultEl.style.color = 'var(--muted)';
+  try {
+    if (!auth.currentUser) throw new Error('Your session expired — please reload and sign in again.');
+    const idToken = await auth.currentUser.getIdToken();
+    const res = await fetch('/.netlify/functions/set-user-password', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ idToken, targetUid: editUid, newPassword: pw }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || ('Request failed (HTTP ' + res.status + ')'));
+    resultEl.textContent = '✅ Password updated. ' + (email ? email + ' ' : 'This account ') + 'can now sign in with the new password.';
+    resultEl.style.color = 'var(--success)';
+  } catch (e) {
+    resultEl.textContent = '❌ ' + (e.message || e);
+    resultEl.style.color = 'var(--danger)';
+  }
+}
+window.setUserPassword = setUserPassword;
 
 // Close edit modal on overlay click
 document.getElementById('edit-overlay').addEventListener('click', e => {

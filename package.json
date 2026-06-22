@@ -1,0 +1,9 @@
+{
+  "name": "pals-course",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PALS 2025 course site — Netlify Functions (admin password management)",
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  }
+}

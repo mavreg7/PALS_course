@@ -1,0 +1,12 @@
+# Netlify configuration
+# The site is static (served from the repo root). The only build step is
+# installing dependencies for the serverless function under netlify/functions.
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  # firebase-admin has dynamic requires; include it from node_modules rather
+  # than bundling it, which is the reliable way to ship it on Netlify.
+  node_bundler = "esbuild"
+  external_node_modules = ["firebase-admin"]
