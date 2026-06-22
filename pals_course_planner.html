@@ -189,7 +189,7 @@ const UI = {
     day1:'יום 1', day2:'יום 2', day1Print:'יום 1 — זיהוי, אלגוריתמים ומגה-קודים', day2Print:'יום 2 — דום לב, טיפול לאחר דום לב ומבחנים',
     legD:'עיוני', legS:'מיומנויות', legM:'מגה-קוד', legB:'הפסקה', legE:'מבחן',
     expTitle:'ייצוא לוח הזמנים', expSub:'כלי תכנון למדריכים. הדפיסו או ייצאו את לוח הזמנים; שתפו אותו עם התלמידים כ-PDF/תדפיס, לא כקישור הניתן לעריכה.', expPrint:'🖨️ הדפסה / שמירת PDF', expCsv:'⬇ ייצוא CSV',
-    eTitle:'כותרת', eTime:'שעה', eType:'סוג', eInstr:'מדריך/ה', eRoom:'חדר / חומרים', eNotes:'הערות',
+    eTitle:'כותרת', eTime:'שעה', eType:'סוג', eInstr:'מדריך/ה', eRoom:'חדר', eNotes:'הערות',
     up:'↑ למעלה', down:'↓ למטה', del:'🗑 מחיקה', add:'+ הוספת מקטע' },
   en:{ appTitle:'PALS Course Planner', appSub:'Drag to reorder · click to expand · auto-save',
     hub:'← Hub', reset:'↻ Reset Default', print:'🖨️ Print',
@@ -197,7 +197,7 @@ const UI = {
     day1:'Day 1', day2:'Day 2', day1Print:'DAY 1 — Recognition, Algorithms, Megacodes', day2Print:'DAY 2 — Cardiac Arrest, Post-Arrest, Testing',
     legD:'Didactic', legS:'Skills', legM:'Megacode', legB:'Break', legE:'Exam',
     expTitle:'Export schedule', expSub:'Instructor planning tool. Print or export the schedule; share it with students as a PDF/printout, not an editable link.', expPrint:'🖨️ Print / Save PDF', expCsv:'⬇ Export CSV',
-    eTitle:'Title', eTime:'Time', eType:'Type', eInstr:'Instructor', eRoom:'Room / Materials', eNotes:'Notes',
+    eTitle:'Title', eTime:'Time', eType:'Type', eInstr:'Instructor', eRoom:'Room', eNotes:'Notes',
     up:'↑ Up', down:'↓ Down', del:'🗑 Delete', add:'+ Add Session' }
 };
 function t(k){ return (UI[planLang]||UI.he)[k]||k; }
@@ -220,6 +220,70 @@ window.setPlanLang = function(l){
 function pillClass(t){return {didactic:'pill-d',skills:'pill-s',megacode:'pill-m',break:'pill-b',exam:'pill-e'}[t]||'pill-b'}
 function pillLabel(ty){return {didactic:t('legD'),skills:t('legS'),megacode:t('legM'),break:t('legB'),exam:t('legE')}[ty]||ty}
 
+// ── Rooms (fixed list) · Instructors (from roster) · Time picker (15-min) ─────
+const ROOMS=[
+  {en:'Training Room',  he:'חדר הדרכה'},
+  {en:'Practice Room 1',he:'חדר תרגול 1'},
+  {en:'Practice Room 2',he:'חדר תרגול 2'}
+];
+let INSTRUCTORS=[];
+function loadInstructors(){
+  const apply=fb=>{ if(fb&&fb.getAllStudents){ fb.getAllStudents().then(list=>{
+    INSTRUCTORS=[...new Set((list||[])
+      .filter(p=>p.role==='instructor'||p.role==='lead_instructor')
+      .map(p=>p.name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'he'));
+    render();
+  }); } };
+  if(window.FB&&window.FB.getAllStudents) apply(window.FB);
+  else if(window.FB_READY) window.FB_READY.then(apply);
+}
+function splitTime(time){const p=String(time||'').split('-');return {start:(p[0]||'').trim(),end:(p[1]||'').trim()};}
+function timeOptions(sel){
+  const opts=[];const seen=new Set();
+  for(let h=6;h<=22;h++)for(const m of [0,15,30,45]){if(h===22&&m>0)break;const v=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');opts.push(v);seen.add(v);}
+  let html='<option value=""'+(sel?'':' selected')+'>—</option>';
+  if(sel&&!seen.has(sel)) html+=`<option value="${escAttr(sel)}" selected>${escHtml(sel)}</option>`;
+  return html+opts.map(v=>`<option value="${v}"${v===sel?' selected':''}>${v}</option>`).join('');
+}
+function setTimePart(d,i,which,val){
+  const cur=splitTime(schedule[d][i].time);
+  if(which==='start')cur.start=val;else cur.end=val;
+  schedule[d][i].time=cur.end?(cur.start+'-'+cur.end):cur.start;
+  persist();
+  // Refresh the collapsed time/duration label without closing the open card.
+  const card=document.querySelector(`.session[data-day="${d}"][data-idx="${i}"] .session-time`);
+  if(card) card.textContent=schedule[d][i].time;
+}
+function roomOptions(s){
+  const curHe=s.roomHe||'',curEn=s.room||'';
+  const idx=ROOMS.findIndex(r=>r.he===curHe||r.en===curEn);
+  let html='<option value=""'+(!curHe&&!curEn?' selected':'')+'>—</option>';
+  if(idx<0&&(curHe||curEn)) html+=`<option value="__keep" selected>${escHtml(fVal(s,'room'))}</option>`;
+  return html+ROOMS.map((r,k)=>`<option value="${k}"${k===idx?' selected':''}>${escHtml(planLang==='he'?r.he:r.en)}</option>`).join('');
+}
+function setRoomField(d,i,val){
+  if(val==='__keep')return;
+  if(val===''){schedule[d][i].room='';schedule[d][i].roomHe='';}
+  else{const r=ROOMS[+val];if(r){schedule[d][i].room=r.en;schedule[d][i].roomHe=r.he;}}
+  persist();refreshMeta(d,i);
+}
+function instrOptions(s){
+  const cur=s.instr||s.instrHe||'';
+  let html='<option value=""'+(cur?'':' selected')+'>—</option>';
+  if(cur&&!INSTRUCTORS.includes(cur)) html+=`<option value="${escAttr(cur)}" selected>${escHtml(cur)}</option>`;
+  return html+INSTRUCTORS.map(n=>`<option value="${escAttr(n)}"${n===cur?' selected':''}>${escHtml(n)}</option>`).join('');
+}
+function setInstrField(d,i,val){
+  schedule[d][i].instr=val;schedule[d][i].instrHe=val;
+  persist();refreshMeta(d,i);
+}
+// Update the collapsed instructor/room meta line in place (keeps the card open).
+function refreshMeta(d,i){
+  const s=schedule[d][i];
+  const el=document.querySelector(`.session[data-day="${d}"][data-idx="${i}"] .session-meta`);
+  if(el) el.innerHTML=`${fVal(s,'instr')?'👤 '+escHtml(fVal(s,'instr'))+' · ':''}${fVal(s,'room')?'📍 '+escHtml(fVal(s,'room')):''}`;
+}
+
 function durationOf(time){
   if(!time||!time.includes('-'))return '';
   const [a,b]=time.split('-');
@@ -241,14 +305,24 @@ function render(){
           <div class="details" id="det_${d}_${i}">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
               <div><label class="text-xs font-semibold text-slate-500">${t('eTitle')}</label><input class="field" value="${escAttr(fVal(s,'title'))}" onchange="updateField('${d}',${i},'title',this.value)" onclick="event.stopPropagation()"></div>
-              <div><label class="text-xs font-semibold text-slate-500">${t('eTime')}</label><input class="field" value="${s.time}" onchange="updateField('${d}',${i},'time',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eTime')}</label>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <select class="field" onchange="setTimePart('${d}',${i},'start',this.value)" onclick="event.stopPropagation()">${timeOptions(splitTime(s.time).start)}</select>
+                  <span class="text-slate-400">–</span>
+                  <select class="field" onchange="setTimePart('${d}',${i},'end',this.value)" onclick="event.stopPropagation()">${timeOptions(splitTime(s.time).end)}</select>
+                </div>
+              </div>
               <div><label class="text-xs font-semibold text-slate-500">${t('eType')}</label>
                 <select class="field" onchange="updateField('${d}',${i},'type',this.value)" onclick="event.stopPropagation()">
                   ${['didactic','skills','megacode','break','exam'].map(ty=>`<option ${ty===s.type?'selected':''} value="${ty}">${pillLabel(ty)}</option>`).join('')}
                 </select>
               </div>
-              <div><label class="text-xs font-semibold text-slate-500">${t('eInstr')}</label><input class="field" value="${escAttr(fVal(s,'instr'))}" onchange="updateField('${d}',${i},'instr',this.value)" onclick="event.stopPropagation()"></div>
-              <div><label class="text-xs font-semibold text-slate-500">${t('eRoom')}</label><input class="field" value="${escAttr(fVal(s,'room'))}" onchange="updateField('${d}',${i},'room',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eInstr')}</label>
+                <select class="field" onchange="setInstrField('${d}',${i},this.value)" onclick="event.stopPropagation()">${instrOptions(s)}</select>
+              </div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eRoom')}</label>
+                <select class="field" onchange="setRoomField('${d}',${i},this.value)" onclick="event.stopPropagation()">${roomOptions(s)}</select>
+              </div>
               <div><label class="text-xs font-semibold text-slate-500">${t('eNotes')}</label><input class="field" value="${escAttr(fVal(s,'notes'))}" onchange="updateField('${d}',${i},'notes',this.value)" onclick="event.stopPropagation()"></div>
             </div>
             <div class="flex gap-2 mt-3">
@@ -337,6 +411,7 @@ function download(blob,name){const a=document.createElement('a');a.href=URL.crea
 
 applyUiLang();
 render();
+loadInstructors();
 // Publish whatever plan is currently saved locally so students see it even if
 // it was last edited before live sync existed. Deduped via the content
 // signature, so this is a no-op when nothing has changed.
