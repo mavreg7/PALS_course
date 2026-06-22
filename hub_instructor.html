@@ -1782,8 +1782,9 @@ async function sendPasswordReset() {
 }
 window.sendPasswordReset = sendPasswordReset;
 
-// Admin-only: set a user's password directly via the Netlify function
-// (/.netlify/functions/set-user-password), which runs the Firebase Admin SDK.
+// Admin-only: set a user's password directly via a serverless function that
+// runs the Firebase Admin SDK. Tries the Vercel endpoint (/api/...) first, then
+// the Netlify endpoint (/.netlify/functions/...), so it works on either host.
 // The client sends the admin's ID token; the server re-checks the admin role.
 async function setUserPassword() {
   if (!editUid) return;
@@ -1802,12 +1803,17 @@ async function setUserPassword() {
   try {
     if (!auth.currentUser) throw new Error('Your session expired — please reload and sign in again.');
     const idToken = await auth.currentUser.getIdToken();
-    const res = await fetch('/.netlify/functions/set-user-password', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ idToken, targetUid: editUid, newPassword: pw }),
-    });
-    const data = await res.json().catch(() => ({}));
+    const payload = JSON.stringify({ idToken, targetUid: editUid, newPassword: pw });
+    const endpoints = ['/api/set-user-password', '/.netlify/functions/set-user-password'];
+    let res = null, data = null;
+    for (const url of endpoints) {
+      try {
+        const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload });
+        if (r.status === 404) continue;          // not deployed at this host — try the next
+        res = r; data = await r.json().catch(() => ({})); break;
+      } catch (e) { /* network error — try the next endpoint */ }
+    }
+    if (!res) throw new Error('Password service not found. Is the serverless function deployed (and FIREBASE_SERVICE_ACCOUNT set)?');
     if (!res.ok || !data.ok) throw new Error(data.error || ('Request failed (HTTP ' + res.status + ')'));
     resultEl.textContent = '✅ Password updated. ' + (email ? email + ' ' : 'This account ') + 'can now sign in with the new password.';
     resultEl.style.color = 'var(--success)';
