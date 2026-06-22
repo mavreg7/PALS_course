@@ -1150,6 +1150,21 @@ function pendingPeople(){
   return allPending.filter(p => !regEmails.has((p.email||'').toLowerCase()));
 }
 function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+// Manually drop a stale invited entry — e.g. the person registered under a
+// different email, so auto-reconciliation can't link them. Deletes the
+// allowlist doc; the live listener refreshes the list.
+window.removePending = async function(email){
+  if(!email) return;
+  if(!confirm('Remove “'+email+'” from the invited/pending list?\n\nUse this when the person is already registered (often under a slightly different email). This deletes only the pending invite, not any registered account.')) return;
+  try{
+    await deleteDoc(doc(db,'allowlist',email));
+    allPending = allPending.filter(p => p.email !== email);
+    try{ applyRosterView(); }catch(e){}
+    try{ updateStats(); }catch(e){}
+  }catch(e){
+    alert('Couldn’t remove the entry: '+e.message);
+  }
+};
 // ── Roster selection + bulk actions (checkboxes live in the roster table) ────
 function updateBulkBar(rows){
   const bar = document.getElementById('roster-bulk-bar');
@@ -1493,6 +1508,7 @@ function renderRoster(rows) {
         <td style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
           <button class="btn-edit" onclick="openInviteEdit('${esc(r.email)}')">✏️ Edit invite</button>
           <button class="btn-edit" onclick="resendOne('${esc(r.email)}')">✉ Resend</button>
+          <button class="btn-edit" style="border-color:#fca5a5;color:#b91c1c" onclick="removePending('${esc(r.email)}')" title="Remove this entry from the invited list (use when the person is already registered under a different email)">🗑 Remove</button>
         </td>
       </tr>`;
     }
