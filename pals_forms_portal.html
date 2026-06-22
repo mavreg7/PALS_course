@@ -40,6 +40,11 @@
   .opt{padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:14px;transition:all .15s}
   .opt:hover{background:#f0f9ff;border-color:#0891B2}
   .opt input{margin-right:8px;accent-color:#0891B2}
+  /* RTL options (Hebrew) — radio on the right */
+  .q-card[dir="rtl"] .opt input{margin-right:0;margin-left:8px}
+  .lang-toggle{display:inline-flex;border:1px solid #cbd5e1;border-radius:8px;overflow:hidden}
+  .lang-btn{padding:4px 12px;font-size:12px;font-weight:700;background:#fff;color:#64748b;border:none;cursor:pointer}
+  .lang-btn.active{background:#0891B2;color:#fff}
   .opt.correct{background:rgba(34,197,94,.1);border-color:#22C55E}
   .opt.wrong{background:rgba(239,68,68,.1);border-color:#EF4444}
   .toast{position:fixed;bottom:20px;right:20px;background:#22C55E;color:#fff;padding:12px 20px;border-radius:10px;font-weight:600;z-index:1000;box-shadow:0 6px 18px rgba(0,0,0,.2);animation:popin .3s}
@@ -122,7 +127,13 @@
       <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-bold">Entry Knowledge Pre-Test</h2>
-          <span class="pill pill-y">20 Questions · Auto-Graded</span>
+          <div class="flex items-center gap-2">
+            <div class="lang-toggle" data-lang-toggle>
+              <button type="button" class="lang-btn" data-lang="en" onclick="setExamLang('en')">EN</button>
+              <button type="button" class="lang-btn" data-lang="he" onclick="setExamLang('he')">עברית</button>
+            </div>
+            <span class="pill pill-y">20 Questions · Auto-Graded</span>
+          </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
           <input class="field" id="pre_name" placeholder="Student name">
@@ -227,7 +238,13 @@
       <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-bold">Final Written Exam</h2>
-          <span class="pill pill-y">25 Questions · Pass ≥ 84% · Open Resource (AHA 2025)</span>
+          <div class="flex items-center gap-2">
+            <div class="lang-toggle" data-lang-toggle>
+              <button type="button" class="lang-btn" data-lang="en" onclick="setExamLang('en')">EN</button>
+              <button type="button" class="lang-btn" data-lang="he" onclick="setExamLang('he')">עברית</button>
+            </div>
+            <span class="pill pill-y">25 Questions · Pass ≥ 84% · Open Resource (AHA 2025)</span>
+          </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
           <input class="field" id="ex_name" placeholder="Student name">
@@ -605,31 +622,46 @@ renderPrereg();
 
 /* ===== PRE-TEST (20 Q) ===== */
 const PRETEST_QS=[
-  {q:'An infant has a heart rate below 60/min with signs of poor perfusion despite effective oxygenation and ventilation. What is the next step?',a:['Give atropine 0.02 mg/kg','Begin chest compressions','Observe and recheck in 2 minutes','Defibrillate at 2 J/kg'],c:1},
-  {q:'What is the correct chest-compression depth for a child (1 year to puberty)?',a:['About 2 cm','About 3 cm','At least one-third the chest depth, roughly 5 cm (2 in)','At least 7–8 cm'],c:2},
-  {q:'What is the recommended chest-compression rate during CPR?',a:['100–120/min','60–80/min','140–160/min','As fast as possible'],c:0},
-  {q:'What is the compression-to-ventilation ratio for 2-rescuer infant CPR?',a:['30:2','5:1','3:1','15:2'],c:3},
-  {q:'What is the first defibrillation energy dose for pediatric VF / pulseless VT?',a:['0.5 J/kg','2 J/kg','4 J/kg','10 J/kg'],c:1},
-  {q:'After the first shock fails, what is the second defibrillation dose?',a:['Repeat 2 J/kg','3 J/kg','4 J/kg','Always 10 J/kg'],c:2},
-  {q:'What is the epinephrine dose in pediatric cardiac arrest?',a:['0.01 mg/kg (0.1 mL/kg of 0.1 mg/mL) IV/IO','0.1 mg/kg IV/IO','1 mg IV regardless of weight','0.001 mg/kg'],c:0},
-  {q:'How often is epinephrine repeated during cardiac arrest?',a:['Every 1 minute','Once only','Every 10 minutes','Every 3–5 minutes'],c:3},
-  {q:'What is the amiodarone dose for shock-refractory VF / pulseless VT?',a:['1 mg/kg','5 mg/kg IV/IO bolus','15 mg/kg over 20 minutes','0.5 mg/kg'],c:1},
-  {q:'What is the first dose of adenosine for stable SVT?',a:['6 mg fixed dose','0.2 mg/kg','0.1 mg/kg (max 6 mg) rapid IV/IO push','1 mg/kg'],c:2},
-  {q:'What is the initial synchronized cardioversion dose for unstable SVT or VT with a pulse?',a:['0.5–1 J/kg','2 J/kg','4 J/kg','0.1 J/kg'],c:0},
-  {q:'What is the initial fluid bolus for a child in hypovolemic or septic shock?',a:['5 mL/kg of D5W','10–20 mL/kg isotonic crystalloid, reassess after each bolus','40 mL/kg colloid','2 mL/kg, reassess in 1 hour'],c:1},
-  {q:'Once reliable monitoring is available after ROSC, what is the target oxygen saturation?',a:['100%','85–90%','94–99%','Below 88%'],c:2},
-  {q:'What is the target PaCO2 after ROSC (normocapnia)?',a:['20–30 mmHg','35–45 mmHg','50–60 mmHg','As low as possible'],c:1},
-  {q:'What is the atropine dose for bradycardia from increased vagal tone or AV block?',a:['0.1 mg/kg','0.5 mg/kg','0.001 mg/kg','0.02 mg/kg'],c:3},
-  {q:'A toddler has a barky cough, inspiratory stridor and mild retractions. The most likely diagnosis and treatment is:',a:['Epiglottitis — immediate intubation','Anaphylaxis — IM epinephrine','Croup — dexamethasone (± nebulized epinephrine)','Asthma — albuterol only'],c:2},
-  {q:'What is the first-line treatment for anaphylaxis?',a:['IM epinephrine 0.01 mg/kg (0.1 mg/mL, i.e. 1:1000)','IV epinephrine 0.1 mg/kg','Diphenhydramine alone','Nebulized epinephrine alone'],c:0},
-  {q:'All of the following are signs of hypovolemic shock in an infant EXCEPT:',a:['Tachycardia','Capillary refill greater than 2 seconds','Bounding pulses','Decreased urine output'],c:2},
-  {q:'Intraosseous (IO) access is indicated when:',a:['IV access is obtained within 2 minutes','Reliable vascular access cannot be rapidly established in a critically ill child','Only during cardiac arrest','Only for fluids, never for drugs'],c:1},
-  {q:'What are the priority interventions in the first hour of pediatric septic shock?',a:['Diuretics and fluid restriction','High-dose corticosteroids first','Vasopressors before any fluids','Early antibiotics, fluid boluses, and frequent reassessment'],c:3}
+  {q:'An infant has a heart rate below 60/min with signs of poor perfusion despite effective oxygenation and ventilation. What is the next step?',qHe:'לתינוק קצב לב מתחת ל-60 לדקה עם סימני זילוח ירוד למרות חמצון והנשמה יעילים. מהו הצעד הבא?',a:['Give atropine 0.02 mg/kg','Begin chest compressions','Observe and recheck in 2 minutes','Defibrillate at 2 J/kg'],aHe:['מתן אטרופין 0.02 מ״ג/ק״ג','להתחיל עיסויי חזה','להמתין ולבדוק שוב בעוד 2 דקות','דפיברילציה במנה של 2 ג׳אול/ק״ג'],c:1},
+  {q:'What is the correct chest-compression depth for a child (1 year to puberty)?',qHe:'מהו עומק עיסויי החזה הנכון לילד (מגיל שנה ועד גיל ההתבגרות)?',a:['About 2 cm','About 3 cm','At least one-third the chest depth, roughly 5 cm (2 in)','At least 7–8 cm'],aHe:['כ-2 ס״מ','כ-3 ס״מ','לפחות שליש מעומק בית החזה, כ-5 ס״מ','לפחות 7–8 ס״מ'],c:2},
+  {q:'What is the recommended chest-compression rate during CPR?',qHe:'מהו קצב עיסויי החזה המומלץ במהלך החייאה?',a:['100–120/min','60–80/min','140–160/min','As fast as possible'],aHe:['100–120 לדקה','60–80 לדקה','140–160 לדקה','כמה שיותר מהר'],c:0},
+  {q:'What is the compression-to-ventilation ratio for 2-rescuer infant CPR?',qHe:'מהו יחס העיסויים להנשמות בהחייאת תינוק עם שני מטפלים?',a:['30:2','5:1','3:1','15:2'],aHe:['30:2','5:1','3:1','15:2'],c:3},
+  {q:'What is the first defibrillation energy dose for pediatric VF / pulseless VT?',qHe:'מהי מנת האנרגיה הראשונה לדפיברילציה ב-VF או ב-VT ללא דופק בילדים?',a:['0.5 J/kg','2 J/kg','4 J/kg','10 J/kg'],aHe:['0.5 ג׳אול/ק״ג','2 ג׳אול/ק״ג','4 ג׳אול/ק״ג','10 ג׳אול/ק״ג'],c:1},
+  {q:'After the first shock fails, what is the second defibrillation dose?',qHe:'לאחר כישלון השוק הראשון, מהי מנת הדפיברילציה השנייה?',a:['Repeat 2 J/kg','3 J/kg','4 J/kg','Always 10 J/kg'],aHe:['לחזור על 2 ג׳אול/ק״ג','3 ג׳אול/ק״ג','4 ג׳אול/ק״ג','תמיד 10 ג׳אול/ק״ג'],c:2},
+  {q:'What is the epinephrine dose in pediatric cardiac arrest?',qHe:'מהי מנת האדרנלין בדום לב בילדים?',a:['0.01 mg/kg (0.1 mL/kg of 0.1 mg/mL) IV/IO','0.1 mg/kg IV/IO','1 mg IV regardless of weight','0.001 mg/kg'],aHe:['0.01 מ״ג/ק״ג (0.1 מ״ל/ק״ג בריכוז 0.1 מ״ג/מ״ל) תוך-ורידי/תוך-עצמי','0.1 מ״ג/ק״ג תוך-ורידי/תוך-עצמי','1 מ״ג תוך-ורידי ללא תלות במשקל','0.001 מ״ג/ק״ג'],c:0},
+  {q:'How often is epinephrine repeated during cardiac arrest?',qHe:'באיזו תדירות חוזרים על מתן אדרנלין במהלך דום לב?',a:['Every 1 minute','Once only','Every 10 minutes','Every 3–5 minutes'],aHe:['כל דקה','פעם אחת בלבד','כל 10 דקות','כל 3–5 דקות'],c:3},
+  {q:'What is the amiodarone dose for shock-refractory VF / pulseless VT?',qHe:'מהי מנת האמיודרון ב-VF / VT ללא דופק העמיד לשוקים?',a:['1 mg/kg','5 mg/kg IV/IO bolus','15 mg/kg over 20 minutes','0.5 mg/kg'],aHe:['1 מ״ג/ק״ג','בולוס 5 מ״ג/ק״ג תוך-ורידי/תוך-עצמי','15 מ״ג/ק״ג במשך 20 דקות','0.5 מ״ג/ק״ג'],c:1},
+  {q:'What is the first dose of adenosine for stable SVT?',qHe:'מהי המנה הראשונה של אדנוזין ב-SVT יציב?',a:['6 mg fixed dose','0.2 mg/kg','0.1 mg/kg (max 6 mg) rapid IV/IO push','1 mg/kg'],aHe:['מנה קבועה של 6 מ״ג','0.2 מ״ג/ק״ג','0.1 מ״ג/ק״ג (עד 6 מ״ג) בדחיפה מהירה תוך-ורידי/תוך-עצמי','1 מ״ג/ק״ג'],c:2},
+  {q:'What is the initial synchronized cardioversion dose for unstable SVT or VT with a pulse?',qHe:'מהי מנת ההיפוך החשמלי המסונכרן ההתחלתית ב-SVT או VT לא יציבים עם דופק?',a:['0.5–1 J/kg','2 J/kg','4 J/kg','0.1 J/kg'],aHe:['0.5–1 ג׳אול/ק״ג','2 ג׳אול/ק״ג','4 ג׳אול/ק״ג','0.1 ג׳אול/ק״ג'],c:0},
+  {q:'What is the initial fluid bolus for a child in hypovolemic or septic shock?',qHe:'מהו בולוס הנוזלים ההתחלתי לילד בשוק היפו-וולמי או ספטי?',a:['5 mL/kg of D5W','10–20 mL/kg isotonic crystalloid, reassess after each bolus','40 mL/kg colloid','2 mL/kg, reassess in 1 hour'],aHe:['5 מ״ל/ק״ג של D5W','10–20 מ״ל/ק״ג קריסטלואיד איזוטוני, עם הערכה מחדש לאחר כל בולוס','40 מ״ל/ק״ג קולואיד','2 מ״ל/ק״ג, הערכה מחדש בעוד שעה'],c:1},
+  {q:'Once reliable monitoring is available after ROSC, what is the target oxygen saturation?',qHe:'לאחר חזרת מחזור דם ספונטני (ROSC) וכשקיים ניטור אמין, מהו יעד רוויון החמצן?',a:['100%','85–90%','94–99%','Below 88%'],aHe:['100%','85–90%','94–99%','מתחת ל-88%'],c:2},
+  {q:'What is the target PaCO2 after ROSC (normocapnia)?',qHe:'מהו יעד ה-PaCO2 לאחר ROSC (נורמוקפניה)?',a:['20–30 mmHg','35–45 mmHg','50–60 mmHg','As low as possible'],aHe:['20–30 מ״מ כספית','35–45 מ״מ כספית','50–60 מ״מ כספית','כמה שיותר נמוך'],c:1},
+  {q:'What is the atropine dose for bradycardia from increased vagal tone or AV block?',qHe:'מהי מנת האטרופין לברדיקרדיה הנובעת מטונוס ואגלי מוגבר או מחסם פרוזדורי-חדרי (AV)?',a:['0.1 mg/kg','0.5 mg/kg','0.001 mg/kg','0.02 mg/kg'],aHe:['0.1 מ״ג/ק״ג','0.5 מ״ג/ק״ג','0.001 מ״ג/ק״ג','0.02 מ״ג/ק״ג'],c:3},
+  {q:'A toddler has a barky cough, inspiratory stridor and mild retractions. The most likely diagnosis and treatment is:',qHe:'לפעוט שיעול נבחני, סטרידור בשאיפה ורטרקציות קלות. האבחנה והטיפול הסבירים ביותר הם:',a:['Epiglottitis — immediate intubation','Anaphylaxis — IM epinephrine','Croup — dexamethasone (± nebulized epinephrine)','Asthma — albuterol only'],aHe:['אפיגלוטיטיס — אינטובציה מיידית','אנפילקסיס — אדרנלין תוך-שרירי','קרופ — דקסמתזון (± אדרנלין באינהלציה)','אסתמה — סלבוטמול בלבד'],c:2},
+  {q:'What is the first-line treatment for anaphylaxis?',qHe:'מהו הטיפול קו-ראשון באנפילקסיס?',a:['IM epinephrine 0.01 mg/kg (0.1 mg/mL, i.e. 1:1000)','IV epinephrine 0.1 mg/kg','Diphenhydramine alone','Nebulized epinephrine alone'],aHe:['אדרנלין תוך-שרירי 0.01 מ״ג/ק״ג (ריכוז 0.1 מ״ג/מ״ל, כלומר 1:1000)','אדרנלין תוך-ורידי 0.1 מ״ג/ק״ג','דיפנהידרמין בלבד','אדרנלין באינהלציה בלבד'],c:0},
+  {q:'All of the following are signs of hypovolemic shock in an infant EXCEPT:',qHe:'כל הבאים הם סימנים לשוק היפו-וולמי בתינוק, פרט ל:',a:['Tachycardia','Capillary refill greater than 2 seconds','Bounding pulses','Decreased urine output'],aHe:['טכיקרדיה','מילוי נימי ארוך מ-2 שניות','דפקים מלאים (bounding)','ירידה בתפוקת השתן'],c:2},
+  {q:'Intraosseous (IO) access is indicated when:',qHe:'גישה תוך-עצמית (IO) מתאימה כאשר:',a:['IV access is obtained within 2 minutes','Reliable vascular access cannot be rapidly established in a critically ill child','Only during cardiac arrest','Only for fluids, never for drugs'],aHe:['ניתן להשיג גישה תוך-ורידית תוך 2 דקות','לא ניתן להשיג גישה וסקולרית אמינה במהירות בילד במצב קריטי','רק במהלך דום לב','רק למתן נוזלים, לעולם לא לתרופות'],c:1},
+  {q:'What are the priority interventions in the first hour of pediatric septic shock?',qHe:'מהן ההתערבויות בעדיפות בשעה הראשונה של שוק ספטי בילדים?',a:['Diuretics and fluid restriction','High-dose corticosteroids first','Vasopressors before any fluids','Early antibiotics, fluid boluses, and frequent reassessment'],aHe:['משתנים והגבלת נוזלים','מתן סטרואידים במינון גבוה תחילה','וזופרסורים לפני כל מתן נוזלים','אנטיביוטיקה מוקדמת, בולוסי נוזלים והערכה מחדש תכופה'],c:3}
 ];
+// ── Exam language (English / Hebrew) ─────────────────────────────────────────
+let examLang = (()=>{ try{ return localStorage.getItem('pals_exam_lang')||'en'; }catch(e){ return 'en'; } })();
+const qText = q => examLang==='he' ? (q.qHe||q.q) : q.q;
+const qOpts = q => examLang==='he' ? (q.aHe||q.a) : q.a;
+const qDir  = ()=> examLang==='he' ? 'rtl' : 'ltr';
+window.setExamLang = function(l){
+  examLang = l;
+  try{ localStorage.setItem('pals_exam_lang', l); }catch(e){}
+  renderPreTest(); renderExam(); syncExamLangButtons();
+};
+function syncExamLangButtons(){
+  document.querySelectorAll('[data-lang-toggle] .lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === examLang));
+}
+
 function renderPreTest(){
   document.getElementById('pretest_questions').innerHTML = PRETEST_QS.map((q,i)=>`
-    <div class="q-card"><div class="font-semibold text-sm">${i+1}. ${q.q}</div>
-    <div class="opts">${q.a.map((a,j)=>`<label class="opt"><input type="radio" name="pre_q${i}" value="${j}">${a}</label>`).join('')}</div>
+    <div class="q-card" dir="${qDir()}"><div class="font-semibold text-sm">${i+1}. ${qText(q)}</div>
+    <div class="opts">${qOpts(q).map((a,j)=>`<label class="opt"><input type="radio" name="pre_q${i}" value="${j}">${a}</label>`).join('')}</div>
     </div>`).join('');
 }
 renderPreTest();
@@ -722,39 +754,40 @@ renderMegaList();
 
 /* ===== FINAL EXAM (25 Q) ===== */
 const EXAM_QS=[
-  {q:'A 4-year-old has HR 38/min, weak pulses, mottled skin. First action?',a:['IV adenosine','Begin CPR (HR<60 with poor perfusion)','100% O2 only','Transcutaneous pacing immediately'],c:1},
-  {q:'Per 2025 AHA guidelines, breathing and pulse check should be performed:',a:['Sequentially over 30 s','Simultaneously ≤10 s','Pulse first, then breathing','Only by physicians'],c:1},
-  {q:'Defibrillation dose sequence in pediatric VF?',a:['1 → 2 → 4 J/kg','2 → 4 J/kg (and ≥4 thereafter, max 10)','5 → 10 J/kg','Adult AED at 200 J'],c:1},
-  {q:'Reversible causes per 2025 PALS include all EXCEPT:',a:['Hypoxia','Cardiac tamponade','Hyperlipidemia','Intracranial hypertension'],c:2},
-  {q:'During CPR with arterial line, target DBP for older children:',a:['≥10 mmHg','≥15 mmHg','≥25 mmHg','≥30 mmHg'],c:3},
-  {q:'During CPR with arterial line, target DBP for infants:',a:['≥10 mmHg','≥15 mmHg','≥25 mmHg','≥40 mmHg'],c:2},
-  {q:'Epinephrine IV dose for cardiac arrest?',a:['0.001 mg/kg','0.01 mg/kg (0.1 mL/kg of 1:10,000)','0.1 mg/kg','1 mg fixed'],c:1},
-  {q:'High-dose IM/IO epinephrine for anaphylaxis in child >30 kg?',a:['0.01 mg','0.15 mg','0.3 mg IM','1 mg IV'],c:2},
-  {q:'For refractory SVT (stable, failed adenosine + 1 antiarrhythmic), 2025 endorses:',a:['Verapamil','IV sotalol','Digoxin','Beta-blocker only'],c:1},
-  {q:'Amiodarone for pulseless VT/VF dose?',a:['1 mg/kg','5 mg/kg IV/IO bolus, may repeat','10 mg/kg','15 mg/kg'],c:1},
-  {q:'Adenosine first dose?',a:['0.05 mg/kg','0.1 mg/kg rapid IV push (max 6 mg)','0.2 mg/kg','0.5 mg/kg'],c:1},
-  {q:'Synchronized cardioversion start dose for unstable SVT/VT?',a:['0.1 J/kg','0.5-1 J/kg, escalate to 2 J/kg','2 J/kg','4 J/kg'],c:1},
-  {q:'Atropine dose for symptomatic bradycardia (vagal cause)?',a:['0.01 mg/kg','0.02 mg/kg, min 0.1 mg, max 0.5 mg','0.1 mg/kg','1 mg fixed'],c:1},
-  {q:'Post-ROSC oxygenation goal?',a:['100% SpO2','SpO2 94-99%','SpO2 88-92%','PaO2 >300'],c:1},
-  {q:'Post-ROSC PaCO2 goal?',a:['25-30','35-45 mmHg','45-55','<25'],c:1},
-  {q:'Post-ROSC temperature management?',a:['Induce hypothermia 32 C','Targeted normothermia, avoid fever >37.5 C','Allow fever','Cool to 28 C'],c:1},
-  {q:'Septic shock first hour priorities?',a:['Steroids alone','Recognize, antibiotics, fluid (10-20 mL/kg), reassess, vasoactives if persistent','Vasopressor only','Transfuse first'],c:1},
-  {q:'In suspected cardiogenic shock, initial fluid bolus should be:',a:['40 mL/kg colloid','5-10 mL/kg, reassess for overload','20 mL/kg pushed','No fluids ever'],c:1},
-  {q:'Effective CPR is reflected by ETCO2 ≥:',a:['5','10','15-20 mmHg','40'],c:2},
-  {q:'Pediatric Assessment Triangle components?',a:['Appearance, Work of Breathing, Circulation to skin','HR, BP, RR','A-B-C','AVPU, Pulse, Skin'],c:0},
-  {q:'A 6-month-old with stridor at rest, drooling, tripod posture. Likely?',a:['Croup','Upper airway obstruction — call for advanced airway team','Asthma','Pneumonia'],c:1},
-  {q:'ETT internal diameter (mm) cuffed for a 4-year-old?',a:['3.0','3.5','4.5 (age/4 + 3.5)','5.5'],c:2},
-  {q:'When is ECPR considered per 2025 PALS?',a:['Routinely for all arrests','In-hospital arrest with reversible cause + institutional ECMO expertise','Out-of-hospital only','Never'],c:1},
-  {q:'AED pediatric pads/attenuator indicated for?',a:['Any age','<8 years / <25 kg','Only neonates','Adults only'],c:1},
-  {q:'Open-resource policy for AHA written exam (2025) means:',a:['Test cancelled','Students may consult provider manual / 2025 guidelines during the exam','Test is take-home','Pass at 70%'],c:1}
+  {q:'A 4-year-old has HR 38/min, weak pulses, mottled skin. First action?',qHe:'ילד בן 4 עם קצב לב 38 לדקה, דפקים חלשים ועור מנומר. מהי הפעולה הראשונה?',a:['IV adenosine','Begin CPR (HR<60 with poor perfusion)','100% O2 only','Transcutaneous pacing immediately'],aHe:['אדנוזין תוך-ורידי','להתחיל החייאה (קצב לב<60 עם זילוח ירוד)','חמצן 100% בלבד','קיצוב חוצה-עורי מיידי'],c:1},
+  {q:'Per 2025 AHA guidelines, breathing and pulse check should be performed:',qHe:'על פי הנחיות AHA 2025, בדיקת נשימה ודופק צריכה להתבצע:',a:['Sequentially over 30 s','Simultaneously ≤10 s','Pulse first, then breathing','Only by physicians'],aHe:['ברצף לאורך 30 שניות','בו-זמנית, עד 10 שניות','דופק תחילה ולאחר מכן נשימה','רק על ידי רופאים'],c:1},
+  {q:'Defibrillation dose sequence in pediatric VF?',qHe:'מהו רצף מנות הדפיברילציה ב-VF בילדים?',a:['1 → 2 → 4 J/kg','2 → 4 J/kg (and ≥4 thereafter, max 10)','5 → 10 J/kg','Adult AED at 200 J'],aHe:['1 → 2 → 4 ג׳אול/ק״ג','2 → 4 ג׳אול/ק״ג (ולאחר מכן ≥4, עד 10)','5 → 10 ג׳אול/ק״ג','AED למבוגרים ב-200 ג׳אול'],c:1},
+  {q:'Reversible causes per 2025 PALS include all EXCEPT:',qHe:'הגורמים ההפיכים על פי PALS 2025 כוללים את כל הבאים, פרט ל:',a:['Hypoxia','Cardiac tamponade','Hyperlipidemia','Intracranial hypertension'],aHe:['היפוקסיה','טמפונדה לבבית','היפרליפידמיה','יתר לחץ תוך-גולגולתי'],c:2},
+  {q:'During CPR with arterial line, target DBP for older children:',qHe:'במהלך החייאה עם ניטור עורקי, מהו יעד הלחץ הדיאסטולי (DBP) בילדים גדולים יותר?',a:['≥10 mmHg','≥15 mmHg','≥25 mmHg','≥30 mmHg'],aHe:['≥10 מ״מ כספית','≥15 מ״מ כספית','≥25 מ״מ כספית','≥30 מ״מ כספית'],c:3},
+  {q:'During CPR with arterial line, target DBP for infants:',qHe:'במהלך החייאה עם ניטור עורקי, מהו יעד הלחץ הדיאסטולי (DBP) בתינוקות?',a:['≥10 mmHg','≥15 mmHg','≥25 mmHg','≥40 mmHg'],aHe:['≥10 מ״מ כספית','≥15 מ״מ כספית','≥25 מ״מ כספית','≥40 מ״מ כספית'],c:2},
+  {q:'Epinephrine IV dose for cardiac arrest?',qHe:'מהי מנת האדרנלין התוך-ורידי בדום לב?',a:['0.001 mg/kg','0.01 mg/kg (0.1 mL/kg of 1:10,000)','0.1 mg/kg','1 mg fixed'],aHe:['0.001 מ״ג/ק״ג','0.01 מ״ג/ק״ג (0.1 מ״ל/ק״ג בריכוז 1:10,000)','0.1 מ״ג/ק״ג','1 מ״ג מנה קבועה'],c:1},
+  {q:'High-dose IM/IO epinephrine for anaphylaxis in child >30 kg?',qHe:'מהי מנת האדרנלין התוך-שרירי לאנפילקסיס בילד במשקל מעל 30 ק״ג?',a:['0.01 mg','0.15 mg','0.3 mg IM','1 mg IV'],aHe:['0.01 מ״ג','0.15 מ״ג','0.3 מ״ג תוך-שרירי','1 מ״ג תוך-ורידי'],c:2},
+  {q:'For refractory SVT (stable, failed adenosine + 1 antiarrhythmic), 2025 endorses:',qHe:'ב-SVT עמיד (יציב, לאחר כישלון אדנוזין + תרופה אנטי-אריתמית אחת), הנחיות 2025 ממליצות על:',a:['Verapamil','IV sotalol','Digoxin','Beta-blocker only'],aHe:['ורפמיל','סוטלול תוך-ורידי','דיגוקסין','חוסם בטא בלבד'],c:1},
+  {q:'Amiodarone for pulseless VT/VF dose?',qHe:'מהי מנת האמיודרון ב-VT/VF ללא דופק?',a:['1 mg/kg','5 mg/kg IV/IO bolus, may repeat','10 mg/kg','15 mg/kg'],aHe:['1 מ״ג/ק״ג','בולוס 5 מ״ג/ק״ג תוך-ורידי/תוך-עצמי, ניתן לחזור','10 מ״ג/ק״ג','15 מ״ג/ק״ג'],c:1},
+  {q:'Adenosine first dose?',qHe:'מהי המנה הראשונה של אדנוזין?',a:['0.05 mg/kg','0.1 mg/kg rapid IV push (max 6 mg)','0.2 mg/kg','0.5 mg/kg'],aHe:['0.05 מ״ג/ק״ג','0.1 מ״ג/ק״ג בדחיפה תוך-ורידית מהירה (עד 6 מ״ג)','0.2 מ״ג/ק״ג','0.5 מ״ג/ק״ג'],c:1},
+  {q:'Synchronized cardioversion start dose for unstable SVT/VT?',qHe:'מהי מנת ההתחלה להיפוך חשמלי מסונכרן ב-SVT/VT לא יציבים?',a:['0.1 J/kg','0.5-1 J/kg, escalate to 2 J/kg','2 J/kg','4 J/kg'],aHe:['0.1 ג׳אול/ק״ג','0.5–1 ג׳אול/ק״ג, עלייה ל-2 ג׳אול/ק״ג','2 ג׳אול/ק״ג','4 ג׳אול/ק״ג'],c:1},
+  {q:'Atropine dose for symptomatic bradycardia (vagal cause)?',qHe:'מהי מנת האטרופין לברדיקרדיה סימפטומטית (ממקור ואגלי)?',a:['0.01 mg/kg','0.02 mg/kg, min 0.1 mg, max 0.5 mg','0.1 mg/kg','1 mg fixed'],aHe:['0.01 מ״ג/ק״ג','0.02 מ״ג/ק״ג, מינימום 0.1 מ״ג, מקסימום 0.5 מ״ג','0.1 מ״ג/ק״ג','1 מ״ג מנה קבועה'],c:1},
+  {q:'Post-ROSC oxygenation goal?',qHe:'מהו יעד החמצון לאחר ROSC?',a:['100% SpO2','SpO2 94-99%','SpO2 88-92%','PaO2 >300'],aHe:['SpO2 100%','SpO2 94–99%','SpO2 88–92%','PaO2 >300'],c:1},
+  {q:'Post-ROSC PaCO2 goal?',qHe:'מהו יעד ה-PaCO2 לאחר ROSC?',a:['25-30','35-45 mmHg','45-55','<25'],aHe:['25–30','35–45 מ״מ כספית','45–55','<25'],c:1},
+  {q:'Post-ROSC temperature management?',qHe:'מהו ניהול הטמפרטורה לאחר ROSC?',a:['Induce hypothermia 32 C','Targeted normothermia, avoid fever >37.5 C','Allow fever','Cool to 28 C'],aHe:['השריית היפותרמיה ל-32°C','נורמותרמיה ממוקדת, הימנעות מחום מעל 37.5°C','לאפשר חום','קירור ל-28°C'],c:1},
+  {q:'Septic shock first hour priorities?',qHe:'מהן העדיפויות בשעה הראשונה של שוק ספטי?',a:['Steroids alone','Recognize, antibiotics, fluid (10-20 mL/kg), reassess, vasoactives if persistent','Vasopressor only','Transfuse first'],aHe:['סטרואידים בלבד','זיהוי, אנטיביוטיקה, נוזלים (10–20 מ״ל/ק״ג), הערכה מחדש, תרופות וזואקטיביות אם נמשך','וזופרסור בלבד','עירוי דם תחילה'],c:1},
+  {q:'In suspected cardiogenic shock, initial fluid bolus should be:',qHe:'בחשד לשוק קרדיוגני, בולוס הנוזלים ההתחלתי צריך להיות:',a:['40 mL/kg colloid','5-10 mL/kg, reassess for overload','20 mL/kg pushed','No fluids ever'],aHe:['40 מ״ל/ק״ג קולואיד','5–10 מ״ל/ק״ג, עם הערכה מחדש לעומס יתר','20 מ״ל/ק״ג בדחיפה','אף פעם לא לתת נוזלים'],c:1},
+  {q:'Effective CPR is reflected by ETCO2 ≥:',qHe:'החייאה יעילה משתקפת בערך ETCO2 של ≥:',a:['5','10','15-20 mmHg','40'],aHe:['5','10','15–20 מ״מ כספית','40'],c:2},
+  {q:'Pediatric Assessment Triangle components?',qHe:'מהם מרכיבי משולש ההערכה הפדיאטרי?',a:['Appearance, Work of Breathing, Circulation to skin','HR, BP, RR','A-B-C','AVPU, Pulse, Skin'],aHe:['מראה כללי, מאמץ נשימתי, זילוח לעור','קצב לב, לחץ דם, קצב נשימה','A-B-C','AVPU, דופק, עור'],c:0},
+  {q:'A 6-month-old with stridor at rest, drooling, tripod posture. Likely?',qHe:'תינוק בן 6 חודשים עם סטרידור במנוחה, ריור ותנוחת חצובה. מהי האבחנה הסבירה?',a:['Croup','Upper airway obstruction — call for advanced airway team','Asthma','Pneumonia'],aHe:['קרופ','חסימת דרכי אוויר עליונות — לזמן צוות נתיב אוויר מתקדם','אסתמה','דלקת ריאות'],c:1},
+  {q:'ETT internal diameter (mm) cuffed for a 4-year-old?',qHe:'מהו הקוטר הפנימי (מ״מ) של טובוס עם בלונית לילד בן 4?',a:['3.0','3.5','4.5 (age/4 + 3.5)','5.5'],aHe:['3.0','3.5','4.5 (גיל/4 + 3.5)','5.5'],c:2},
+  {q:'When is ECPR considered per 2025 PALS?',qHe:'מתי נשקל ECPR על פי PALS 2025?',a:['Routinely for all arrests','In-hospital arrest with reversible cause + institutional ECMO expertise','Out-of-hospital only','Never'],aHe:['באופן שגרתי בכל מקרי דום הלב','דום לב תוך-בית-חולים עם גורם הפיך + מומחיות מוסדית ב-ECMO','רק מחוץ לבית החולים','אף פעם'],c:1},
+  {q:'AED pediatric pads/attenuator indicated for?',qHe:'מתי מתאימים מדבקות/מנחית (attenuator) ילדים ב-AED?',a:['Any age','<8 years / <25 kg','Only neonates','Adults only'],aHe:['בכל גיל','<8 שנים / <25 ק״ג','רק ביילודים','רק במבוגרים'],c:1},
+  {q:'Open-resource policy for AHA written exam (2025) means:',qHe:'מדיניות מקורות פתוחים (open-resource) במבחן הכתוב של AHA (2025) משמעה:',a:['Test cancelled','Students may consult provider manual / 2025 guidelines during the exam','Test is take-home','Pass at 70%'],aHe:['המבחן בוטל','הנבחנים רשאים להיעזר בספר המשתתף / הנחיות 2025 במהלך המבחן','המבחן נלקח הביתה','מעבר ב-70%'],c:1}
 ];
 function renderExam(){
   document.getElementById('exam_questions').innerHTML = EXAM_QS.map((q,i)=>`
-    <div class="q-card"><div class="font-semibold text-sm">${i+1}. ${q.q}</div>
-    <div class="opts">${q.a.map((a,j)=>`<label class="opt"><input type="radio" name="ex_q${i}" value="${j}">${a}</label>`).join('')}</div>
+    <div class="q-card" dir="${qDir()}"><div class="font-semibold text-sm">${i+1}. ${qText(q)}</div>
+    <div class="opts">${qOpts(q).map((a,j)=>`<label class="opt"><input type="radio" name="ex_q${i}" value="${j}">${a}</label>`).join('')}</div>
     </div>`).join('');
 }
 renderExam();
+syncExamLangButtons();
 async function gradeExam(){
   if(STUDENT_SESS){
     if(!STU.examUnlocked){
