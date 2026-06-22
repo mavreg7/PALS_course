@@ -24,6 +24,10 @@
   body[dir="rtl"] .session-time{min-width:110px}
   body[dir="rtl"] .pill{margin-left:0;margin-right:6px}
   body[dir="rtl"] .session:hover{transform:translateX(-2px)}
+  .instr-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .instr-chip{padding:4px 12px;border:1px solid #cbd5e1;border-radius:999px;font-size:13px;cursor:pointer;background:#fff;color:#475569;user-select:none;transition:all .15s}
+  .instr-chip:hover{border-color:#0891B2}
+  .instr-chip.on{background:#0891B2;color:#fff;border-color:#0891B2}
   .session{display:flex;gap:14px;padding:14px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;margin-bottom:10px;cursor:grab;transition:all .2s}
   .session:hover{border-color:#0891B2;transform:translateX(2px)}
   .session.dragging{opacity:.4}
@@ -224,18 +228,8 @@ const ROOMS=[
   {en:'Practice Room 1',he:'חדר תרגול 1'},
   {en:'Practice Room 2',he:'חדר תרגול 2'}
 ];
-let INSTRUCTORS=[];
-function loadInstructors(){
-  const apply=fb=>{ if(fb&&fb.getAllStudents){ fb.getAllStudents().then(list=>{
-    INSTRUCTORS=[...new Set((list||[])
-      .filter(p=>p.role==='instructor'||p.role==='lead_instructor')
-      .map(p=>(p.firstName||'').trim() || (p.name||'').trim().split(/\s+/)[0] || '')
-      .filter(Boolean))].sort((a,b)=>a.localeCompare(b,'he'));
-    render();
-  }); } };
-  if(window.FB&&window.FB.getAllStudents) apply(window.FB);
-  else if(window.FB_READY) window.FB_READY.then(apply);
-}
+// Fixed instructor list — pick one or more per session.
+const INSTRUCTORS=['ניתאי','פאתן','נבילה','ליאל','כריסטין','שילה','ענת','אלון','מאיה','עדנאן','גל','גלית','דניאל','מריה','מרין','נדא','נטע','ענבל','תום'];
 function splitTime(time){const p=String(time||'').split('-');return {start:(p[0]||'').trim(),end:(p[1]||'').trim()};}
 function timeOptions(sel){
   const opts=[];const seen=new Set();
@@ -266,15 +260,23 @@ function setRoomField(d,i,val){
   else{const r=ROOMS[+val];if(r){schedule[d][i].room=r.en;schedule[d][i].roomHe=r.he;}}
   persist();refreshMeta(d,i);
 }
-function instrOptions(s){
-  const cur=s.instr||s.instrHe||'';
-  let html='<option value=""'+(cur?'':' selected')+'>—</option>';
-  if(cur&&!INSTRUCTORS.includes(cur)) html+=`<option value="${escAttr(cur)}" selected>${escHtml(cur)}</option>`;
-  return html+INSTRUCTORS.map(n=>`<option value="${escAttr(n)}"${n===cur?' selected':''}>${escHtml(n)}</option>`).join('');
+function selectedInstr(s){
+  return new Set(String(s.instr||s.instrHe||'').split(',').map(x=>x.trim()).filter(Boolean));
 }
-function setInstrField(d,i,val){
-  schedule[d][i].instr=val;schedule[d][i].instrHe=val;
-  persist();refreshMeta(d,i);
+function instrChecklist(d,i,s){
+  const sel=selectedInstr(s);
+  return `<div class="instr-list">`+INSTRUCTORS.map(n=>{
+    const on=sel.has(n);
+    return `<label class="instr-chip${on?' on':''}" onclick="event.stopPropagation()"><input type="checkbox" value="${escAttr(n)}" ${on?'checked':''} onchange="toggleInstr('${d}',${i},this)" style="display:none">${escHtml(n)}</label>`;
+  }).join('')+`</div>`;
+}
+function toggleInstr(d,i,el){
+  el.closest('label').classList.toggle('on', el.checked);
+  const sel=selectedInstr(schedule[d][i]);
+  if(el.checked) sel.add(el.value); else sel.delete(el.value);
+  const val=INSTRUCTORS.filter(n=>sel.has(n)).join(', ');
+  schedule[d][i].instr=val; schedule[d][i].instrHe=val;
+  persist(); refreshMeta(d,i);
 }
 // Update the collapsed instructor/room meta line in place (keeps the card open).
 function refreshMeta(d,i){
@@ -316,8 +318,8 @@ function render(){
                   ${['didactic','skills','megacode','break','exam'].map(ty=>`<option ${ty===s.type?'selected':''} value="${ty}">${pillLabel(ty)}</option>`).join('')}
                 </select>
               </div>
-              <div><label class="text-xs font-semibold text-slate-500">${t('eInstr')}</label>
-                <select class="field" onchange="setInstrField('${d}',${i},this.value)" onclick="event.stopPropagation()">${instrOptions(s)}</select>
+              <div class="md:col-span-2"><label class="text-xs font-semibold text-slate-500">${t('eInstr')}</label>
+                ${instrChecklist(d,i,s)}
               </div>
               <div><label class="text-xs font-semibold text-slate-500">${t('eRoom')}</label>
                 <select class="field" onchange="setRoomField('${d}',${i},this.value)" onclick="event.stopPropagation()">${roomOptions(s)}</select>
@@ -410,7 +412,6 @@ function download(blob,name){const a=document.createElement('a');a.href=URL.crea
 
 applyUiLang();
 render();
-loadInstructors();
 // Publish whatever plan is currently saved locally so students see it even if
 // it was last edited before live sync existed. Deduped via the content
 // signature, so this is a no-op when nothing has changed.
