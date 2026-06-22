@@ -573,12 +573,17 @@ function renderSessions(){
 
   if(!todays){
     // Not a course day — show the plan for reference, nothing "in progress".
+    // Keep the two days in separate labelled blocks so Day 2 never bleeds onto
+    // the end of Day 1.
     const note = start
       ? `הקורס אינו מתקיים היום. יום 1 הוא ${start.toLocaleDateString('he-IL')}.`
       : `לא הוגדר תאריך פתיחת קורס, ולכן היום אינו נחשב יום קורס.`;
-    const all=[...day1,...day2].slice(0,12);
+    const dayBlock=(label,arr)=> arr.length
+      ? `<div class="text-xs font-bold text-slate-500 mb-1 mt-3">${label}</div>`+
+        `<div class="space-y-2">${arr.map(s=>row(s,'upcoming')).join('')}</div>`
+      : '';
     box.innerHTML=`<div class="text-sm text-slate-400 italic mb-2">${note}</div>`+
-      `<div class="space-y-2">${all.map(s=>row(s,'upcoming')).join('')}</div>`;
+      dayBlock('יום 1',day1)+dayBlock('יום 2',day2);
     return;
   }
 
