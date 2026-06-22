@@ -82,6 +82,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
 .plan-sub{font-size:.74rem;color:var(--tf);margin-top:.15rem}
 .plan-tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:.64rem;font-weight:700;margin-left:.4rem;vertical-align:middle}
 .plan-foot{font-size:.72rem;color:var(--tf);margin-top:.7rem}
+.plan-langtoggle{display:inline-flex;border:1px solid var(--b);border-radius:8px;overflow:hidden}
+.plan-langbtn{padding:.25rem .7rem;font-size:.72rem;font-weight:700;background:var(--s2);color:var(--tm);border:none;cursor:pointer}
+.plan-langbtn.active{background:var(--p);color:#fff}
+.plan-wrap[dir="rtl"] .plan-tag{margin-left:0;margin-right:.4rem}
+.plan-wrap[dir="rtl"] .plan-info{text-align:right}
 .tD{background:#0891B2}.tS{background:#22C55E}.tM{background:#F59E0B}.tB{background:#94a3b8}.tE{background:#EF4444}
 .gD{background:rgba(8,145,178,.14);color:#0e7490}.gS{background:rgba(34,197,94,.16);color:#15803d}
 .gM{background:rgba(245,158,11,.18);color:#b45309}.gB{background:rgba(100,116,139,.16);color:#475569}.gE{background:rgba(239,68,68,.16);color:#b91c1c}
@@ -193,8 +198,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
   <div class="sec-hdr">9 Learning Modules</div>
   <div class="mod-grid" id="mod-grid"></div>
 
-  <div class="sec-hdr" id="plan-hdr" style="display:none">📅 Course Plan</div>
+  <div class="sec-hdr" id="plan-hdr" style="display:none">📅 תוכנית הקורס</div>
   <div class="plan-wrap" id="plan-wrap" style="display:none">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
+      <div class="plan-langtoggle">
+        <button type="button" class="plan-langbtn" data-lang="he" onclick="setPlanLang('he')">עברית</button>
+        <button type="button" class="plan-langbtn" data-lang="en" onclick="setPlanLang('en')">EN</button>
+      </div>
+    </div>
     <div class="plan-meta" id="plan-meta"></div>
     <div class="plan-tabs" id="plan-tabs"></div>
     <div id="plan-body"></div>
@@ -204,7 +215,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
 
 <div class="plan-pop" id="plan-pop" role="status" aria-live="polite">
   <span style="font-size:1.1rem">📅</span>
-  <div><strong>Course plan updated</strong><div id="plan-pop-sub" style="font-size:.78rem;opacity:.85"></div></div>
+  <div><strong id="plan-pop-title">תוכנית הקורס עודכנה</strong><div id="plan-pop-sub" style="font-size:.78rem;opacity:.85"></div></div>
   <button onclick="document.getElementById('plan-pop').classList.remove('show')" aria-label="Dismiss" style="background:none;border:none;color:inherit;font-size:1.1rem;cursor:pointer;margin-left:.4rem">×</button>
 </div>
 
@@ -363,15 +374,24 @@ function showAnnouncement(cf){
 const PLAN_SEEN_KEY = 'pals_plan_seen_sig';
 let _planDay = 'day1';
 let _planData = null;
-const TAGS = {
-  didactic:{bar:'tD',pill:'gD',label:'Didactic'},
-  skills:  {bar:'tS',pill:'gS',label:'Skills'},
-  megacode:{bar:'tM',pill:'gM',label:'Megacode'},
-  break:   {bar:'tB',pill:'gB',label:'Break'},
-  exam:    {bar:'tE',pill:'gE',label:'Exam'}
+let _planLang = (()=>{ try{ return localStorage.getItem('pals_plan_lang')||'he'; }catch(e){ return 'he'; } })();
+const TAG_LABELS = {
+  he:{didactic:'עיוני',skills:'מיומנויות',megacode:'מגה-קוד',break:'הפסקה',exam:'מבחן'},
+  en:{didactic:'Didactic',skills:'Skills',megacode:'Megacode',break:'Break',exam:'Exam'}
 };
+const TAGS = {
+  didactic:{bar:'tD',pill:'gD'},
+  skills:  {bar:'tS',pill:'gS'},
+  megacode:{bar:'tM',pill:'gM'},
+  break:   {bar:'tB',pill:'gB'},
+  exam:    {bar:'tE',pill:'gE'}
+};
+function tagLabel(ty){return (TAG_LABELS[_planLang]||TAG_LABELS.he)[ty]||ty;}
+// Language-specific schedule field (titleHe/instrHe/roomHe/notesHe) with fallback
+function planF(s,f){ if(_planLang==='he'){ const v=s[f+'He']; return (v!=null && v!=='')?v:(s[f]||''); } return s[f]||''; }
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-function planDayLabel(d){return d==='day2'?'Day 2':'Day 1';}
+function planDayLabel(d){return _planLang==='he' ? (d==='day2'?'יום 2':'יום 1') : (d==='day2'?'Day 2':'Day 1');}
+window.setPlanLang=function(l){ _planLang=l; try{localStorage.setItem('pals_plan_lang',l);}catch(e){} renderPlan(); };
 function renderPlan(){
   const hdr=document.getElementById('plan-hdr'), wrap=document.getElementById('plan-wrap');
   const sched=_planData&&_planData.schedule;
@@ -379,6 +399,10 @@ function renderPlan(){
     hdr.style.display='none'; wrap.style.display='none'; return;
   }
   hdr.style.display=''; wrap.style.display='';
+  const he=_planLang==='he';
+  hdr.textContent = he ? '📅 תוכנית הקורס' : '📅 Course Plan';
+  wrap.setAttribute('dir', he?'rtl':'ltr');
+  document.querySelectorAll('.plan-langbtn').forEach(b=>b.classList.toggle('active', b.dataset.lang===_planLang));
   const m=_planData.meta||{};
   const metaBits=[];
   if(m.dates)      metaBits.push(`<span>🗓️ <b>${esc(m.dates)}</b></span>`);
@@ -391,19 +415,22 @@ function renderPlan(){
     `<button class="plan-tab ${d===_planDay?'active':''}" onclick="setPlanDay('${d}')">${planDayLabel(d)}</button>`).join('');
   const rows=(sched[_planDay]||[]).map(s=>{
     const t=TAGS[s.type]||TAGS.didactic;
-    const sub=[s.instr?'👤 '+esc(s.instr):'', s.room?'📍 '+esc(s.room):'', s.notes?'📝 '+esc(s.notes):''].filter(Boolean).join(' · ');
+    const instr=planF(s,'instr'), room=planF(s,'room'), notes=planF(s,'notes');
+    const sub=[instr?'👤 '+esc(instr):'', room?'📍 '+esc(room):'', notes?'📝 '+esc(notes):''].filter(Boolean).join(' · ');
     return `<div class="plan-row"><div class="plan-bar ${t.bar}"></div><div class="plan-time">${esc(s.time)}</div>`+
-      `<div class="plan-info"><div class="plan-title">${esc(s.title)}<span class="plan-tag ${t.pill}">${t.label}</span></div>`+
+      `<div class="plan-info"><div class="plan-title">${esc(planF(s,'title'))}<span class="plan-tag ${t.pill}">${tagLabel(s.type)}</span></div>`+
       (sub?`<div class="plan-sub">${sub}</div>`:'')+`</div></div>`;
   }).join('');
   document.getElementById('plan-body').innerHTML=rows;
   document.getElementById('plan-foot').textContent=_planData.updatedAt
-    ? 'Last updated '+new Date(_planData.updatedAt).toLocaleString() : '';
+    ? (he?'עודכן לאחרונה ':'Last updated ')+new Date(_planData.updatedAt).toLocaleString(he?'he-IL':undefined) : '';
 }
 window.setPlanDay=function(d){_planDay=d;renderPlan();};
 function showPlanPop(updatedAt){
   const pop=document.getElementById('plan-pop');
-  document.getElementById('plan-pop-sub').textContent='Your instructor changed the schedule — '+new Date(updatedAt).toLocaleString();
+  const he=_planLang==='he';
+  const tl=document.getElementById('plan-pop-title'); if(tl) tl.textContent=he?'תוכנית הקורס עודכנה':'Course plan updated';
+  document.getElementById('plan-pop-sub').textContent=(he?'המדריך/ה עדכן/ה את לוח הזמנים — ':'Your instructor changed the schedule — ')+new Date(updatedAt).toLocaleString(he?'he-IL':undefined);
   pop.classList.add('show');
   clearTimeout(showPlanPop._t);
   showPlanPop._t=setTimeout(()=>pop.classList.remove('show'),9000);
