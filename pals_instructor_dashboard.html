@@ -232,7 +232,7 @@ import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/fire
 import { getAuth, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore,
-  collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteField, query, orderBy
+  collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteField, query, orderBy, onSnapshot
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const app  = initializeApp(FIREBASE_CONFIG);
@@ -243,23 +243,32 @@ const STUDENT_ROLES = ['student'];
 
 let fbUsers  = [];
 let fbLoaded = false;
+let _dashWatching = false;
 
-async function loadFirebaseUsers() {
-  try {
-    const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
-    // Keep students AND instructors in the roster (admins are excluded).
+// Live listeners so the dashboard always reflects the same Firestore data as the
+// instructor hub — user edits, new registrations and invites appear in real time
+// instead of only at page load.
+function loadFirebaseUsers() {
+  if (_dashWatching) return;
+  _dashWatching = true;
+  let firstUsers = true;
+  onSnapshot(query(collection(db, 'users'), orderBy('createdAt', 'desc')), snap => {
     fbUsers = snap.docs
       .map(d => ({ ...d.data(), uid: d.id }))
       .filter(u => !u.role || u.role === 'student' || u.role === 'instructor' || u.role === 'lead_instructor');
     fbLoaded = true;
-    const nStu = fbUsers.filter(u => !u.role || u.role === 'student').length;
-    showBanner(`✓ Firebase roster loaded — ${fbUsers.length} account(s) (${nStu} student(s))`, 'green');
-  } catch(e) {
+    if (firstUsers) {
+      const nStu = fbUsers.filter(u => !u.role || u.role === 'student').length;
+      showBanner(`✓ Firebase roster loaded — ${fbUsers.length} account(s) (${nStu} student(s))`, 'green');
+      firstUsers = false;
+    }
+    populateCohortOptions();
+    refreshAll();
+  }, err => {
     fbLoaded = true;
-    showBanner(`⚠ Could not load Firebase accounts: ${e.message}`, 'yellow');
-  }
-  await loadCohortData();
-  refreshAll();
+    showBanner(`⚠ Could not load Firebase accounts: ${err.message}`, 'yellow');
+  });
+  watchCohortData();
 }
 
 function showBanner(msg, color) {
@@ -687,22 +696,22 @@ let fbAllowlist = [];
 let fbStudentProgress = {};   // uid -> number of completed modules
 let fbStudentFeedback = {};   // uid -> feedback object (from Firestore)
 
-async function loadCohortData(){
-  try {
-    const al = await getDocs(collection(db, 'allowlist'));
-    fbAllowlist = al.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch(e) { fbAllowlist = []; }
-  try {
-    const st = await getDocs(collection(db, 'students'));
+function watchCohortData(){
+  onSnapshot(collection(db, 'allowlist'), snap => {
+    fbAllowlist = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    populateCohortOptions();
+    refreshAll();
+  }, () => { fbAllowlist = []; });
+  onSnapshot(collection(db, 'students'), snap => {
     fbStudentProgress = {};
     fbStudentFeedback = {};
-    st.forEach(d => {
+    snap.forEach(d => {
       const data = d.data() || {};
       fbStudentProgress[d.id] = Object.values(data.progress || {}).filter(Boolean).length;
       if (data.feedback && data.feedback.submittedAt) fbStudentFeedback[d.id] = data.feedback;
     });
-  } catch(e) { fbStudentProgress = {}; fbStudentFeedback = {}; }
-  populateCohortOptions();
+    refreshAll();
+  }, () => { fbStudentProgress = {}; fbStudentFeedback = {}; });
 }
 
 function populateCohortOptions(){

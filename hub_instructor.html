@@ -1745,7 +1745,36 @@ function loadInstructorData(){
   _instrDataLoaded = true;
   try{ loadRoster(); }catch(e){}
   try{ loadPending(); }catch(e){}
+  try{ watchUsers(); }catch(e){}
   try{ watchTeachingPlan(); }catch(e){}
+}
+
+// Live listener on the users collection (cohort-scoped for plain instructors) so
+// the roster reflects profile changes — cohort/role/name edits, new accounts —
+// in real time, keeping it in sync with the dashboard and other instructors.
+let _usersWatching = false;
+let _rosterReloadTimer = null;
+function scheduleRosterReload(){
+  clearTimeout(_rosterReloadTimer);
+  _rosterReloadTimer = setTimeout(() => { try{ loadRoster(); }catch(e){} }, 400);
+}
+async function watchUsers(){
+  if (_usersWatching) return;
+  _usersWatching = true;
+  try{
+    const seesAllLocal = s.role === 'admin' || s.role === 'lead_instructor';
+    let scope;
+    if (seesAllLocal) {
+      scope = collection(db,'users');
+    } else {
+      let c = myCohort;
+      try { const me = await getDoc(doc(db,'users',s.uid)); c = (me.exists() && me.data().cohort) || 'Unassigned'; } catch(e){}
+      scope = query(collection(db,'users'), where('cohort','==', c));
+    }
+    let first = true;
+    onSnapshot(scope, () => { if(first){ first = false; return; } scheduleRosterReload(); },
+      () => { _usersWatching = false; });
+  }catch(e){ _usersWatching = false; }
 }
 onAuthStateChanged(auth, user => { if(user) loadInstructorData(); });
 // Belt-and-braces: if auth was already settled before the listener attached.
