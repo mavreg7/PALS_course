@@ -375,6 +375,42 @@ function publishPlan(){
   },600);
 }
 function persist(){localStorage.setItem(KEY,JSON.stringify(schedule));publishPlan();toast(planLang==='he'?'נשמר':'Saved')}
+
+// ── Live two-way sync with the shared plan (coursePlan/current) ──────────────
+// Every edit publishes (above); here we also watch the shared doc so all
+// instructors stay in sync and a freshly opened planner adopts the live plan
+// instead of clobbering it with stale local/default data.
+let _pendingRemote=null;
+function fillMetaInputs(){
+  const m=currentMeta();
+  document.getElementById('course_date').value=m.dates||'';
+  document.getElementById('course_instr').value=m.instructor||'';
+  document.getElementById('course_loc').value=m.site||'';
+}
+function adoptPlan(data){
+  if(!data||!data.schedule) return;
+  schedule=data.schedule;
+  localStorage.setItem(KEY,JSON.stringify(schedule));
+  if(data.meta) localStorage.setItem('pals2025_course_meta',JSON.stringify(data.meta));
+  if(data.sig) localStorage.setItem('pals_plan_pub_sig',data.sig);
+  fillMetaInputs();
+  render();
+}
+function startPlanSync(){
+  const sub=fb=>{ if(!fb||!fb.watchCoursePlan) return;
+    fb.watchCoursePlan(data=>{
+      if(!data){ publishPlan(); return; }                                  // nothing shared yet → seed from local
+      if(data.sig && data.sig===localStorage.getItem('pals_plan_pub_sig')) return;  // our own echo / already in sync
+      const ae=document.activeElement;
+      if(ae&&ae.closest&&ae.closest('#day1_list,#day2_list')){ _pendingRemote=data; return; }  // don't yank a field mid-edit
+      adoptPlan(data);
+    });
+  };
+  if(window.FB&&window.FB.watchCoursePlan) sub(window.FB);
+  else if(window.FB_READY) window.FB_READY.then(sub);
+}
+// Apply a deferred remote update once the instructor finishes editing a field.
+document.addEventListener('focusout',()=>{ if(_pendingRemote){ const d=_pendingRemote; _pendingRemote=null; adoptPlan(d); } });
 function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1500)}
 function resetSchedule(){if(!confirm(planLang==='he'?'לאפס ללוח ברירת המחדל? פעולה זו תמחק את העריכות שלך.':'Reset to default schedule? This discards your edits.'))return;schedule=structuredClone(DEFAULT_SCHEDULE);persist();render()}
 
@@ -412,10 +448,9 @@ function download(blob,name){const a=document.createElement('a');a.href=URL.crea
 
 applyUiLang();
 render();
-// Publish whatever plan is currently saved locally so students see it even if
-// it was last edited before live sync existed. Deduped via the content
-// signature, so this is a no-op when nothing has changed.
-if(window.FB_READY){ window.FB_READY.then(()=>publishPlan()); }
+// Subscribe to the shared plan: adopts the live schedule on open and keeps
+// every instructor + the student view in sync. Seeds the doc if none exists.
+startPlanSync();
 </script>
 </body>
 </html>
