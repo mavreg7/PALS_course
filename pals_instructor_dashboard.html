@@ -513,18 +513,51 @@ window.printFeedback = function(){
 
 function renderSessions(){
   let sched={};try{sched=JSON.parse(localStorage.getItem('pals2025_planner')||'{}')}catch(e){}
-  const all=[...(sched.day1||[]),...(sched.day2||[])];
-  if(!all.length){document.getElementById('session_progress').innerHTML='<div class="text-sm text-slate-400 italic">No schedule loaded. Open the Course Planner to populate.</div>';return}
-  const now=new Date();const today=now.toTimeString().slice(0,5);
-  document.getElementById('session_progress').innerHTML=`
-    <div class="space-y-2">${all.slice(0,12).map(s=>{
-      const [a,b]=(s.time||'').split('-');
-      const status=!b?'upcoming':(a<=today&&today<=b?'now':(b<today?'done':'upcoming'));
-      const color=status==='now'?'#22C55E':status==='done'?'#94a3b8':'#0891B2';
-      return `<div class="flex items-center gap-3"><div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+  const box=document.getElementById('session_progress');
+  const day1=sched.day1||[], day2=sched.day2||[];
+  if(!day1.length && !day2.length){box.innerHTML='<div class="text-sm text-slate-400 italic">No schedule loaded. Open the Course Planner to populate.</div>';return}
+
+  const now=new Date();
+  const sameDate=(d1,d2)=> d1.getFullYear()===d2.getFullYear() && d1.getMonth()===d2.getMonth() && d1.getDate()===d2.getDate();
+
+  // Live "IN PROGRESS" only makes sense on an actual course day. Use the
+  // published course start (Day 1) and the day after (Day 2) to decide whether
+  // today is a course day — otherwise sessions show as upcoming, not running.
+  const startStr=localStorage.getItem(CK);
+  const start = startStr ? new Date(startStr) : null;
+  let todays=null, dayLabel='';
+  if(start && !isNaN(start)){
+    const day2date=new Date(start); day2date.setDate(day2date.getDate()+1);
+    if(sameDate(now,start)){ todays=day1; dayLabel='Day 1'; }
+    else if(sameDate(now,day2date)){ todays=day2; dayLabel='Day 2'; }
+  }
+
+  const row=(s,status)=>{
+    const color=status==='now'?'#22C55E':status==='done'?'#94a3b8':'#0891B2';
+    return `<div class="flex items-center gap-3"><div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
       <div class="text-xs text-slate-500 w-24">${s.time||'—'}</div>
-      <div class="text-sm flex-1">${s.title}</div>
-      <div class="text-xs ${status==='now'?'text-green-600 font-bold':'text-slate-400'}">${status==='now'?'IN PROGRESS':status==='done'?'done':''}</div></div>`}).join('')}</div>`;
+      <div class="text-sm flex-1">${s.title||''}</div>
+      <div class="text-xs ${status==='now'?'text-green-600 font-bold':'text-slate-400'}">${status==='now'?'IN PROGRESS':status==='done'?'done':''}</div></div>`;
+  };
+
+  if(!todays){
+    // Not a course day — show the plan for reference, nothing "in progress".
+    const note = start
+      ? `The course is not in session today. Day 1 is ${start.toLocaleDateString()}.`
+      : `No course start date set, so today isn’t treated as a course day.`;
+    const all=[...day1,...day2].slice(0,12);
+    box.innerHTML=`<div class="text-sm text-slate-400 italic mb-2">${note}</div>`+
+      `<div class="space-y-2">${all.map(s=>row(s,'upcoming')).join('')}</div>`;
+    return;
+  }
+
+  const clock=now.toTimeString().slice(0,5);
+  box.innerHTML=`<div class="text-xs font-bold text-slate-500 mb-2">${dayLabel} — today</div>`+
+    `<div class="space-y-2">${todays.slice(0,12).map(s=>{
+      const [a,b]=(s.time||'').split('-');
+      const status=!b?'upcoming':(a<=clock&&clock<=b?'now':(b<clock?'done':'upcoming'));
+      return row(s,status);
+    }).join('')}</div>`;
 }
 
 /* COUNTDOWN */
