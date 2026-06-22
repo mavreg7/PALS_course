@@ -2,7 +2,8 @@
   "name": "pals-course",
   "version": "1.0.0",
   "private": true,
-  "description": "PALS 2025 course site — Netlify Functions (admin password management)",
+  "type": "module",
+  "description": "PALS 2025 course site — serverless functions for admin password management (Vercel /api + Netlify functions)",
   "dependencies": {
     "firebase-admin": "^12.7.0"
   }
