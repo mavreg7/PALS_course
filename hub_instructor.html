@@ -1533,8 +1533,9 @@ function renderRoster(rows) {
     const attDays = _attByUid[s.uid] || null;
     const attBadge = ['Day 1','Day 2'].map(d => {
       const here = !!(attDays && attDays.has(d));
-      return `<span title="${d}: ${here?'present':'no check-in'}"
-        style="padding:.18rem .4rem;border-radius:6px;font-size:.7rem;font-weight:700;border:1.5px solid ${here?'#22c55e':'#cbd5e1'};background:${here?'rgba(34,197,94,.1)':'rgba(148,163,184,.08)'};color:${here?'#15803d':'#64748b'}">${here?'✅':'·'} ${d.replace('Day ','D')}</span>`;
+      return `<button type="button" onclick="toggleAttendance('${s.uid}','${d}')"
+        title="${here?'Marked present for '+d+' — click to unmark':'Click to mark present for '+d}"
+        style="cursor:pointer;padding:.18rem .4rem;border-radius:6px;font-size:.7rem;font-weight:700;border:1.5px solid ${here?'#22c55e':'#cbd5e1'};background:${here?'rgba(34,197,94,.1)':'rgba(148,163,184,.08)'};color:${here?'#15803d':'#64748b'}">${here?'✅':'·'} ${d.replace('Day ','D')}</button>`;
     }).join('');
     return `<tr>
       ${cb}
@@ -1965,6 +1966,27 @@ async function quickToggleExam(uid, currentlyUnlocked) {
     await loadRoster();
   } catch(e) { alert('Error toggling exam: ' + e.message); }
 }
+
+// Mark / unmark a student's attendance for a day straight from the roster.
+// Writes to attendance/<uid>_<day> (the same docs students create on check-in);
+// staff create/delete is permitted by the rules. The live attendance listener
+// rebuilds _attByUid and re-renders the roster, so no manual refresh is needed.
+async function toggleAttendance(uid, day) {
+  const id = uid + '_' + daySlug(day);
+  const has = !!(_attByUid[uid] && _attByUid[uid].has(day));
+  try {
+    if (has) {
+      await deleteDoc(doc(db, 'attendance', id));
+    } else {
+      const stu = allStudents.find(x => x.uid === uid);
+      await setDoc(doc(db, 'attendance', id), {
+        uid, day, code: 'staff', name: (stu && stu.name) || '',
+        checkedInAt: Date.now(), markedBy: (getSession() && getSession().uid) || 'staff'
+      });
+    }
+  } catch(e) { alert('Error updating attendance: ' + e.message); }
+}
+window.toggleAttendance = toggleAttendance;
 
 // ══ DAILY ATTENDANCE CHECK-IN ════════════════════════════════
 function daySlug(day){ return String(day||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }

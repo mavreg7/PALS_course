@@ -219,6 +219,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
   <button onclick="document.getElementById('plan-pop').classList.remove('show')" aria-label="Dismiss" style="background:none;border:none;color:inherit;font-size:1.1rem;cursor:pointer;margin-left:.4rem">×</button>
 </div>
 
+<!-- Entry reminder: outstanding course requirements (bilingual HE/EN) -->
+<div id="reminder-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--s);color:var(--t);max-width:460px;width:100%;border-radius:14px;padding:1.5rem;box-shadow:0 12px 44px rgba(0,0,0,.35);border:1px solid var(--b)">
+    <div style="font-size:1.7rem;text-align:center;margin-bottom:.4rem">📋</div>
+    <h3 dir="rtl" style="text-align:center;font-weight:800;margin:0 0 .15rem;font-size:1.15rem">השלמת דרישות הקורס</h3>
+    <h3 dir="ltr" style="text-align:center;font-weight:700;margin:0 0 .8rem;font-size:.95rem;color:var(--tm)">Course requirements to complete</h3>
+    <p dir="rtl" style="font-size:.85rem;margin:.2rem 0">לא ניתן לסיים את הקורס ללא השלמת הפריטים הבאים:</p>
+    <p dir="ltr" style="font-size:.82rem;margin:.15rem 0 .7rem;color:var(--tm)">You won't be able to finish the course until you complete:</p>
+    <ul id="reminder-list" style="list-style:none;padding:0;margin:0 0 1rem"></ul>
+    <button onclick="closeReminders()" style="width:100%;padding:.65rem;border:none;border-radius:9px;background:var(--p);color:#fff;font-weight:700;cursor:pointer">הבנתי · Got it</button>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
@@ -365,7 +378,7 @@ function showAnnouncement(cf){
   const ann = cf && cf._announcement;
   const banner = document.getElementById('announce-banner');
   if (ann && ann.msg && (!ann.expires || Date.now() < ann.expires)) {
-    document.getElementById('announce-txt').textContent = 'Instructor announcement: ' + ann.msg;
+    document.getElementById('announce-txt').textContent = 'הודעת מדריך · Instructor announcement: ' + ann.msg;
     banner.style.display = 'flex';
   } else { banner.style.display = 'none'; }
 }
@@ -490,6 +503,38 @@ async function submitCheckIn(){
 }
 window.submitCheckIn=submitCheckIn;
 
+// ── Entry reminder: nudge students about outstanding requirements ──────────
+// Pre-test and all learning modules are required to finish the course. On entry
+// we show a one-time (per session) bilingual reminder listing what's still open.
+let _remindersShown = false;
+function showReminders(){
+  if(_remindersShown) return;
+  const prog=getProgress();
+  const preTest=getExamData('pals_pretest');
+  const completed=MODULES.filter((_,i)=>prog[i]).length;
+  const modulesDone = completed===MODULES.length;
+  const pretestDone = !!preTest;
+  const items=[];
+  if(!modulesDone){
+    items.push({he:`להשלים את כל מודולי הלימוד (${completed}/${MODULES.length} הושלמו)`,
+                en:`Complete all learning modules (${completed}/${MODULES.length} done)`});
+  }
+  if(!pretestDone){
+    items.push({he:'להשלים את המבחן המקדים (Pre-Test)',
+                en:'Complete the Pre-Test'});
+  }
+  if(!items.length) return;                 // nothing outstanding — stay quiet
+  _remindersShown = true;
+  document.getElementById('reminder-list').innerHTML = items.map(it =>
+    `<li style="margin-bottom:.5rem;padding:.55rem .7rem;border:1px solid var(--b);border-radius:9px;background:var(--s2)">
+       <div dir="rtl" style="font-weight:600">⏳ ${esc(it.he)}</div>
+       <div dir="ltr" style="font-size:.82rem;color:var(--tm);margin-top:.1rem">${esc(it.en)}</div>
+     </li>`).join('');
+  document.getElementById('reminder-modal').style.display='flex';
+}
+function closeReminders(){ document.getElementById('reminder-modal').style.display='none'; }
+window.closeReminders = closeReminders;
+
 // ── FIX: loadAndSync result is now applied to sessionStorage before render ──
 // Only re-render when the remote snapshot actually changes (no flicker).
 let _lastSnap = null;
@@ -502,6 +547,7 @@ function refresh(force){
       applyRemoteData(data);
       render();
     }
+    showReminders();   // one-time per session, once real progress is loaded
   });
 }
 

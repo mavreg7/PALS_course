@@ -122,13 +122,15 @@ service cloud.firestore {
         return get(/databases/$(database)/documents/attendanceCode/current).data;
       }
       allow read: if signedIn() && (resource.data.uid == request.auth.uid || isStaff());
-      allow create: if signedIn()
+      // Staff may mark attendance directly from the roster; a student may create
+      // only their OWN check-in, while the window is open, with the right code.
+      allow create: if isStaff() || (signedIn()
         && request.resource.data.uid == request.auth.uid
         && exists(/databases/$(database)/documents/attendanceCode/current)
         && code().open == true
         && request.resource.data.code == code().code
         && request.resource.data.day  == code().day
-        && request.time.toMillis() < code().expiresAt;
+        && request.time.toMillis() < code().expiresAt);
       allow update, delete: if isStaff();
     }
 
