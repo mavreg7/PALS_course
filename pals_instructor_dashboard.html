@@ -374,10 +374,21 @@ function buildRoster() {
     const m  = find(mc);
     const e  = find(ex);
     const c  = find(certs);
+    // Firestore is the source of truth for registered users (matched by uid):
+    // student check-ins (attendance collection) and pre-test (students/{uid}).
+    // Fall back to the legacy localStorage forms data only when no Firestore row.
+    const fbPre = r.uid ? fbStudentPreTest[r.uid] : null;
+    const fbAtt = r.uid ? fbAttByUid[r.uid] : null;
+    const attendance = (fbAtt && fbAtt.size)
+      ? (fbAtt.size >= 2 ? 'Full' : fbAtt.size + ' day')
+      : (a.length ? (a.every(x => x.status==='Present') ? 'Full' : a.length+' days') : '—');
+    const pretest = (fbPre && fbPre.pct != null)
+      ? fbPre.pct + '%'
+      : (p ? p.percent+'%' : '—');
     return {
       ...r,
-      attendance: a.length ? (a.every(x => x.status==='Present') ? 'Full' : a.length+' days') : '—',
-      pretest:    p ? p.percent+'%' : '—',
+      attendance,
+      pretest,
       bls:        b ? b.overall : '—',
       megacode:   m ? m.result  : '—',
       exam:       e ? e.result+' ('+e.percent+'%)' : '—',
@@ -722,6 +733,8 @@ const MODULE_COUNT = 9;   // student-required modules (the 2 megacodes are instr
 let fbAllowlist = [];
 let fbStudentProgress = {};   // uid -> number of completed modules
 let fbStudentFeedback = {};   // uid -> feedback object (from Firestore)
+let fbStudentPreTest  = {};   // uid -> preTest object {pct,…} (from Firestore)
+let fbAttByUid        = {};   // uid -> Set of attendance day labels ("Day 1"…)
 
 function watchCohortData(){
   onSnapshot(collection(db, 'allowlist'), snap => {
@@ -732,13 +745,24 @@ function watchCohortData(){
   onSnapshot(collection(db, 'students'), snap => {
     fbStudentProgress = {};
     fbStudentFeedback = {};
+    fbStudentPreTest  = {};
     snap.forEach(d => {
       const data = d.data() || {};
       fbStudentProgress[d.id] = Object.values(data.progress || {}).filter(Boolean).length;
       if (data.feedback && data.feedback.submittedAt) fbStudentFeedback[d.id] = data.feedback;
+      if (data.preTest) fbStudentPreTest[d.id] = data.preTest;
     });
     refreshAll();
-  }, () => { fbStudentProgress = {}; fbStudentFeedback = {}; });
+  }, () => { fbStudentProgress = {}; fbStudentFeedback = {}; fbStudentPreTest = {}; });
+  // Live attendance (student check-ins) → per-uid set of day labels.
+  onSnapshot(collection(db, 'attendance'), snap => {
+    fbAttByUid = {};
+    snap.forEach(d => {
+      const r = d.data() || {};
+      if (r.uid) { (fbAttByUid[r.uid] = fbAttByUid[r.uid] || new Set()).add(r.day); }
+    });
+    refreshAll();
+  }, () => { fbAttByUid = {}; });
 }
 
 function populateCohortOptions(){
