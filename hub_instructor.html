@@ -398,6 +398,12 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
       <option value="registered">Registered only</option>
       <option value="invited">Invited (pending) only</option>
     </select>
+    <select id="roster-role" class="roster-search" style="max-width:160px;cursor:pointer" onchange="applyRosterView()" title="Filter the roster by role.">
+      <option value="all">All roles</option>
+      <option value="student">Students</option>
+      <option value="instructor">Instructors</option>
+      <option value="lead_instructor">Lead Instructors</option>
+    </select>
     <input class="roster-search" id="roster-search" type="search" placeholder="🔍  Search within cohort…" oninput="filterRoster()">
     <div class="roster-actions">
       <button class="btn-sm btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
@@ -1429,19 +1435,21 @@ window.setCohortView = setCohortView;
 function rosterView() {
   const q = (document.getElementById('roster-search').value || '').toLowerCase();
   const status = (document.getElementById('roster-status') || {}).value || 'all';
+  const role   = (document.getElementById('roster-role') || {}).value || 'all';
   const matchQ = o => !q ||
     (o.name || '').toLowerCase().includes(q) ||
     (o.email || '').toLowerCase().includes(q) ||
     (o.cohort || '').toLowerCase().includes(q);
+  const matchRole = o => role === 'all' || (o.role || 'student') === role;
   let rows = [];
   if (status !== 'invited') {
-    rows = rows.concat(visibleStudents().filter(matchQ)
+    rows = rows.concat(visibleStudents().filter(matchQ).filter(matchRole)
       .map(s => Object.assign({}, s, { status:'registered', key:'u:'+s.uid })));
   }
   if (status !== 'registered') {
     rows = rows.concat(pendingPeople()
       .filter(p => activeCohort === 'ALL' || (p.cohort||'Unassigned') === activeCohort)
-      .filter(matchQ)
+      .filter(matchQ).filter(matchRole)
       .map(p => ({ status:'invited', key:'a:'+p.email, name:p.name, email:p.email, role:p.role, cohort:p.cohort })));
   }
   return rows.sort((a,b) =>
