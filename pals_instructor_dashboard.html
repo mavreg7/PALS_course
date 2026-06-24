@@ -227,6 +227,21 @@
 
 <!-- Student editing is consolidated into the Instructor Hub roster. -->
 
+<!-- Final-exam mistakes breakdown -->
+<div id="exam-mistakes-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;color:#1e293b;max-width:560px;width:100%;max-height:85vh;overflow:auto;border-radius:14px;padding:1.4rem;box-shadow:0 12px 44px rgba(0,0,0,.35)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+      <div>
+        <h3 id="exam-mistakes-title" style="font-weight:800;margin:0 0 .15rem;font-size:1.05rem"></h3>
+        <div id="exam-mistakes-sub" style="font-size:.78rem;color:#64748b"></div>
+      </div>
+      <button onclick="closeExamMistakes()" style="all:unset;cursor:pointer;font-size:1.3rem;color:#64748b;line-height:1">×</button>
+    </div>
+    <ul id="exam-mistakes-list" style="list-style:none;padding:0;margin:1rem 0 0"></ul>
+    <button onclick="closeExamMistakes()" style="margin-top:1rem;width:100%;padding:.6rem;border:none;border-radius:9px;background:#0891B2;color:#fff;font-weight:700;cursor:pointer">Close</button>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
@@ -385,14 +400,20 @@ function buildRoster() {
     const pretest = (fbPre && fbPre.pct != null)
       ? fbPre.pct + '%'
       : (p ? p.percent+'%' : '—');
+    // Final exam: live from Firestore (students/{uid}.finalExam) with grade and
+    // the list of missed questions; fall back to legacy localStorage data.
+    const fbExam = r.uid ? fbStudentFinalExam[r.uid] : null;
+    const fbExamResult = fbExam && fbExam.pct != null ? (fbExam.pct >= 84 ? 'Pass' : 'Fail') : null;
     return {
       ...r,
       attendance,
       pretest,
       bls:        b ? b.overall : '—',
       megacode:   m ? m.result  : '—',
-      exam:       e ? e.result+' ('+e.percent+'%)' : '—',
-      examRaw:    e ? e.result  : null,
+      exam:       fbExamResult ? `${fbExamResult} (${fbExam.pct}%)` : (e ? e.result+' ('+e.percent+'%)' : '—'),
+      examRaw:    fbExamResult || (e ? e.result : null),
+      examMistakes: fbExam && Array.isArray(fbExam.mistakes) ? fbExam.mistakes : null,
+      examAt:     fbExam ? fbExam.completedAt : null,
       cert:       c ? 'Issued' : '—',
     };
   });
@@ -452,11 +473,47 @@ function renderRoster(){
       <td>${pillFor(x.pretest)}</td>
       <td>${pillFor(x.bls)}</td>
       <td>${pillFor(x.megacode)}</td>
-      <td>${pillFor(x.exam)}</td>
+      <td>${examCell(x)}</td>
       <td>${pillFor(x.cert)}</td>
     </tr>`;
   }).join('');
 }
+
+// Final-exam cell: the grade pill plus, when the exam was taken, a count of
+// missed questions that opens a breakdown of exactly what was wrong.
+function examCell(x){
+  const base = pillFor(x.exam);
+  if (x.uid && x.examMistakes && x.examMistakes.length) {
+    return `${base} <button type="button" onclick="showExamMistakes('${x.uid}')" title="View missed questions"
+      style="all:unset;cursor:pointer;font-size:.68rem;color:#0891B2;text-decoration:underline;margin-inline-start:.25rem">${x.examMistakes.length} wrong ▸</button>`;
+  }
+  // Passed with no recorded mistakes → show a perfect-score hint when applicable.
+  if (x.uid && x.examMistakes && x.examMistakes.length === 0 && x.examRaw) {
+    return `${base} <span style="font-size:.68rem;color:#16a34a;margin-inline-start:.25rem">no errors</span>`;
+  }
+  return base;
+}
+window.showExamMistakes = function(uid){
+  const ex = fbStudentFinalExam[uid];
+  const stu = (fbUsers.find(u => u.uid === uid) || {});
+  if(!ex){ return; }
+  const when = ex.completedAt ? new Date(ex.completedAt).toLocaleString() : '—';
+  const result = ex.pct != null ? (ex.pct >= 84 ? 'PASS' : 'FAIL') : '—';
+  const items = (ex.mistakes||[]).map(mi =>
+    `<li style="margin-bottom:.7rem;padding:.6rem .7rem;border:1px solid #e2e8f0;border-radius:8px">
+       <div style="font-weight:600;font-size:.85rem">Q${mi.n}. ${escapeHtml(mi.q)}</div>
+       <div style="font-size:.8rem;color:#dc2626;margin-top:.25rem">✗ Their answer: ${escapeHtml(mi.your)}</div>
+       <div style="font-size:.8rem;color:#16a34a">✓ Correct: ${escapeHtml(mi.correct)}</div>
+     </li>`).join('');
+  document.getElementById('exam-mistakes-title').textContent =
+    `${stu.name || stu.email || 'Student'} — Final Exam: ${result}${ex.pct!=null?' ('+ex.pct+'%)':''}`;
+  document.getElementById('exam-mistakes-sub').textContent =
+    `Submitted ${when} · ${(ex.mistakes||[]).length} question(s) missed`;
+  document.getElementById('exam-mistakes-list').innerHTML =
+    items || '<li style="color:#16a34a">No incorrect answers recorded. 🎉</li>';
+  document.getElementById('exam-mistakes-modal').style.display = 'flex';
+};
+window.closeExamMistakes = function(){ document.getElementById('exam-mistakes-modal').style.display = 'none'; };
 
 function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
@@ -741,6 +798,7 @@ let fbAllowlist = [];
 let fbStudentProgress = {};   // uid -> number of completed modules
 let fbStudentFeedback = {};   // uid -> feedback object (from Firestore)
 let fbStudentPreTest  = {};   // uid -> preTest object {pct,…} (from Firestore)
+let fbStudentFinalExam= {};   // uid -> finalExam object {pct,mistakes,…} (Firestore)
 let fbAttByUid        = {};   // uid -> Set of attendance day labels ("Day 1"…)
 
 function watchCohortData(){
@@ -753,14 +811,16 @@ function watchCohortData(){
     fbStudentProgress = {};
     fbStudentFeedback = {};
     fbStudentPreTest  = {};
+    fbStudentFinalExam= {};
     snap.forEach(d => {
       const data = d.data() || {};
       fbStudentProgress[d.id] = Object.values(data.progress || {}).filter(Boolean).length;
       if (data.feedback && data.feedback.submittedAt) fbStudentFeedback[d.id] = data.feedback;
       if (data.preTest) fbStudentPreTest[d.id] = data.preTest;
+      if (data.finalExam) fbStudentFinalExam[d.id] = data.finalExam;
     });
     refreshAll();
-  }, () => { fbStudentProgress = {}; fbStudentFeedback = {}; fbStudentPreTest = {}; });
+  }, () => { fbStudentProgress = {}; fbStudentFeedback = {}; fbStudentPreTest = {}; fbStudentFinalExam = {}; });
   // Live attendance (student check-ins) → per-uid set of day labels.
   onSnapshot(collection(db, 'attendance'), snap => {
     fbAttByUid = {};
