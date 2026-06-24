@@ -98,6 +98,17 @@ async function fbLoadMyData() {
   } catch(e) { console.warn('[PALS FB] loadMyData:', e.message); return null; }
 }
 
+// ── Load the signed-in user's own cohort (from users/{uid}) ─────────
+// Used to route a student to their cohort's course plan.
+async function fbLoadMyCohort() {
+  try {
+    await _ensureAuthReady();
+    const uid = _uid(); if (!uid) return '';
+    const snap = await getDoc(doc(_db,'users',uid));
+    return snap.exists() ? (snap.data().cohort || '') : '';
+  } catch(e) { console.warn('[PALS FB] loadMyCohort:', e.message); return ''; }
+}
+
 // ── STUDENT: Load + sync (returns merged object, no sessionStorage) ─
 async function fbLoadAndSync() {
   try {
@@ -178,6 +189,7 @@ async function fbGetAllStudents() {
 async function fbGetAllUsers() {
   try {
     _ensureInit();
+    await _ensureAuthReady();
     const snap = await getDocs(collection(_db, 'users'));
     const out  = [];
     snap.forEach(d => out.push({ uid: d.id, ...d.data() }));
@@ -223,8 +235,13 @@ async function fbSetCourseFlag(key, value) {
 }
 
 // ── INSTRUCTOR: publish the course plan (schedule + meta) ────
-// Shared at coursePlan/current so students can view a read-only agenda.
-async function fbSaveCoursePlan(plan) {
+// Default plan lives at coursePlan/current (shared by all cohorts). A specific
+// cohort can have its own plan at coursePlan/c_<cohortKey>; pass the cohortKey
+// to target it. Pre-existing callers pass nothing → 'current' (unchanged).
+function _planDocId(cohortKey) {
+  return (cohortKey && cohortKey !== 'current') ? ('c_' + cohortKey) : 'current';
+}
+async function fbSaveCoursePlan(plan, cohortKey) {
   try {
     _ensureInit();
     // coursePlan writes require an authenticated staff user (isStaff()).
@@ -232,13 +249,13 @@ async function fbSaveCoursePlan(plan) {
     // this wait an early publish fires with request.auth==null → permission
     // denied → silently caught, and the plan never syncs.
     await _ensureAuthReady();
-    await setDoc(doc(_db,'coursePlan','current'),
+    await setDoc(doc(_db,'coursePlan',_planDocId(cohortKey)),
       { ...plan, updatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveCoursePlan:', e.message); }
 }
 
 // ── STUDENT: watch the published course plan ────────────────
-function fbWatchCoursePlan(callback) {
+function fbWatchCoursePlan(callback, cohortKey) {
   _ensureInit();
   // Reads require signedIn(); subscribe only once auth has restored, otherwise
   // the listener is immediately permission-denied and never recovers.
@@ -246,7 +263,7 @@ function fbWatchCoursePlan(callback) {
   let cancelled = false;
   _ensureAuthReady().then(() => {
     if (cancelled) return;
-    unsub = onSnapshot(doc(_db,'coursePlan','current'), snap => {
+    unsub = onSnapshot(doc(_db,'coursePlan',_planDocId(cohortKey)), snap => {
       callback(snap.exists() ? snap.data() : null);
     }, err => console.warn('[PALS FB] watchCoursePlan:', err.message));
   });
@@ -342,6 +359,14 @@ async function fbSetStudentExamUnlock(uid, unlocked) {
   } catch(e) { console.warn('[PALS FB] setStudentExamUnlock:', e.message); }
 }
 
+// ── Cohort key: stable slug for a cohort name, used to address per-cohort
+// docs (coursePlan/c_<key>, etc.). Empty/Unassigned → '' (the default plan).
+function fbCohortKey(name) {
+  const n = String(name == null ? '' : name).trim();
+  if (!n || n.toLowerCase() === 'unassigned' || n.toLowerCase() === 'all') return '';
+  return n.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+}
+
 // ── Expose on window.FB ───────────────────────────────────────
 window.FB = {
   saveProgress:          fbSaveProgress,
@@ -361,6 +386,8 @@ window.FB = {
   setCourseFlag:         fbSetCourseFlag,
   saveCoursePlan:        fbSaveCoursePlan,
   watchCoursePlan:       fbWatchCoursePlan,
+  cohortKey:             fbCohortKey,
+  loadMyCohort:          fbLoadMyCohort,
   openAttendance:        fbOpenAttendance,
   closeAttendance:       fbCloseAttendance,
   watchAttendance:       fbWatchAttendance,
