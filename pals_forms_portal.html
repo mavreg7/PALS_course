@@ -816,12 +816,14 @@ async function gradeExam(){
       return;
     }
   }
-  let correct=0;
+  let correct=0; const mistakes=[];
   EXAM_QS.forEach((q,i)=>{
     const sel=document.querySelector('input[name="ex_q'+i+'"]:checked');
+    const chosen = sel ? parseInt(sel.value) : -1;
     const opts=document.querySelectorAll('[data-panel="exam"] .q-card')[i].querySelectorAll('.opt');
-    opts.forEach((o,j)=>{o.classList.remove('correct','wrong');if(j===q.c)o.classList.add('correct');if(sel&&parseInt(sel.value)===j&&j!==q.c)o.classList.add('wrong')});
-    if(sel && parseInt(sel.value)===q.c) correct++;
+    opts.forEach((o,j)=>{o.classList.remove('correct','wrong');if(j===q.c)o.classList.add('correct');if(chosen===j&&j!==q.c)o.classList.add('wrong')});
+    if(chosen===q.c) correct++;
+    else mistakes.push({ n:i+1, q:q.q, your:(chosen>=0?q.a[chosen]:'(no answer)'), correct:q.a[q.c] });
   });
   const pct=Math.round(correct/EXAM_QS.length*100);
   const pass = pct>=84;
@@ -830,7 +832,7 @@ async function gradeExam(){
   let savedNote='Saved locally.';
   if(STUDENT_SESS){
     const fb=await fbReady();
-    if(fb&&fb.saveExamScore){ await fb.saveExamScore('final',correct,EXAM_QS.length); savedNote='Saved to your course record.'; }
+    if(fb&&fb.saveExamScore){ await fb.saveExamScore('final',correct,EXAM_QS.length,{mistakes}); savedNote='Saved to your course record.'; }
   }
   document.getElementById('exam_result').innerHTML=`<div class="card p-4" style="border-color:${pass?'#22C55E':'#EF4444'};background:${pass?'rgba(34,197,94,.08)':'rgba(239,68,68,.08)'}"><div class="text-xl font-bold">${pass?'✅ PASS':'❌ Below Passing'} — ${correct}/${EXAM_QS.length} (${pct}%)</div><div class="text-sm mt-1">${pass?'Meets AHA 2025 PALS provider course passing standard (≥84%).':'Remediation required. Review missed items with instructor.'} ${savedNote}</div></div>`;
   toast('Exam graded · '+pct+'%');

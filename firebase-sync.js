@@ -127,14 +127,15 @@ async function fbMarkModuleComplete(moduleIndex) {
 }
 
 // ── STUDENT: Save exam score ─────────────────────────────────
-async function fbSaveExamScore(examType, score, total) {
+async function fbSaveExamScore(examType, score, total, details) {
   try {
     await _ensureAuthReady();
     const uid = _uid(); if (!uid) return;
     const field = examType === 'final' ? 'finalExam' : 'preTest';
-    await setDoc(doc(_db,'students',uid), {
-      [field]: { score, total, pct: Math.round((score/total)*100), completedAt: Date.now() }
-    }, { merge:true });
+    const rec = { score, total, pct: Math.round((score/total)*100), completedAt: Date.now() };
+    // Record which questions were missed (final exam) so instructors can review.
+    if (details && Array.isArray(details.mistakes)) rec.mistakes = details.mistakes;
+    await setDoc(doc(_db,'students',uid), { [field]: rec }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveExamScore:', e.message); }
 }
 
