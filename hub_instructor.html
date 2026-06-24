@@ -558,6 +558,21 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 
 </main>
 
+<!-- Final-exam mistakes breakdown -->
+<div id="exam-mistakes-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--surface);color:var(--text);max-width:560px;width:100%;max-height:85vh;overflow:auto;border-radius:14px;padding:1.4rem;box-shadow:0 12px 44px rgba(0,0,0,.35);border:1px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+      <div>
+        <h3 id="exam-mistakes-title" style="font-weight:800;margin:0 0 .15rem;font-size:1.05rem"></h3>
+        <div id="exam-mistakes-sub" style="font-size:.78rem;color:var(--muted)"></div>
+      </div>
+      <button onclick="closeExamMistakes()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--muted);line-height:1">×</button>
+    </div>
+    <ul id="exam-mistakes-list" style="list-style:none;padding:0;margin:1rem 0 0"></ul>
+    <button onclick="closeExamMistakes()" style="margin-top:1rem;width:100%;padding:.6rem;border:none;border-radius:9px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer">Close</button>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp }                    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, signOut, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
@@ -1537,6 +1552,15 @@ function renderRoster(rows) {
         title="${here?'Marked present for '+d+' — click to unmark':'Click to mark present for '+d}"
         style="cursor:pointer;padding:.18rem .4rem;border-radius:6px;font-size:.7rem;font-weight:700;border:1.5px solid ${here?'#22c55e':'#cbd5e1'};background:${here?'rgba(34,197,94,.1)':'rgba(148,163,184,.08)'};color:${here?'#15803d':'#64748b'}">${here?'✅':'·'} ${d.replace('Day ','D')}</button>`;
     }).join('');
+    // Final-exam badge: green/red with the score % once taken; click to see the
+    // missed questions when a mistakes breakdown was recorded.
+    const fe = s.finalExam, feDone = fe && fe.pct != null, fePass = feDone && fe.pct >= 84;
+    const feWrong = feDone && Array.isArray(fe.mistakes) ? fe.mistakes.length : null;
+    const examBadge = feDone
+      ? `<button type="button" ${feWrong?`onclick="showExamMistakes('${s.uid}')"`:''}
+          title="Final exam ${fePass?'passed':'failed'} — ${fe.pct}%${feWrong?` · ${feWrong} wrong (click to view)`:''}"
+          style="cursor:${feWrong?'pointer':'default'};padding:.18rem .45rem;border-radius:6px;font-size:.7rem;font-weight:700;border:1.5px solid ${fePass?'#22c55e':'#ef4444'};background:${fePass?'rgba(34,197,94,.1)':'rgba(239,68,68,.08)'};color:${fePass?'#15803d':'#dc2626'}">📄 ${fePass?'✓':'✗'} ${fe.pct}%${feWrong?` · ${feWrong}✗`:''}</button>`
+      : `<span title="Final exam not taken yet" style="padding:.18rem .45rem;border-radius:6px;font-size:.7rem;font-weight:700;border:1.5px solid #cbd5e1;background:rgba(148,163,184,.08);color:#64748b">📄 —</span>`;
     return `<tr>
       ${cb}
       <td><strong>${esc(s.name)}</strong></td>
@@ -1548,7 +1572,7 @@ function renderRoster(rows) {
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
           <span class="prog-pct">${count}/${LEARNING_COUNT}</span>
         </div>
-        <div style="display:flex;gap:.3rem;margin-top:.4rem;flex-wrap:wrap;align-items:center">${preBadge}${attBadge}</div>
+        <div style="display:flex;gap:.3rem;margin-top:.4rem;flex-wrap:wrap;align-items:center">${preBadge}${attBadge}${examBadge}</div>
       </td>
       <td style="font-size:.78rem;color:var(--muted)">${timeAgo(s.updatedAt)}</td>
       <td style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
@@ -1860,7 +1884,24 @@ function loadInstructorData(){
   try{ loadRoster(); }catch(e){}
   try{ loadPending(); }catch(e){}
   try{ watchUsers(); }catch(e){}
+  try{ watchStudents(); }catch(e){}
   try{ watchTeachingPlan(); }catch(e){}
+}
+
+// Live listener on the students collection so exam scores, pre-test and progress
+// appear in the roster in real time (e.g. the moment a student submits the final
+// exam). Only admins / lead instructors may list the whole collection; plain
+// instructors are cohort-scoped by the rules, so they refresh via watchUsers and
+// manual reload instead of a (denied) full-collection listener.
+let _studentsWatching = false;
+function watchStudents(){
+  if (_studentsWatching) return;
+  if (!(s.role === 'admin' || s.role === 'lead_instructor')) return;
+  _studentsWatching = true;
+  let first = true;
+  onSnapshot(collection(db,'students'),
+    () => { if(first){ first = false; return; } scheduleRosterReload(); },
+    () => { _studentsWatching = false; });
 }
 
 // Live listener on the users collection (cohort-scoped for plain instructors) so
@@ -1987,6 +2028,30 @@ async function toggleAttendance(uid, day) {
   } catch(e) { alert('Error updating attendance: ' + e.message); }
 }
 window.toggleAttendance = toggleAttendance;
+
+// Show a breakdown of the questions a student missed on the final exam.
+function showExamMistakes(uid){
+  const s = allStudents.find(x => x.uid === uid);
+  const fe = s && s.finalExam;
+  if(!fe) return;
+  const when = fe.completedAt ? new Date(fe.completedAt).toLocaleString() : '—';
+  const result = fe.pct != null ? (fe.pct >= 84 ? 'PASS' : 'FAIL') : '—';
+  const items = (fe.mistakes||[]).map(mi =>
+    `<li style="margin-bottom:.7rem;padding:.6rem .7rem;border:1px solid var(--border);border-radius:8px">
+       <div style="font-weight:600;font-size:.85rem">Q${mi.n}. ${esc(mi.q)}</div>
+       <div style="font-size:.8rem;color:#dc2626;margin-top:.25rem">✗ Their answer: ${esc(mi.your)}</div>
+       <div style="font-size:.8rem;color:#16a34a">✓ Correct: ${esc(mi.correct)}</div>
+     </li>`).join('');
+  document.getElementById('exam-mistakes-title').textContent =
+    `${(s.name||s.email||'Student')} — Final Exam: ${result}${fe.pct!=null?' ('+fe.pct+'%)':''}`;
+  document.getElementById('exam-mistakes-sub').textContent =
+    `Submitted ${when} · ${(fe.mistakes||[]).length} question(s) missed`;
+  document.getElementById('exam-mistakes-list').innerHTML =
+    items || '<li style="color:#16a34a">No incorrect answers recorded. 🎉</li>';
+  document.getElementById('exam-mistakes-modal').style.display = 'flex';
+}
+window.showExamMistakes = showExamMistakes;
+window.closeExamMistakes = function(){ document.getElementById('exam-mistakes-modal').style.display = 'none'; };
 
 // ══ DAILY ATTENDANCE CHECK-IN ════════════════════════════════
 function daySlug(day){ return String(day||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
