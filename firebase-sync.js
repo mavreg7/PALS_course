@@ -341,6 +341,21 @@ function fbWatchCourseFlags(callback) {
   });
 }
 
+// Watch a cohort's own flags (courseFlags/c_<key>) — used to override the
+// course start date and attendance window per cohort. No-op without a cohort.
+function fbWatchCohortFlags(cohortKey, callback) {
+  _ensureInit();
+  if (!cohortKey) { callback(null); return () => {}; }
+  let unsub = () => {}, cancelled = false;
+  _ensureAuthReady().then(() => {
+    if (cancelled) return;
+    unsub = onSnapshot(doc(_db,'courseFlags','c_'+cohortKey), snap => {
+      callback(snap.exists() ? snap.data() : null);
+    }, err => console.warn('[PALS FB] watchCohortFlags:', err.message));
+  });
+  return () => { cancelled = true; unsub(); };
+}
+
 // ── INSTRUCTOR: real-time listener for all students ────────────
 function fbWatchAllStudents(callback) {
   _ensureInit();
@@ -378,6 +393,7 @@ window.FB = {
   saveFeedback:          fbSaveFeedback,
   saveCertificate:       fbSaveCertificate,
   watchCourseFlags:      fbWatchCourseFlags,
+  watchCohortFlags:      fbWatchCohortFlags,
   getAllStudents:         fbGetAllStudents,
   getAllUsers:            fbGetAllUsers,
   loadStudent:           fbLoadStudent,

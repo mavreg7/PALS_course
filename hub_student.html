@@ -467,6 +467,30 @@ async function initStudentPlanWatch(){
   };
   watch(cohortKey);
 }
+// Course flags come from two places: global (courseFlags/current) carries the
+// exam-unlock, feedback toggle and announcements; a cohort's own doc
+// (courseFlags/c_<key>) can override the course start date and attendance window.
+// Cohort values win when present; otherwise we fall back to the global values,
+// so a student whose cohort has no per-cohort config behaves exactly as before.
+let _studentCohortKey = '';
+let _globalFlags = {};
+let _cohortFlags = null;
+function applyFlags(){
+  const g = _globalFlags || {}, c = _cohortFlags || {};
+  showAnnouncement(g);
+  _globalExamUnlocked = !!g.examUnlocked;
+  _feedbackOpenManual = !!g.feedbackOpen;
+  _courseStart = Number(c.courseStart != null ? c.courseStart : g.courseStart) || 0;
+  _attWindow   = (c.attendance != null ? c.attendance : g.attendance) || null;
+  renderCheckin(); render();
+}
+async function initCohortFlagsWatch(){
+  const fb = window.FB; if(!fb) return;
+  try{ if(fb.loadMyCohort && fb.cohortKey){ _studentCohortKey = fb.cohortKey(await fb.loadMyCohort()); } }catch(e){}
+  if(_studentCohortKey && fb.watchCohortFlags){
+    fb.watchCohortFlags(_studentCohortKey, data=>{ _cohortFlags = data; applyFlags(); });
+  }
+}
 function onPlanUpdate(plan){
   if(!plan){ _planData=null; renderPlan(); return; }
   _planData=plan; renderPlan();
@@ -578,7 +602,8 @@ if(s && s.role === 'student') {
   // live instructor broadcasts + course plan + attendance window
   (function watchAnn(){
     if(window.FB && window.FB.watchCourseFlags){
-      window.FB.watchCourseFlags(cf=>{ showAnnouncement(cf); _globalExamUnlocked=!!(cf&&cf.examUnlocked); _feedbackOpenManual=!!(cf&&cf.feedbackOpen); _courseStart=Number(cf&&cf.courseStart)||0; _attWindow=(cf&&cf.attendance)||null; renderCheckin(); render(); });
+      window.FB.watchCourseFlags(cf=>{ _globalFlags = cf||{}; applyFlags(); });
+      initCohortFlagsWatch();
       if(window.FB.watchCoursePlan) initStudentPlanWatch();
       if(window.FB.watchMyAttendance) window.FB.watchMyAttendance(rows=>{ _myCheckins=rows||[]; renderCheckin(); });
     }
