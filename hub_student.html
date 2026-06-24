@@ -422,7 +422,8 @@ function renderPlan(){
   if(m.instructor) metaBits.push(`<span>👤 <b>${esc(m.instructor)}</b></span>`);
   if(m.site)       metaBits.push(`<span>📍 <b>${esc(m.site)}</b></span>`);
   document.getElementById('plan-meta').innerHTML=metaBits.join('');
-  const days=['day1','day2'].filter(d=>(sched[d]||[]).length);
+  const oneDay = (_planData.days===1||_planData.days==='1');
+  const days=(oneDay?['day1']:['day1','day2']).filter(d=>(sched[d]||[]).length);
   if(!days.includes(_planDay)) _planDay=days[0];
   document.getElementById('plan-tabs').innerHTML=days.map(d=>
     `<button class="plan-tab ${d===_planDay?'active':''}" onclick="setPlanDay('${d}')">${planDayLabel(d)}</button>`).join('');
@@ -447,6 +448,24 @@ function showPlanPop(updatedAt){
   pop.classList.add('show');
   clearTimeout(showPlanPop._t);
   showPlanPop._t=setTimeout(()=>pop.classList.remove('show'),9000);
+}
+// Route the student to their cohort's course plan (coursePlan/c_<key>),
+// falling back to the default plan (coursePlan/current) when their cohort has
+// no custom plan yet. Honors the per-cohort course length via plan.days.
+let _planWatchUnsub=null;
+async function initStudentPlanWatch(){
+  const fb=window.FB; if(!fb||!fb.watchCoursePlan) return;
+  let cohortKey='';
+  try{ if(fb.loadMyCohort && fb.cohortKey){ cohortKey = fb.cohortKey(await fb.loadMyCohort()); } }catch(e){}
+  let triedFallback = !cohortKey;
+  const watch=(key)=>{
+    if(_planWatchUnsub){ try{ _planWatchUnsub(); }catch(e){} }
+    _planWatchUnsub = fb.watchCoursePlan(plan=>{
+      if(plan===null && !triedFallback){ triedFallback=true; watch(''); return; }  // no cohort plan → default
+      onPlanUpdate(plan);
+    }, key);
+  };
+  watch(cohortKey);
 }
 function onPlanUpdate(plan){
   if(!plan){ _planData=null; renderPlan(); return; }
@@ -560,7 +579,7 @@ if(s && s.role === 'student') {
   (function watchAnn(){
     if(window.FB && window.FB.watchCourseFlags){
       window.FB.watchCourseFlags(cf=>{ showAnnouncement(cf); _globalExamUnlocked=!!(cf&&cf.examUnlocked); _feedbackOpenManual=!!(cf&&cf.feedbackOpen); _courseStart=Number(cf&&cf.courseStart)||0; _attWindow=(cf&&cf.attendance)||null; renderCheckin(); render(); });
-      if(window.FB.watchCoursePlan) window.FB.watchCoursePlan(onPlanUpdate);
+      if(window.FB.watchCoursePlan) initStudentPlanWatch();
       if(window.FB.watchMyAttendance) window.FB.watchMyAttendance(rows=>{ _myCheckins=rows||[]; renderCheckin(); });
     }
     else { setTimeout(watchAnn, 200); }

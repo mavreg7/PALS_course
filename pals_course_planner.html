@@ -87,6 +87,20 @@
     </div>
   </section>
 
+  <section class="card p-4 mb-4 no-print">
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="text-xs font-semibold uppercase tracking-wider text-slate-500" for="plan_cohort">קבוצה · Cohort</label>
+      <select class="field" id="plan_cohort" style="max-width:260px;cursor:pointer" onchange="onCohortChange(this.value)" title="כל קבוצה יכולה להחזיק לוח זמנים משלה. בחר קבוצה כדי לערוך את הקורס שלה.">
+        <option value="">ברירת מחדל · Default (all cohorts)</option>
+      </select>
+      <label class="text-xs font-semibold uppercase tracking-wider text-slate-500" for="plan_days" style="margin-inline-start:1rem">אורך · Length</label>
+      <select class="field" id="plan_days" style="max-width:160px;cursor:pointer" onchange="onDaysChange(this.value)" title="מספר ימי הקורס">
+        <option value="2">יומיים · 2 days</option>
+        <option value="1">יום אחד · 1 day</option>
+      </select>
+    </div>
+  </section>
+
   <div class="flex gap-2 mb-5 no-print">
     <div class="tab active" data-day="1" onclick="switchDay(1)" data-i18n="day1">יום 1</div>
     <div class="tab" data-day="2" onclick="switchDay(2)" data-i18n="day2">יום 2</div>
@@ -161,6 +175,8 @@ const DEFAULT_SCHEDULE = {
 };
 
 const KEY='pals2025_planner';
+let currentCohortKey='';      // '' = the default plan (coursePlan/current)
+let courseDays=2;             // course length for the selected cohort (1 or 2)
 let schedule = (function(){
   try{const s=JSON.parse(localStorage.getItem(KEY));return s||structuredClone(DEFAULT_SCHEDULE)}catch(e){return structuredClone(DEFAULT_SCHEDULE)}
 })();
@@ -367,9 +383,9 @@ function publishPlan(){
   clearTimeout(_publishTimer);
   _publishTimer=setTimeout(()=>{
     const m=currentMeta();
-    const sig=JSON.stringify({schedule, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
+    const sig=JSON.stringify({schedule, days:courseDays, cohort:currentCohortKey, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
     if(sig===localStorage.getItem('pals_plan_pub_sig')) return;  // nothing actually changed
-    const save=fb=>{ if(fb&&fb.saveCoursePlan){ fb.saveCoursePlan({ schedule, meta:m, sig }); localStorage.setItem('pals_plan_pub_sig',sig); } };
+    const save=fb=>{ if(fb&&fb.saveCoursePlan){ fb.saveCoursePlan({ schedule, meta:m, days:courseDays, sig }, currentCohortKey); localStorage.setItem('pals_plan_pub_sig',sig); } };
     if(window.FB&&window.FB.saveCoursePlan) save(window.FB);
     else if(window.FB_READY) window.FB_READY.then(save);
   },600);
@@ -393,22 +409,60 @@ function adoptPlan(data){
   localStorage.setItem(KEY,JSON.stringify(schedule));
   if(data.meta) localStorage.setItem('pals2025_course_meta',JSON.stringify(data.meta));
   if(data.sig) localStorage.setItem('pals_plan_pub_sig',data.sig);
+  courseDays = (data.days===1||data.days==='1') ? 1 : 2;
+  applyDays();
   fillMetaInputs();
   render();
 }
-function startPlanSync(){
+// Course length: hide Day 2 (tab + panel) for 1-day cohorts.
+function applyDays(){
+  const is1 = courseDays===1;
+  const tab2 = document.querySelector('.tab[data-day="2"]');
+  if(tab2) tab2.style.display = is1 ? 'none' : '';
+  const p2 = document.getElementById('day2_panel');
+  if(p2) p2.style.display = is1 ? 'none' : '';
+  const sel = document.getElementById('plan_days'); if(sel) sel.value = String(courseDays);
+  if(is1) switchDay(1);
+}
+window.onDaysChange = function(v){ courseDays = (String(v)==='1') ? 1 : 2; applyDays(); persist(); };
+// Switch which cohort's plan is being edited. Reset to a clean default first so a
+// brand-new cohort starts from the standard schedule (not the prior cohort's),
+// then re-subscribe — the live plan, if any, is adopted over it.
+window.onCohortChange = function(key){
+  currentCohortKey = key || '';
+  localStorage.removeItem('pals_plan_pub_sig');
+  schedule = structuredClone(DEFAULT_SCHEDULE); courseDays = 2;
+  applyDays(); render();
+  subscribePlan();
+};
+async function populateCohorts(){
+  const sel = document.getElementById('plan_cohort'); if(!sel) return;
+  const fb = window.FB || (window.FB_READY ? await window.FB_READY : null);
+  if(!fb || !fb.getAllUsers || !fb.cohortKey) return;
+  let users = {}; try{ users = await fb.getAllUsers(); }catch(e){ return; }
+  const names = [...new Set(Object.values(users||{})
+    .map(u => (u && u.cohort || '').trim())
+    .filter(c => c && c.toLowerCase() !== 'unassigned'))].sort();
+  const seen = new Set();
+  names.forEach(n => { const k = fb.cohortKey(n); if(!k || seen.has(k)) return; seen.add(k);
+    const o = document.createElement('option'); o.value = k; o.textContent = n; sel.appendChild(o); });
+}
+let _planUnsub=null;
+function subscribePlan(){
   const sub=fb=>{ if(!fb||!fb.watchCoursePlan) return;
-    fb.watchCoursePlan(data=>{
+    if(_planUnsub){ try{ _planUnsub(); }catch(e){} _planUnsub=null; }
+    _planUnsub = fb.watchCoursePlan(data=>{
       if(!data){ publishPlan(); return; }                                  // nothing shared yet → seed from local
       if(data.sig && data.sig===localStorage.getItem('pals_plan_pub_sig')) return;  // our own echo / already in sync
       const ae=document.activeElement;
       if(ae&&ae.closest&&ae.closest('#day1_list,#day2_list')){ _pendingRemote=data; return; }  // don't yank a field mid-edit
       adoptPlan(data);
-    });
+    }, currentCohortKey);
   };
   if(window.FB&&window.FB.watchCoursePlan) sub(window.FB);
   else if(window.FB_READY) window.FB_READY.then(sub);
 }
+function startPlanSync(){ populateCohorts(); subscribePlan(); }
 // Apply a deferred remote update once the instructor finishes editing a field.
 document.addEventListener('focusout',()=>{ if(_pendingRemote){ const d=_pendingRemote; _pendingRemote=null; adoptPlan(d); } });
 function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1500)}
