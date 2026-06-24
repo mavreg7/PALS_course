@@ -164,6 +164,10 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
         <input type="email" id="cs-email" placeholder="sarah.cohen@hospital.org" autocomplete="off">
       </div>
       <div class="form-group">
+        <label for="cs-phone">Phone <span style="font-weight:400;color:var(--muted)">(optional — for WhatsApp / SMS)</span></label>
+        <input type="tel" id="cs-phone" placeholder="0501234567" autocomplete="off">
+      </div>
+      <div class="form-group">
         <label for="cs-pw">Password</label>
         <div class="pw-wrap">
           <input type="password" id="cs-pw" placeholder="Minimum 6 characters" autocomplete="new-password">
@@ -735,7 +739,7 @@ pwToggle.addEventListener('click', () => {
 });
 
 function clearForm() {
-  ['cs-fname','cs-lname','cs-email','cs-pw','cs-cohort'].forEach(id => document.getElementById(id).value = '');
+  ['cs-fname','cs-lname','cs-email','cs-pw','cs-cohort','cs-phone'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('cs-role').value = 'student';
   resultBox.className = 'create-result';
   resultBox.innerHTML = '';
@@ -752,6 +756,7 @@ submitBtn.addEventListener('click', async () => {
   const email  = document.getElementById('cs-email').value.trim().toLowerCase();
   const pw     = document.getElementById('cs-pw').value;
   const cohort = document.getElementById('cs-cohort').value.trim();
+  const phone  = document.getElementById('cs-phone').value.trim();
   const role   = document.getElementById('cs-role').value;
 
   // Basic validation
@@ -779,12 +784,25 @@ submitBtn.addEventListener('click', async () => {
       firstName: fname,
       lastName:  lname,
       email,
+      phone:     phone || '',
       role,
       cohort:    cohort || 'Unassigned',
       createdAt: serverTimestamp(),
       createdBy: getSession()?.uid || 'admin',
       progress:  {}
     });
+
+    // Mirror the phone onto an allowlist doc so this person shows up in the
+    // WhatsApp / SMS messaging list (which reads the allowlist). Marked
+    // registered so they don't reappear as a pending invite.
+    if (phone) {
+      try {
+        await setDoc(doc(db,'allowlist',email), {
+          name:`${fname} ${lname}`, firstName:fname, lastName:lname, email,
+          phone, role, cohort: cohort || 'Unassigned', registered:true
+        }, { merge:true });
+      } catch(e) {}
+    }
 
     // 3. Show success with credentials
     showSuccess(fname, lname, email, pw, role, cohort);
@@ -794,7 +812,7 @@ submitBtn.addEventListener('click', async () => {
   } catch (err) {
     await secondarySignOut(secondaryAuth).catch(() => {});
     if (err.code === 'auth/email-already-in-use') {
-      await recoverExistingAccount(fname, lname, email, role, cohort);
+      await recoverExistingAccount(fname, lname, email, role, cohort, phone);
     } else {
       showError(firebaseErrorMessage(err.code));
     }
@@ -807,14 +825,14 @@ submitBtn.addEventListener('click', async () => {
 // re-create it. Instead refresh their invite so that the next time they sign in
 // their roster profile is rebuilt automatically (see repairProfileFromInvite in
 // index.html / auth.js), and offer a password reset in case they forgot it.
-async function recoverExistingAccount(fname, lname, email, role, cohort) {
+async function recoverExistingAccount(fname, lname, email, role, cohort, phone) {
   resultBox.className = 'create-result info';
   resultBox.innerHTML = 'This email already has a sign-in account — preparing recovery…';
   let inviteOk = false;
   try {
     await setDoc(doc(db, 'allowlist', email), {
       name: `${fname} ${lname}`.trim(), firstName: fname, lastName: lname, email,
-      role, cohort: cohort || 'Unassigned', registered: false,
+      phone: phone || '', role, cohort: cohort || 'Unassigned', registered: false,
       addedAt: serverTimestamp(), addedBy: getSession()?.uid || 'admin'
     }, { merge: true });
     inviteOk = true;
