@@ -283,6 +283,12 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
   <div class="section-title">Daily Attendance Check-in</div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
     <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem">
+      <div style="min-width:170px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Cohort</div>
+        <select id="att-cohort" onchange="onAttCohortChange()" title="Open check-in for a specific cohort, or the default for everyone." style="padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700;max-width:170px">
+          <option value="">Default (all)</option>
+        </select>
+      </div>
       <div style="min-width:130px">
         <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Day</div>
         <select id="att-day" style="padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700">
@@ -1426,6 +1432,20 @@ function populateCohortFilter() {
   sel.innerHTML = '<option value="ALL">All cohorts</option>' +
     cohorts.map(c => `<option value="${c}">${c}</option>`).join('');
   sel.value = activeCohort;
+  try { populateAttCohorts(); } catch(e) {}
+}
+// Cohort options for the attendance panel (value = cohort key, label = name).
+function populateAttCohorts(){
+  const sel = document.getElementById('att-cohort'); if(!sel) return;
+  const fb = window.FB;
+  const slug = n => (fb && fb.cohortKey) ? fb.cohortKey(n)
+    : String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+  const cur = sel.value;
+  sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+  const seen = new Set();
+  cohortList().forEach(n => { const k = slug(n); if(!k || seen.has(k)) return; seen.add(k);
+    const o = document.createElement('option'); o.value = k; o.textContent = n; sel.appendChild(o); });
+  if([...sel.options].some(o => o.value === cur)) sel.value = cur;
 }
 function inActiveCohort(s) {
   return activeCohort === 'ALL' || (s.cohort || 'Unassigned') === activeCohort;
@@ -2063,20 +2083,24 @@ function genCode(){ // unambiguous chars only (no 0/O/1/I)
 let _attWindow = null;       // last-known public window {open,day,expiresAt}
 let _attRows = [];           // all check-ins (live)
 
+// Attendance can be opened for a specific cohort. '' = the default/global
+// window (attendanceCode/current + courseFlags/current), unchanged behaviour.
+let attCohortKey = '';
+function attDocId(){ return attCohortKey ? 'c_'+attCohortKey : 'current'; }
 async function openAttendance(){
   const day = document.getElementById('att-day').value;
   const dur = Math.max(5, Math.min(240, parseInt(document.getElementById('att-dur').value)||45));
   const code = genCode();
   const expiresAt = Date.now() + dur*60*1000;
   try {
-    await setDoc(doc(db,'attendanceCode','current'), { code, day, open:true, openedAt:Date.now(), expiresAt }, { merge:false });
-    await setDoc(doc(db,'courseFlags','current'), { attendance:{ open:true, day, expiresAt } }, { merge:true });
+    await setDoc(doc(db,'attendanceCode',attDocId()), { code, day, open:true, openedAt:Date.now(), expiresAt }, { merge:false });
+    await setDoc(doc(db,'courseFlags',attDocId()), { attendance:{ open:true, day, expiresAt } }, { merge:true });
   } catch(e){ alert('Error opening check-in: '+e.message); }
 }
 async function closeAttendance(){
   try {
-    await setDoc(doc(db,'attendanceCode','current'), { open:false }, { merge:true });
-    await setDoc(doc(db,'courseFlags','current'), { attendance:{ open:false } }, { merge:true });
+    await setDoc(doc(db,'attendanceCode',attDocId()), { open:false }, { merge:true });
+    await setDoc(doc(db,'courseFlags',attDocId()), { attendance:{ open:false } }, { merge:true });
   } catch(e){ alert('Error closing check-in: '+e.message); }
 }
 function renderAttList(){
@@ -2087,9 +2111,12 @@ function renderAttList(){
   box.innerHTML = `<strong>${forDay.length}</strong> checked in for ${day}` +
     (names.length ? `<div style="margin-top:.4rem;line-height:1.6">${names.map(n=>'• '+n).join('<br>')}</div>` : '');
 }
-function startAttendanceWatchers(){
-  // Secret code doc (staff-readable) → drives the code display + status.
-  onSnapshot(doc(db,'attendanceCode','current'), snap => {
+let _attCodeUnsub = null;
+function watchAttCode(){
+  // Secret code doc (staff-readable) → drives the code display + status. The
+  // doc depends on the selected cohort, so this is re-subscribable.
+  if(_attCodeUnsub){ try{ _attCodeUnsub(); }catch(e){} }
+  _attCodeUnsub = onSnapshot(doc(db,'attendanceCode',attDocId()), snap => {
     const d = snap.exists() ? snap.data() : {};
     _attWindow = d;
     const open = !!d.open && d.expiresAt && Date.now() < d.expiresAt;
@@ -2104,6 +2131,14 @@ function startAttendanceWatchers(){
       if(status){ status.textContent = '🛑 Check-in closed'; status.style.color = '#dc2626'; }
     }
   });
+}
+window.onAttCohortChange = function(){
+  attCohortKey = document.getElementById('att-cohort').value || '';
+  watchAttCode();
+};
+function startAttendanceWatchers(){
+  populateAttCohorts();
+  watchAttCode();
   // All check-ins (live count + list).
   onSnapshot(collection(db,'attendance'), snap => {
     _attRows = []; snap.forEach(x => _attRows.push({ id:x.id, ...x.data() }));

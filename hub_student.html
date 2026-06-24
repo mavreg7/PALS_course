@@ -481,7 +481,11 @@ function applyFlags(){
   _globalExamUnlocked = !!g.examUnlocked;
   _feedbackOpenManual = !!g.feedbackOpen;
   _courseStart = Number(c.courseStart != null ? c.courseStart : g.courseStart) || 0;
-  _attWindow   = (c.attendance != null ? c.attendance : g.attendance) || null;
+  // Attendance window + which code doc to validate against: the cohort's own
+  // window wins when present, else the global one (back-compat for live courses).
+  const useCohortAtt = (c.attendance != null);
+  _attWindow   = (useCohortAtt ? c.attendance : g.attendance) || null;
+  _attCodeDoc  = useCohortAtt ? ('c_' + _studentCohortKey) : 'current';
   renderCheckin(); render();
 }
 async function initCohortFlagsWatch(){
@@ -509,6 +513,7 @@ function onPlanUpdate(plan){
 
 // ── Daily attendance check-in ──────────────────────────────────────────
 let _attWindow = null;     // public window status {open, day, expiresAt}
+let _attCodeDoc = 'current'; // which attendance code doc this window belongs to
 let _myCheckins = [];      // this student's check-in docs
 function _daySlug(day){ return String(day||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
 function checkedInFor(day){ return _myCheckins.some(r => _daySlug(r.day)===_daySlug(day)); }
@@ -539,7 +544,7 @@ async function submitCheckIn(){
   if(code.length<4){ msg.textContent='Enter the code shown in class.'; return; }
   btn.disabled=true; msg.textContent='Checking in…';
   const sess=getSession();
-  const ok = window.FB && window.FB.checkIn ? await window.FB.checkIn(w.day, code, sess?sess.name:'') : false;
+  const ok = window.FB && window.FB.checkIn ? await window.FB.checkIn(w.day, code, sess?sess.name:'', _attCodeDoc) : false;
   btn.disabled=false;
   if(ok){ msg.textContent='✅ Checked in — thank you!'; document.getElementById('ci-code').value=''; }
   else  { msg.textContent='❌ That code didn’t work. Check it’s correct and that check-in is still open.'; }
