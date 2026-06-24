@@ -311,13 +311,15 @@ function fbWatchAttendance(callback) {
 }
 
 // STUDENT: submit a check-in. Resolves true on success, false otherwise.
-async function fbCheckIn(day, code, name) {
+// codeDoc identifies which attendance code doc to validate against ('current'
+// by default, or 'c_<cohortKey>' when the student's cohort runs its own window).
+async function fbCheckIn(day, code, name, codeDoc) {
   try {
     await _ensureAuthReady();
     const uid = _uid(); if (!uid) return false;
     const id = `${uid}_${_daySlug(day)}`;
     await setDoc(doc(_db,'attendance',id),
-      { uid, day, code:String(code), name: name||'', checkedInAt: Date.now() }, { merge:false });
+      { uid, day, code:String(code), codeDoc: codeDoc || 'current', name: name||'', checkedInAt: Date.now() }, { merge:false });
     return true;
   } catch(e) { console.warn('[PALS FB] checkIn:', e.message); return false; }
 }

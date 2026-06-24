@@ -118,15 +118,20 @@ service cloud.firestore {
     // by students (staff may correct). Doc id is "<uid>_<day>" so the create
     // fails if they already checked in that day.
     match /attendance/{id} {
+      // The code doc validated against — defaults to 'current' for back-compat,
+      // or a cohort's own code doc ('c_<key>') when the check-in carries codeDoc.
+      function codeDocId() {
+        return request.resource.data.get('codeDoc', 'current');
+      }
       function code() {
-        return get(/databases/$(database)/documents/attendanceCode/current).data;
+        return get(/databases/$(database)/documents/attendanceCode/$(codeDocId())).data;
       }
       allow read: if signedIn() && (resource.data.uid == request.auth.uid || isStaff());
       // Staff may mark attendance directly from the roster; a student may create
       // only their OWN check-in, while the window is open, with the right code.
       allow create: if isStaff() || (signedIn()
         && request.resource.data.uid == request.auth.uid
-        && exists(/databases/$(database)/documents/attendanceCode/current)
+        && exists(/databases/$(database)/documents/attendanceCode/$(codeDocId()))
         && code().open == true
         && request.resource.data.code == code().code
         && request.resource.data.day  == code().day
