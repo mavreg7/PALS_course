@@ -629,6 +629,12 @@ function tickCountdown(){
   document.getElementById('countdown').textContent=`${d}d ${h}h ${m}m ${s}s until course`;
 }
 setInterval(tickCountdown,1000);tickCountdown();
+// Re-render Session Progress every minute so the "today" day selection rolls
+// over at midnight (a dashboard left open overnight otherwise keeps showing the
+// previous day) and reflects the latest published plan from localStorage.
+setInterval(() => { try { renderSessions(); } catch(e) {} }, 60000);
+// Also refresh the moment the tab regains focus (e.g. reopened the next day).
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { try { renderSessions(); } catch(e) {} } });
 // The course start lives in Firestore (courseFlags/current.courseStart) so it
 // survives across browsers/devices and cleared localStorage. Load it back on
 // init — otherwise the countdown looks "reset" even though a date was saved.
