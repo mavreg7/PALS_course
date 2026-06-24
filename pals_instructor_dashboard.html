@@ -648,6 +648,7 @@ async function loadCourseStart(){
       const local = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
       localStorage.setItem(CK, local);
       tickCountdown();
+      try { renderSessions(); } catch(e) {}   // reflect the authoritative start date
     } else {
       // No saved date — if we have a local one, publish it (legacy carry-over).
       const v=localStorage.getItem(CK); if(v) syncCourseStart(new Date(v).getTime());
