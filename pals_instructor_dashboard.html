@@ -85,7 +85,7 @@
     <div class="flex items-center gap-3">
       <div style="width:42px;height:42px;border-radius:10px;background:rgba(8,145,178,.1);color:#0891B2;display:flex;align-items:center;justify-content:center;font-size:20px">⏱</div>
       <div>
-        <div class="text-xs uppercase tracking-wider font-semibold text-slate-500">Course Countdown</div>
+        <div class="text-xs uppercase tracking-wider font-semibold text-slate-500" id="cd-label">Course Countdown</div>
         <div id="countdown" class="font-bold text-lg">—</div>
       </div>
     </div>
@@ -219,7 +219,12 @@
 
   <!-- SESSION PROGRESS -->
   <section class="card p-5">
-    <h2 class="font-bold text-lg mb-4">Session Progress (Today)</h2>
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <h2 class="font-bold text-lg">Session Progress (Today)</h2>
+      <select class="field" id="sp-cohort" style="max-width:240px;cursor:pointer" onchange="setSessionCohort(this.value)" title="Show the plan, length and start date for a specific cohort.">
+        <option value="">Default course (all cohorts)</option>
+      </select>
+    </div>
     <div id="session_progress"></div>
   </section>
 
@@ -310,20 +315,29 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Mirror the shared course plan (coursePlan/current) so Session Progress (Today)
-// reflects live edits from the Course Planner instead of stale local data.
-let _planWatching = false;
-function watchSharedPlan() {
-  if (_planWatching) return;
-  _planWatching = true;
-  onSnapshot(doc(db, 'coursePlan', 'current'), snap => {
-    const data = snap.exists() ? snap.data() : null;
-    if (data && data.schedule) {
-      try { localStorage.setItem('pals2025_planner', JSON.stringify(data.schedule)); } catch(e) {}
-      if (data.meta) { try { localStorage.setItem('pals2025_course_meta', JSON.stringify(data.meta)); } catch(e) {} }
-    }
-    renderSessions();
-  }, err => console.warn('[PALS] watchCoursePlan:', err.message));
+// Mirror the selected cohort's course plan (coursePlan/c_<key>, or /current for
+// the default) so Session Progress reflects live edits. Falls back to the
+// default plan when a cohort has no plan of its own. Re-subscribable on switch.
+let _planUnsubDash = null;
+let _currentPlanDays = 2;       // length of the plan currently mirrored
+function watchSharedPlan(resubscribe) {
+  if (_planUnsubDash && !resubscribe) return;
+  const scopeKey = dashCohortKey;
+  let triedFallback = !scopeKey;
+  const sub = (id) => {
+    if (_planUnsubDash) { try { _planUnsubDash(); } catch(e) {} }
+    _planUnsubDash = onSnapshot(doc(db, 'coursePlan', id), snap => {
+      if (scopeKey !== dashCohortKey) return;          // user switched cohort meanwhile
+      const data = snap.exists() ? snap.data() : null;
+      if (data === null && !triedFallback) { triedFallback = true; sub('current'); return; }
+      if (data && data.schedule) {
+        try { localStorage.setItem(plannerKey(), JSON.stringify(data.schedule)); } catch(e) {}
+      }
+      _currentPlanDays = (data && (data.days === 1 || data.days === '1')) ? 1 : 2;
+      renderSessions();
+    }, err => console.warn('[PALS] watchCoursePlan:', err.message));
+  };
+  sub(scopeKey ? 'c_'+scopeKey : 'current');
 }
 
 function get(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
@@ -609,10 +623,11 @@ window.printFeedback = function(){
 // fallbacks, matching the student plan view which defaults to Hebrew.
 function planF(s,f){ const v=s[f+'He']; return (v!=null && v!=='') ? v : (s[f]||''); }
 function renderSessions(){
-  let sched={};try{sched=JSON.parse(localStorage.getItem('pals2025_planner')||'{}')}catch(e){}
+  let sched={};try{sched=JSON.parse(localStorage.getItem(plannerKey())||'{}')}catch(e){}
   const box=document.getElementById('session_progress');
   box.setAttribute('dir','rtl');
-  const day1=sched.day1||[], day2=sched.day2||[];
+  const oneDay = _currentPlanDays===1;
+  const day1=sched.day1||[], day2=oneDay?[]:(sched.day2||[]);
   if(!day1.length && !day2.length){box.innerHTML='<div class="text-sm text-slate-400 italic">לא נטען לוח זמנים. פתחו את מתכנן הקורס כדי לאכלס.</div>';return}
 
   const now=new Date();
@@ -621,13 +636,16 @@ function renderSessions(){
   // Live "IN PROGRESS" only makes sense on an actual course day. Use the
   // published course start (Day 1) and the day after (Day 2) to decide whether
   // today is a course day — otherwise sessions show as upcoming, not running.
-  const startStr=localStorage.getItem(CK);
+  // A 1-day cohort only has Day 1.
+  const startStr=localStorage.getItem(ckKey());
   const start = startStr ? new Date(startStr) : null;
   let todays=null, dayLabel='';
   if(start && !isNaN(start)){
-    const day2date=new Date(start); day2date.setDate(day2date.getDate()+1);
     if(sameDate(now,start)){ todays=day1; dayLabel='יום 1'; }
-    else if(sameDate(now,day2date)){ todays=day2; dayLabel='יום 2'; }
+    else if(!oneDay){
+      const day2date=new Date(start); day2date.setDate(day2date.getDate()+1);
+      if(sameDate(now,day2date)){ todays=day2; dayLabel='יום 2'; }
+    }
   }
 
   const row=(s,status)=>{
@@ -664,21 +682,28 @@ function renderSessions(){
     }).join('')}</div>`;
 }
 
-/* COUNTDOWN */
-const CK='pals2025_course_start';
+/* COUNTDOWN + per-cohort course config */
+// Session Progress, the countdown and the start date can be scoped to a cohort.
+// dashCohortKey '' = the default course (courseFlags/current + coursePlan/current),
+// preserving existing behaviour; a cohort uses courseFlags/c_<key> etc.
+let dashCohortKey = '';
+function flagDocId(){ return dashCohortKey ? 'c_'+dashCohortKey : 'current'; }
+function ckKey(){ return 'pals2025_course_start'+(dashCohortKey?'_'+dashCohortKey:''); }
+function plannerKey(){ return 'pals2025_planner'+(dashCohortKey?'_'+dashCohortKey:''); }
+const CK = 'pals2025_course_start';   // retained for any legacy reference
 // Publish the cohort start to Firestore so students' Course Feedback opens
 // automatically the moment the course begins (courseStart = epoch ms, or
 // deleted to fall back to the manual feedback toggle).
 async function syncCourseStart(ms){
   try{
-    if(ms==null){ await setDoc(doc(db,'courseFlags','current'),{courseStart:deleteField()},{merge:true}); }
-    else        { await setDoc(doc(db,'courseFlags','current'),{courseStart:ms},{merge:true}); }
+    if(ms==null){ await setDoc(doc(db,'courseFlags',flagDocId()),{courseStart:deleteField()},{merge:true}); }
+    else        { await setDoc(doc(db,'courseFlags',flagDocId()),{courseStart:ms},{merge:true}); }
   }catch(e){ console.warn('[PALS] syncCourseStart:',e.message); }
 }
-window.setStart = function(v){if(v){localStorage.setItem(CK,v);tickCountdown();syncCourseStart(new Date(v).getTime())}};
-window.clearStart = function(){localStorage.removeItem(CK);document.getElementById('course_start').value='';document.getElementById('countdown').textContent='—';syncCourseStart(null)};
+window.setStart = function(v){if(v){localStorage.setItem(ckKey(),v);tickCountdown();syncCourseStart(new Date(v).getTime());try{renderSessions();}catch(e){}}};
+window.clearStart = function(){localStorage.removeItem(ckKey());document.getElementById('course_start').value='';document.getElementById('countdown').textContent='—';syncCourseStart(null);try{renderSessions();}catch(e){}};
 function tickCountdown(){
-  const v=localStorage.getItem(CK);if(!v){document.getElementById('countdown').textContent='Set a course start time →';return}
+  const v=localStorage.getItem(ckKey());if(!v){document.getElementById('countdown').textContent='Set a course start time →';document.getElementById('course_start').value='';return}
   document.getElementById('course_start').value=v;
   const diff=new Date(v)-new Date();
   if(diff<=0){document.getElementById('countdown').textContent='Course in progress / ended';return}
@@ -697,23 +722,56 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) { tr
 // init — otherwise the countdown looks "reset" even though a date was saved.
 async function loadCourseStart(){
   try{
-    const snap = await getDoc(doc(db,'courseFlags','current'));
+    const snap = await getDoc(doc(db,'courseFlags',flagDocId()));
     const ms = snap.exists() ? Number(snap.data().courseStart) : 0;
     if(ms>0){
       // datetime-local expects local wall-clock — shift out the tz offset.
       const d = new Date(ms);
       const local = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
-      localStorage.setItem(CK, local);
+      localStorage.setItem(ckKey(), local);
       tickCountdown();
       try { renderSessions(); } catch(e) {}   // reflect the authoritative start date
     } else {
-      // No saved date — if we have a local one, publish it (legacy carry-over).
-      const v=localStorage.getItem(CK); if(v) syncCourseStart(new Date(v).getTime());
+      // No saved date for this scope — clear the field, and (default scope only)
+      // carry over a legacy local value if present.
+      if(!dashCohortKey){ const v=localStorage.getItem(ckKey()); if(v) syncCourseStart(new Date(v).getTime()); }
+      else { tickCountdown(); try { renderSessions(); } catch(e){} }
     }
   }catch(e){ console.warn('[PALS] loadCourseStart:',e.message);
-    const v=localStorage.getItem(CK); if(v) syncCourseStart(new Date(v).getTime()); }
+    const v=localStorage.getItem(ckKey()); if(v && !dashCohortKey) syncCourseStart(new Date(v).getTime()); }
 }
 loadCourseStart();
+
+// Switch the cohort that Session Progress / countdown / start date apply to.
+window.setSessionCohort = function(key){
+  dashCohortKey = key || '';
+  const sel = document.getElementById('sp-cohort');
+  const label = (sel && sel.selectedOptions[0] && sel.selectedOptions[0].textContent) || '';
+  const cd = document.getElementById('cd-label');
+  if(cd) cd.textContent = dashCohortKey ? ('Course Countdown · ' + label) : 'Course Countdown';
+  watchSharedPlan(true);   // re-subscribe to this cohort's plan
+  loadCourseStart();       // load this cohort's start date
+  tickCountdown();
+  try { renderSessions(); } catch(e) {}
+};
+function populateSessionCohorts(){
+  const sel = document.getElementById('sp-cohort'); if(!sel) return;
+  const names = [...new Set([
+    ...fbAllowlist.map(a => (a.cohort||'').trim()),
+    ...fbUsers.map(u => (u.cohort||'').trim())
+  ].filter(c => c && c.toLowerCase() !== 'unassigned'))].sort();
+  const cur = sel.value;
+  sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+  const seen = new Set();
+  names.forEach(n => { const k = cohortKeyOf(n); if(!k || seen.has(k)) return; seen.add(k);
+    const o = document.createElement('option'); o.value = k; o.textContent = n; sel.appendChild(o); });
+  sel.value = cur;
+}
+function cohortKeyOf(name){
+  const n = String(name==null?'':name).trim();
+  if(!n || n.toLowerCase()==='unassigned' || n.toLowerCase()==='all') return '';
+  return n.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+}
 
 /* BULK ACTIONS */
 window.exportRoster = function(){
@@ -833,6 +891,7 @@ function watchCohortData(){
 }
 
 function populateCohortOptions(){
+  try { populateSessionCohorts(); } catch(e) {}
   const dl = document.getElementById('cohort-options');
   if (!dl) return;
   const cohorts = [...new Set([
