@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pediatric Sedation Safety · Student Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script>window.COURSE_NS='peds_';window.COURSE_BASE='/peds_sedation/';(function(){var p='peds_';try{var S=Storage.prototype,g=S.getItem,s=S.setItem,r=S.removeItem;S.getItem=function(k){return g.call(this,p+k)};S.setItem=function(k,v){return s.call(this,p+k,v)};S.removeItem=function(k){return r.call(this,p+k)};}catch(e){}})();</script>
+<script src="../firebase-config.js"></script>
+<script src="modules.js"></script>
+<script type="module" src="../firebase-sync.js"></script>
+<style>
+:root{
+  --p:#0891B2;--pd:#0e7490;--pl:rgba(8,145,178,.11);--pl2:rgba(8,145,178,.06);
+  --success:#22C55E;--warn:#F59E0B;--danger:#EF4444;
+  --bg:#f0f9ff;--s:#fff;--s2:#f8fafc;--b:#bae6fd;--b2:#e0f2fe;
+  --t:#0f172a;--tm:#475569;--tf:#94a3b8;
+  --sh:0 4px 20px rgba(8,145,178,.09);--r:14px;
+  --tr:all .22s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"]{
+  --bg:#07131f;--s:#0d2137;--s2:#102a45;--b:#1a3a5c;--b2:#132d47;
+  --t:#e0f4fc;--tm:#7db8d4;--tf:#2d5f82;
+  --sh:0 4px 24px rgba(0,0,0,.5);
+  --pl:rgba(8,145,178,.2);--pl2:rgba(8,145,178,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-height:100dvh;transition:background .3s,color .3s}
+.topbar{background:var(--s);border-bottom:1px solid var(--b);padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(8px)}
+.t-left{display:flex;align-items:center;gap:.75rem}
+.logo-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#0891B2,#34D399);display:grid;place-items:center;flex-shrink:0}
+.topbar-title{font-weight:800;font-size:1rem}
+.topbar-sub{font-size:.7rem;color:var(--tm)}
+.t-right{display:flex;align-items:center;gap:.6rem}
+.badge-student{font-size:.7rem;background:var(--pl);color:var(--p);font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.3px}
+.btn-sm{padding:.4rem .85rem;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:var(--tr);display:inline-flex;align-items:center;gap:4px}
+.btn-logout{background:rgba(239,68,68,.1);color:#dc2626;border:1px solid rgba(239,68,68,.2)}
+.btn-logout:hover{background:rgba(239,68,68,.2)}
+.theme-btn{background:var(--s2);border:1px solid var(--b);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;transition:var(--tr)}
+.main{max-width:980px;margin:0 auto;padding:2rem 1.25rem}
+.welcome{background:linear-gradient(135deg,var(--pl2),rgba(52,211,153,.06));border:1px solid var(--b);border-radius:var(--r);padding:1.5rem 1.6rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.welcome h2{font-family:'Instrument Serif',serif;font-size:1.45rem;margin-bottom:.25rem}
+.welcome p{font-size:.83rem;color:var(--tm)}
+.announce-banner{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1.25rem;display:none;align-items:center;gap:.75rem}
+.announce-ico{font-size:1.2rem;flex-shrink:0}
+.announce-txt{font-size:.86rem;font-weight:600;color:#92400e}
+[data-theme="dark"] .announce-txt{color:#fcd34d}
+.progress-wrap{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:1.25rem 1.4rem;margin-bottom:1.5rem;box-shadow:var(--sh)}
+.progress-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.65rem}
+.progress-label{font-weight:700;font-size:.88rem}
+.progress-pct{font-size:1.1rem;font-weight:800;color:var(--p)}
+.prog-bg{background:var(--b);border-radius:999px;height:11px;overflow:hidden}
+.prog-fill{height:11px;border-radius:999px;background:linear-gradient(90deg,#0891B2,#34D399);transition:width .9s cubic-bezier(.4,0,.2,1);min-width:0}
+.progress-sub{font-size:.75rem;color:var(--tm);margin-top:.5rem}
+.sec-hdr{font-size:.77rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.7px;margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.sec-hdr::after{content:'';flex:1;height:1px;background:var(--b)}
+/* Daily check-in */
+.checkin-card{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border-radius:12px;padding:1.1rem 1.2rem;margin-bottom:1.25rem;box-shadow:var(--sh)}
+.ci-head{font-weight:800;font-size:1rem;margin-bottom:.25rem}
+.ci-sub{font-size:.8rem;opacity:.9;margin-bottom:.75rem}
+.ci-row{display:flex;gap:.6rem;flex-wrap:wrap}
+#ci-code{flex:0 0 auto;width:160px;padding:.6rem .8rem;border-radius:9px;border:none;font-size:1.1rem;font-weight:800;letter-spacing:.3rem;text-transform:uppercase;text-align:center;color:#0f172a}
+#ci-btn{background:#fff;color:var(--pd);border:none;border-radius:9px;padding:.6rem 1.2rem;font-weight:800;font-size:.9rem;cursor:pointer}
+#ci-btn:disabled{opacity:.6;cursor:not-allowed}
+.ci-msg{font-size:.82rem;font-weight:700;margin-top:.6rem;min-height:1rem}
+.checkin-done{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);color:#15803d;border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.25rem;font-size:.85rem;font-weight:700}
+[data-theme="dark"] .checkin-done{color:#86efac}
+/* Read-only course plan */
+.plan-wrap{background:var(--s);border:1.5px solid var(--b);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1.75rem}
+.plan-meta{font-size:.82rem;color:var(--tm);margin-bottom:.75rem;display:flex;flex-wrap:wrap;gap:.4rem 1rem}
+.plan-meta b{color:var(--t)}
+.plan-tabs{display:flex;gap:.5rem;margin-bottom:.85rem}
+.plan-tab{padding:.4rem .9rem;border-radius:8px;font-weight:700;font-size:.8rem;color:var(--tm);cursor:pointer;border:1px solid var(--b);background:var(--s2)}
+.plan-tab.active{background:var(--p);color:#fff;border-color:var(--p)}
+.plan-row{display:flex;gap:.75rem;padding:.6rem .2rem;border-bottom:1px solid var(--b2)}
+.plan-row:last-child{border-bottom:none}
+.plan-bar{width:5px;border-radius:3px;flex-shrink:0}
+.plan-time{font-weight:700;font-size:.78rem;color:var(--tm);min-width:96px;letter-spacing:.2px}
+.plan-info{flex:1}
+.plan-title{font-weight:700;font-size:.88rem;color:var(--t)}
+.plan-sub{font-size:.74rem;color:var(--tf);margin-top:.15rem}
+.plan-tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:.64rem;font-weight:700;margin-left:.4rem;vertical-align:middle}
+.plan-foot{font-size:.72rem;color:var(--tf);margin-top:.7rem}
+.plan-langtoggle{display:inline-flex;border:1px solid var(--b);border-radius:8px;overflow:hidden}
+.plan-langbtn{padding:.25rem .7rem;font-size:.72rem;font-weight:700;background:var(--s2);color:var(--tm);border:none;cursor:pointer}
+.plan-langbtn.active{background:var(--p);color:#fff}
+.plan-wrap[dir="rtl"] .plan-tag{margin-left:0;margin-right:.4rem}
+.plan-wrap[dir="rtl"] .plan-info{text-align:right}
+.tD{background:#0891B2}.tS{background:#22C55E}.tM{background:#F59E0B}.tB{background:#94a3b8}.tE{background:#EF4444}
+.gD{background:rgba(8,145,178,.14);color:#0e7490}.gS{background:rgba(34,197,94,.16);color:#15803d}
+.gM{background:rgba(245,158,11,.18);color:#b45309}.gB{background:rgba(100,116,139,.16);color:#475569}.gE{background:rgba(239,68,68,.16);color:#b91c1c}
+.plan-pop{position:fixed;bottom:20px;right:20px;background:var(--p);color:#fff;padding:.8rem 1rem;border-radius:11px;font-size:.86rem;box-shadow:0 8px 24px rgba(0,0,0,.25);display:none;align-items:center;gap:.6rem;z-index:2000;max-width:340px}
+.plan-pop.show{display:flex;animation:popin .25s ease}
+@keyframes popin{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,260px));gap:.9rem;margin-bottom:1.75rem}
+.ql-card{background:var(--s);border:1.5px solid var(--b);border-radius:12px;padding:1.1rem 1rem;text-decoration:none;color:var(--t);transition:var(--tr);display:flex;flex-direction:column;gap:.35rem;position:relative;overflow:hidden}
+.ql-card.locked{opacity:.5;pointer-events:none;cursor:not-allowed;filter:grayscale(.4)}
+.ql-card:not(.locked):hover{transform:translateY(-3px);box-shadow:var(--sh);border-color:rgba(8,145,178,.4)}
+.ql-icon{font-size:1.5rem;margin-bottom:.1rem}
+.ql-title{font-weight:700;font-size:.9rem}
+.ql-sub{font-size:.74rem;color:var(--tm)}
+.lock-chip{font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.3px;display:inline-flex;align-items:center;gap:3px;width:fit-content;margin-top:.15rem}
+.lock-chip.locked-state{background:rgba(148,163,184,.15);color:var(--tf)}
+.lock-chip.open-state{background:rgba(34,197,94,.12);color:#15803d}
+[data-theme="dark"] .lock-chip.open-state{color:#86efac}
+.mod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.85rem;margin-bottom:2rem}
+.mod-card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:.95rem 1rem;display:flex;align-items:center;gap:.85rem;transition:var(--tr);text-decoration:none;color:var(--t)}
+.mod-card.available:hover{border-color:var(--p);box-shadow:var(--sh);transform:translateY(-2px)}
+.mod-card.locked-mod{opacity:.42;pointer-events:none}
+.mod-card.done-mod .mod-n-badge{background:rgba(34,197,94,.14);color:#15803d}
+[data-theme="dark"] .mod-card.done-mod .mod-n-badge{color:#86efac}
+.mod-n-badge{width:38px;height:38px;border-radius:9px;background:var(--pl);color:var(--pd);font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .3s}
+.mod-card.locked-mod .mod-n-badge{background:var(--b2);color:var(--tf)}
+.mod-t{font-weight:700;font-size:.86rem;line-height:1.3;margin-bottom:.1rem}
+.mod-s{font-size:.73rem;color:var(--tm)}
+.mod-end-ico{margin-left:auto;font-size:1rem;flex-shrink:0}
+@media(max-width:440px){.quick-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="t-left">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    </div>
+    <div>
+      <div class="topbar-title">Pediatric Sedation Safety</div>
+      <div class="topbar-sub">Student Portal</div>
+    </div>
+  </div>
+  <div class="t-right">
+    <span class="badge-student" id="user-badge">🎓 STUDENT</span>
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle dark mode" id="thbtn">🌙</button>
+    <button class="btn-sm btn-logout" id="logout-btn">Sign Out</button>
+    <span style="font-size:.68rem;color:rgba(255,255,255,.5);margin-left:.5rem">v2026-06-18b</span>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="announce-banner" id="announce-banner">
+    <span class="announce-ico">📣</span>
+    <div class="announce-txt" id="announce-txt"></div>
+  </div>
+  <div class="welcome">
+    <div>
+      <h2 id="welcome-name">Welcome back</h2>
+      <p>Your Pediatric Sedation Safety learning dashboard — work through modules in order and track your progress.</p>
+    </div>
+    <span style="font-size:2.2rem">🎓</span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-top">
+      <span class="progress-label">Course Progress</span>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+    <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="progress-sub" id="prog-sub">Start with Module 1 to begin your journey.</div>
+    <a id="continue-btn" href="#" style="display:none;margin-top:.9rem;background:var(--p);color:#fff;font-weight:700;font-size:.85rem;padding:.55rem 1.1rem;border-radius:9px;text-decoration:none;width:fit-content;align-items:center;gap:.4rem">▶ Continue</a>
+  </div>
+  <div class="checkin-card" id="checkin-card" style="display:none">
+    <div class="ci-head">📋 Daily Check-in — <span id="ci-day"></span></div>
+    <div class="ci-sub" id="ci-sub">Enter the code your instructor is showing in class to mark yourself present.</div>
+    <div class="ci-row">
+      <input id="ci-code" maxlength="6" placeholder="CODE" autocomplete="off" spellcheck="false"
+        oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')submitCheckIn()">
+      <button id="ci-btn" onclick="submitCheckIn()">Check in</button>
+    </div>
+    <div class="ci-msg" id="ci-msg"></div>
+  </div>
+  <div class="checkin-done" id="checkin-done" style="display:none"></div>
+
+  <div class="sec-hdr">Quick Access</div>
+  <div style="background:var(--pl2);border:1px solid var(--b);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--tm);line-height:1.5">
+    📝 The <strong>Pre-Test</strong> unlocks automatically once you complete all 9 modules. Your instructor opens <strong>Course Feedback</strong> during the course, and the <strong>Final Exam</strong> unlocks after your feedback is submitted.
+  </div>
+  <div class="quick-grid">
+    <a href="pals_forms_portal.html#pretest" class="ql-card locked" id="ql-pretest" style="display:none">
+      <span class="ql-icon">📝</span>
+      <div class="ql-title">Pre-Test</div>
+      <div class="ql-sub">Knowledge check · unlocks after modules</div>
+      <span class="lock-chip locked-state" id="chip-pretest">🔒 Not yet available</span>
+    </a>
+    <a href="pals_forms_portal.html#feedback" class="ql-card locked" id="ql-feedback">
+      <span class="ql-icon">💬</span>
+      <div class="ql-title">Course Feedback</div>
+      <div class="ql-sub">Required before the final exam</div>
+      <span class="lock-chip locked-state" id="chip-feedback">🔒 Not yet available</span>
+    </a>
+    <a href="pals_forms_portal.html#exam" class="ql-card locked" id="ql-exam" style="display:none">
+      <span class="ql-icon">📋</span>
+      <div class="ql-title">Final Exam</div>
+      <div class="ql-sub">25 questions · ≥84% to pass</div>
+      <span class="lock-chip locked-state" id="chip-exam">🔒 Not yet available</span>
+    </a>
+  </div>
+  <div class="sec-hdr">9 Learning Modules</div>
+  <div class="mod-grid" id="mod-grid"></div>
+
+  <div class="sec-hdr" id="plan-hdr" style="display:none">📅 תוכנית הקורס</div>
+  <div class="plan-wrap" id="plan-wrap" style="display:none">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
+      <div class="plan-langtoggle">
+        <button type="button" class="plan-langbtn" data-lang="he" onclick="setPlanLang('he')">עברית</button>
+        <button type="button" class="plan-langbtn" data-lang="en" onclick="setPlanLang('en')">EN</button>
+      </div>
+    </div>
+    <div class="plan-meta" id="plan-meta"></div>
+    <div class="plan-tabs" id="plan-tabs"></div>
+    <div id="plan-body"></div>
+    <div class="plan-foot" id="plan-foot"></div>
+  </div>
+</main>
+
+<div class="plan-pop" id="plan-pop" role="status" aria-live="polite">
+  <span style="font-size:1.1rem">📅</span>
+  <div><strong id="plan-pop-title">תוכנית הקורס עודכנה</strong><div id="plan-pop-sub" style="font-size:.78rem;opacity:.85"></div></div>
+  <button onclick="document.getElementById('plan-pop').classList.remove('show')" aria-label="Dismiss" style="background:none;border:none;color:inherit;font-size:1.1rem;cursor:pointer;margin-left:.4rem">×</button>
+</div>
+
+<!-- Entry reminder: outstanding course requirements (bilingual HE/EN) -->
+<div id="reminder-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--s);color:var(--t);max-width:460px;width:100%;border-radius:14px;padding:1.5rem;box-shadow:0 12px 44px rgba(0,0,0,.35);border:1px solid var(--b)">
+    <div style="font-size:1.7rem;text-align:center;margin-bottom:.4rem">📋</div>
+    <h3 dir="rtl" style="text-align:center;font-weight:800;margin:0 0 .15rem;font-size:1.15rem">השלמת דרישות הקורס</h3>
+    <h3 dir="ltr" style="text-align:center;font-weight:700;margin:0 0 .8rem;font-size:.95rem;color:var(--tm)">Course requirements to complete</h3>
+    <p dir="rtl" style="font-size:.85rem;margin:.2rem 0">לא ניתן לסיים את הקורס ללא השלמת הפריטים הבאים:</p>
+    <p dir="ltr" style="font-size:.82rem;margin:.15rem 0 .7rem;color:var(--tm)">You won't be able to finish the course until you complete:</p>
+    <ul id="reminder-list" style="list-style:none;padding:0;margin:0 0 1rem"></ul>
+    <button onclick="closeReminders()" style="width:100%;padding:.65rem;border:none;border-radius:9px;background:var(--p);color:#fff;font-weight:700;cursor:pointer">הבנתי · Got it</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+
+const SK = 'pals_sess_v2';
+
+function getSession() {
+  if (window.__pals_sess) return window.__pals_sess;
+  try { return JSON.parse(sessionStorage.getItem(SK) || 'null'); } catch(e) { return null; }
+}
+
+async function logout() {
+  window.__pals_sess = null;
+  try { sessionStorage.removeItem(SK); } catch(e) {}
+  try { await signOut(auth); } catch(e) {}
+  window.location.href = 'index.html';
+}
+
+// Auth guard: students only
+const s = getSession();
+if (!s) {
+  window.__pals_sess = null;
+  try { sessionStorage.removeItem(SK); } catch(e) {}
+  try { await signOut(auth); } catch(e) {}
+  window.location.href = 'index.html';
+} else if (s.role !== 'student') {
+  // Wrong role (e.g. an instructor) — send them to their hub, do NOT sign out.
+  window.location.href = 'hub_instructor.html';
+} else {
+  document.getElementById('welcome-name').textContent = 'Welcome, ' + s.name;
+  document.getElementById('user-badge').textContent = '🎓 ' + s.name.toUpperCase();
+  document.getElementById('logout-btn').addEventListener('click', logout);
+}
+
+function getFlags(){try{return JSON.parse(sessionStorage.getItem('pals_flags')||'{}')}catch(e){return{}}}
+function getProgress(){try{return JSON.parse(sessionStorage.getItem('pals_progress')||'{}')}catch(e){return{}}}
+
+// ── Write Firestore data back into sessionStorage so render() can use it ──
+function applyRemoteData(data) {
+  if (!data) return;
+  if (data.progress && Object.keys(data.progress).length) {
+    try { sessionStorage.setItem('pals_progress', JSON.stringify(data.progress)); } catch(e) {}
+  }
+  if (data.flags && Object.keys(data.flags).length) {
+    try { sessionStorage.setItem('pals_flags', JSON.stringify(data.flags)); } catch(e) {}
+  }
+  try { sessionStorage.setItem('pals_pretest', JSON.stringify(data.preTest || null)); } catch(e) {}
+  try { sessionStorage.setItem('pals_finalexam', JSON.stringify(data.finalExam || null)); } catch(e) {}
+  try { sessionStorage.setItem('pals_certificate', JSON.stringify(data.certificate || null)); } catch(e) {}
+  try { sessionStorage.setItem('pals_feedback', JSON.stringify(data.feedback || null)); } catch(e) {}
+  try { sessionStorage.setItem('pals_examunlock', data.examUnlocked ? '1' : '0'); } catch(e) {}
+}
+// Global course flags (courseFlags/current), watched live.
+let _globalExamUnlocked = false;
+let _feedbackOpen = false;          // effective state (computed each render)
+let _feedbackOpenManual = false;    // instructor's manual open/close toggle
+let _courseStart = 0;               // cohort start (epoch ms) from the dashboard
+function getExamData(key){try{return JSON.parse(sessionStorage.getItem(key)||'null')}catch(e){return null}}
+
+const MODULES = window.PALS_MODULES.filter(m => !m.staffOnly);  // megacodes are instructor-run
+
+function render(){
+  // When a cohort start date is set it governs the feedback window (opens
+  // automatically once the course starts); otherwise fall back to the
+  // instructor's manual open/close toggle.
+  _feedbackOpen = _courseStart>0 ? (Date.now()>=_courseStart) : _feedbackOpenManual;
+  const f=getFlags();
+  const prog=getProgress();
+  const preTest=getExamData('pals_pretest');
+  const finalExam=getExamData('pals_finalexam');
+  const allOpen=f.unlockedModules&&f.unlockedModules.length>=11;
+  function gate(id,chipId,open,label){
+    const el=document.getElementById(id);
+    const chip=document.getElementById(chipId);
+    if(open){el.classList.remove('locked');chip.textContent=label||'✅ Open now';chip.className='lock-chip open-state';}
+    else{el.classList.add('locked');chip.textContent=label||'🔒 Not yet available';chip.className='lock-chip locked-state';}
+  }
+  const completed=MODULES.filter((_,i)=>prog[i]).length;
+  const allModulesDone=completed===MODULES.length;
+  const examPassed=!!(finalExam&&finalExam.pct>=84);
+  const feedback=getExamData('pals_feedback');
+  const feedbackDone=!!(feedback&&feedback.submittedAt);
+  const examUnlocked=(()=>{try{return sessionStorage.getItem('pals_examunlock')==='1';}catch(e){return false;}})()||_globalExamUnlocked;
+  // Pre-test card is always visible so students know it exists; it stays locked
+  // (with an x/9 progress hint) until all 9 learning modules are complete.
+  const pretestCard=document.getElementById('ql-pretest');
+  pretestCard.style.display='';
+  if(allModulesDone){
+    gate('ql-pretest','chip-pretest',true,preTest?`✅ Completed · ${preTest.pct}%`:'✅ Open now');
+  } else {
+    gate('ql-pretest','chip-pretest',false,`🔒 Complete all modules (${completed}/${MODULES.length})`);
+  }
+  // Feedback: closed/unavailable until the instructor opens the window (course
+  // start). It stays openable afterward if already submitted so it can be reviewed.
+  const feedbackAvailable = _feedbackOpen || feedbackDone;
+  const fbChip = feedbackDone
+    ? (examUnlocked ? '✅ Submitted · locked' : (_feedbackOpen ? '✅ Submitted · editable' : '✅ Submitted'))
+    : (_feedbackOpen ? '📝 Please complete' : '🔒 Opens during the course');
+  gate('ql-feedback','chip-feedback',feedbackAvailable,fbChip);
+  // Final Exam: hidden until the instructor unlocks it AND feedback is complete.
+  const examCard=document.getElementById('ql-exam');
+  if(examUnlocked && feedbackDone){
+    examCard.style.display='';
+    gate('ql-exam','chip-exam',true,'✅ Open now');
+  } else {
+    examCard.style.display='none';
+  }
+  // Certificate is issued by instructors — not shown in the student portal.
+  const pct=Math.round(completed/MODULES.length*100);
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-sub').textContent=
+    pct===100?(examUnlocked
+        ? (feedbackDone ? '🎉 The final exam is open — good luck!' : '🎉 Modules done! Submit your course feedback, then the final exam opens.')
+        : (_feedbackOpen
+            ? '🎉 All modules complete! Take the pre-test and submit your feedback — your instructor will open the final exam.'
+            : '🎉 All modules complete! Take the pre-test — course feedback opens during the course, then your instructor opens the final exam.'))
+    :completed===0?'Start with Module 1 to begin your journey.'
+    :`${completed} of ${MODULES.length} modules completed — keep going!`;
+  // Continue where you left off → first incomplete (unlocked) module
+  const cbtn=document.getElementById('continue-btn');
+  const nextI=MODULES.findIndex((_,i)=>!prog[i]);
+  if(nextI===-1){cbtn.style.display='none';}
+  else{const openNext=allOpen||nextI===0||prog[nextI-1];
+    if(openNext){cbtn.href=MODULES[nextI].file;cbtn.textContent=(completed===0?'▶ Start: ':'▶ Continue: ')+'Module '+MODULES[nextI].n+' — '+MODULES[nextI].title;cbtn.style.display='inline-flex';}
+    else{cbtn.style.display='none';}}
+  document.getElementById('mod-grid').innerHTML=MODULES.map((m,i)=>{
+    const done=!!prog[i];
+    const open=allOpen||i===0||(i>0&&prog[i-1]);
+    const cls='mod-card '+(done?'done-mod ':open?'available ':'locked-mod ');
+    return `<a href="${open?m.file:'#'}" class="${cls}" ${!open?'tabindex="-1" aria-disabled="true"':''}>
+      <div class="mod-n-badge">M${String(m.n).padStart(2,'0')}</div>
+      <div><div class="mod-t">${m.title}</div><div class="mod-s">${m.sub}</div></div>
+      <span class="mod-end-ico">${done?'✅':open?'▶️':'🔒'}</span>
+    </a>`;
+  }).join('');
+}
+
+// ── Instructor broadcast (courseFlags/current._announcement) ───────────
+function showAnnouncement(cf){
+  const ann = cf && cf._announcement;
+  const banner = document.getElementById('announce-banner');
+  if (ann && ann.msg && (!ann.expires || Date.now() < ann.expires)) {
+    document.getElementById('announce-txt').textContent = 'הודעת מדריך · Instructor announcement: ' + ann.msg;
+    banner.style.display = 'flex';
+  } else { banner.style.display = 'none'; }
+}
+
+// ── Read-only Course Plan (coursePlan/current), watched live ───────────
+const PLAN_SEEN_KEY = 'pals_plan_seen_sig';
+let _planDay = 'day1';
+let _planData = null;
+let _planLang = (()=>{ try{ return localStorage.getItem('pals_plan_lang')||'he'; }catch(e){ return 'he'; } })();
+const TAG_LABELS = {
+  he:{didactic:'עיוני',skills:'מיומנויות',megacode:'מגה-קוד',break:'הפסקה',exam:'מבחן'},
+  en:{didactic:'Didactic',skills:'Skills',megacode:'Megacode',break:'Break',exam:'Exam'}
+};
+const TAGS = {
+  didactic:{bar:'tD',pill:'gD'},
+  skills:  {bar:'tS',pill:'gS'},
+  megacode:{bar:'tM',pill:'gM'},
+  break:   {bar:'tB',pill:'gB'},
+  exam:    {bar:'tE',pill:'gE'}
+};
+function tagLabel(ty){return (TAG_LABELS[_planLang]||TAG_LABELS.he)[ty]||ty;}
+// Language-specific schedule field (titleHe/instrHe/roomHe/notesHe) with fallback
+function planF(s,f){ if(_planLang==='he'){ const v=s[f+'He']; return (v!=null && v!=='')?v:(s[f]||''); } return s[f]||''; }
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function planDayLabel(d){return _planLang==='he' ? (d==='day2'?'יום 2':'יום 1') : (d==='day2'?'Day 2':'Day 1');}
+window.setPlanLang=function(l){ _planLang=l; try{localStorage.setItem('pals_plan_lang',l);}catch(e){} renderPlan(); };
+function renderPlan(){
+  const hdr=document.getElementById('plan-hdr'), wrap=document.getElementById('plan-wrap');
+  const sched=_planData&&_planData.schedule;
+  if(!sched||(!(_planData.schedule.day1||[]).length && !(_planData.schedule.day2||[]).length)){
+    hdr.style.display='none'; wrap.style.display='none'; return;
+  }
+  hdr.style.display=''; wrap.style.display='';
+  const he=_planLang==='he';
+  hdr.textContent = he ? '📅 תוכנית הקורס' : '📅 Course Plan';
+  wrap.setAttribute('dir', he?'rtl':'ltr');
+  document.querySelectorAll('.plan-langbtn').forEach(b=>b.classList.toggle('active', b.dataset.lang===_planLang));
+  const m=_planData.meta||{};
+  const metaBits=[];
+  if(m.dates)      metaBits.push(`<span>🗓️ <b>${esc(m.dates)}</b></span>`);
+  if(m.instructor) metaBits.push(`<span>👤 <b>${esc(m.instructor)}</b></span>`);
+  if(m.site)       metaBits.push(`<span>📍 <b>${esc(m.site)}</b></span>`);
+  document.getElementById('plan-meta').innerHTML=metaBits.join('');
+  const oneDay = (_planData.days===1||_planData.days==='1');
+  const days=(oneDay?['day1']:['day1','day2']).filter(d=>(sched[d]||[]).length);
+  if(!days.includes(_planDay)) _planDay=days[0];
+  document.getElementById('plan-tabs').innerHTML=days.map(d=>
+    `<button class="plan-tab ${d===_planDay?'active':''}" onclick="setPlanDay('${d}')">${planDayLabel(d)}</button>`).join('');
+  const rows=(sched[_planDay]||[]).map(s=>{
+    const t=TAGS[s.type]||TAGS.didactic;
+    const instr=planF(s,'instr'), room=planF(s,'room'), notes=planF(s,'notes');
+    const sub=[instr?'👤 '+esc(instr):'', room?'📍 '+esc(room):'', notes?'📝 '+esc(notes):''].filter(Boolean).join(' · ');
+    return `<div class="plan-row"><div class="plan-bar ${t.bar}"></div><div class="plan-time">${esc(s.time)}</div>`+
+      `<div class="plan-info"><div class="plan-title">${esc(planF(s,'title'))}<span class="plan-tag ${t.pill}">${tagLabel(s.type)}</span></div>`+
+      (sub?`<div class="plan-sub">${sub}</div>`:'')+`</div></div>`;
+  }).join('');
+  document.getElementById('plan-body').innerHTML=rows;
+  document.getElementById('plan-foot').textContent=_planData.updatedAt
+    ? (he?'עודכן לאחרונה ':'Last updated ')+new Date(_planData.updatedAt).toLocaleString(he?'he-IL':undefined) : '';
+}
+window.setPlanDay=function(d){_planDay=d;renderPlan();};
+function showPlanPop(updatedAt){
+  const pop=document.getElementById('plan-pop');
+  const he=_planLang==='he';
+  const tl=document.getElementById('plan-pop-title'); if(tl) tl.textContent=he?'תוכנית הקורס עודכנה':'Course plan updated';
+  document.getElementById('plan-pop-sub').textContent=(he?'המדריך/ה עדכן/ה את לוח הזמנים — ':'Your instructor changed the schedule — ')+new Date(updatedAt).toLocaleString(he?'he-IL':undefined);
+  pop.classList.add('show');
+  clearTimeout(showPlanPop._t);
+  showPlanPop._t=setTimeout(()=>pop.classList.remove('show'),9000);
+}
+// Route the student to their cohort's course plan (coursePlan/c_<key>),
+// falling back to the default plan (coursePlan/current) when their cohort has
+// no custom plan yet. Honors the per-cohort course length via plan.days.
+let _planWatchUnsub=null;
+async function initStudentPlanWatch(){
+  const fb=window.FB; if(!fb||!fb.watchCoursePlan) return;
+  let cohortKey='';
+  try{ if(fb.loadMyCohort && fb.cohortKey){ cohortKey = fb.cohortKey(await fb.loadMyCohort()); } }catch(e){}
+  let triedFallback = !cohortKey;
+  const watch=(key)=>{
+    if(_planWatchUnsub){ try{ _planWatchUnsub(); }catch(e){} }
+    _planWatchUnsub = fb.watchCoursePlan(plan=>{
+      if(plan===null && !triedFallback){ triedFallback=true; watch(''); return; }  // no cohort plan → default
+      onPlanUpdate(plan);
+    }, key);
+  };
+  watch(cohortKey);
+}
+// Course flags come from two places: global (courseFlags/current) carries the
+// exam-unlock, feedback toggle and announcements; a cohort's own doc
+// (courseFlags/c_<key>) can override the course start date and attendance window.
+// Cohort values win when present; otherwise we fall back to the global values,
+// so a student whose cohort has no per-cohort config behaves exactly as before.
+let _studentCohortKey = '';
+let _globalFlags = {};
+let _cohortFlags = null;
+function applyFlags(){
+  const g = _globalFlags || {}, c = _cohortFlags || {};
+  showAnnouncement(g);
+  _globalExamUnlocked = !!g.examUnlocked;
+  _feedbackOpenManual = !!g.feedbackOpen;
+  _courseStart = Number(c.courseStart != null ? c.courseStart : g.courseStart) || 0;
+  // Attendance window + which code doc to validate against: the cohort's own
+  // window wins when present, else the global one (back-compat for live courses).
+  const useCohortAtt = (c.attendance != null);
+  _attWindow   = (useCohortAtt ? c.attendance : g.attendance) || null;
+  _attCodeDoc  = useCohortAtt ? ('c_' + _studentCohortKey) : 'current';
+  renderCheckin(); render();
+}
+async function initCohortFlagsWatch(){
+  const fb = window.FB; if(!fb) return;
+  try{ if(fb.loadMyCohort && fb.cohortKey){ _studentCohortKey = fb.cohortKey(await fb.loadMyCohort()); } }catch(e){}
+  if(_studentCohortKey && fb.watchCohortFlags){
+    fb.watchCohortFlags(_studentCohortKey, data=>{ _cohortFlags = data; applyFlags(); });
+  }
+}
+function onPlanUpdate(plan){
+  if(!plan){ _planData=null; renderPlan(); return; }
+  _planData=plan; renderPlan();
+  // Change-detection keys on the content signature, so an instructor merely
+  // re-opening the planner (no edits) never notifies students.
+  const sig=plan.sig || JSON.stringify({schedule:plan.schedule||{}, meta:plan.meta||{}});
+  let seen=null; try{seen=localStorage.getItem(PLAN_SEEN_KEY);}catch(e){}
+  if(sig!==seen){
+    // Notify on any change the student hasn't seen — whether it lands while
+    // they're here or happened before they opened the hub — but stay silent
+    // the very first time they ever see a plan (no prior signature stored).
+    if(seen) showPlanPop(plan.updatedAt||Date.now());
+    try{localStorage.setItem(PLAN_SEEN_KEY,sig);}catch(e){}
+  }
+}
+
+// ── Daily attendance check-in ──────────────────────────────────────────
+let _attWindow = null;     // public window status {open, day, expiresAt}
+let _attCodeDoc = 'current'; // which attendance code doc this window belongs to
+let _myCheckins = [];      // this student's check-in docs
+function _daySlug(day){ return String(day||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
+function checkedInFor(day){ return _myCheckins.some(r => _daySlug(r.day)===_daySlug(day)); }
+function renderCheckin(){
+  const card=document.getElementById('checkin-card');
+  const done=document.getElementById('checkin-done');
+  const w=_attWindow;
+  const open = !!(w && w.open && w.day && w.expiresAt && Date.now() < w.expiresAt);
+  // Already checked in for the currently-open day → show a confirmation instead.
+  if(open && checkedInFor(w.day)){
+    card.style.display='none';
+    done.style.display=''; done.textContent=`✅ You're checked in for ${w.day}.`;
+    return;
+  }
+  done.style.display='none';
+  if(!open){ card.style.display='none'; return; }
+  card.style.display='';
+  document.getElementById('ci-day').textContent=w.day;
+  const sub=document.getElementById('ci-sub');
+  if(sub) sub.textContent=`Enter the code your instructor is showing in class to mark yourself present (window closes ${new Date(w.expiresAt).toLocaleTimeString()}).`;
+}
+async function submitCheckIn(){
+  const w=_attWindow;
+  if(!(w && w.open && Date.now() < w.expiresAt)){ renderCheckin(); return; }
+  const code=(document.getElementById('ci-code').value||'').trim().toUpperCase();
+  const msg=document.getElementById('ci-msg');
+  const btn=document.getElementById('ci-btn');
+  if(code.length<4){ msg.textContent='Enter the code shown in class.'; return; }
+  btn.disabled=true; msg.textContent='Checking in…';
+  const sess=getSession();
+  const ok = window.FB && window.FB.checkIn ? await window.FB.checkIn(w.day, code, sess?sess.name:'', _attCodeDoc) : false;
+  btn.disabled=false;
+  if(ok){ msg.textContent='✅ Checked in — thank you!'; document.getElementById('ci-code').value=''; }
+  else  { msg.textContent='❌ That code didn’t work. Check it’s correct and that check-in is still open.'; }
+}
+window.submitCheckIn=submitCheckIn;
+
+// ── Entry reminder: nudge students about outstanding requirements ──────────
+// Pre-test and all learning modules are required to finish the course. On entry
+// we show a one-time (per session) bilingual reminder listing what's still open.
+let _remindersShown = false;
+function showReminders(){
+  if(_remindersShown) return;
+  const prog=getProgress();
+  const preTest=getExamData('pals_pretest');
+  const completed=MODULES.filter((_,i)=>prog[i]).length;
+  const modulesDone = completed===MODULES.length;
+  const pretestDone = !!preTest;
+  const items=[];
+  if(!modulesDone){
+    items.push({he:`להשלים את כל מודולי הלימוד (${completed}/${MODULES.length} הושלמו)`,
+                en:`Complete all learning modules (${completed}/${MODULES.length} done)`});
+  }
+  if(!pretestDone){
+    items.push({he:'להשלים את המבחן המקדים (Pre-Test)',
+                en:'Complete the Pre-Test'});
+  }
+  if(!items.length) return;                 // nothing outstanding — stay quiet
+  _remindersShown = true;
+  document.getElementById('reminder-list').innerHTML = items.map(it =>
+    `<li style="margin-bottom:.5rem;padding:.55rem .7rem;border:1px solid var(--b);border-radius:9px;background:var(--s2)">
+       <div dir="rtl" style="font-weight:600">⏳ ${esc(it.he)}</div>
+       <div dir="ltr" style="font-size:.82rem;color:var(--tm);margin-top:.1rem">${esc(it.en)}</div>
+     </li>`).join('');
+  document.getElementById('reminder-modal').style.display='flex';
+}
+function closeReminders(){ document.getElementById('reminder-modal').style.display='none'; }
+window.closeReminders = closeReminders;
+
+// ── FIX: loadAndSync result is now applied to sessionStorage before render ──
+// Only re-render when the remote snapshot actually changes (no flicker).
+let _lastSnap = null;
+function refresh(force){
+  if(!window.FB){ if(force) render(); else setTimeout(()=>refresh(true),100); return; }
+  window.FB.loadAndSync().then(data=>{
+    const snap = JSON.stringify(data);
+    if(force || snap !== _lastSnap){
+      _lastSnap = snap;
+      applyRemoteData(data);
+      render();
+    }
+    showReminders();   // one-time per session, once real progress is loaded
+  });
+}
+
+if(s && s.role === 'student') {
+  refresh(true);
+  setInterval(refresh, 15000);
+  // Re-render on a timer so feedback flips open the moment the start time passes.
+  setInterval(render, 15000);
+  // live instructor broadcasts + course plan + attendance window
+  (function watchAnn(){
+    if(window.FB && window.FB.watchCourseFlags){
+      window.FB.watchCourseFlags(cf=>{ _globalFlags = cf||{}; applyFlags(); });
+      initCohortFlagsWatch();
+      if(window.FB.watchCoursePlan) initStudentPlanWatch();
+      if(window.FB.watchMyAttendance) window.FB.watchMyAttendance(rows=>{ _myCheckins=rows||[]; renderCheckin(); });
+    }
+    else { setTimeout(watchAnn, 200); }
+  })();
+  // Hide the check-in card promptly once the window expires.
+  setInterval(renderCheckin, 15000);
+}
+
+let dark=(()=>{try{const s=localStorage.getItem('pals_theme');if(s)return s==='dark';}catch(e){}return window.matchMedia('(prefers-color-scheme:dark)').matches;})();
+function applyTheme(){document.documentElement.setAttribute('data-theme',dark?'dark':'light');document.getElementById('thbtn').textContent=dark?'☀️':'🌙';}
+function toggleTheme(){dark=!dark;try{localStorage.setItem('pals_theme',dark?'dark':'light');}catch(e){}applyTheme();}
+window.toggleTheme=toggleTheme;
+applyTheme();
+</script>
+</body>
+</html>

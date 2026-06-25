@@ -28,6 +28,14 @@ import {
 }                                 from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 // ── Init ───────────────────────────────────────────────────────
+// Course namespace (see firebase-sync.js): pages may set window.COURSE_NS
+// (e.g. 'peds_') before loading this file so a second course's identity data
+// lives in prefixed collections. Empty by default → original PALS names.
+const _ns = (typeof window !== 'undefined' && window.COURSE_NS) ? String(window.COURSE_NS) : '';
+// Base path for in-app redirects (login/role routing). Defaults to site root
+// so PALS is unchanged; a sub-folder course sets window.COURSE_BASE
+// (e.g. '/peds_sedation/') so its pages route within that folder.
+const _base = (typeof window !== 'undefined' && window.COURSE_BASE) ? String(window.COURSE_BASE) : '/';
 let _app, _auth, _db;
 function _init() {
   if (_db) return;
@@ -44,7 +52,7 @@ async function getUser() {
   const u = _auth.currentUser;
   if (!u) return null;
   try {
-    const snap = await getDoc(doc(_db, 'users', u.uid));
+    const snap = await getDoc(doc(_db, _ns+'users', u.uid));
     if (!snap.exists()) return null;
     const d = snap.data();
     return {
@@ -76,7 +84,7 @@ async function signIn(email, password) {
     }
     if (!u) return { ok: false, error: 'Account exists but profile not found. Ask your administrator to re-invite this email, then sign in again.' };
     // Write last login timestamp
-    await setDoc(doc(_db, 'users', cred.user.uid), { lastLogin: serverTimestamp() }, { merge: true });
+    await setDoc(doc(_db, _ns+'users', cred.user.uid), { lastLogin: serverTimestamp() }, { merge: true });
     return { ok: true, user: u };
   } catch(e) {
     const msg = {
@@ -100,13 +108,13 @@ async function repairMissingProfile(authUser) {
   try {
     const email = (authUser.email || '').toLowerCase();
     if (!email) return null;
-    const inv = await getDoc(doc(_db, 'allowlist', email));
+    const inv = await getDoc(doc(_db, _ns+'allowlist', email));
     if (!inv.exists()) return null;
     const a = inv.data() || {};
     if (a.registered) return null;          // rules require registered==false to self-create
     const role = a.role || 'student';
     const parts = (a.name || '').split(/\s+/);
-    await setDoc(doc(_db, 'users', authUser.uid), {
+    await setDoc(doc(_db, _ns+'users', authUser.uid), {
       uid:       authUser.uid,
       email,
       name:      a.name || ((a.firstName||'') + ' ' + (a.lastName||'')).trim() || email.split('@')[0],
@@ -118,7 +126,7 @@ async function repairMissingProfile(authUser) {
       viaInvite: true,
       progress:  {},
     });
-    await setDoc(doc(_db, 'allowlist', email), { registered: true, registeredAt: serverTimestamp() }, { merge: true });
+    await setDoc(doc(_db, _ns+'allowlist', email), { registered: true, registeredAt: serverTimestamp() }, { merge: true });
     return await getUser();
   } catch(e) {
     console.warn('[PALS AUTH] repairMissingProfile:', e.message);
@@ -129,7 +137,7 @@ async function repairMissingProfile(authUser) {
 // ── Sign out ───────────────────────────────────────────────────
 async function logOut() {
   try { await signOut(_auth); } catch(e) {}
-  window.location.href = '/index.html';
+  window.location.href = _base+'index.html';
 }
 
 // ── Require auth guard ─────────────────────────────────────────
@@ -141,13 +149,13 @@ async function requireAuth(allowedRoles) {
     const unsub = onAuthStateChanged(_auth, async (firebaseUser) => {
       unsub();
       if (!firebaseUser) {
-        window.location.href = '/index.html'; return;
+        window.location.href = _base+'index.html'; return;
       }
       const u = await getUser();
-      if (!u) { window.location.href = '/index.html'; return; }
+      if (!u) { window.location.href = _base+'index.html'; return; }
       if (allowedRoles && !allowedRoles.includes(u.role)) {
         // Wrong role: send to correct hub
-        window.location.href = (u.role === 'student') ? '/hub_student.html' : '/hub_instructor.html';
+        window.location.href = (u.role === 'student') ? _base+'hub_student.html' : _base+'hub_instructor.html';
         return;
       }
       resolve(u);
@@ -168,7 +176,7 @@ async function createUserProfile(uid, email, displayName, role) {
   if (!caller || caller.role !== 'admin') {
     throw new Error('Only the admin can create user profiles.');
   }
-  await setDoc(doc(_db, 'users', uid), {
+  await setDoc(doc(_db, _ns+'users', uid), {
     email,
     displayName,
     role,
@@ -186,12 +194,12 @@ async function bootstrapAdmin(displayName) {
   const u = _auth.currentUser;
   if (!u) throw new Error('You must be signed in to claim admin.');
   // Check if any admin already exists
-  const snap = await getDoc(doc(_db, 'meta', 'admin_bootstrap'));
+  const snap = await getDoc(doc(_db, _ns+'meta', 'admin_bootstrap'));
   if (snap.exists() && snap.data().done === true) {
     throw new Error('Admin already bootstrapped. This page is now disabled.');
   }
   // Write admin profile
-  await setDoc(doc(_db, 'users', u.uid), {
+  await setDoc(doc(_db, _ns+'users', u.uid), {
     email:       u.email,
     displayName: displayName || u.displayName || u.email,
     role:        'admin',
@@ -200,7 +208,7 @@ async function bootstrapAdmin(displayName) {
     active:      true,
   });
   // Lock bootstrap so it can never be run again
-  await setDoc(doc(_db, 'meta', 'admin_bootstrap'), { done: true, adminUid: u.uid, at: serverTimestamp() });
+  await setDoc(doc(_db, _ns+'meta', 'admin_bootstrap'), { done: true, adminUid: u.uid, at: serverTimestamp() });
 }
 
 // ── Auth state listener ────────────────────────────────────────

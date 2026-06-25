@@ -35,6 +35,11 @@ import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/
 
 // ── Init (reuses any app already started by auth.js or the host page) ──
 let _db, _auth;
+// Course namespace: pages may set window.COURSE_NS (e.g. 'peds_') BEFORE this
+// module loads so a second course's data lives in prefixed collections
+// (peds_users, peds_attendance, …). Empty by default → the original PALS
+// collection names are used unchanged.
+const _ns = (typeof window !== 'undefined' && window.COURSE_NS) ? String(window.COURSE_NS) : '';
 function _ensureInit() {
   if (_db) return;
   if (window.PALS_AUTH && window.PALS_AUTH.db) {
@@ -75,7 +80,7 @@ async function fbSaveProgress(progress) {
   try {
     await _ensureAuthReady();
     const uid = _uid(); if (!uid) return;
-    await setDoc(doc(_db,'students',uid), { progress, updatedAt: Date.now() }, { merge:true });
+    await setDoc(doc(_db,_ns+'students',uid), { progress, updatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveProgress:', e.message); }
 }
 
@@ -84,7 +89,7 @@ async function fbSaveFlags(flags) {
   try {
     await _ensureAuthReady();
     const uid = _uid(); if (!uid) return;
-    await setDoc(doc(_db,'students',uid), { flags, flagsUpdatedAt: Date.now() }, { merge:true });
+    await setDoc(doc(_db,_ns+'students',uid), { flags, flagsUpdatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveFlags:', e.message); }
 }
 
@@ -93,7 +98,7 @@ async function fbLoadMyData() {
   try {
     await _ensureAuthReady();
     const uid = _uid(); if (!uid) return null;
-    const snap = await getDoc(doc(_db,'students',uid));
+    const snap = await getDoc(doc(_db,_ns+'students',uid));
     return snap.exists() ? snap.data() : null;
   } catch(e) { console.warn('[PALS FB] loadMyData:', e.message); return null; }
 }
@@ -104,7 +109,7 @@ async function fbLoadMyCohort() {
   try {
     await _ensureAuthReady();
     const uid = _uid(); if (!uid) return '';
-    const snap = await getDoc(doc(_db,'users',uid));
+    const snap = await getDoc(doc(_db,_ns+'users',uid));
     return snap.exists() ? (snap.data().cohort || '') : '';
   } catch(e) { console.warn('[PALS FB] loadMyCohort:', e.message); return ''; }
 }
@@ -146,7 +151,7 @@ async function fbSaveExamScore(examType, score, total, details) {
     const rec = { score, total, pct: Math.round((score/total)*100), completedAt: Date.now() };
     // Record which questions were missed (final exam) so instructors can review.
     if (details && Array.isArray(details.mistakes)) rec.mistakes = details.mistakes;
-    await setDoc(doc(_db,'students',uid), { [field]: rec }, { merge:true });
+    await setDoc(doc(_db,_ns+'students',uid), { [field]: rec }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveExamScore:', e.message); }
 }
 
@@ -157,7 +162,7 @@ async function fbSaveFeedback(feedback) {
   try {
     await _ensureAuthReady();
     const uid = _uid(); if (!uid) return;
-    await setDoc(doc(_db,'students',uid), {
+    await setDoc(doc(_db,_ns+'students',uid), {
       feedback: { ...feedback, submittedAt: Date.now() }
     }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveFeedback:', e.message); }
@@ -168,7 +173,7 @@ async function fbSaveCertificate(issued) {
   try {
     await _ensureAuthReady();
     const uid = _uid(); if (!uid) return;
-    await setDoc(doc(_db,'students',uid), {
+    await setDoc(doc(_db,_ns+'students',uid), {
       certificate: { issued, issuedAt: issued ? Date.now() : null }
     }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveCertificate:', e.message); }
@@ -178,7 +183,7 @@ async function fbSaveCertificate(issued) {
 async function fbGetAllStudents() {
   try {
     _ensureInit();
-    const snap = await getDocs(collection(_db, 'students'));
+    const snap = await getDocs(collection(_db, _ns+'students'));
     const out  = [];
     snap.forEach(d => out.push({ uid: d.id, ...d.data() }));
     return out;
@@ -190,7 +195,7 @@ async function fbGetAllUsers() {
   try {
     _ensureInit();
     await _ensureAuthReady();
-    const snap = await getDocs(collection(_db, 'users'));
+    const snap = await getDocs(collection(_db, _ns+'users'));
     const out  = [];
     snap.forEach(d => out.push({ uid: d.id, ...d.data() }));
     return out;
@@ -201,7 +206,7 @@ async function fbGetAllUsers() {
 async function fbLoadStudent(uid) {
   try {
     _ensureInit();
-    const snap = await getDoc(doc(_db,'students',uid));
+    const snap = await getDoc(doc(_db,_ns+'students',uid));
     return snap.exists() ? { uid, ...snap.data() } : null;
   } catch(e) { console.warn('[PALS FB] loadStudent:', e.message); return null; }
 }
@@ -210,7 +215,7 @@ async function fbLoadStudent(uid) {
 async function fbPushFlagsToStudent(uid, flags) {
   try {
     _ensureInit();
-    await setDoc(doc(_db,'students',uid), { flags, flagsUpdatedAt: Date.now() }, { merge:true });
+    await setDoc(doc(_db,_ns+'students',uid), { flags, flagsUpdatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] pushFlags:', e.message); }
 }
 
@@ -219,7 +224,7 @@ async function fbBroadcastAnnouncement(msg, expiresInMs) {
   try {
     _ensureInit();
     const expires = Date.now() + (expiresInMs || 7200000);
-    await setDoc(doc(_db,'courseFlags','current'), {
+    await setDoc(doc(_db,_ns+'courseFlags','current'), {
       _announcement: { msg, ts: Date.now(), expires }
     }, { merge:true });
   } catch(e) { console.warn('[PALS FB] broadcast:', e.message); }
@@ -230,7 +235,7 @@ async function fbBroadcastAnnouncement(msg, expiresInMs) {
 async function fbSetCourseFlag(key, value) {
   try {
     _ensureInit();
-    await setDoc(doc(_db,'courseFlags','current'), { [key]: value }, { merge:true });
+    await setDoc(doc(_db,_ns+'courseFlags','current'), { [key]: value }, { merge:true });
   } catch(e) { console.warn('[PALS FB] setCourseFlag:', e.message); }
 }
 
@@ -249,7 +254,7 @@ async function fbSaveCoursePlan(plan, cohortKey) {
     // this wait an early publish fires with request.auth==null → permission
     // denied → silently caught, and the plan never syncs.
     await _ensureAuthReady();
-    await setDoc(doc(_db,'coursePlan',_planDocId(cohortKey)),
+    await setDoc(doc(_db,_ns+'coursePlan',_planDocId(cohortKey)),
       { ...plan, updatedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] saveCoursePlan:', e.message); }
 }
@@ -263,7 +268,7 @@ function fbWatchCoursePlan(callback, cohortKey) {
   let cancelled = false;
   _ensureAuthReady().then(() => {
     if (cancelled) return;
-    unsub = onSnapshot(doc(_db,'coursePlan',_planDocId(cohortKey)), snap => {
+    unsub = onSnapshot(doc(_db,_ns+'coursePlan',_planDocId(cohortKey)), snap => {
       callback(snap.exists() ? snap.data() : null);
     }, err => console.warn('[PALS FB] watchCoursePlan:', err.message));
   });
@@ -283,10 +288,10 @@ async function fbOpenAttendance(day, code, durationMs) {
   try {
     _ensureInit();
     const expiresAt = Date.now() + (durationMs || 45*60*1000);
-    await setDoc(doc(_db,'attendanceCode','current'),
+    await setDoc(doc(_db,_ns+'attendanceCode','current'),
       { code:String(code), day, open:true, openedAt:Date.now(), expiresAt }, { merge:false });
     // Public, code-free status so students see the window is open.
-    await setDoc(doc(_db,'courseFlags','current'),
+    await setDoc(doc(_db,_ns+'courseFlags','current'),
       { attendance:{ open:true, day, expiresAt } }, { merge:true });
     return { day, code, expiresAt };
   } catch(e) { console.warn('[PALS FB] openAttendance:', e.message); return null; }
@@ -296,15 +301,15 @@ async function fbOpenAttendance(day, code, durationMs) {
 async function fbCloseAttendance() {
   try {
     _ensureInit();
-    await setDoc(doc(_db,'attendanceCode','current'), { open:false }, { merge:true });
-    await setDoc(doc(_db,'courseFlags','current'), { attendance:{ open:false } }, { merge:true });
+    await setDoc(doc(_db,_ns+'attendanceCode','current'), { open:false }, { merge:true });
+    await setDoc(doc(_db,_ns+'courseFlags','current'), { attendance:{ open:false } }, { merge:true });
   } catch(e) { console.warn('[PALS FB] closeAttendance:', e.message); }
 }
 
 // INSTRUCTOR: live list of all check-ins.
 function fbWatchAttendance(callback) {
   _ensureInit();
-  return onSnapshot(collection(_db,'attendance'), snap => {
+  return onSnapshot(collection(_db,_ns+'attendance'), snap => {
     const rows = []; snap.forEach(d => rows.push({ id:d.id, ...d.data() }));
     callback(rows);
   });
@@ -318,7 +323,7 @@ async function fbCheckIn(day, code, name, codeDoc) {
     await _ensureAuthReady();
     const uid = _uid(); if (!uid) return false;
     const id = `${uid}_${_daySlug(day)}`;
-    await setDoc(doc(_db,'attendance',id),
+    await setDoc(doc(_db,_ns+'attendance',id),
       { uid, day, code:String(code), codeDoc: codeDoc || 'current', name: name||'', checkedInAt: Date.now() }, { merge:false });
     return true;
   } catch(e) { console.warn('[PALS FB] checkIn:', e.message); return false; }
@@ -329,7 +334,7 @@ function fbWatchMyAttendance(callback) {
   _ensureInit();
   const uid = _uid();
   if (!uid) { _ensureAuthReady().then(()=>{ const u=_uid(); if(u) fbWatchMyAttendance(callback); }); return ()=>{}; }
-  return onSnapshot(query(collection(_db,'attendance'), where('uid','==',uid)), snap => {
+  return onSnapshot(query(collection(_db,_ns+'attendance'), where('uid','==',uid)), snap => {
     const rows = []; snap.forEach(d => rows.push({ id:d.id, ...d.data() }));
     callback(rows);
   });
@@ -338,7 +343,7 @@ function fbWatchMyAttendance(callback) {
 // ── STUDENT: watch course flags ───────────────────────────────
 function fbWatchCourseFlags(callback) {
   _ensureInit();
-  return onSnapshot(doc(_db,'courseFlags','current'), snap => {
+  return onSnapshot(doc(_db,_ns+'courseFlags','current'), snap => {
     callback(snap.exists() ? snap.data() : {});
   });
 }
@@ -351,7 +356,7 @@ function fbWatchCohortFlags(cohortKey, callback) {
   let unsub = () => {}, cancelled = false;
   _ensureAuthReady().then(() => {
     if (cancelled) return;
-    unsub = onSnapshot(doc(_db,'courseFlags','c_'+cohortKey), snap => {
+    unsub = onSnapshot(doc(_db,_ns+'courseFlags','c_'+cohortKey), snap => {
       callback(snap.exists() ? snap.data() : null);
     }, err => console.warn('[PALS FB] watchCohortFlags:', err.message));
   });
@@ -364,7 +369,7 @@ function fbWatchCohortFlags(cohortKey, callback) {
 // courseFlags/_cohorts as { names: [...] }.
 async function fbLoadCohortRegistry() {
   try { _ensureInit(); await _ensureAuthReady();
-    const snap = await getDoc(doc(_db,'courseFlags','_cohorts'));
+    const snap = await getDoc(doc(_db,_ns+'courseFlags','_cohorts'));
     return (snap.exists() && Array.isArray(snap.data().names)) ? snap.data().names : [];
   } catch(e) { console.warn('[PALS FB] loadCohortRegistry:', e.message); return []; }
 }
@@ -373,7 +378,7 @@ async function fbAddCohort(name) {
   const cur = await fbLoadCohortRegistry();
   if (!name) return cur;
   if (!cur.some(n => String(n).toLowerCase() === name.toLowerCase())) cur.push(name);
-  try { await setDoc(doc(_db,'courseFlags','_cohorts'), { names: cur }, { merge:true }); }
+  try { await setDoc(doc(_db,_ns+'courseFlags','_cohorts'), { names: cur }, { merge:true }); }
   catch(e) { console.warn('[PALS FB] addCohort:', e.message); }
   return cur;
 }
@@ -381,7 +386,7 @@ async function fbAddCohort(name) {
 // ── INSTRUCTOR: real-time listener for all students ────────────
 function fbWatchAllStudents(callback) {
   _ensureInit();
-  return onSnapshot(collection(_db, 'students'), snap => {
+  return onSnapshot(collection(_db, _ns+'students'), snap => {
     const students = [];
     snap.forEach(d => students.push({ uid: d.id, ...d.data() }));
     callback(students);
@@ -392,7 +397,7 @@ function fbWatchAllStudents(callback) {
 async function fbSetStudentExamUnlock(uid, unlocked) {
   try {
     _ensureInit();
-    await setDoc(doc(_db,'students',uid), { examUnlocked: unlocked, examUnlockedAt: Date.now() }, { merge:true });
+    await setDoc(doc(_db,_ns+'students',uid), { examUnlocked: unlocked, examUnlockedAt: Date.now() }, { merge:true });
   } catch(e) { console.warn('[PALS FB] setStudentExamUnlock:', e.message); }
 }
 

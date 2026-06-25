@@ -155,6 +155,102 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // PEDIATRIC SEDATION SAFETY COURSE — namespaced collections (peds_*)
+    // Same Firebase project, isolated data. Roles/staff are resolved from
+    // peds_users (a person can be staff in one course and a student in the
+    // other). Mirrors the PALS rules above, prefixed with peds_.
+    // ═══════════════════════════════════════════════════════════════
+    function pedsRole() {
+      return signedIn()
+        ? get(/databases/$(database)/documents/peds_users/$(request.auth.uid)).data.role
+        : 'none';
+    }
+    function pedsIsStaff()       { return pedsRole() in ['admin', 'lead_instructor', 'instructor']; }
+    function pedsIsAdmin()       { return pedsRole() == 'admin'; }
+    function pedsMyCohort() {
+      return signedIn()
+        ? get(/databases/$(database)/documents/peds_users/$(request.auth.uid)).data.cohort
+        : null;
+    }
+    function pedsUserCohort(uid) { return get(/databases/$(database)/documents/peds_users/$(uid)).data.cohort; }
+    function pedsSeesAllCohorts(){ return pedsIsAdmin() || pedsRole() == 'lead_instructor'; }
+    function pedsTouchesPrivileged() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'canAdmin']);
+    }
+
+    match /peds_users/{uid} {
+      allow read: if signedIn() && (
+        request.auth.uid == uid
+        || pedsSeesAllCohorts()
+        || (pedsRole() == 'instructor' && resource.data.cohort == pedsMyCohort())
+      );
+      allow update: if signedIn() && request.auth.uid == uid && !pedsTouchesPrivileged();
+      allow update: if pedsIsStaff() && (!pedsTouchesPrivileged() || pedsIsAdmin())
+        && (pedsSeesAllCohorts() || resource.data.cohort == pedsMyCohort());
+      allow create: if pedsIsAdmin()
+        || ( request.auth != null
+             && request.auth.uid == uid
+             && request.resource.data.email == request.auth.token.email
+             && exists(/databases/$(database)/documents/peds_allowlist/$(request.auth.token.email))
+             && get(/databases/$(database)/documents/peds_allowlist/$(request.auth.token.email)).data.role == request.resource.data.role
+             && get(/databases/$(database)/documents/peds_allowlist/$(request.auth.token.email)).data.registered == false );
+      allow delete: if pedsIsAdmin();
+    }
+
+    match /peds_students/{uid} {
+      allow read, write: if signedIn() && (
+        request.auth.uid == uid
+        || pedsSeesAllCohorts()
+        || (pedsRole() == 'instructor' && pedsUserCohort(uid) == pedsMyCohort())
+      );
+    }
+
+    match /peds_allowlist/{email} {
+      allow get:    if true;
+      allow list:   if pedsIsStaff();
+      allow create, delete: if pedsIsStaff();
+      allow update: if pedsIsStaff()
+        || ( request.auth != null
+             && request.auth.token.email == email
+             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['registered', 'registeredAt']) );
+    }
+
+    match /peds_courseFlags/{doc} {
+      allow read:  if signedIn();
+      allow write: if pedsIsStaff();
+    }
+
+    match /peds_coursePlan/{doc} {
+      allow read:  if signedIn();
+      allow write: if pedsIsStaff();
+    }
+
+    match /peds_attendanceCode/{doc} {
+      allow read, write: if pedsIsStaff();
+    }
+
+    match /peds_attendance/{id} {
+      function codeDocId() { return request.resource.data.get('codeDoc', 'current'); }
+      function code() { return get(/databases/$(database)/documents/peds_attendanceCode/$(codeDocId())).data; }
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || pedsIsStaff());
+      allow create: if pedsIsStaff() || (signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && exists(/databases/$(database)/documents/peds_attendanceCode/$(codeDocId()))
+        && code().open == true
+        && request.resource.data.code == code().code
+        && request.resource.data.day  == code().day
+        && request.time.toMillis() < code().expiresAt);
+      allow update, delete: if pedsIsStaff();
+    }
+
+    match /peds_courseStats/{doc}  { allow read, write: if pedsIsStaff(); }
+    match /peds_teachingPlan/{doc} { allow read, write: if pedsIsStaff(); }
+    match /peds_meta/{doc} {
+      allow read:  if signedIn();
+      allow write: if pedsIsAdmin();
+    }
+
     // Everything else denied by default.
   }
 }
