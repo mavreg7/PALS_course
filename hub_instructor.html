@@ -503,6 +503,10 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
           <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Cohort / Group</label>
           <input type="text" id="edit-cohort" list="cohort-options" placeholder="e.g. June 2026" autocomplete="off">
         </div>
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Phone <span style="font-weight:400;color:var(--muted)">(for WhatsApp / SMS)</span></label>
+          <input type="tel" id="edit-phone" placeholder="0501234567" autocomplete="off">
+        </div>
         <div class="form-group" style="margin-bottom:1rem">
           <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Role</label>
           <select id="edit-role">
@@ -1201,6 +1205,7 @@ async function loadRoster() {
         firstName: u.firstName || '',
         lastName:  u.lastName  || '',
         email:    u.email || '',
+        phone:    u.phone || '',
         cohort:   u.cohort || 'Unassigned',
         role:     u.role  || 'student',
         notes:    u.notes || '',
@@ -1797,6 +1802,13 @@ function openEditModal(uid) {
   document.getElementById('edit-fname').value = s.firstName || (s.name||'').split(' ')[0] || '';
   document.getElementById('edit-lname').value = s.lastName  || (s.name||'').split(' ').slice(1).join(' ') || '';
   document.getElementById('edit-cohort').value = (s.cohort && s.cohort !== 'Unassigned') ? s.cohort : '';
+  // Phone may live on the user doc or (for bulk-imported people) the allowlist.
+  let phone = s.phone || '';
+  if (!phone && s.email) {
+    const al = (_allowlistDocs||[]).find(d => String(d.id).toLowerCase() === String(s.email).toLowerCase());
+    if (al && al.data && al.data.phone) phone = al.data.phone;
+  }
+  document.getElementById('edit-phone').value = phone;
   document.getElementById('edit-role').value  = s.role || 'student';
   document.getElementById('edit-notes').value = s.notes || '';
 
@@ -1861,6 +1873,7 @@ async function saveEdit() {
     const lname  = document.getElementById('edit-lname').value.trim();
     const cohort = document.getElementById('edit-cohort').value.trim() || 'Unassigned';
     const role   = document.getElementById('edit-role').value;
+    const phone  = document.getElementById('edit-phone').value.trim();
     if (!fname) { resultEl.textContent = '❌ First name is required.'; resultEl.style.color = 'var(--danger)'; return; }
     const fullName = (fname + ' ' + lname).trim();
 
@@ -1881,12 +1894,19 @@ async function saveEdit() {
       const s2 = allStudents.find(x => x.uid === editUid);
       if (s2) s2.examUnlocked = examCb.checked;
     }
-    // Update users/{uid}: identity + notes
-    await fsSetDoc(fsDoc(db, 'users', editUid), { name: fullName, firstName: fname, lastName: lname, cohort, role, notes }, { merge: true });
+    // Update users/{uid}: identity + notes + phone
+    await fsSetDoc(fsDoc(db, 'users', editUid), { name: fullName, firstName: fname, lastName: lname, cohort, role, notes, phone }, { merge: true });
+
+    // Mirror phone (and identity) onto the allowlist so the WhatsApp/SMS list,
+    // which reads the allowlist, reflects later phone additions/changes.
+    const sEmail = (allStudents.find(x => x.uid === editUid) || {}).email || '';
+    if (sEmail) {
+      try { await setDoc(doc(db,'allowlist',sEmail), { name: fullName, firstName: fname, lastName: lname, email: sEmail, phone, cohort, role, registered: true }, { merge: true }); } catch(e) {}
+    }
 
     // Update local cache
     const s = allStudents.find(x => x.uid === editUid);
-    if (s) { s.progress = progress; s.notes = notes; s.name = fullName; s.firstName = fname; s.lastName = lname; s.cohort = cohort; s.role = role; s.updatedAt = Date.now(); }
+    if (s) { s.progress = progress; s.notes = notes; s.name = fullName; s.firstName = fname; s.lastName = lname; s.cohort = cohort; s.role = role; s.phone = phone; s.updatedAt = Date.now(); }
 
     populateCohortOptions();
     populateCohortFilter();
