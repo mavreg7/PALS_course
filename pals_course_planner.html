@@ -429,7 +429,19 @@ window.onDaysChange = function(v){ courseDays = (String(v)==='1') ? 1 : 2; apply
 // brand-new cohort starts from the standard schedule (not the prior cohort's),
 // then re-subscribe — the live plan, if any, is adopted over it.
 window.onCohortChange = function(key){
+  const sel = document.getElementById('plan_cohort');
+  if(key==='__new__'){
+    const fb = window.FB;
+    const name = (prompt('Name the new cohort (e.g. "July 2026 – 1 day"):')||'').trim();
+    if(!name){ if(sel) sel.value = currentCohortKey||''; return; }
+    const k = fb && fb.cohortKey ? fb.cohortKey(name) : '';
+    if(!k){ alert('Please use a name with letters or numbers.'); if(sel) sel.value = currentCohortKey||''; return; }
+    Promise.resolve(fb && fb.addCohort ? fb.addCohort(name) : null)
+      .finally(()=>{ populateCohorts().finally(()=>{ if(sel) sel.value = k; onCohortChange(k); }); });
+    return;
+  }
   currentCohortKey = key || '';
+  if(sel && sel.value !== currentCohortKey) sel.value = currentCohortKey;
   localStorage.removeItem('pals_plan_pub_sig');
   schedule = structuredClone(DEFAULT_SCHEDULE); courseDays = 2;
   applyDays(); render();
@@ -439,13 +451,19 @@ async function populateCohorts(){
   const sel = document.getElementById('plan_cohort'); if(!sel) return;
   const fb = window.FB || (window.FB_READY ? await window.FB_READY : null);
   if(!fb || !fb.getAllUsers || !fb.cohortKey) return;
-  let users = {}; try{ users = await fb.getAllUsers(); }catch(e){ return; }
-  const names = [...new Set(Object.values(users||{})
-    .map(u => (u && u.cohort || '').trim())
-    .filter(c => c && c.toLowerCase() !== 'unassigned'))].sort();
+  let users = {}; try{ users = await fb.getAllUsers(); }catch(e){ users = {}; }
+  let registry = []; try{ registry = fb.loadCohortRegistry ? await fb.loadCohortRegistry() : []; }catch(e){ registry = []; }
+  const names = [...new Set([
+    ...Object.values(users||{}).map(u => (u && u.cohort || '').trim()),
+    ...registry.map(n => String(n||'').trim())
+  ].filter(c => c && c.toLowerCase() !== 'unassigned'))].sort();
+  const cur = sel.value;
+  sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
   const seen = new Set();
   names.forEach(n => { const k = fb.cohortKey(n); if(!k || seen.has(k)) return; seen.add(k);
     const o = document.createElement('option'); o.value = k; o.textContent = n; sel.appendChild(o); });
+  const nw = document.createElement('option'); nw.value = '__new__'; nw.textContent = '➕ New cohort…'; sel.appendChild(nw);
+  sel.value = [...sel.options].some(o => o.value===cur && o.value!=='__new__') ? cur : (currentCohortKey||'');
 }
 let _planUnsub=null;
 function subscribePlan(){

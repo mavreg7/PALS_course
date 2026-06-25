@@ -744,11 +744,22 @@ async function loadCourseStart(){
     const v=localStorage.getItem(ckKey()); if(v && !dashCohortKey) syncCourseStart(new Date(v).getTime()); }
 }
 loadCourseStart();
+loadCohortRegistry();
 
 // Switch the cohort that Session Progress / countdown / start date apply to.
 window.setSessionCohort = function(key){
+  if(key==='__new__'){
+    const sel = document.getElementById('sp-cohort');
+    const name = (prompt('Name the new cohort (e.g. "July 2026 – 1 day"):')||'').trim();
+    if(!name){ if(sel) sel.value = dashCohortKey||''; return; }
+    const k = cohortKeyOf(name);
+    if(!k){ alert('Please use a name with letters or numbers.'); if(sel) sel.value = dashCohortKey||''; return; }
+    addCohortToRegistry(name).finally(()=>{ populateSessionCohorts(); setSessionCohort(k); });
+    return;
+  }
   dashCohortKey = key || '';
   const sel = document.getElementById('sp-cohort');
+  if(sel && sel.value !== dashCohortKey) sel.value = dashCohortKey;
   const label = (sel && sel.selectedOptions[0] && sel.selectedOptions[0].textContent) || '';
   const cd = document.getElementById('cd-label');
   if(cd) cd.textContent = dashCohortKey ? ('Course Countdown · ' + label) : 'Course Countdown';
@@ -757,18 +768,38 @@ window.setSessionCohort = function(key){
   tickCountdown();
   try { renderSessions(); } catch(e) {}
 };
+// A small registry of cohort names (courseFlags/_cohorts) lets brand-new,
+// empty cohorts (nobody enrolled yet) appear in the selector so their start
+// date / plan can be set up in advance.
+let _cohortRegistry = [];
+async function loadCohortRegistry(){
+  try{
+    const snap = await getDoc(doc(db,'courseFlags','_cohorts'));
+    _cohortRegistry = (snap.exists() && Array.isArray(snap.data().names)) ? snap.data().names : [];
+  }catch(e){ _cohortRegistry = []; }
+  populateSessionCohorts();
+}
+async function addCohortToRegistry(name){
+  name = String(name||'').trim(); if(!name) return;
+  if(!_cohortRegistry.some(n => String(n).toLowerCase() === name.toLowerCase())) _cohortRegistry.push(name);
+  try{ await setDoc(doc(db,'courseFlags','_cohorts'), { names:_cohortRegistry }, { merge:true }); }
+  catch(e){ console.warn('[PALS] addCohortToRegistry:', e.message); }
+}
 function populateSessionCohorts(){
   const sel = document.getElementById('sp-cohort'); if(!sel) return;
   const names = [...new Set([
     ...fbAllowlist.map(a => (a.cohort||'').trim()),
-    ...fbUsers.map(u => (u.cohort||'').trim())
+    ...fbUsers.map(u => (u.cohort||'').trim()),
+    ..._cohortRegistry.map(n => String(n||'').trim())
   ].filter(c => c && c.toLowerCase() !== 'unassigned'))].sort();
   const cur = sel.value;
   sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
   const seen = new Set();
   names.forEach(n => { const k = cohortKeyOf(n); if(!k || seen.has(k)) return; seen.add(k);
     const o = document.createElement('option'); o.value = k; o.textContent = n; sel.appendChild(o); });
-  sel.value = cur;
+  const nw = document.createElement('option'); nw.value = '__new__'; nw.textContent = '➕ New cohort…'; sel.appendChild(nw);
+  // Keep the active selection; never leave "➕ New cohort…" showing as selected.
+  sel.value = [...sel.options].some(o => o.value===cur && o.value!=='__new__') ? cur : (dashCohortKey||'');
 }
 function cohortKeyOf(name){
   const n = String(name==null?'':name).trim();
