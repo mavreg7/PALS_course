@@ -358,6 +358,26 @@ function fbWatchCohortFlags(cohortKey, callback) {
   return () => { cancelled = true; unsub(); };
 }
 
+// ── COHORT REGISTRY ────────────────────────────────────────────
+// Names of cohorts that exist even before anyone is enrolled, so brand-new
+// cohorts can be set up (plan, start date) in advance. Stored in
+// courseFlags/_cohorts as { names: [...] }.
+async function fbLoadCohortRegistry() {
+  try { _ensureInit(); await _ensureAuthReady();
+    const snap = await getDoc(doc(_db,'courseFlags','_cohorts'));
+    return (snap.exists() && Array.isArray(snap.data().names)) ? snap.data().names : [];
+  } catch(e) { console.warn('[PALS FB] loadCohortRegistry:', e.message); return []; }
+}
+async function fbAddCohort(name) {
+  name = String(name||'').trim();
+  const cur = await fbLoadCohortRegistry();
+  if (!name) return cur;
+  if (!cur.some(n => String(n).toLowerCase() === name.toLowerCase())) cur.push(name);
+  try { await setDoc(doc(_db,'courseFlags','_cohorts'), { names: cur }, { merge:true }); }
+  catch(e) { console.warn('[PALS FB] addCohort:', e.message); }
+  return cur;
+}
+
 // ── INSTRUCTOR: real-time listener for all students ────────────
 function fbWatchAllStudents(callback) {
   _ensureInit();
@@ -406,6 +426,8 @@ window.FB = {
   watchCoursePlan:       fbWatchCoursePlan,
   cohortKey:             fbCohortKey,
   loadMyCohort:          fbLoadMyCohort,
+  loadCohortRegistry:    fbLoadCohortRegistry,
+  addCohort:             fbAddCohort,
   openAttendance:        fbOpenAttendance,
   closeAttendance:       fbCloseAttendance,
   watchAttendance:       fbWatchAttendance,
