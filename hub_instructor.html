@@ -164,6 +164,10 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
         <input type="email" id="cs-email" placeholder="sarah.cohen@hospital.org" autocomplete="off">
       </div>
       <div class="form-group">
+        <label for="cs-phone">Phone <span style="font-weight:400;color:var(--muted)">(optional — for WhatsApp / SMS)</span></label>
+        <input type="tel" id="cs-phone" placeholder="0501234567" autocomplete="off">
+      </div>
+      <div class="form-group">
         <label for="cs-pw">Password</label>
         <div class="pw-wrap">
           <input type="password" id="cs-pw" placeholder="Minimum 6 characters" autocomplete="new-password">
@@ -499,6 +503,10 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
           <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Cohort / Group</label>
           <input type="text" id="edit-cohort" list="cohort-options" placeholder="e.g. June 2026" autocomplete="off">
         </div>
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Phone <span style="font-weight:400;color:var(--muted)">(for WhatsApp / SMS)</span></label>
+          <input type="tel" id="edit-phone" placeholder="0501234567" autocomplete="off">
+        </div>
         <div class="form-group" style="margin-bottom:1rem">
           <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Role</label>
           <select id="edit-role">
@@ -735,7 +743,7 @@ pwToggle.addEventListener('click', () => {
 });
 
 function clearForm() {
-  ['cs-fname','cs-lname','cs-email','cs-pw','cs-cohort'].forEach(id => document.getElementById(id).value = '');
+  ['cs-fname','cs-lname','cs-email','cs-pw','cs-cohort','cs-phone'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('cs-role').value = 'student';
   resultBox.className = 'create-result';
   resultBox.innerHTML = '';
@@ -752,6 +760,7 @@ submitBtn.addEventListener('click', async () => {
   const email  = document.getElementById('cs-email').value.trim().toLowerCase();
   const pw     = document.getElementById('cs-pw').value;
   const cohort = document.getElementById('cs-cohort').value.trim();
+  const phone  = document.getElementById('cs-phone').value.trim();
   const role   = document.getElementById('cs-role').value;
 
   // Basic validation
@@ -779,12 +788,25 @@ submitBtn.addEventListener('click', async () => {
       firstName: fname,
       lastName:  lname,
       email,
+      phone:     phone || '',
       role,
       cohort:    cohort || 'Unassigned',
       createdAt: serverTimestamp(),
       createdBy: getSession()?.uid || 'admin',
       progress:  {}
     });
+
+    // Mirror the phone onto an allowlist doc so this person shows up in the
+    // WhatsApp / SMS messaging list (which reads the allowlist). Marked
+    // registered so they don't reappear as a pending invite.
+    if (phone) {
+      try {
+        await setDoc(doc(db,'allowlist',email), {
+          name:`${fname} ${lname}`, firstName:fname, lastName:lname, email,
+          phone, role, cohort: cohort || 'Unassigned', registered:true
+        }, { merge:true });
+      } catch(e) {}
+    }
 
     // 3. Show success with credentials
     showSuccess(fname, lname, email, pw, role, cohort);
@@ -794,7 +816,7 @@ submitBtn.addEventListener('click', async () => {
   } catch (err) {
     await secondarySignOut(secondaryAuth).catch(() => {});
     if (err.code === 'auth/email-already-in-use') {
-      await recoverExistingAccount(fname, lname, email, role, cohort);
+      await recoverExistingAccount(fname, lname, email, role, cohort, phone);
     } else {
       showError(firebaseErrorMessage(err.code));
     }
@@ -807,14 +829,14 @@ submitBtn.addEventListener('click', async () => {
 // re-create it. Instead refresh their invite so that the next time they sign in
 // their roster profile is rebuilt automatically (see repairProfileFromInvite in
 // index.html / auth.js), and offer a password reset in case they forgot it.
-async function recoverExistingAccount(fname, lname, email, role, cohort) {
+async function recoverExistingAccount(fname, lname, email, role, cohort, phone) {
   resultBox.className = 'create-result info';
   resultBox.innerHTML = 'This email already has a sign-in account — preparing recovery…';
   let inviteOk = false;
   try {
     await setDoc(doc(db, 'allowlist', email), {
       name: `${fname} ${lname}`.trim(), firstName: fname, lastName: lname, email,
-      role, cohort: cohort || 'Unassigned', registered: false,
+      phone: phone || '', role, cohort: cohort || 'Unassigned', registered: false,
       addedAt: serverTimestamp(), addedBy: getSession()?.uid || 'admin'
     }, { merge: true });
     inviteOk = true;
@@ -1183,6 +1205,7 @@ async function loadRoster() {
         firstName: u.firstName || '',
         lastName:  u.lastName  || '',
         email:    u.email || '',
+        phone:    u.phone || '',
         cohort:   u.cohort || 'Unassigned',
         role:     u.role  || 'student',
         notes:    u.notes || '',
@@ -1779,6 +1802,13 @@ function openEditModal(uid) {
   document.getElementById('edit-fname').value = s.firstName || (s.name||'').split(' ')[0] || '';
   document.getElementById('edit-lname').value = s.lastName  || (s.name||'').split(' ').slice(1).join(' ') || '';
   document.getElementById('edit-cohort').value = (s.cohort && s.cohort !== 'Unassigned') ? s.cohort : '';
+  // Phone may live on the user doc or (for bulk-imported people) the allowlist.
+  let phone = s.phone || '';
+  if (!phone && s.email) {
+    const al = (_allowlistDocs||[]).find(d => String(d.id).toLowerCase() === String(s.email).toLowerCase());
+    if (al && al.data && al.data.phone) phone = al.data.phone;
+  }
+  document.getElementById('edit-phone').value = phone;
   document.getElementById('edit-role').value  = s.role || 'student';
   document.getElementById('edit-notes').value = s.notes || '';
 
@@ -1843,6 +1873,7 @@ async function saveEdit() {
     const lname  = document.getElementById('edit-lname').value.trim();
     const cohort = document.getElementById('edit-cohort').value.trim() || 'Unassigned';
     const role   = document.getElementById('edit-role').value;
+    const phone  = document.getElementById('edit-phone').value.trim();
     if (!fname) { resultEl.textContent = '❌ First name is required.'; resultEl.style.color = 'var(--danger)'; return; }
     const fullName = (fname + ' ' + lname).trim();
 
@@ -1863,12 +1894,19 @@ async function saveEdit() {
       const s2 = allStudents.find(x => x.uid === editUid);
       if (s2) s2.examUnlocked = examCb.checked;
     }
-    // Update users/{uid}: identity + notes
-    await fsSetDoc(fsDoc(db, 'users', editUid), { name: fullName, firstName: fname, lastName: lname, cohort, role, notes }, { merge: true });
+    // Update users/{uid}: identity + notes + phone
+    await fsSetDoc(fsDoc(db, 'users', editUid), { name: fullName, firstName: fname, lastName: lname, cohort, role, notes, phone }, { merge: true });
+
+    // Mirror phone (and identity) onto the allowlist so the WhatsApp/SMS list,
+    // which reads the allowlist, reflects later phone additions/changes.
+    const sEmail = (allStudents.find(x => x.uid === editUid) || {}).email || '';
+    if (sEmail) {
+      try { await setDoc(doc(db,'allowlist',sEmail), { name: fullName, firstName: fname, lastName: lname, email: sEmail, phone, cohort, role, registered: true }, { merge: true }); } catch(e) {}
+    }
 
     // Update local cache
     const s = allStudents.find(x => x.uid === editUid);
-    if (s) { s.progress = progress; s.notes = notes; s.name = fullName; s.firstName = fname; s.lastName = lname; s.cohort = cohort; s.role = role; s.updatedAt = Date.now(); }
+    if (s) { s.progress = progress; s.notes = notes; s.name = fullName; s.firstName = fname; s.lastName = lname; s.cohort = cohort; s.role = role; s.phone = phone; s.updatedAt = Date.now(); }
 
     populateCohortOptions();
     populateCohortFilter();
