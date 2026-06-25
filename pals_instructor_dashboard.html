@@ -703,8 +703,11 @@ async function syncCourseStart(ms){
 window.setStart = function(v){if(v){localStorage.setItem(ckKey(),v);tickCountdown();syncCourseStart(new Date(v).getTime());try{renderSessions();}catch(e){}}};
 window.clearStart = function(){localStorage.removeItem(ckKey());document.getElementById('course_start').value='';document.getElementById('countdown').textContent='—';syncCourseStart(null);try{renderSessions();}catch(e){}};
 function tickCountdown(){
-  const v=localStorage.getItem(ckKey());if(!v){document.getElementById('countdown').textContent='Set a course start time →';document.getElementById('course_start').value='';return}
-  document.getElementById('course_start').value=v;
+  const input=document.getElementById('course_start');
+  const editing=(document.activeElement===input);   // don't clobber the picker mid-edit
+  const v=localStorage.getItem(ckKey());
+  if(!v){document.getElementById('countdown').textContent='Set a course start time →';if(!editing)input.value='';return}
+  if(!editing)input.value=v;
   const diff=new Date(v)-new Date();
   if(diff<=0){document.getElementById('countdown').textContent='Course in progress / ended';return}
   const d=Math.floor(diff/86400000),h=Math.floor(diff%86400000/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);
