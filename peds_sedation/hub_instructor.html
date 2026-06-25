@@ -1,0 +1,2330 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pediatric Sedation Safety · Instructor Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>window.COURSE_NS='peds_';window.COURSE_BASE='/peds_sedation/';(function(){var p='peds_';try{var S=Storage.prototype,g=S.getItem,s=S.setItem,r=S.removeItem;S.getItem=function(k){return g.call(this,p+k)};S.setItem=function(k,v){return s.call(this,p+k,v)};S.removeItem=function(k){return r.call(this,p+k)};}catch(e){}})();</script>
+<script src="../firebase-config.js"></script>
+<script src="modules.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--primary:#0891B2;--primary-dark:#0e7490;--primary-light:#e0f2fe;--instructor:#7C3AED;--success:#22C55E;--warning:#F59E0B;--danger:#EF4444;--bg:#F0F9FF;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--faint:#94a3b8;--radius:14px;--shadow:0 4px 20px rgba(8,145,178,.09)}
+[data-theme="dark"]{--bg:#0f172a;--surface:#1e293b;--surface2:#273548;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--faint:#475569;--shadow:0 4px 24px rgba(0,0,0,.4)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Manrope',system-ui,sans-serif}
+body{min-height:100vh;background:var(--bg);color:var(--text);transition:background .3s,color .3s}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(8px)}
+.topbar-left{display:flex;align-items:center;gap:12px}.logo{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#7C3AED,#0891B2);display:flex;align-items:center;justify-content:center}.logo svg{width:20px;height:20px}.topbar-title{font-weight:800;font-size:1rem}.topbar-role{font-size:.72rem;background:rgba(124,58,237,.12);color:#7C3AED;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.4px}.topbar-right{display:flex;align-items:center;gap:.75rem}
+.btn-sm{padding:.45rem .9rem;border-radius:8px;font-weight:600;font-size:.8rem;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:5px}.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{background:var(--surface2);color:var(--text)}.btn-danger{background:rgba(239,68,68,.1);color:#dc2626;border:1px solid rgba(239,68,68,.2)}.btn-danger:hover{background:rgba(239,68,68,.2)}
+.main{max-width:1180px;margin:0 auto;padding:2rem 1.5rem}.section-title{font-size:1rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);transition:all .25s;overflow:hidden;display:block;text-decoration:none;color:var(--text)}.card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(8,145,178,.14);border-color:rgba(8,145,178,.3)}.card.disabled{opacity:.68;cursor:not-allowed}.card.disabled:hover{transform:none;box-shadow:var(--shadow);border-color:var(--border)}
+.card-body{padding:1.25rem}.card-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:.9rem;flex-shrink:0}.card-title{font-weight:700;font-size:.97rem;margin-bottom:.3rem}.card-desc{font-size:.8rem;color:var(--muted);line-height:1.55}.grad-bar{height:3px;background:linear-gradient(90deg,#0891B2,#34D399)}.grad-bar.purple{background:linear-gradient(90deg,#7C3AED,#0891B2)}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:.7rem;font-weight:700;letter-spacing:.3px}.badge-instructor{background:rgba(124,58,237,.12);color:#7C3AED}.badge-warn{background:rgba(245,158,11,.12);color:#b45309}.badge-ok{background:rgba(34,197,94,.12);color:#15803d}.badge-neutral{background:rgba(100,116,139,.12);color:var(--muted)}
+.welcome{background:linear-gradient(135deg,rgba(124,58,237,.07),rgba(8,145,178,.07));border:1px solid rgba(124,58,237,.15);border-radius:var(--radius);padding:1.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}.welcome-text h2{font-size:1.3rem;font-weight:800;margin-bottom:.25rem}.welcome-text p{font-size:.85rem;color:var(--muted)}.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.9rem}.mod-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;display:flex;align-items:flex-start;gap:.9rem;text-decoration:none;color:var(--text);transition:all .2s;box-shadow:var(--shadow)}.mod-card:hover{border-color:rgba(8,145,178,.4);transform:translateY(-2px)}.mod-num{width:32px;height:32px;border-radius:8px;background:var(--primary-light);color:var(--primary);font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}[data-theme="dark"] .mod-num{background:rgba(8,145,178,.2)}.mod-info{flex:1}.mod-title{font-weight:700;font-size:.87rem;line-height:1.35;margin-bottom:.2rem}.mod-sub{font-size:.75rem;color:var(--muted)}
+.theme-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}.hint{margin-top:.85rem;font-size:.74rem;color:var(--muted)}
+
+/* ── Create Student Modal ───────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:18px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.22);width:100%;max-width:480px;overflow:hidden;transform:translateY(18px) scale(.97);transition:transform .28s cubic-bezier(.16,1,.3,1)}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-header{padding:1.35rem 1.5rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:.5rem}
+.modal-close{background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--muted);transition:all .18s}
+.modal-close:hover{background:var(--border);color:var(--text)}
+.modal-body{padding:1.35rem 1.5rem}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.4px}
+.form-group input,.form-group select{width:100%;padding:.62rem .85rem;border-radius:9px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:.88rem;font-family:'Manrope',system-ui,sans-serif;transition:border-color .18s,box-shadow .18s;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(8,145,178,.12)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.pw-wrap{position:relative}.pw-wrap input{padding-right:2.6rem}
+.pw-toggle{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:0;display:flex;align-items:center}
+.pw-toggle:hover{color:var(--text)}
+.btn-create{width:100%;padding:.75rem;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#0891B2);color:#fff;font-weight:800;font-size:.9rem;border:none;cursor:pointer;transition:opacity .2s,transform .15s;margin-top:.25rem}
+.btn-create:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
+.btn-create:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.create-result{margin-top:1rem;border-radius:10px;padding:.85rem 1rem;font-size:.82rem;font-weight:600;display:none;line-height:1.55}
+.create-result.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#15803d;display:block}
+.create-result.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#dc2626;display:block}
+.create-result.info{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#92400e;display:block}
+.create-result .cred-box{margin-top:.55rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:.6rem .8rem;font-family:monospace;font-size:.8rem;color:var(--text);word-break:break-all}
+.admin-card-btn{background:none;border:none;padding:0;text-align:left;width:100%;cursor:pointer;display:block;text-decoration:none;color:var(--text)}
+
+@media(max-width:768px){.grid-3{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
+@media(max-width:500px){.grid-3,.grid-2{grid-template-columns:1fr}}
+
+/* ── Roster Section ──────────────────────────────────────────── */
+.roster-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem}
+.roster-search{padding:.5rem .9rem;border:1px solid var(--border);border-radius:8px;font-size:.85rem;background:var(--surface);color:var(--text);width:260px;outline:none;transition:border-color .2s}
+.roster-search:focus{border-color:var(--primary)}
+.roster-actions{display:flex;gap:.5rem}
+.roster-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.roster-table{width:100%;border-collapse:collapse;font-size:.83rem}
+.roster-table th{padding:.65rem 1rem;text-align:left;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface2)}
+.roster-table td{padding:.7rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text)}
+.roster-table tr:last-child td{border-bottom:none}
+.roster-table tr:hover td{background:rgba(8,145,178,.04)}
+.prog-bar-wrap{display:flex;align-items:center;gap:.5rem;min-width:140px}
+.prog-bar-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),#22c55e);border-radius:3px;transition:width .4s}
+.prog-pct{font-size:.75rem;font-weight:700;color:var(--muted);min-width:32px;text-align:right}
+.badge-role{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.03em}
+.badge-student{background:rgba(8,145,178,.12);color:var(--primary)}
+.badge-instructor{background:rgba(124,58,237,.12);color:#7C3AED}
+.btn-edit{padding:.3rem .7rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-edit:hover{border-color:var(--primary);color:var(--primary)}
+.roster-empty{padding:2.5rem;text-align:center;color:var(--muted);font-size:.9rem}
+/* Bulk assign */
+.ba-controls{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-bottom:.85rem}
+.ba-input{padding:.5rem .7rem;border:1px solid var(--border);border-radius:8px;font-size:.85rem;background:var(--surface);color:var(--text);outline:none}
+.ba-check{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;cursor:pointer}
+.ba-list{max-height:320px;overflow:auto;border:1px solid var(--border);border-radius:10px}
+.ba-empty{padding:1.4rem;text-align:center;color:var(--muted);font-size:.85rem}
+.ba-row{display:flex;align-items:center;gap:.7rem;padding:.5rem .8rem;border-bottom:1px solid var(--border);font-size:.85rem}
+.ba-row:last-child{border-bottom:none}
+.ba-row:hover{background:var(--surface2)}
+.ba-row input[type=checkbox]{width:16px;height:16px;flex:0 0 auto}
+.ba-nm{font-weight:700;color:var(--text)}
+.ba-em{color:var(--muted);font-size:.78rem}
+.ba-meta{margin-inline-start:auto;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ba-badge{font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:999px}
+.ba-reg{background:rgba(34,197,94,.14);color:#15803d}
+.ba-inv{background:rgba(245,158,11,.16);color:#b45309}
+.ba-tag{font-size:.72rem;color:var(--muted)}
+.ba-apply{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.85rem}
+/* Teaching assignments */
+.ta-table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:760px}
+.ta-table th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700;padding:.4rem .5rem;border-bottom:2px solid var(--border)}
+.ta-table td{padding:.3rem .4rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.ta-table input{width:100%;box-sizing:border-box;padding:.4rem .5rem;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--text);font-size:.84rem;font-family:inherit}
+.ta-table input:hover{border-color:var(--border)}
+.ta-table input:focus{outline:none;border-color:var(--primary);background:var(--surface)}
+.ta-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;line-height:1;padding:.2rem .35rem;border-radius:6px}
+.ta-del:hover{color:var(--danger);background:rgba(239,68,68,.1)}
+.ta-empty{padding:1.2rem;text-align:center;color:var(--muted);font-size:.85rem}
+.ba-edit{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer}
+.ba-edit:hover{border-color:var(--primary);color:var(--primary)}
+.roster-stats{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.4rem .85rem;font-size:.78rem;color:var(--muted)}
+.stat-chip strong{color:var(--text);font-weight:700}
+/* Edit modal */
+#edit-overlay,#invite-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+#edit-overlay.open,#invite-overlay.open{opacity:1;pointer-events:all}
+.edit-modal{background:var(--surface);border-radius:var(--radius);width:min(540px,95vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.edit-modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)}
+.edit-modal-header h3{font-size:1rem;font-weight:700}
+.edit-modal-body{padding:1.5rem}
+.mod-toggles{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.75rem 0}
+.mod-toggle{display:flex;align-items:center;gap:.4rem;font-size:.8rem;cursor:pointer;padding:.4rem .6rem;border:1px solid var(--border);border-radius:6px;transition:all .2s}
+.mod-toggle input{accent-color:var(--primary);cursor:pointer}
+.mod-toggle.done{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.06);color:#15803d}
+.edit-notes{width:100%;min-height:70px;padding:.6rem .8rem;border:1px solid var(--border);border-radius:8px;font-size:.83rem;background:var(--surface);color:var(--text);resize:vertical;font-family:inherit;outline:none;transition:border-color .2s;margin-top:.25rem}
+.edit-notes:focus{border-color:var(--primary)}
+.edit-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap}
+
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <div class="topbar-left">
+    <div class="logo"><svg viewBox="0 0 40 40" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><line x1="20" y1="8" x2="20" y2="32"/><line x1="8" y1="20" x2="32" y2="20"/><circle cx="20" cy="20" r="16" stroke-width="2.5"/></svg></div>
+    <div><div class="topbar-title">Pediatric Sedation Safety</div><div style="font-size:.7rem;color:var(--muted)">Instructor Hub</div></div>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-role" id="user-badge">INSTRUCTOR</span>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+      <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <button class="btn-sm btn-danger" id="logout-btn">Sign Out</button>
+  <span style="font-size:.68rem;color:rgba(255,255,255,.5);margin-left:.5rem">v2026-06-18b</span>
+  </div>
+</nav>
+
+<!-- ── Create Student Modal ──────────────────────────────────── -->
+<div class="modal-overlay" id="cs-overlay" role="dialog" aria-modal="true" aria-labelledby="cs-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="cs-title">👤 Create Student Account</h3>
+      <button class="modal-close" id="cs-close" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cs-fname">First Name</label>
+          <input type="text" id="cs-fname" placeholder="Sarah" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="cs-lname">Last Name</label>
+          <input type="text" id="cs-lname" placeholder="Cohen" autocomplete="off">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="cs-email">Email Address</label>
+        <input type="email" id="cs-email" placeholder="sarah.cohen@hospital.org" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label for="cs-phone">Phone <span style="font-weight:400;color:var(--muted)">(optional — for WhatsApp / SMS)</span></label>
+        <input type="tel" id="cs-phone" placeholder="0501234567" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label for="cs-pw">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="cs-pw" placeholder="Minimum 6 characters" autocomplete="new-password">
+          <button class="pw-toggle" id="pw-toggle-btn" type="button" aria-label="Show/hide password">
+            <svg id="pw-eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cs-cohort">Cohort / Group</label>
+          <input type="text" id="cs-cohort" list="cohort-options" placeholder="June 2026" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="cs-role">Role</label>
+          <select id="cs-role">
+            <option value="student" selected>Student</option>
+            <option value="instructor">Instructor</option>
+            <option value="lead_instructor">Lead Instructor</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-create" id="cs-submit-btn">Create Account</button>
+      <div class="create-result" id="cs-result"></div>
+    </div>
+  </div>
+</div>
+<datalist id="cohort-options"></datalist>
+
+<main class="main">
+  <div class="welcome">
+    <div class="welcome-text">
+      <h2 id="welcome-name">Welcome, Instructor</h2>
+      <p>You have full access to all course tools, student data, and evaluation resources.</p>
+    </div>
+    <span class="badge badge-instructor">👨‍🏫 INSTRUCTOR ACCESS</span>
+  </div>
+
+  <div class="section-title">Core Tools</div>
+  <div class="grid-3" style="margin-bottom:2rem">
+    <a href="pals_forms_portal.html" class="card"><div class="card-body"><div class="card-icon" style="background:rgba(8,145,178,.1);color:#0891B2">📋</div><div class="card-title">Forms Portal</div><div class="card-desc">Pre-registration, pre-test, attendance, skills checklists, megacode eval, final exam, certificates.</div></div><div class="grad-bar"></div></a>
+    <a href="pals_instructor_dashboard.html" class="card"><div class="card-body"><div class="card-icon" style="background:rgba(124,58,237,.1);color:#7C3AED">📊</div><div class="card-title">Instructor Dashboard</div><div class="card-desc">Roster, scores, attendance analytics, bulk CSV exports, feedback overview.</div></div><div class="grad-bar purple"></div></a>
+    <a href="pals_course_planner.html" class="card"><div class="card-body"><div class="card-icon" style="background:rgba(34,197,94,.1);color:#15803d">📅</div><div class="card-title">Course Planner</div><div class="card-desc">Editable 2-day schedule, color-coded sessions, QR share, print-ready agenda.</div></div><div class="grad-bar"></div></a>
+  </div>
+
+  <div id="admin-controls" style="display:none">
+    <div class="section-title">Admin Controls</div>
+    <!-- Create Student card injected here by JS when role === admin -->
+    <div class="grid-3" style="margin-bottom:2rem" id="admin-grid"></div>
+  </div>
+
+  <div id="bulk-section" style="display:none">
+    <div class="section-title">Bulk Enrollment — invite by CSV / Excel</div>
+    <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:.85rem">Upload a <strong>CSV</strong> or <strong>Excel</strong> file of participants. Recognised columns: <strong>email</strong> (required), <strong>name</strong> (or <strong>first</strong>/<strong>last</strong>), <strong>role</strong> (student / instructor / lead_instructor — default student), optional <strong>cohort</strong>, optional <strong>phone</strong> (for WhatsApp / SMS invites). Not sure of the format? Click <strong>“Download template”</strong> for a ready-to-fill sheet. Each listed person can then self-register <em>once</em> using the link below. After uploading, use the <strong>“Email all invitees”</strong> button to send the invite — uploading alone does not email anyone.</p>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
+        <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.6rem 1.1rem" onclick="downloadEnrollTemplate()" title="Download a ready-to-fill Excel sheet with the required column headers.">⬇ Download template</button>
+        <input type="file" id="bulk-file" accept=".csv,.xlsx,.xls" style="font-size:.85rem;color:var(--text)">
+        <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.6rem 1.1rem" onclick="uploadAllowlist()">⬆ Upload &amp; invite</button>
+      </div>
+      <div id="bulk-result" style="font-size:.83rem;margin-top:.7rem;color:var(--muted);white-space:pre-line"></div>
+      <div id="bulk-mail" style="margin-top:.6rem"></div>
+      <div style="margin-top:.95rem;font-size:.8rem;color:var(--muted)">Self-registration link to share:<br>
+        <code id="reg-link" style="display:inline-block;margin-top:.3rem;background:var(--surface2);padding:4px 9px;border-radius:6px;user-select:all;word-break:break-all"></code>
+        <button class="btn-sm btn-ghost" style="margin-inline-start:.4rem" onclick="copyRegLink()">Copy link</button>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:1.5rem">Invites &amp; updates by WhatsApp / SMS</div>
+    <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:.85rem">Phone numbers come from the <strong>phone</strong> column of your upload. Pick a cohort, edit the message — the registration link is included by default for invites — then tap <strong>WhatsApp</strong> or <strong>SMS</strong> next to each person; their app opens with the message ready to send. Use it again during the course to send updates (just clear the link and type your update).</p>
+      <div style="display:flex;gap:.9rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:.8rem">
+        <div>
+          <div style="font-size:.74rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.35rem">Cohort</div>
+          <select id="msg-cohort" onchange="renderMsgList()" style="padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700;max-width:200px">
+            <option value="ALL">All cohorts</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:.74rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.35rem" title="Country dialing code, used to convert local numbers (e.g. a leading 0) to international for WhatsApp.">Country code</div>
+          <input id="msg-cc" value="972" style="width:72px;padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700">
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" onclick="msgResetInvite()" title="Reset the message to the default registration invite.">↺ Invite text</button>
+          <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" onclick="msgInsertLink()" title="Append the self-registration link to the message.">🔗 Insert link</button>
+          <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" onclick="msgCopyNumbers()" title="Copy all numbers (international) for a WhatsApp broadcast list.">⧉ Copy numbers</button>
+        </div>
+      </div>
+      <textarea id="msg-body" rows="4" style="width:100%;box-sizing:border-box;padding:.6rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.88rem;resize:vertical"></textarea>
+      <div id="msg-list" style="margin-top:.85rem"></div>
+    </div>
+  </div>
+
+  <div class="section-title">Exam Access Control</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Global Exam Status</div>
+        <div id="exam-global-status" style="font-size:1rem;font-weight:700;color:var(--danger)">⏳ Checking…</div>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button onclick="setGlobalExam(true)"  id="btn-exam-unlock"
+          style="background:var(--success,#22c55e);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          🔓 Unlock Exam for ALL
+        </button>
+        <button onclick="setGlobalExam(false)" id="btn-exam-lock"
+          style="background:var(--danger,#ef4444);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          🔒 Lock Exam for ALL
+        </button>
+      </div>
+    </div>
+    <div style="font-size:.76rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.75rem">
+      <strong>Global unlock</strong> opens the exam for every student at once. Use <strong>per-student unlock</strong> (✏️ Edit → Exam Access) for individual exceptions.
+    </div>
+    <div id="exam-ctrl-result" style="margin-top:.5rem;font-size:.82rem"></div>
+  </div>
+
+  <div class="section-title">Feedback Window</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Course Feedback Status</div>
+        <div id="fb-global-status" style="font-size:1rem;font-weight:700;color:var(--danger)">⏳ Checking…</div>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button onclick="setFeedbackOpen(true)"  id="btn-fb-open"
+          style="background:var(--success,#22c55e);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          📝 Open Feedback
+        </button>
+        <button onclick="setFeedbackOpen(false)" id="btn-fb-close"
+          style="background:var(--danger,#ef4444);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          🚫 Close Feedback
+        </button>
+      </div>
+    </div>
+    <div style="font-size:.76rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.75rem">
+      Feedback opens <strong>automatically</strong> when the course start date (set on the Instructor Dashboard) arrives. Students must complete it before the Final Exam becomes available. The buttons below are a manual fallback used only when no start date is set.
+    </div>
+    <div id="fb-ctrl-result" style="margin-top:.5rem;font-size:.82rem"></div>
+  </div>
+
+  <div class="section-title">Daily Attendance Check-in</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem">
+      <div style="min-width:170px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Cohort</div>
+        <select id="att-cohort" onchange="onAttCohortChange()" title="Open check-in for a specific cohort, or the default for everyone." style="padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700;max-width:170px">
+          <option value="">Default (all)</option>
+        </select>
+      </div>
+      <div style="min-width:130px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Day</div>
+        <select id="att-day" style="padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700">
+          <option>Day 1</option><option>Day 2</option>
+        </select>
+      </div>
+      <div style="min-width:120px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Window (min)</div>
+        <input id="att-dur" type="number" value="45" min="5" max="240" style="width:90px;padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700">
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button onclick="openAttendance()" id="btn-att-open"
+          style="background:var(--success,#22c55e);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          📣 Open Check-in
+        </button>
+        <button onclick="closeAttendance()" id="btn-att-close"
+          style="background:var(--danger,#ef4444);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer;font-size:.88rem">
+          🛑 Close
+        </button>
+      </div>
+    </div>
+    <div id="att-code-box" style="display:none;text-align:center;background:var(--bg);border:2px dashed var(--success,#22c55e);border-radius:12px;padding:1rem;margin-bottom:1rem">
+      <div style="font-size:.8rem;color:var(--muted);font-weight:700">Show this code to the class — students enter it to check in</div>
+      <div id="att-code" style="font-size:2.4rem;font-weight:800;letter-spacing:.4rem;color:var(--text);margin:.3rem 0">—</div>
+      <div id="att-code-sub" style="font-size:.78rem;color:var(--muted)"></div>
+    </div>
+    <div id="att-status" style="font-size:1rem;font-weight:700;color:var(--danger);margin-bottom:.75rem">⏳ Checking…</div>
+    <div id="att-list" style="font-size:.82rem;color:var(--muted)"></div>
+    <div style="font-size:.74rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.75rem;margin-top:.75rem">
+      Open the window at the start of each day and read out / display the code in the room. Only students physically present can enter it, and it stops working when the window closes or expires.
+    </div>
+  </div>
+
+  <div class="section-title">Teaching Assignments</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem">
+      Shared instructor schedule — allocate staff to sessions, frontal talks, skill stations and scenarios. Visible to all instructors and saved live; anyone on the team can edit.
+    </div>
+    <div style="overflow-x:auto">
+      <table id="ta-table" class="ta-table">
+        <thead>
+          <tr>
+            <th style="width:90px">Day</th>
+            <th style="width:110px">Time</th>
+            <th style="width:150px">Type</th>
+            <th>Session / Topic</th>
+            <th style="width:170px">Instructor(s)</th>
+            <th style="width:120px">Location</th>
+            <th>Notes</th>
+            <th style="width:38px"></th>
+          </tr>
+        </thead>
+        <tbody id="ta-body"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.85rem">
+      <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem" onclick="taAddRow()">＋ Add row</button>
+      <span id="ta-status" style="font-size:.78rem;color:var(--muted)"></span>
+    </div>
+    <datalist id="ta-instructors"></datalist>
+    <datalist id="ta-types">
+      <option value="Frontal talk"></option>
+      <option value="Skill station"></option>
+      <option value="Scenario / Megacode"></option>
+      <option value="Small group"></option>
+      <option value="Assessment"></option>
+      <option value="Break"></option>
+    </datalist>
+  </div>
+
+  <div class="section-title">Broadcast Announcement</div>
+  <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:1;min-width:240px">
+        <label style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:.35rem">Message to all students</label>
+        <input id="ann-msg" type="text" maxlength="280" placeholder="e.g. Lunch break extended to 13:15" style="width:100%;padding:.6rem .85rem;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);font-size:.9rem;font-family:inherit;outline:none">
+      </div>
+      <div>
+        <label style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:.35rem">Shows for</label>
+        <select id="ann-dur" style="padding:.62rem .85rem;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);font-size:.9rem;font-family:inherit">
+          <option value="3600000">1 hour</option>
+          <option value="7200000" selected>2 hours</option>
+          <option value="28800000">8 hours</option>
+          <option value="86400000">24 hours</option>
+        </select>
+      </div>
+      <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.62rem 1.1rem" onclick="sendAnnouncement()">📣 Send</button>
+      <button class="btn-sm btn-ghost" onclick="clearAnnouncement()">Clear</button>
+    </div>
+    <div id="ann-result" style="font-size:.8rem;margin-top:.6rem;color:var(--muted)"></div>
+  </div>
+
+  <div class="section-title">11 Learning Modules</div>
+  <div class="modules-grid" id="modules-grid"></div>
+
+  <!-- ── Roster: registered people + pending invites, with bulk actions ── -->
+  <div class="section-title" style="margin-top:2.5rem">Roster &amp; Participants</div>
+
+  <div class="roster-stats">
+    <div class="stat-chip">Total students: <strong id="stat-total">—</strong></div>
+    <div class="stat-chip">Completed all: <strong id="stat-done">—</strong></div>
+    <div class="stat-chip">In progress: <strong id="stat-progress">—</strong></div>
+    <div class="stat-chip">Not started: <strong id="stat-notstarted">—</strong></div>
+    <div class="stat-chip">Invited / pending: <strong id="stat-pending">—</strong></div>
+  </div>
+
+  <div class="roster-header">
+    <select id="cohort-filter" class="roster-search" style="max-width:200px;cursor:pointer" onchange="setCohortView(this.value)" title="Each cohort is shown separately — pick one to view its roster, stats and exports.">
+      <option value="ALL">All cohorts</option>
+    </select>
+    <select id="roster-status" class="roster-search" style="max-width:170px;cursor:pointer" onchange="applyRosterView()" title="Show registered people, pending invites, or both.">
+      <option value="all">Registered + invited</option>
+      <option value="registered">Registered only</option>
+      <option value="invited">Invited (pending) only</option>
+    </select>
+    <select id="roster-role" class="roster-search" style="max-width:160px;cursor:pointer" onchange="applyRosterView()" title="Filter the roster by role.">
+      <option value="all">All roles</option>
+      <option value="student">Students</option>
+      <option value="instructor">Instructors</option>
+      <option value="lead_instructor">Lead Instructors</option>
+    </select>
+    <input class="roster-search" id="roster-search" type="search" placeholder="🔍  Search within cohort…" oninput="filterRoster()">
+    <div class="roster-actions">
+      <button class="btn-sm btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px" onclick="loadRoster()">↺ Refresh</button>
+    </div>
+  </div>
+  <div id="cohort-scope-note" style="font-size:.78rem;color:var(--muted);margin:-.4rem 0 .8rem">Viewing <strong>all cohorts</strong>. Cohorts are kept separate — select one above to isolate its roster, statistics and CSV export.</div>
+
+  <!-- Bulk action bar — appears when one or more people are ticked -->
+  <div id="roster-bulk-bar" style="display:none;gap:.55rem;flex-wrap:wrap;align-items:center;background:var(--surface2,rgba(148,163,184,.08));border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;margin-bottom:.7rem">
+    <strong id="rb-count" style="font-size:.8rem">0 selected</strong>
+    <input id="rb-cohort" class="ba-input" list="cohort-options" placeholder="Set cohort (blank = keep)">
+    <select id="rb-role" class="ba-input">
+      <option value="">— keep role —</option>
+      <option value="student">student</option>
+      <option value="instructor">instructor</option>
+      <option value="lead_instructor">lead_instructor</option>
+    </select>
+    <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem" onclick="applyBulkAssign()">Apply</button>
+    <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem 1rem" onclick="resendInvites()">✉ Resend invite</button>
+    <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem" onclick="clearRosterSel()">Clear</button>
+  </div>
+  <div id="rb-result" style="font-size:.82rem;margin:-.2rem 0 .7rem;white-space:pre-line"></div>
+
+  <div class="roster-table-wrap">
+    <table class="roster-table">
+      <thead>
+        <tr>
+          <th style="width:34px;text-align:center"><input type="checkbox" id="rb-all" onclick="toggleAllRoster(this.checked)" title="Select all shown"></th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Cohort</th>
+          <th>Role</th>
+          <th>Progress / Status</th>
+          <th>Last Active</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="roster-tbody">
+        <tr><td colspan="8" class="roster-empty">Loading roster…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Edit Student Modal ───────────────────────────────────── -->
+  <div id="edit-overlay">
+    <div class="edit-modal">
+      <div class="edit-modal-header">
+        <h3 id="edit-modal-title">✏️ Edit Student</h3>
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
+      </div>
+      <div class="edit-modal-body">
+        <input type="hidden" id="edit-uid">
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">First / Last name</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+            <input type="text" id="edit-fname" placeholder="First" autocomplete="off">
+            <input type="text" id="edit-lname" placeholder="Last" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Cohort / Group</label>
+          <input type="text" id="edit-cohort" list="cohort-options" placeholder="e.g. June 2026" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Phone <span style="font-weight:400;color:var(--muted)">(for WhatsApp / SMS)</span></label>
+          <input type="tel" id="edit-phone" placeholder="0501234567" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:1rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Role</label>
+          <select id="edit-role">
+            <option value="student">Student</option>
+            <option value="instructor">Instructor</option>
+            <option value="lead_instructor">Lead Instructor</option>
+          </select>
+        </div>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Module Completion</label>
+          <div class="mod-toggles" id="mod-toggles"></div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:.35rem">Toggle to manually mark modules complete or incomplete. Saves immediately to Firestore.</div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Exam Access</label>
+          <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer;font-size:.88rem;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:9px;width:fit-content">
+            <input type="checkbox" id="edit-exam-unlock" style="accent-color:#22c55e;width:16px;height:16px;cursor:pointer">
+            <span id="edit-exam-label">Allow this student to access the Final Exam</span>
+          </label>
+        </div>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Instructor Notes</label>
+          <textarea class="edit-notes" id="edit-notes" placeholder="Optional notes about this student…"></textarea>
+        </div>
+        <div style="margin-bottom:1rem;border-top:1px solid var(--border);padding-top:.9rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Account &amp; access</label>
+          <div style="font-size:.82rem;color:var(--muted);margin-bottom:.55rem">Sign-in email: <strong id="edit-email-display" style="color:var(--text)">—</strong></div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button id="edit-setpw-btn" class="btn-sm" style="background:#7C3AED;color:#fff;border:none;border-radius:8px;display:none" onclick="setUserPassword()" title="Set a new password for this account directly (admin only)">🔐 Set password…</button>
+            <button class="btn-sm" style="background:#0e7490;color:#fff;border:none;border-radius:8px" onclick="sendPasswordReset()" title="Firebase emails this person a password-reset link">🔑 Send password reset</button>
+            <a class="btn-sm" id="edit-resend-email" target="_blank" rel="noopener" style="background:#0891B2;color:#fff;border:none;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .85rem">✉ Resend login email</a>
+          </div>
+          <div style="font-size:.72rem;color:var(--muted);margin-top:.45rem">The sign-in email can't be changed here (it's the Firebase login). To use a new address, create a new account for it.</div>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-sm btn-ghost" onclick="closeEditModal()">Cancel</button>
+          <button class="btn-sm" style="background:#ef4444;color:#fff;border:none;border-radius:8px" onclick="resetProgress()">🗑 Reset Progress</button>
+          <button class="btn-sm" style="background:#b45309;color:#fff;border:none;border-radius:8px" onclick="resetFeedback()" title="Clear this student's feedback so they can submit again (password required)">💬 Reset Feedback</button>
+          <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px" onclick="saveEdit()">💾 Save Changes</button>
+        </div>
+        <div id="edit-result" style="margin-top:.75rem;font-size:.8rem"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit an INVITED (not-yet-registered) person's allowlist entry -->
+  <div id="invite-overlay">
+    <div class="edit-modal">
+      <div class="edit-modal-header">
+        <h3 id="invite-modal-title">✏️ Edit invite</h3>
+        <button class="modal-close" onclick="closeInviteEdit()">✕</button>
+      </div>
+      <div class="edit-modal-body">
+        <input type="hidden" id="invite-orig-email">
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">First / Last name</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+            <input type="text" id="invite-fname" placeholder="First" autocomplete="off">
+            <input type="text" id="invite-lname" placeholder="Last" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Sign-in email</label>
+          <input type="email" id="invite-email" placeholder="name@example.com" autocomplete="off">
+          <div style="font-size:.72rem;color:var(--muted);margin-top:.35rem">They register with this exact address. Changing it moves the invite to the new email.</div>
+        </div>
+        <div class="form-group" style="margin-bottom:.8rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Cohort / Group</label>
+          <input type="text" id="invite-cohort" list="cohort-options" placeholder="e.g. June 2026" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:1rem">
+          <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.4rem">Role</label>
+          <select id="invite-role">
+            <option value="student">Student</option>
+            <option value="instructor">Instructor</option>
+            <option value="lead_instructor">Lead Instructor</option>
+          </select>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-sm btn-ghost" onclick="closeInviteEdit()">Cancel</button>
+          <button class="btn-sm" style="background:#ef4444;color:#fff;border:none;border-radius:8px" onclick="deleteInvite()">🗑 Delete invite</button>
+          <button class="btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px" onclick="saveInviteEdit()">💾 Save</button>
+        </div>
+        <div id="invite-result" style="margin-top:.75rem;font-size:.8rem"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Final-exam mistakes breakdown -->
+<div id="exam-mistakes-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--surface);color:var(--text);max-width:560px;width:100%;max-height:85vh;overflow:auto;border-radius:14px;padding:1.4rem;box-shadow:0 12px 44px rgba(0,0,0,.35);border:1px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+      <div>
+        <h3 id="exam-mistakes-title" style="font-weight:800;margin:0 0 .15rem;font-size:1.05rem"></h3>
+        <div id="exam-mistakes-sub" style="font-size:.78rem;color:var(--muted)"></div>
+      </div>
+      <button onclick="closeExamMistakes()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--muted);line-height:1">×</button>
+    </div>
+    <ul id="exam-mistakes-list" style="list-style:none;padding:0;margin:1rem 0 0"></ul>
+    <button onclick="closeExamMistakes()" style="margin-top:1rem;width:100%;padding:.6rem;border:none;border-radius:9px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer">Close</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }                    from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signOut, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { initializeApp as initSecondary }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getAuth as getSecondaryAuth,
+  createUserWithEmailAndPassword,
+  signOut as secondarySignOut
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {
+  getFirestore,
+  doc, setDoc, getDoc, getDocs, deleteDoc,
+  collection, onSnapshot, updateDoc, deleteField,
+  query, where,
+  serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+// ── Primary app (for the instructor session) ──────────────────
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+
+// ── Secondary app (for creating students without signing out) ──
+const secondaryApp  = initSecondary(FIREBASE_CONFIG, 'secondary');
+const secondaryAuth = getSecondaryAuth(secondaryApp);
+const db            = getFirestore(app);
+
+// ── Firestore aliases
+const fsDoc    = doc;
+const fsSetDoc = setDoc;
+const fsGetDoc = getDoc;
+
+const SK = 'pals_sess_v2';
+const INSTRUCTOR_ROLES = ['admin', 'lead_instructor', 'instructor'];
+
+function getSession() {
+  if (window.__pals_sess) return window.__pals_sess;
+  try { return JSON.parse(sessionStorage.getItem(SK) || 'null'); } catch(e) { return null; }
+}
+
+async function logout() {
+  const btn = document.getElementById('logout-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Signing out…'; }
+  window.__pals_sess = null;
+  try { sessionStorage.removeItem(SK); } catch(e) {}
+  try { sessionStorage.setItem('pals_signed_out', '1'); } catch(e) {}
+  try { await signOut(auth); } catch(e) {}
+  window.location.replace('index.html');
+}
+
+// ── Auth guard ─────────────────────────────────────────────────
+const s = getSession();
+if (!s) {
+  window.__pals_sess = null;
+  try { sessionStorage.removeItem(SK); } catch(e) {}
+  try { await signOut(auth); } catch(e) {}
+  window.location.replace('index.html');
+} else if (!INSTRUCTOR_ROLES.includes(s.role)) {
+  // A student landed here — send them to the student hub, do NOT sign out.
+  window.location.replace('hub_student.html');
+} else {
+  document.getElementById('welcome-name').textContent = 'Welcome, ' + s.name;
+  document.getElementById('user-badge').textContent = s.role === 'admin' ? 'ADMIN' : s.name.toUpperCase();
+  document.getElementById('logout-btn').addEventListener('click', logout);
+
+  // ── Inject "Create Student" card for admins only ─────────────
+  if (s.role === 'admin') {
+    document.getElementById('admin-controls').style.display = 'block';
+    const adminGrid = document.getElementById('admin-grid');
+    // Expand grid to 3 columns for the extra card
+    adminGrid.style.gridTemplateColumns = 'repeat(3,1fr)';
+    const csCard = document.createElement('div');
+    csCard.className = 'card';
+    csCard.style.cursor = 'pointer';
+    csCard.setAttribute('role', 'button');
+    csCard.setAttribute('tabindex', '0');
+    csCard.setAttribute('aria-haspopup', 'dialog');
+    csCard.innerHTML = `
+      <div class="card-body">
+        <div class="card-icon" style="background:rgba(8,145,178,.1);color:#0891B2">👤</div>
+        <div class="card-title">Create Student</div>
+        <div class="card-desc">Add a new student or instructor account directly to Firebase Auth and the Firestore roster — no email invitation needed.</div>
+        <div class="hint">Admin only · Creates credentials instantly</div>
+      </div>
+      <div class="grad-bar" style="background:linear-gradient(90deg,#0891B2,#7C3AED)"></div>
+    `;
+    csCard.addEventListener('click', openModal);
+    csCard.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); } });
+    adminGrid.appendChild(csCard);
+
+    // Reveal bulk-enrollment tool + show the shareable registration link
+    const bulk = document.getElementById('bulk-section');
+    if (bulk) bulk.style.display = 'block';
+    const link = document.getElementById('reg-link');
+    if (link) link.textContent = location.href.replace(/[^/]*(\?.*)?(#.*)?$/, '') + 'register.html';
+    try{ const mb=document.getElementById('msg-body'); if(mb && !mb.value) mb.value = defaultInviteMsg(); populateMsgCohorts(); }catch(e){}
+  }
+}
+
+// ── Modal logic ────────────────────────────────────────────────
+const overlay   = document.getElementById('cs-overlay');
+const closeBtn  = document.getElementById('cs-close');
+const submitBtn = document.getElementById('cs-submit-btn');
+const resultBox = document.getElementById('cs-result');
+let   createdOnce = false;  // when true, the next submit click clears the form for a new entry
+
+function openModal() {
+  clearForm();
+  overlay.classList.add('open');
+  document.getElementById('cs-fname').focus();
+}
+function closeModal() {
+  overlay.classList.remove('open');
+}
+
+closeBtn.addEventListener('click', closeModal);
+overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Password visibility toggle
+const pwInput  = document.getElementById('cs-pw');
+const pwToggle = document.getElementById('pw-toggle-btn');
+const pwEye    = document.getElementById('pw-eye');
+pwToggle.addEventListener('click', () => {
+  const show = pwInput.type === 'password';
+  pwInput.type = show ? 'text' : 'password';
+  pwEye.innerHTML = show
+    ? '<line x1="1" y1="1" x2="23" y2="23"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>'
+    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+});
+
+function clearForm() {
+  ['cs-fname','cs-lname','cs-email','cs-pw','cs-cohort','cs-phone'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('cs-role').value = 'student';
+  resultBox.className = 'create-result';
+  resultBox.innerHTML = '';
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Create Account';
+}
+
+// ── Submit: create Auth user + Firestore doc ───────────────────
+submitBtn.addEventListener('click', async () => {
+  // After a successful create, the button reads "Create Another" — clear and bail.
+  if (createdOnce) { createdOnce = false; clearForm(); return; }
+  const fname  = document.getElementById('cs-fname').value.trim();
+  const lname  = document.getElementById('cs-lname').value.trim();
+  const email  = document.getElementById('cs-email').value.trim().toLowerCase();
+  const pw     = document.getElementById('cs-pw').value;
+  const cohort = document.getElementById('cs-cohort').value.trim();
+  const phone  = document.getElementById('cs-phone').value.trim();
+  const role   = document.getElementById('cs-role').value;
+
+  // Basic validation
+  if (!fname || !lname) { showError('Please enter the student\'s first and last name.'); return; }
+  if (!email || !email.includes('@')) { showError('Please enter a valid email address.'); return; }
+  if (pw.length < 6) { showError('Password must be at least 6 characters.'); return; }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating…';
+  resultBox.className = 'create-result';
+  resultBox.innerHTML = '';
+
+  try {
+    // 1. Create Firebase Auth account via secondary app (doesn't sign out instructor)
+    const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pw);
+    const uid  = cred.user.uid;
+
+    // Sign out the temporary secondary session immediately — we only needed it to create the user
+    await secondarySignOut(secondaryAuth);
+
+    // 2. Write Firestore user document
+    await setDoc(doc(db,(window.COURSE_NS||'')+'users', uid), {
+      uid,
+      name:      `${fname} ${lname}`,
+      firstName: fname,
+      lastName:  lname,
+      email,
+      phone:     phone || '',
+      role,
+      cohort:    cohort || 'Unassigned',
+      createdAt: serverTimestamp(),
+      createdBy: getSession()?.uid || 'admin',
+      progress:  {}
+    });
+
+    // Mirror the phone onto an allowlist doc so this person shows up in the
+    // WhatsApp / SMS messaging list (which reads the allowlist). Marked
+    // registered so they don't reappear as a pending invite.
+    if (phone) {
+      try {
+        await setDoc(doc(db,(window.COURSE_NS||'')+'allowlist',email), {
+          name:`${fname} ${lname}`, firstName:fname, lastName:lname, email,
+          phone, role, cohort: cohort || 'Unassigned', registered:true
+        }, { merge:true });
+      } catch(e) {}
+    }
+
+    // 3. Show success with credentials
+    showSuccess(fname, lname, email, pw, role, cohort);
+    // New account appears in the roster immediately.
+    try { loadRoster(); } catch(e) {}
+
+  } catch (err) {
+    await secondarySignOut(secondaryAuth).catch(() => {});
+    if (err.code === 'auth/email-already-in-use') {
+      await recoverExistingAccount(fname, lname, email, role, cohort, phone);
+    } else {
+      showError(firebaseErrorMessage(err.code));
+    }
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Account';
+  }
+});
+
+// When the email already has a Firebase Auth account, you can't (and shouldn't)
+// re-create it. Instead refresh their invite so that the next time they sign in
+// their roster profile is rebuilt automatically (see repairProfileFromInvite in
+// index.html / auth.js), and offer a password reset in case they forgot it.
+async function recoverExistingAccount(fname, lname, email, role, cohort, phone) {
+  resultBox.className = 'create-result info';
+  resultBox.innerHTML = 'This email already has a sign-in account — preparing recovery…';
+  let inviteOk = false;
+  try {
+    await setDoc(doc(db,(window.COURSE_NS||'')+'allowlist', email), {
+      name: `${fname} ${lname}`.trim(), firstName: fname, lastName: lname, email,
+      phone: phone || '', role, cohort: cohort || 'Unassigned', registered: false,
+      addedAt: serverTimestamp(), addedBy: getSession()?.uid || 'admin'
+    }, { merge: true });
+    inviteOk = true;
+  } catch(e) { /* staff allowlist write; non-fatal */ }
+  const loginUrl = new URL('index.html', location.href).href;
+  resultBox.innerHTML = `
+    <strong>⚠️ This email already has a sign-in account.</strong><br>
+    You don't need to create it again.${inviteOk ? ` Their invite has been refreshed (role <em>${esc(role)}</em>, cohort <em>${esc(cohort||'Unassigned')}</em>), so the moment they sign in their roster profile is restored automatically.` : ''}
+    <div style="margin-top:.6rem;font-size:.85rem">To finish:</div>
+    <ol style="margin:.3rem 0 .7rem 1.1rem;font-size:.85rem;line-height:1.5">
+      <li>Have them <strong>sign in</strong> at <span style="word-break:break-all">${esc(loginUrl)}</span> with the password they chose.</li>
+      <li>Forgot it? Send a reset below — they set a new password, then sign in.</li>
+    </ol>
+    <button class="btn-sm" style="background:#0e7490;color:#fff;border:none;border-radius:8px;padding:.45rem .9rem" onclick="sendResetTo('${esc(email)}')">🔑 Send password reset</button>
+    <span id="cs-reset-note" style="margin-inline-start:.5rem;font-size:.8rem;color:var(--muted)"></span>
+  `;
+}
+window.sendResetTo = async function(email) {
+  const note = document.getElementById('cs-reset-note');
+  try {
+    await sendPasswordResetEmail(auth, email);
+    if (note) { note.style.color = '#15803d'; note.textContent = '✅ Reset email sent.'; }
+  } catch(e) {
+    if (note) { note.style.color = 'var(--danger)'; note.textContent = '❌ ' + e.message; }
+  }
+};
+
+function showSuccess(fname, lname, email, pw, role, cohort) {
+  submitBtn.textContent = '✓ Account Created';
+  resultBox.className = 'create-result success';
+  const loginUrl = new URL('index.html', location.href).href;
+  const subject  = encodeURIComponent('Your Pediatric Sedation Safety course login');
+  const body     = encodeURIComponent(
+    `Hello ${fname},\n\nYou have been enrolled in the Pediatric Sedation Safety course as ${(role||'student').replace('_',' ')}.\n\n`+
+    `Sign in here: ${loginUrl}\nEmail: ${email}\nTemporary password: ${pw}\n\n`+
+    `Please change your password after your first sign-in.\n`);
+  const mailto = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${subject}&body=${body}`;
+  resultBox.innerHTML = `
+    <strong>✅ Account created successfully!</strong><br>
+    ${fname} ${lname} has been added to the roster.
+    <div class="cred-box">
+      <strong>Name:</strong> ${fname} ${lname}<br>
+      <strong>Email:</strong> ${email}<br>
+      <strong>Password:</strong> ${pw}<br>
+      <strong>Role:</strong> ${role}<br>
+      <strong>Cohort:</strong> ${cohort || 'Unassigned'}
+    </div>
+    <a class="btn-sm" href="${mailto}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.4rem;margin-top:.6rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.45rem .9rem;text-decoration:none;font-weight:700">✉ Email login details via Gmail</a>
+    <div style="margin-top:.55rem;font-size:.75rem;color:var(--muted)">Opens a Gmail compose window with the sign-in link and credentials pre-filled — just press Send. (Sign in to the Gmail account you want to send from.)</div>
+  `;
+  // Button becomes "Create Another"; the existing click handler sees
+  // createdOnce and clears the form on the next click (no double handlers).
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Create Another';
+  createdOnce = true;
+}
+
+function showError(msg) {
+  resultBox.className = 'create-result error';
+  resultBox.innerHTML = `<strong>❌ Error:</strong> ${msg}`;
+}
+
+function firebaseErrorMessage(code) {
+  const map = {
+    'auth/email-already-in-use':    'That email address is already registered. Use a different email.',
+    'auth/invalid-email':           'The email address format is not valid.',
+    'auth/weak-password':           'Password is too weak. Use at least 6 characters.',
+    'auth/network-request-failed':  'Network error. Check your connection and try again.',
+    'auth/too-many-requests':       'Too many attempts. Please wait a moment and try again.',
+    'auth/operation-not-allowed':   'Email/password sign-in is not enabled in Firebase. Check Authentication settings.',
+  };
+  return map[code] || `Unexpected error (${code}). Please try again.`;
+}
+
+// ── Modules grid ───────────────────────────────────────────────
+const MODULES = window.PALS_MODULES;
+document.getElementById('modules-grid').innerHTML = MODULES.map(m =>
+  `<a href="${m.file}" class="mod-card">
+    <div class="mod-num">M${String(m.n).padStart(2,'0')}</div>
+    <div class="mod-info"><div class="mod-title">${m.title}</div><div class="mod-sub">${m.sub}</div></div>
+  </a>`
+).join('');
+
+// ── Broadcast announcement to all students ─────────────────────
+window.sendAnnouncement = async function() {
+  const msg = document.getElementById('ann-msg').value.trim();
+  const dur = parseInt(document.getElementById('ann-dur').value, 10) || 7200000;
+  const r   = document.getElementById('ann-result');
+  if (!msg) { r.textContent = 'Enter a message first.'; r.style.color = 'var(--danger)'; return; }
+  r.style.color = 'var(--muted)'; r.textContent = 'Sending…';
+  try {
+    await setDoc(doc(db,(window.COURSE_NS||'')+'courseFlags', 'current'),
+      { _announcement: { msg, ts: Date.now(), expires: Date.now() + dur } }, { merge: true });
+    r.style.color = 'var(--success)'; r.textContent = '✅ Sent to all students.';
+    document.getElementById('ann-msg').value = '';
+  } catch(e) { r.style.color = 'var(--danger)'; r.textContent = '❌ ' + e.message; }
+};
+window.clearAnnouncement = async function() {
+  const r = document.getElementById('ann-result');
+  r.style.color = 'var(--muted)'; r.textContent = 'Clearing…';
+  try {
+    await setDoc(doc(db,(window.COURSE_NS||'')+'courseFlags', 'current'), { _announcement: null }, { merge: true });
+    r.style.color = 'var(--success)'; r.textContent = '✅ Announcement cleared.';
+  } catch(e) { r.style.color = 'var(--danger)'; r.textContent = '❌ ' + e.message; }
+};
+
+// ── Bulk enrollment (CSV / XLSX → allowlist) ───────────────────
+function csvRows(text){
+  return text.split(/\r?\n/).filter(l=>l.trim()).map(l=>{
+    const out=[]; let cur='', q=false;
+    for(let i=0;i<l.length;i++){ const c=l[i];
+      if(c==='"'){ if(q&&l[i+1]==='"'){cur+='"';i++;} else q=!q; }
+      else if(c===',' && !q){ out.push(cur); cur=''; }
+      else cur+=c;
+    } out.push(cur); return out.map(s=>s.trim());
+  });
+}
+function xlsxRows(buf){
+  const wb = XLSX.read(buf,{type:'array'});
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false}).map(r=>r.map(c=>String(c==null?'':c).trim()));
+}
+function normalizeRows(rows){
+  if(!rows.length) return [];
+  const head = rows[0].map(h=>String(h).toLowerCase());
+  const hasHeader = head.some(h=>/email|name|role|cohort|first|last|מייל|שם|תפקיד/.test(h));
+  const find=re=>head.findIndex(h=>re.test(h));
+  let cE=-1,cN=-1,cF=-1,cL=-1,cR=-1,cC=-1,cP=-1;
+  if(hasHeader){ cE=find(/e-?mail|מייל|דוא/); cN=find(/^name|full|שם מלא/); cF=find(/first|given|פרטי/); cL=find(/last|family|surname|משפחה/); cR=find(/role|תפקיד/); cC=find(/cohort|group|מחזור|קבוצה/); cP=find(/phone|mobile|cell|tel|whatsapp|טלפון|נייד|פלאפון|וואטסאפ/); }
+  const body = hasHeader ? rows.slice(1) : rows;
+  const valid=['student','instructor','lead_instructor']; const out=[];
+  for(const row of body){
+    const g=i=>(i>=0&&i<row.length)?String(row[i]||'').trim():'';
+    let email = cE>=0 ? g(cE) : (row.find(c=>/@/.test(c))||'');
+    email = email.trim().toLowerCase();
+    if(!email || !email.includes('@')) continue;
+    let first=g(cF), last=g(cL), name=g(cN);
+    if(!name) name = (first+' '+last).trim() || email.split('@')[0];
+    if(!first && name){ const p=name.split(/\s+/); first=p[0]; last=p.slice(1).join(' '); }
+    let role=(g(cR)||'student').toLowerCase().replace(/\s+/g,'_');
+    if(!valid.includes(role)) role='student';
+    const phone = (cP>=0 ? g(cP) : (row.find(c=>/^[+\d][\d\s().-]{6,}$/.test(c) && !/@/.test(c))||'')).trim();
+    out.push({ email, name, firstName:first, lastName:last, role, cohort:(g(cC)||'Unassigned'), phone });
+  }
+  return out;
+}
+// Hand the instructor a ready-to-fill Excel sheet whose headers exactly match
+// what normalizeRows() recognises (email required; name/first/last; role;
+// cohort). Two example rows show the expected format and are meant to be
+// overwritten. Built with the already-loaded SheetJS library.
+window.downloadEnrollTemplate = function(){
+  const aoa = [
+    ['name','email','phone','role','cohort'],
+    ['Dana Cohen','dana@example.com','0501234567','student','July 2026 - 1day'],
+    ['Avi Levi','avi@example.com','0527654321','instructor','July 2026 - 1day']
+  ];
+  try{
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [{wch:22},{wch:28},{wch:16},{wch:16},{wch:22}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Enrollment');
+    XLSX.writeFile(wb, 'pals_enrollment_template.xlsx');
+  }catch(e){
+    // Fallback to CSV if the spreadsheet library failed to load.
+    const csv = aoa.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download = 'pals_enrollment_template.csv'; a.click();
+  }
+};
+window.uploadAllowlist = async function(){
+  const f = document.getElementById('bulk-file').files[0];
+  const r = document.getElementById('bulk-result');
+  if(!f){ r.style.color='var(--danger)'; r.textContent='Choose a file first.'; return; }
+  r.style.color='var(--muted)'; r.textContent='Reading file…';
+  try{
+    const rows = /\.csv$/i.test(f.name) ? csvRows(await f.text()) : xlsxRows(await f.arrayBuffer());
+    const people = normalizeRows(rows);
+    if(!people.length){ r.style.color='var(--danger)'; r.textContent='No valid rows found (each row needs an email).'; return; }
+    r.textContent='Inviting '+people.length+'…';
+    let ok=0, fail=0; const errs=[]; const invited=[]; const uid=(getSession()&&getSession().uid)||'admin';
+    for(const p of people){
+      try{
+        await fsSetDoc(fsDoc(db,(window.COURSE_NS||'')+'allowlist',p.email), { name:p.name, firstName:p.firstName, lastName:p.lastName, email:p.email, phone:p.phone||'', role:p.role, cohort:p.cohort, registered:false, addedAt:serverTimestamp(), addedBy:uid }, {merge:true});
+        ok++; invited.push(p.email);
+      }catch(e){ fail++; if(errs.length<3) errs.push(p.email+': '+e.message); }
+    }
+    r.style.color = fail? 'var(--warning)' : 'var(--success)';
+    r.textContent = '✅ Invited '+ok+(ok===1?' person.':' people.') + (fail?(' '+fail+' failed:\n'+errs.join('\n')):'') + '\nNow email them the invite below, or share the self-registration link.';
+    renderBulkMailButton(invited);
+    try{ loadPending(); }catch(e){}   // refresh the pending list with the new invites
+  }catch(e){ r.style.color='var(--danger)'; r.textContent='❌ '+e.message; }
+};
+
+// Bulk invites are not auto-sent (no mail backend). This opens ONE Gmail
+// compose window with every invitee BCC'd and the self-registration link
+// pre-filled — the instructor just presses Send.
+function inviteGmailUrl(emails){
+  const regUrl  = (document.getElementById('reg-link')?.textContent || (location.href.replace(/[^/]*(\?.*)?(#.*)?$/, '') + 'register.html'));
+  const subject = encodeURIComponent('You’re invited to the Pediatric Sedation Safety course');
+  const body    = encodeURIComponent(
+    `Hello,\n\nYou have been invited to the Pediatric Sedation Safety course.\n\n`+
+    `Please register here using this same email address:\n${regUrl}\n\n`+
+    `Once registered you can sign in and access your course materials.\n`);
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=&bcc=${encodeURIComponent(emails.join(','))}&su=${subject}&body=${body}`;
+}
+function renderBulkMailButton(emails){
+  const box = document.getElementById('bulk-mail');
+  if(!box) return;
+  if(!emails || !emails.length){ box.innerHTML=''; return; }
+  box.innerHTML = `
+    <a class="btn-sm" href="${inviteGmailUrl(emails)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.4rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem;text-decoration:none;font-weight:700">✉ Email all ${emails.length} invitee${emails.length===1?'':'s'} via Gmail</a>
+    <button class="btn-sm btn-ghost" style="margin-inline-start:.5rem" onclick="copyInviteEmails()">Copy addresses</button>
+    <div style="margin-top:.45rem;font-size:.75rem;color:var(--muted)">Opens one Gmail compose with everyone BCC'd and the registration link pre-filled — just press Send. (Sign in to the Gmail account you want to send from.)</div>`;
+  box._emails = emails;
+}
+window.copyInviteEmails = function(){
+  const box = document.getElementById('bulk-mail');
+  const emails = (box && box._emails) || [];
+  navigator.clipboard.writeText(emails.join(', ')).catch(()=>{});
+};
+window.copyRegLink = function(){ const t=document.getElementById('reg-link').textContent; navigator.clipboard.writeText(t).catch(()=>{}); };
+
+// ── WhatsApp / SMS invites & updates ───────────────────────────
+// No SMS backend: we build click-to-send deep links (wa.me / sms:) with the
+// message pre-filled. Phone numbers come from the allowlist (the upload's
+// phone column). The instructor taps send per person.
+function msgEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function regLinkUrl(){ return (document.getElementById('reg-link')?.textContent || (location.href.replace(/[^/]*(\?.*)?(#.*)?$/, '') + 'register.html')); }
+function defaultInviteMsg(){
+  return `שלום! הוזמנת לקורס סדציה בטוחה בילדים. נא להירשם בקישור (עם אותה כתובת מייל):\n${regLinkUrl()}\n\nHello! You're invited to the Pediatric Sedation Safety course. Please register here:\n${regLinkUrl()}`;
+}
+// Normalise a phone to international digits for wa.me (no +, no leading 0).
+function waNumber(raw, cc){
+  let d = String(raw||'').replace(/[^\d]/g,'');
+  if(!d) return '';
+  if(d.startsWith('00')) d = d.slice(2);
+  else if(d.startsWith('0')) d = (cc||'') + d.slice(1);
+  return d;
+}
+function msgRecipients(){
+  const sel = document.getElementById('msg-cohort');
+  const scope = sel ? sel.value : 'ALL';
+  return (_allowlistDocs||[])
+    .map(d => ({ email:d.id, ...(d.data||{}) }))
+    .filter(a => scope==='ALL' || (a.cohort||'Unassigned')===scope);
+}
+window.renderMsgList = function(){
+  const box = document.getElementById('msg-list'); if(!box) return;
+  const docs = msgRecipients();
+  const hasPhone = a => a.phone && String(a.phone).replace(/\D/g,'').length >= 7;
+  const withPhone = docs.filter(hasPhone).sort((a,b)=>(a.name||a.email).localeCompare(b.name||b.email));
+  const noPhone = docs.length - withPhone.length;
+  if(!docs.length){ box.innerHTML = '<div style="color:var(--muted);font-size:.85rem">No invitees here yet. Upload a list (with a phone column) first.</div>'; return; }
+  const rows = withPhone.map(a=>{
+    const nm = a.name || ((a.firstName||'')+' '+(a.lastName||'')).trim() || a.email;
+    const p = msgEsc(a.phone);
+    return `<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1;min-width:0"><div style="font-weight:600">${msgEsc(nm)}</div>
+        <div style="font-size:.78rem;color:var(--muted)">${p}${a.cohort?(' · '+msgEsc(a.cohort)):''}</div></div>
+      <button class="btn-sm" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:.4rem .8rem;font-weight:700" onclick="msgSend('wa','${p}')">WhatsApp</button>
+      <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.4rem .8rem" onclick="msgSend('sms','${p}')">SMS</button>
+    </div>`;
+  }).join('');
+  box.innerHTML = `<div style="font-size:.8rem;color:var(--muted);margin-bottom:.4rem"><strong>${withPhone.length}</strong> with a phone number`+
+    (noPhone?` · <span style="color:var(--warning)">${noPhone} without — add their phone in the upload</span>`:'')+`</div>`+
+    (withPhone.length?rows:'<div style="color:var(--muted);font-size:.85rem">Nobody here has a phone number yet.</div>');
+};
+window.msgSend = function(kind, phone){
+  const text = document.getElementById('msg-body').value || '';
+  const cc = (document.getElementById('msg-cc').value||'').replace(/\D/g,'');
+  const num = waNumber(phone, cc);
+  let url;
+  if(kind==='wa'){ url = 'https://wa.me/'+num+'?text='+encodeURIComponent(text); }
+  else { url = 'sms:'+(num?('+'+num):String(phone))+'?&body='+encodeURIComponent(text); }
+  window.open(url, '_blank');
+};
+window.msgResetInvite = function(){ const t=document.getElementById('msg-body'); if(t) t.value = defaultInviteMsg(); };
+window.msgInsertLink = function(){ const t=document.getElementById('msg-body'); if(t){ t.value = (t.value?t.value.replace(/\s*$/,'')+'\n':'')+regLinkUrl(); } };
+window.msgCopyNumbers = function(){
+  const cc = (document.getElementById('msg-cc').value||'').replace(/\D/g,'');
+  const nums = msgRecipients().map(a=>waNumber(a.phone,cc)).filter(n=>n.length>=7);
+  navigator.clipboard.writeText(nums.join(', ')).catch(()=>{});
+  const box = document.getElementById('msg-list');
+  if(box){ const n=document.createElement('div'); n.style.cssText='font-size:.78rem;color:var(--success);margin-top:.4rem'; n.textContent='Copied '+nums.length+' number'+(nums.length===1?'':'s')+'.'; box.appendChild(n); setTimeout(()=>n.remove(),3000); }
+};
+function populateMsgCohorts(){
+  const sel = document.getElementById('msg-cohort'); if(!sel) return;
+  // Cohorts that actually have invitees (allowlist), so phone-only cohorts show.
+  const names = [...new Set((_allowlistDocs||[]).map(d => (d.data&&d.data.cohort)||'Unassigned'))].sort();
+  const cur = sel.value;
+  sel.innerHTML = '<option value="ALL">All cohorts</option>' + names.map(c=>`<option value="${msgEsc(c)}">${msgEsc(c)}</option>`).join('');
+  if([...sel.options].some(o=>o.value===cur)) sel.value=cur;
+  renderMsgList();
+}
+window.populateMsgCohorts = populateMsgCohorts;
+
+// ── Theme toggle ───────────────────────────────────────────────
+let dark = (()=>{try{const s=localStorage.getItem('pals_theme');if(s)return s==='dark';}catch(e){}return window.matchMedia('(prefers-color-scheme: dark)').matches;})();
+applyTheme();
+function toggleTheme() { dark = !dark; try{localStorage.setItem('pals_theme',dark?'dark':'light');}catch(e){} applyTheme(); }
+window.toggleTheme = toggleTheme;
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('theme-icon').innerHTML = dark
+    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+}
+
+
+// ── ROSTER GLOBALS ─────────────────────────────────────────────
+// MOD_LABELS / MOD_COUNT cover ALL modules (incl. the two instructor-run
+// megacodes) — used to render and persist every checkbox in the edit form.
+const MOD_LABELS = window.PALS_MODULES.map(m => m.label);
+const MOD_COUNT  = MOD_LABELS.length;
+// "Modules complete" for roster stats counts only the student-facing learning
+// modules (indices 0–8), matching the student hub / Pre-Test gate. The
+// megacodes are tracked separately and don't count toward completion.
+const LEARNING_IDX   = window.PALS_MODULES
+  .map((m, i) => (m.staffOnly ? -1 : i)).filter(i => i >= 0);
+const LEARNING_COUNT = LEARNING_IDX.length;
+let allStudents = [];
+let allUsers    = {};
+let _attByUid   = {};                 // uid → Set of attendance day labels ("Day 1"…)
+let allPending  = [];                 // invited (allowlist) people not yet registered
+let _allowlistDocs = [];              // raw allowlist snapshot {id,data}
+let _pendingCohort = 'Unassigned';    // scope cohort for a plain instructor
+let _pendingSeesAll = false;
+let seesAll     = false;              // admin / lead instructor → cross-cohort
+let myCohort    = 'Unassigned';       // a plain instructor's own cohort
+const baSelected = new Set();         // bulk-assign selection (keys)
+
+async function loadRoster() {
+  try {
+    document.querySelector('#roster-tbody').innerHTML = '<tr><td colspan="7" class="roster-empty">Loading…</td></tr>';
+
+    allUsers = {};
+    const progMap = {};
+    seesAll = s.role === 'admin' || s.role === 'lead_instructor';
+
+    if (seesAll) {
+      // Admin / lead instructor — full cross-cohort view.
+      const usersSnap = await getDocs(collection(db,(window.COURSE_NS||'')+'users'));
+      usersSnap.forEach(d => { allUsers[d.id] = d.data(); });
+      const studSnap = await getDocs(collection(db,(window.COURSE_NS||'')+'students'));
+      studSnap.forEach(d => { progMap[d.id] = d.data(); });
+    } else {
+      // Plain instructor — strictly limited to their own cohort (rules enforce this).
+      const meSnap = await getDoc(doc(db,(window.COURSE_NS||'')+'users',s.uid));
+      myCohort = (meSnap.exists() && meSnap.data().cohort) || 'Unassigned';
+      const usersSnap = await getDocs(query(collection(db,(window.COURSE_NS||'')+'users'), where('cohort','==', myCohort)));
+      const ids = [];
+      usersSnap.forEach(d => { allUsers[d.id] = d.data(); ids.push(d.id); });
+      // Student docs are fetched individually — the collection list is cohort-restricted.
+      await Promise.all(ids.map(async uid => {
+        try { const sd = await getDoc(doc(db,(window.COURSE_NS||'')+'students',uid)); if (sd.exists()) progMap[uid] = sd.data(); } catch(e){}
+      }));
+    }
+
+    // Merge (carry through the full student record: scores, feedback, exam unlock)
+    allStudents = Object.entries(allUsers).map(([uid, u]) => {
+      const sd = progMap[uid] || {};
+      return {
+        uid,
+        name:     u.name || ((u.firstName||'') + ' ' + (u.lastName||'')).trim() || 'Unknown',
+        firstName: u.firstName || '',
+        lastName:  u.lastName  || '',
+        email:    u.email || '',
+        phone:    u.phone || '',
+        cohort:   u.cohort || 'Unassigned',
+        role:     u.role  || 'student',
+        notes:    u.notes || '',
+        progress: sd.progress || {},
+        updatedAt: sd.updatedAt || null,
+        examUnlocked: !!sd.examUnlocked,
+        feedback: sd.feedback || null,
+        preTest:  sd.preTest || null,
+        finalExam: sd.finalExam || null,
+      };
+    }).filter(s => s.role === 'student' || s.role === 'instructor' || s.role === 'lead_instructor');
+
+    populateCohortOptions();
+    populateCohortFilter();
+    updateStats();
+    applyRosterView();
+    // Reconcile the pending list now that we know who's actually registered,
+    // so already-registered people drop off Invited immediately.
+    try{ if(_allowlistDocs.length) recomputePending(); }catch(e){}
+    try{ taPopulateInstructors(); }catch(e){}
+  } catch(e) {
+    document.querySelector('#roster-tbody').innerHTML =
+      '<tr><td colspan="7" class="roster-empty">Error loading roster: ' + e.message + '</td></tr>';
+  }
+}
+
+// ── Pending registrations: invited people who haven't signed up yet ──────────
+// Uses a live listener so people drop off automatically the moment they
+// register (their allowlist doc flips registered:true), with no manual reload.
+let _pendingWatching = false;
+async function loadPending() {
+  if (_pendingWatching) return;          // listener already live — it self-updates
+  try {
+    // Resolve scope once.
+    _pendingSeesAll = s.role === 'admin' || s.role === 'lead_instructor';
+    _pendingCohort = myCohort;
+    if (!_pendingSeesAll) {
+      try { const me = await getDoc(doc(db,(window.COURSE_NS||'')+'users',s.uid)); _pendingCohort = (me.exists() && me.data().cohort) || 'Unassigned'; } catch(e){}
+    }
+    _pendingWatching = true;
+    let first = true;
+    onSnapshot(collection(db,(window.COURSE_NS||'')+'allowlist'), snap => {
+      _allowlistDocs = [];
+      snap.forEach(d => _allowlistDocs.push({ id: d.id, data: d.data() || {} }));
+      recomputePending();
+      // On any change after the initial load (e.g. someone just registered),
+      // refresh the registered roster so they move from Invited → Registered.
+      if (!first) { try{ loadRoster(); }catch(e){} }
+      first = false;
+    }, err => {
+      _pendingWatching = false;
+      allPending = [];
+      const st = document.getElementById('rb-result');
+      if (st){ st.style.color='var(--danger)'; st.textContent='Couldn’t load pending invites: '+err.message; }
+    });
+  } catch(e) {
+    _pendingWatching = false;
+    allPending = [];
+    const st = document.getElementById('rb-result');
+    if (st){ st.style.color='var(--danger)'; st.textContent='Couldn’t load pending invites: '+e.message; }
+  }
+}
+
+// Set of emails that already have a registered account (users / students doc).
+function registeredEmailSet() {
+  const set = new Set();
+  Object.values(allUsers||{}).forEach(u => { if (u && u.email) set.add(String(u.email).toLowerCase()); });
+  (allStudents||[]).forEach(p => { if (p.email) set.add(String(p.email).toLowerCase()); });
+  return set;
+}
+
+// Rebuild the pending list from the cached allowlist docs, excluding anyone who
+// has already registered — even if their allowlist `registered` flag was never
+// flipped (the original bug). Stale flags are healed best-effort so the source
+// data converges too. Safe to call repeatedly (after roster or allowlist load).
+function recomputePending() {
+  const reg = registeredEmailSet();
+  const rows = [];
+  _allowlistDocs.forEach(({ id: email, data: a }) => {
+    const already = a.registered || reg.has(String(email).toLowerCase());
+    if (already) {
+      if (!a.registered && reg.has(String(email).toLowerCase())) {
+        try { fsSetDoc(fsDoc(db,(window.COURSE_NS||'')+'allowlist',email), { registered:true }, { merge:true }); } catch(e){}
+      }
+      return;                                          // already signed up — not pending
+    }
+    if (!_pendingSeesAll && (a.cohort||'Unassigned') !== _pendingCohort) return;  // cohort isolation
+    rows.push({
+      email,
+      name:  a.name || ((a.firstName||'')+' '+(a.lastName||'')).trim() || email,
+      firstName: a.firstName||'', lastName: a.lastName||'',
+      role:  a.role || 'student',
+      cohort: a.cohort || 'Unassigned',
+    });
+  });
+  allPending = rows.sort((a,b)=> (a.cohort+a.name).localeCompare(b.cohort+b.name));
+  try{ applyRosterView(); }catch(e){}
+  try{ updateStats(); }catch(e){}
+  try{ populateMsgCohorts(); }catch(e){}   // keep the WhatsApp/SMS list live
+}
+
+// ── Bulk assign (cohort + role) over registered + invited people ─────────────
+function bulkRows(){
+  // Registered users (from the roster) + invited people who have NOT registered.
+  const reg = allStudents.map(s => ({
+    key:'u:'+s.uid, type:'user', id:s.uid,
+    name:s.name, email:s.email, role:s.role, cohort:s.cohort, status:'registered'
+  }));
+  const inv = pendingPeople().map(p => ({
+    key:'a:'+p.email, type:'allowlist', id:p.email,
+    name:p.name, email:p.email, role:p.role, cohort:p.cohort, status:'invited'
+  }));
+  return reg.concat(inv);
+}
+// Invited people who genuinely have no account yet — excludes anyone whose
+// email already belongs to a registered user (guards against a stale
+// allowlist.registered flag leaving real accounts stuck in "pending").
+function pendingPeople(){
+  const regEmails = new Set(allStudents.map(s => (s.email||'').toLowerCase()).filter(Boolean));
+  return allPending.filter(p => !regEmails.has((p.email||'').toLowerCase()));
+}
+function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+// Manually drop a stale invited entry — e.g. the person registered under a
+// different email, so auto-reconciliation can't link them. Deletes the
+// allowlist doc; the live listener refreshes the list.
+window.removePending = async function(email){
+  if(!email) return;
+  if(!confirm('Remove “'+email+'” from the invited/pending list?\n\nUse this when the person is already registered (often under a slightly different email). This deletes only the pending invite, not any registered account.')) return;
+  try{
+    await deleteDoc(doc(db,(window.COURSE_NS||'')+'allowlist',email));
+    allPending = allPending.filter(p => p.email !== email);
+    try{ applyRosterView(); }catch(e){}
+    try{ updateStats(); }catch(e){}
+  }catch(e){
+    alert('Couldn’t remove the entry: '+e.message);
+  }
+};
+// ── Roster selection + bulk actions (checkboxes live in the roster table) ────
+function updateBulkBar(rows){
+  const bar = document.getElementById('roster-bulk-bar');
+  const count = document.getElementById('rb-count');
+  const all = document.getElementById('rb-all');
+  if(count) count.textContent = baSelected.size + ' selected';
+  if(bar) bar.style.display = baSelected.size ? 'flex' : 'none';
+  if(all && rows) all.checked = rows.length>0 && rows.every(r=>baSelected.has(r.key));
+}
+window.onRosterCheck = function(cb){
+  if(cb.checked) baSelected.add(cb.dataset.key); else baSelected.delete(cb.dataset.key);
+  updateBulkBar(rosterView());
+};
+window.toggleAllRoster = function(checked){
+  rosterView().forEach(r => { if(checked) baSelected.add(r.key); else baSelected.delete(r.key); });
+  applyRosterView();
+};
+window.clearRosterSel = function(){ baSelected.clear(); applyRosterView(); };
+window.resendOne = function(email){ window.open(inviteGmailUrl([email]), '_blank', 'noopener'); };
+
+async function applyBulkAssign(){
+  const result = document.getElementById('rb-result');
+  const cohort = document.getElementById('rb-cohort').value.trim();
+  const role   = document.getElementById('rb-role').value;
+  const sel = bulkRows().filter(r => baSelected.has(r.key));
+  if(!sel.length){ result.style.color='var(--danger)'; result.textContent='Tick at least one person first.'; return; }
+  if(!cohort && !role){ result.style.color='var(--danger)'; result.textContent='Set a target cohort and/or a role first.'; return; }
+  const changingRole = !!role;
+  // Changing the role of a REGISTERED user is privileged (admin only, per rules).
+  if(changingRole && sel.some(r=>r.type==='user') && s.role!=='admin'){
+    result.style.color='var(--danger)';
+    result.textContent='Only an admin can change the role of already-registered users. Leave role as “keep”, or ask an admin.';
+    return;
+  }
+  if(!confirm(`Apply ${cohort?`cohort “${cohort}”`:''}${cohort&&role?' and ':''}${role?`role “${role}”`:''} to ${sel.length} ${sel.length===1?'person':'people'}?`)) return;
+  if(!(await reauthInstructor())) return;
+  result.style.color='var(--muted)'; result.textContent='Applying…';
+  let ok=0, fail=0; const errs=[];
+  for(const r of sel){
+    try{
+      const data = {};
+      if(cohort) data.cohort = cohort;
+      if(role)   data.role   = role;
+      const ref = r.type==='user' ? fsDoc(db,(window.COURSE_NS||'')+'users',r.id) : fsDoc(db,(window.COURSE_NS||'')+'allowlist',r.id);
+      await updateDoc(ref, data);
+      ok++;
+    }catch(e){ fail++; if(errs.length<4) errs.push(r.email+': '+e.message); }
+  }
+  result.style.color = fail ? 'var(--danger)' : '#15803d';
+  result.textContent = `✅ Updated ${ok} ${ok===1?'person':'people'}.` + (fail?` ${fail} failed:\n`+errs.join('\n'):'');
+  baSelected.clear();
+  document.getElementById('rb-cohort').value = '';
+  document.getElementById('rb-role').value = '';
+  await loadRoster();   // pending refreshes itself via the live listener
+}
+// Resend the invite email to ticked invited (pending) people. Registered
+// people don't need an invite, so they're ignored here.
+window.resendInvites = function(){
+  const result = document.getElementById('rb-result');
+  const sel = bulkRows().filter(r => baSelected.has(r.key) && r.status === 'invited');
+  if(!sel.length){
+    result.style.color='var(--danger)';
+    result.textContent='Tick one or more invited (pending) people first. Registered people don’t need an invite.';
+    return;
+  }
+  const emails = sel.map(r => r.email);
+  window.open(inviteGmailUrl(emails), '_blank', 'noopener');
+  result.style.color='var(--muted)';
+  result.textContent=`Opened a Gmail compose to re-invite ${emails.length} ${emails.length===1?'person':'people'} (BCC). Press Send in Gmail.`;
+};
+window.applyBulkAssign = applyBulkAssign;
+window.loadPending     = loadPending;
+
+// ── Edit an invited (not-yet-registered) person's allowlist entry ────────────
+window.openInviteEdit = function(email){
+  const p = allPending.find(x => x.email === email);
+  if(!p) return;
+  document.getElementById('invite-orig-email').value = p.email;
+  document.getElementById('invite-fname').value  = p.firstName || (p.name||'').split(/\s+/)[0] || '';
+  document.getElementById('invite-lname').value  = p.lastName  || (p.name||'').split(/\s+/).slice(1).join(' ') || '';
+  document.getElementById('invite-email').value  = p.email;
+  document.getElementById('invite-cohort').value = p.cohort && p.cohort!=='Unassigned' ? p.cohort : '';
+  document.getElementById('invite-role').value   = p.role || 'student';
+  document.getElementById('invite-modal-title').textContent = '✏️ ' + (p.name || p.email);
+  document.getElementById('invite-result').textContent = '';
+  document.getElementById('invite-overlay').classList.add('open');
+};
+window.closeInviteEdit = function(){
+  document.getElementById('invite-overlay').classList.remove('open');
+};
+window.saveInviteEdit = async function(){
+  const res = document.getElementById('invite-result');
+  const orig = document.getElementById('invite-orig-email').value;
+  const fname = document.getElementById('invite-fname').value.trim();
+  const lname = document.getElementById('invite-lname').value.trim();
+  const newEmail = document.getElementById('invite-email').value.trim().toLowerCase();
+  const cohort = document.getElementById('invite-cohort').value.trim() || 'Unassigned';
+  const role = document.getElementById('invite-role').value;
+  if(!newEmail || !newEmail.includes('@')){ res.style.color='var(--danger)'; res.textContent='Enter a valid email.'; return; }
+  const name = (fname+' '+lname).trim() || newEmail.split('@')[0];
+  const data = { name, firstName:fname, lastName:lname, email:newEmail, role, cohort };
+  res.style.color='var(--muted)'; res.textContent='Saving…';
+  try{
+    if(newEmail !== orig){
+      // Email is the doc id — moving the invite means new doc + remove old.
+      const existing = await getDoc(doc(db,(window.COURSE_NS||'')+'allowlist',newEmail));
+      if(existing.exists() && existing.data().registered){
+        res.style.color='var(--danger)'; res.textContent='That email already belongs to a registered account.'; return;
+      }
+      await setDoc(doc(db,(window.COURSE_NS||'')+'allowlist',newEmail), { ...data, registered:false, addedAt:serverTimestamp(), addedBy:(getSession()&&getSession().uid)||'admin' }, { merge:true });
+      await deleteDoc(doc(db,(window.COURSE_NS||'')+'allowlist',orig));
+    } else {
+      await updateDoc(doc(db,(window.COURSE_NS||'')+'allowlist',orig), data);
+    }
+    res.style.color='#15803d'; res.textContent='✅ Saved.';
+    setTimeout(()=>closeInviteEdit(), 600);
+    // The live allowlist listener refreshes the pending list automatically.
+  }catch(e){ res.style.color='var(--danger)'; res.textContent='❌ '+e.message; }
+};
+window.deleteInvite = async function(){
+  const res = document.getElementById('invite-result');
+  const orig = document.getElementById('invite-orig-email').value;
+  if(!confirm('Delete this invite? They will no longer be able to self-register with this email.')) return;
+  res.style.color='var(--muted)'; res.textContent='Deleting…';
+  try{
+    await deleteDoc(doc(db,(window.COURSE_NS||'')+'allowlist',orig));
+    res.style.color='#15803d'; res.textContent='✅ Invite deleted.';
+    setTimeout(()=>closeInviteEdit(), 600);
+  }catch(e){ res.style.color='var(--danger)'; res.textContent='❌ '+e.message; }
+};
+
+// ── Teaching Assignments: shared, live-synced instructor schedule ────────────
+let taRows = [];
+let _taWatching = false;
+let taSaveTimer = null;
+function taNewId(){ return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function watchTeachingPlan(){
+  if (_taWatching) return; _taWatching = true;
+  onSnapshot(doc(db,(window.COURSE_NS||'')+'teachingPlan','current'), snap => {
+    const rows = (snap.exists() && Array.isArray(snap.data().rows)) ? snap.data().rows : [];
+    // Don't clobber someone who is mid-edit in the table.
+    const active = document.activeElement;
+    if (active && active.closest && active.closest('#ta-body')) return;
+    taRows = rows.map(r => ({
+      id: r.id || taNewId(), day:r.day||'', time:r.time||'', type:r.type||'',
+      topic:r.topic||'', instructor:r.instructor||'', location:r.location||'', notes:r.notes||''
+    }));
+    taRender();
+  }, err => {
+    _taWatching = false;
+    const st = document.getElementById('ta-status');
+    if (st){ st.style.color='var(--danger)'; st.textContent='Couldn’t load schedule: '+err.message; }
+  });
+}
+function taPopulateInstructors(){
+  const dl = document.getElementById('ta-instructors'); if(!dl) return;
+  const names = [...new Set(allStudents
+    .filter(s => s.role === 'instructor' || s.role === 'lead_instructor')
+    .map(s => s.name).filter(Boolean))].sort();
+  dl.innerHTML = names.map(n => `<option value="${esc(n)}"></option>`).join('');
+}
+function taRender(){
+  const body = document.getElementById('ta-body'); if(!body) return;
+  taPopulateInstructors();
+  if(!taRows.length){
+    body.innerHTML = '<tr><td colspan="8" class="ta-empty">No sessions yet — click “Add row” to start building the schedule.</td></tr>';
+    return;
+  }
+  body.innerHTML = taRows.map(r => `
+    <tr data-id="${esc(r.id)}">
+      <td><input data-id="${esc(r.id)}" data-f="day"        value="${esc(r.day)}"        placeholder="Day 1"        oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="time"       value="${esc(r.time)}"       placeholder="09:00"        oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="type"       value="${esc(r.type)}"       placeholder="Frontal talk" list="ta-types" oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="topic"      value="${esc(r.topic)}"      placeholder="Session / topic" oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="instructor" value="${esc(r.instructor)}" placeholder="Name(s)"      list="ta-instructors" oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="location"   value="${esc(r.location)}"   placeholder="Room"         oninput="taEdit(this)"></td>
+      <td><input data-id="${esc(r.id)}" data-f="notes"      value="${esc(r.notes)}"      placeholder="—"            oninput="taEdit(this)"></td>
+      <td style="text-align:center"><button class="ta-del" title="Delete row" onclick="taDelRow('${esc(r.id)}')">✕</button></td>
+    </tr>`).join('');
+}
+window.taEdit = function(el){
+  const row = taRows.find(x => x.id === el.dataset.id);
+  if(!row) return;
+  row[el.dataset.f] = el.value;
+  taScheduleSave();
+};
+window.taAddRow = function(){
+  taRows.push({ id: taNewId(), day:'', time:'', type:'', topic:'', instructor:'', location:'', notes:'' });
+  taRender();
+  const body = document.getElementById('ta-body');
+  const last = body && body.querySelector('tr:last-child input');
+  if(last) last.focus();
+  taScheduleSave();
+};
+window.taDelRow = function(id){
+  taRows = taRows.filter(r => r.id !== id);
+  taRender();
+  taScheduleSave();
+};
+function taScheduleSave(){
+  const st = document.getElementById('ta-status');
+  if(st){ st.style.color='var(--muted)'; st.textContent='Saving…'; }
+  clearTimeout(taSaveTimer);
+  taSaveTimer = setTimeout(taSave, 600);
+}
+async function taSave(){
+  const st = document.getElementById('ta-status');
+  try{
+    await setDoc(doc(db,(window.COURSE_NS||'')+'teachingPlan','current'),
+      { rows: taRows, updatedAt: serverTimestamp(), updatedBy: getSession()?.uid || '' }, { merge:true });
+    if(st){ st.style.color='#15803d'; st.textContent='✓ Saved · ' + new Date().toLocaleTimeString(); }
+  }catch(e){
+    if(st){ st.style.color='var(--danger)'; st.textContent='Save failed: ' + e.message; }
+  }
+}
+
+function populateCohortOptions() {
+  const dl = document.getElementById('cohort-options');
+  if (!dl) return;
+  const cohorts = [...new Set(Object.values(allUsers).map(u => (u.cohort || '').trim()).filter(Boolean))].sort();
+  dl.innerHTML = cohorts.map(c => `<option value="${c}"></option>`).join('');
+}
+
+// ── Cohort isolation: each cohort is viewed as its own section ──────────────
+let activeCohort = (()=>{ try { return localStorage.getItem('pals_active_cohort') || 'ALL'; } catch(e) { return 'ALL'; } })();
+
+function cohortList() {
+  return [...new Set(allStudents.map(s => s.cohort || 'Unassigned'))].sort();
+}
+function populateCohortFilter() {
+  const sel = document.getElementById('cohort-filter');
+  if (!sel) return;
+  const cohorts = cohortList();
+  if (!cohorts.includes(activeCohort)) activeCohort = 'ALL';
+  sel.innerHTML = '<option value="ALL">All cohorts</option>' +
+    cohorts.map(c => `<option value="${c}">${c}</option>`).join('');
+  sel.value = activeCohort;
+  try { populateAttCohorts(); } catch(e) {}
+}
+// Cohort options for the attendance panel (value = cohort key, label = name).
+function populateAttCohorts(){
+  const sel = document.getElementById('att-cohort'); if(!sel) return;
+  const fb = window.FB;
+  const slug = n => (fb && fb.cohortKey) ? fb.cohortKey(n)
+    : String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+  const cur = sel.value;
+  sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+  const seen = new Set();
+  cohortList().forEach(n => { const k = slug(n); if(!k || seen.has(k)) return; seen.add(k);
+    const o = document.createElement('option'); o.value = k; o.textContent = n; sel.appendChild(o); });
+  if([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+function inActiveCohort(s) {
+  return activeCohort === 'ALL' || (s.cohort || 'Unassigned') === activeCohort;
+}
+function visibleStudents() {
+  return allStudents.filter(inActiveCohort);
+}
+function setCohortView(v) {
+  activeCohort = v || 'ALL';
+  try { localStorage.setItem('pals_active_cohort', activeCohort); } catch(e) {}
+  const note = document.getElementById('cohort-scope-note');
+  if (note) note.innerHTML = activeCohort === 'ALL'
+    ? 'Viewing <strong>all cohorts</strong>. Cohorts are kept separate — select one above to isolate its roster, statistics and CSV export.'
+    : `Viewing cohort <strong>${activeCohort}</strong> only. Roster, statistics and CSV export are limited to this cohort.`;
+  updateStats();
+  applyRosterView();
+}
+window.setCohortView = setCohortView;
+
+// Build the unified, filtered list of people for the roster: registered users
+// and/or pending invites, scoped by cohort, status filter and the search box.
+function rosterView() {
+  const q = (document.getElementById('roster-search').value || '').toLowerCase();
+  const status = (document.getElementById('roster-status') || {}).value || 'all';
+  const role   = (document.getElementById('roster-role') || {}).value || 'all';
+  const matchQ = o => !q ||
+    (o.name || '').toLowerCase().includes(q) ||
+    (o.email || '').toLowerCase().includes(q) ||
+    (o.cohort || '').toLowerCase().includes(q);
+  const matchRole = o => role === 'all' || (o.role || 'student') === role;
+  let rows = [];
+  if (status !== 'invited') {
+    rows = rows.concat(visibleStudents().filter(matchQ).filter(matchRole)
+      .map(s => Object.assign({}, s, { status:'registered', key:'u:'+s.uid })));
+  }
+  if (status !== 'registered') {
+    rows = rows.concat(pendingPeople()
+      .filter(p => activeCohort === 'ALL' || (p.cohort||'Unassigned') === activeCohort)
+      .filter(matchQ).filter(matchRole)
+      .map(p => ({ status:'invited', key:'a:'+p.email, name:p.name, email:p.email, role:p.role, cohort:p.cohort })));
+  }
+  return rows.sort((a,b) =>
+    (a.status===b.status ? 0 : a.status==='registered' ? -1 : 1) ||
+    (a.cohort||'').localeCompare(b.cohort||'') ||
+    (a.name||'').localeCompare(b.name||''));
+}
+// Apply the active cohort + status filter + search box together.
+function applyRosterView() {
+  renderRoster(rosterView());
+}
+
+// Count completed *learning* modules only (excludes the megacodes), so the
+// roster agrees with the student-side "all modules done" gate.
+function modCount(progress) {
+  if (!progress) return 0;
+  return LEARNING_IDX.filter(i => progress[i]).length;
+}
+
+function updateStats() {
+  const scope   = visibleStudents();
+  const total   = scope.length;
+  const done    = scope.filter(s => modCount(s.progress) >= LEARNING_COUNT).length;
+  const inprog  = scope.filter(s => { const c=modCount(s.progress); return c>0 && c<LEARNING_COUNT; }).length;
+  const notst   = scope.filter(s => modCount(s.progress) === 0).length;
+  document.getElementById('stat-total').textContent      = total;
+  document.getElementById('stat-done').textContent       = done;
+  document.getElementById('stat-progress').textContent   = inprog;
+  document.getElementById('stat-notstarted').textContent = notst;
+  // Invited but not yet registered, matching the current cohort view.
+  const pending = pendingPeople().filter(p => activeCohort === 'ALL' || (p.cohort||'Unassigned') === activeCohort).length;
+  document.getElementById('stat-pending').textContent = pending;
+}
+
+function timeAgo(ts) {
+  if (!ts) return '—';
+  const diff = Date.now() - ts;
+  if (diff < 60000)    return 'just now';
+  if (diff < 3600000)  return Math.floor(diff/60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+  return Math.floor(diff/86400000) + 'd ago';
+}
+
+function renderRoster(rows) {
+  const tbody = document.getElementById('roster-tbody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="roster-empty">No people found.</td></tr>';
+    updateBulkBar(rows);
+    return;
+  }
+  // Drop selections that scrolled out of the current view.
+  const present = new Set(rows.map(r => r.key));
+  [...baSelected].forEach(k => { if(!present.has(k)) baSelected.delete(k); });
+  tbody.innerHTML = rows.map(r => {
+    const cb = `<td style="text-align:center"><input type="checkbox" data-key="${esc(r.key)}" ${baSelected.has(r.key)?'checked':''} onchange="onRosterCheck(this)"></td>`;
+    const roleClass = r.role === 'student' ? 'badge-student' : 'badge-instructor';
+    if (r.status === 'invited') {
+      return `<tr style="background:rgba(245,158,11,.06)">
+        ${cb}
+        <td><strong>${esc(r.name)}</strong></td>
+        <td style="color:var(--muted);font-size:.8rem">${esc(r.email)}</td>
+        <td style="font-size:.8rem">${esc(r.cohort)}</td>
+        <td><span class="badge-role ${roleClass}">${esc(r.role)}</span></td>
+        <td><span class="ba-badge ba-inv">Invited — not registered</span></td>
+        <td style="font-size:.78rem;color:var(--muted)">—</td>
+        <td style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
+          <button class="btn-edit" onclick="openInviteEdit('${esc(r.email)}')">✏️ Edit invite</button>
+          <button class="btn-edit" onclick="resendOne('${esc(r.email)}')">✉ Resend</button>
+          <button class="btn-edit" style="border-color:#fca5a5;color:#b91c1c" onclick="removePending('${esc(r.email)}')" title="Remove this entry from the invited list (use when the person is already registered under a different email)">🗑 Remove</button>
+        </td>
+      </tr>`;
+    }
+    const s = r;
+    const count = modCount(s.progress);
+    const pct   = Math.round(count/LEARNING_COUNT*100);
+    // Pre-test badge: green with % once taken, grey dash otherwise.
+    const preDone = s.preTest && s.preTest.pct != null;
+    const preBadge = `<span title="Pre-test ${preDone?'completed — '+s.preTest.pct+'%':'not taken yet'}"
+      style="padding:.18rem .45rem;border-radius:6px;font-size:.7rem;font-weight:700;border:1.5px solid ${preDone?'#22c55e':'#cbd5e1'};background:${preDone?'rgba(34,197,94,.1)':'rgba(148,163,184,.08)'};color:${preDone?'#15803d':'#64748b'}">📝 ${preDone?s.preTest.pct+'%':'—'}</span>`;
+    // Attendance badges: one per course day, green when the student checked in.
+    const attDays = _attByUid[s.uid] || null;
+    const attBadge = ['Day 1','Day 2'].map(d => {
+      const here = !!(attDays && attDays.has(d));
+      return `<button type="button" onclick="toggleAttendance('${s.uid}','${d}')"
+        title="${here?'Marked present for '+d+' — click to unmark':'Click to mark present for '+d}"
+        style="cursor:pointer;padding:.18rem .4rem;border-radius:6px;font-size:.7rem;font-weight:700;border:1.5px solid ${here?'#22c55e':'#cbd5e1'};background:${here?'rgba(34,197,94,.1)':'rgba(148,163,184,.08)'};color:${here?'#15803d':'#64748b'}">${here?'✅':'·'} ${d.replace('Day ','D')}</button>`;
+    }).join('');
+    // Final-exam badge: green/red with the score % once taken; click to see the
+    // missed questions when a mistakes breakdown was recorded.
+    const fe = s.finalExam, feDone = fe && fe.pct != null, fePass = feDone && fe.pct >= 84;
+    const feWrong = feDone && Array.isArray(fe.mistakes) ? fe.mistakes.length : null;
+    const examBadge = feDone
+      ? `<button type="button" ${feWrong?`onclick="showExamMistakes('${s.uid}')"`:''}
+          title="Final exam ${fePass?'passed':'failed'} — ${fe.pct}%${feWrong?` · ${feWrong} wrong (click to view)`:''}"
+          style="cursor:${feWrong?'pointer':'default'};padding:.18rem .45rem;border-radius:6px;font-size:.7rem;font-weight:700;border:1.5px solid ${fePass?'#22c55e':'#ef4444'};background:${fePass?'rgba(34,197,94,.1)':'rgba(239,68,68,.08)'};color:${fePass?'#15803d':'#dc2626'}">📄 ${fePass?'✓':'✗'} ${fe.pct}%${feWrong?` · ${feWrong}✗`:''}</button>`
+      : `<span title="Final exam not taken yet" style="padding:.18rem .45rem;border-radius:6px;font-size:.7rem;font-weight:700;border:1.5px solid #cbd5e1;background:rgba(148,163,184,.08);color:#64748b">📄 —</span>`;
+    return `<tr>
+      ${cb}
+      <td><strong>${esc(s.name)}</strong></td>
+      <td style="color:var(--muted);font-size:.8rem">${esc(s.email)}</td>
+      <td style="font-size:.8rem">${esc(s.cohort)}</td>
+      <td><span class="badge-role ${roleClass}">${esc(s.role)}</span></td>
+      <td>
+        <div class="prog-bar-wrap">
+          <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
+          <span class="prog-pct">${count}/${LEARNING_COUNT}</span>
+        </div>
+        <div style="display:flex;gap:.3rem;margin-top:.4rem;flex-wrap:wrap;align-items:center">${preBadge}${attBadge}${examBadge}</div>
+      </td>
+      <td style="font-size:.78rem;color:var(--muted)">${timeAgo(s.updatedAt)}</td>
+      <td style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
+        <button class="btn-edit" onclick="openEditModal('${s.uid}')">✏️ Edit</button>
+        <span title="Course feedback ${s.feedback&&s.feedback.submittedAt?'submitted':'not submitted'}"
+          style="padding:.28rem .55rem;border-radius:7px;font-size:.74rem;font-weight:700;border:1.5px solid ${s.feedback&&s.feedback.submittedAt?'#22c55e':'#cbd5e1'};background:${s.feedback&&s.feedback.submittedAt?'rgba(34,197,94,.1)':'rgba(148,163,184,.08)'};color:${s.feedback&&s.feedback.submittedAt?'#15803d':'#64748b'}">
+          ${s.feedback&&s.feedback.submittedAt?'💬 ✓':'💬 —'}
+        </span>
+        <button onclick="quickToggleExam('${s.uid}',${!!s.examUnlocked})"
+          title="${s.examUnlocked?'Click to lock exam':'Click to unlock exam'}"
+          style="padding:.28rem .65rem;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;border:1.5px solid ${s.examUnlocked?'#22c55e':'#ef4444'};background:${s.examUnlocked?'rgba(34,197,94,.1)':'rgba(239,68,68,.08)'};color:${s.examUnlocked?'#15803d':'#dc2626'}">
+          ${s.examUnlocked?'✅ Exam':'🔒 Exam'}
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+  updateBulkBar(rows);
+}
+
+function filterRoster() {
+  // Search is always scoped to the active cohort so cohorts are never mixed.
+  applyRosterView();
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Pre-Test %','Final Exam %','Feedback','Exam Access','Last Active']];
+  visibleStudents().forEach(s => {
+    const count = modCount(s.progress);
+    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/LEARNING_COUNT*100)+'%',
+      (s.preTest&&s.preTest.pct!=null)?s.preTest.pct+'%':'',
+      (s.finalExam&&s.finalExam.pct!=null)?s.finalExam.pct+'%':'',
+      (s.feedback&&s.feedback.submittedAt)?'Submitted':'',
+      s.examUnlocked?'Unlocked':'Locked',
+      timeAgo(s.updatedAt)]);
+  });
+  const csv  = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a    = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const cohortTag = activeCohort === 'ALL' ? 'all' : activeCohort.replace(/[^A-Za-z0-9_-]+/g,'_');
+  a.download = 'pals_roster_' + cohortTag + '_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+window.exportCSV = exportCSV;
+window.filterRoster = filterRoster;
+window.loadRoster   = loadRoster;
+
+// ── EDIT MODAL ────────────────────────────────────────────────
+let editUid = null;
+
+function openEditModal(uid) {
+  editUid = uid;
+  const s = allStudents.find(x => x.uid === uid);
+  if (!s) return;
+  document.getElementById('edit-uid').value   = uid;
+  document.getElementById('edit-modal-title').textContent = '✏️ ' + s.name;
+  document.getElementById('edit-fname').value = s.firstName || (s.name||'').split(' ')[0] || '';
+  document.getElementById('edit-lname').value = s.lastName  || (s.name||'').split(' ').slice(1).join(' ') || '';
+  document.getElementById('edit-cohort').value = (s.cohort && s.cohort !== 'Unassigned') ? s.cohort : '';
+  // Phone may live on the user doc or (for bulk-imported people) the allowlist.
+  let phone = s.phone || '';
+  if (!phone && s.email) {
+    const al = (_allowlistDocs||[]).find(d => String(d.id).toLowerCase() === String(s.email).toLowerCase());
+    if (al && al.data && al.data.phone) phone = al.data.phone;
+  }
+  document.getElementById('edit-phone').value = phone;
+  document.getElementById('edit-role').value  = s.role || 'student';
+  document.getElementById('edit-notes').value = s.notes || '';
+
+  // Account & access actions (work for students and instructors)
+  const acctEmail = s.email || '';
+  document.getElementById('edit-email-display').textContent = acctEmail || '—';
+  // Direct password-setting is admin-only (enforced again server-side).
+  document.getElementById('edit-setpw-btn').style.display =
+    (getSession()?.role === 'admin') ? '' : 'none';
+  const loginUrl = new URL('index.html', location.href).href;
+  const su = encodeURIComponent('Your Pediatric Sedation Safety course sign-in');
+  const bd = encodeURIComponent(
+    `Hello ${s.firstName || s.name || ''},\n\n`+
+    `Here is your sign-in link for the Pediatric Sedation Safety course:\n${loginUrl}\n\n`+
+    `Your sign-in email: ${acctEmail}\n\n`+
+    `If you don't know your password, ask your instructor to send you a password-reset link.\n`);
+  const resend = document.getElementById('edit-resend-email');
+  resend.href = acctEmail ? `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(acctEmail)}&su=${su}&body=${bd}` : '#';
+  resend.style.pointerEvents = acctEmail ? 'auto' : 'none';
+  resend.style.opacity = acctEmail ? '1' : '.5';
+  document.getElementById('edit-result').textContent = '';
+
+  // Build module toggles
+  const togglesDiv = document.getElementById('mod-toggles');
+  togglesDiv.innerHTML = MOD_LABELS.map((label, i) => {
+    const done = !!s.progress[i];
+    return `<label class="mod-toggle ${done ? 'done' : ''}" id="toggle-wrap-${i}">
+      <input type="checkbox" id="mod-check-${i}" ${done ? 'checked' : ''} onchange="toggleModStyle(${i})">
+      M${String(i+1).padStart(2,'0')} ${label}
+    </label>`;
+  }).join('');
+
+  // Populate exam unlock checkbox
+  const examCb = document.getElementById('edit-exam-unlock');
+  if (examCb) { examCb.checked = !!(s.examUnlocked); examCb.dataset.uid = uid; }
+
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function toggleModStyle(i) {
+  const checked = document.getElementById('mod-check-' + i).checked;
+  const wrap    = document.getElementById('toggle-wrap-' + i);
+  if (checked) wrap.classList.add('done');
+  else         wrap.classList.remove('done');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-overlay').classList.remove('open');
+  editUid = null;
+}
+window.openEditModal  = openEditModal;
+window.closeEditModal = closeEditModal;
+window.toggleModStyle = toggleModStyle;
+
+async function saveEdit() {
+  if (!editUid) return;
+  const resultEl = document.getElementById('edit-result');
+  resultEl.textContent = 'Saving…';
+  resultEl.style.color = 'var(--muted)';
+    // Identity fields (name / cohort / role) — this is now the single edit surface
+    const fname  = document.getElementById('edit-fname').value.trim();
+    const lname  = document.getElementById('edit-lname').value.trim();
+    const cohort = document.getElementById('edit-cohort').value.trim() || 'Unassigned';
+    const role   = document.getElementById('edit-role').value;
+    const phone  = document.getElementById('edit-phone').value.trim();
+    if (!fname) { resultEl.textContent = '❌ First name is required.'; resultEl.style.color = 'var(--danger)'; return; }
+    const fullName = (fname + ' ' + lname).trim();
+
+  try {
+    // Build new progress object from checkboxes
+    const progress = {};
+    for (let i = 0; i < MOD_COUNT; i++) {
+      if (document.getElementById('mod-check-' + i).checked) progress[i] = true;
+    }
+    const notes = document.getElementById('edit-notes').value.trim();
+
+    // Update students/{uid}.progress
+    await fsSetDoc(fsDoc(db,(window.COURSE_NS||'')+'students', editUid), { progress, updatedAt: Date.now() }, { merge: true });
+    // Save exam unlock flag
+    const examCb = document.getElementById('edit-exam-unlock');
+    if (examCb) {
+      await setDoc(doc(db,(window.COURSE_NS||'')+'students', editUid), { examUnlocked: examCb.checked, examUnlockedAt: Date.now() }, { merge: true });
+      const s2 = allStudents.find(x => x.uid === editUid);
+      if (s2) s2.examUnlocked = examCb.checked;
+    }
+    // Update users/{uid}: identity + notes + phone
+    await fsSetDoc(fsDoc(db,(window.COURSE_NS||'')+'users', editUid), { name: fullName, firstName: fname, lastName: lname, cohort, role, notes, phone }, { merge: true });
+
+    // Mirror phone (and identity) onto the allowlist so the WhatsApp/SMS list,
+    // which reads the allowlist, reflects later phone additions/changes.
+    const sEmail = (allStudents.find(x => x.uid === editUid) || {}).email || '';
+    if (sEmail) {
+      try { await setDoc(doc(db,(window.COURSE_NS||'')+'allowlist',sEmail), { name: fullName, firstName: fname, lastName: lname, email: sEmail, phone, cohort, role, registered: true }, { merge: true }); } catch(e) {}
+    }
+
+    // Update local cache
+    const s = allStudents.find(x => x.uid === editUid);
+    if (s) { s.progress = progress; s.notes = notes; s.name = fullName; s.firstName = fname; s.lastName = lname; s.cohort = cohort; s.role = role; s.phone = phone; s.updatedAt = Date.now(); }
+
+    populateCohortOptions();
+    populateCohortFilter();
+    updateStats();
+    applyRosterView();
+    resultEl.textContent = '✅ Saved successfully!';
+    resultEl.style.color = 'var(--success)';
+    setTimeout(closeEditModal, 1200);
+  } catch(e) {
+    resultEl.textContent = '❌ Error: ' + e.message;
+    resultEl.style.color = 'var(--danger)';
+  }
+}
+window.saveEdit = saveEdit;
+
+async function resetProgress() {
+  if (!editUid) return;
+  if (!confirm('Reset ALL progress for this student? This cannot be undone.')) return;
+  if (!(await reauthInstructor())) return;
+  const resultEl = document.getElementById('edit-result');
+  resultEl.textContent = 'Resetting…';
+  try {
+    // updateDoc (not setDoc+merge): merge deep-merges maps, so {progress:{}}
+    // would leave the old keys in place and the student still reads as complete.
+    await updateDoc(fsDoc(db,(window.COURSE_NS||'')+'students', editUid), { progress: {}, updatedAt: Date.now() });
+    // Uncheck all boxes
+    for (let i = 0; i < MOD_COUNT; i++) {
+      const cb = document.getElementById('mod-check-' + i);
+      if (cb) { cb.checked = false; toggleModStyle(i); }
+    }
+    const s = allStudents.find(x => x.uid === editUid);
+    if (s) { s.progress = {}; s.updatedAt = Date.now(); }
+    updateStats();
+    applyRosterView();
+    resultEl.textContent = '✅ Progress reset!';
+    resultEl.style.color = 'var(--success)';
+    setTimeout(closeEditModal, 1200);
+  } catch(e) {
+    resultEl.textContent = '❌ ' + e.message;
+    resultEl.style.color = 'var(--danger)';
+  }
+}
+window.resetProgress = resetProgress;
+
+// ── Re-authenticate the signed-in instructor with their account password ──
+// Used to gate destructive resets. Firebase verifies the password server-side.
+async function reauthInstructor() {
+  const u = auth.currentUser;
+  if (!u || !u.email) { alert('You must be signed in to do this.'); return false; }
+  const pw = prompt('Enter your account password to confirm:');
+  if (pw === null) return false;            // cancelled
+  if (!pw) { alert('Password required.'); return false; }
+  try {
+    await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pw));
+    return true;
+  } catch(e) {
+    alert('Password incorrect — reset cancelled.');
+    return false;
+  }
+}
+
+// ── Reset one student's course feedback (so they can submit again) ──
+async function resetFeedback() {
+  if (!editUid) return;
+  if (!confirm("Reset this student's course feedback so they can submit it again?")) return;
+  if (!(await reauthInstructor())) return;
+  const resultEl = document.getElementById('edit-result');
+  resultEl.textContent = 'Resetting feedback…'; resultEl.style.color = 'var(--muted)';
+  try {
+    await updateDoc(fsDoc(db,(window.COURSE_NS||'')+'students', editUid), { feedback: deleteField(), feedbackResetAt: Date.now() });
+    const s = allStudents.find(x => x.uid === editUid);
+    if (s) s.feedback = null;
+    updateStats();
+    applyRosterView();
+    resultEl.textContent = '✅ Feedback reset — the student can submit it again.';
+    resultEl.style.color = 'var(--success)';
+  } catch(e) {
+    resultEl.textContent = '❌ ' + e.message;
+    resultEl.style.color = 'var(--danger)';
+  }
+}
+window.resetFeedback = resetFeedback;
+
+// ── Send a Firebase password-reset email to this account (students & staff) ──
+async function sendPasswordReset() {
+  if (!editUid) return;
+  const s = allStudents.find(x => x.uid === editUid);
+  const email = s && s.email;
+  if (!email) { alert('No email on file for this account.'); return; }
+  if (!confirm('Send a password-reset email to ' + email + '?')) return;
+  const resultEl = document.getElementById('edit-result');
+  resultEl.textContent = 'Sending reset email…'; resultEl.style.color = 'var(--muted)';
+  try {
+    await sendPasswordResetEmail(auth, email);
+    resultEl.textContent = '✅ Password-reset email sent to ' + email + '.';
+    resultEl.style.color = 'var(--success)';
+  } catch(e) {
+    resultEl.textContent = '❌ ' + (e.code === 'auth/user-not-found'
+      ? 'No Firebase account for this email yet (they may not have registered).'
+      : (e.code || e.message));
+    resultEl.style.color = 'var(--danger)';
+  }
+}
+window.sendPasswordReset = sendPasswordReset;
+
+// Admin-only: set a user's password directly via a serverless function that
+// runs the Firebase Admin SDK. Tries the Vercel endpoint (/api/...) first, then
+// the Netlify endpoint (/.netlify/functions/...), so it works on either host.
+// The client sends the admin's ID token; the server re-checks the admin role.
+async function setUserPassword() {
+  if (!editUid) return;
+  const s = allStudents.find(x => x.uid === editUid);
+  const email = s && s.email;
+  const resultEl = document.getElementById('edit-result');
+  const pw = prompt('Enter a new password for ' + (email || 'this user') + ' (minimum 6 characters):');
+  if (pw == null) return;                       // cancelled
+  if (pw.length < 6) {
+    resultEl.textContent = '❌ Password must be at least 6 characters.';
+    resultEl.style.color = 'var(--danger)';
+    return;
+  }
+  if (!confirm('Set a new password for ' + (email || 'this account') + '?\nThey will be able to sign in with it immediately.')) return;
+  resultEl.textContent = 'Setting password…'; resultEl.style.color = 'var(--muted)';
+  try {
+    if (!auth.currentUser) throw new Error('Your session expired — please reload and sign in again.');
+    const idToken = await auth.currentUser.getIdToken();
+    const payload = JSON.stringify({ idToken, targetUid: editUid, newPassword: pw });
+    const endpoints = ['/api/set-user-password', '/.netlify/functions/set-user-password'];
+    let res = null, data = null;
+    for (const url of endpoints) {
+      try {
+        const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload });
+        if (r.status === 404) continue;          // not deployed at this host — try the next
+        res = r; data = await r.json().catch(() => ({})); break;
+      } catch (e) { /* network error — try the next endpoint */ }
+    }
+    if (!res) throw new Error('Password service not found. Is the serverless function deployed (and FIREBASE_SERVICE_ACCOUNT set)?');
+    if (!res.ok || !data.ok) throw new Error(data.error || ('Request failed (HTTP ' + res.status + ')'));
+    resultEl.textContent = '✅ Password updated. ' + (email ? email + ' ' : 'This account ') + 'can now sign in with the new password.';
+    resultEl.style.color = 'var(--success)';
+  } catch (e) {
+    resultEl.textContent = '❌ ' + (e.message || e);
+    resultEl.style.color = 'var(--danger)';
+  }
+}
+window.setUserPassword = setUserPassword;
+
+// Close edit modal on overlay click
+document.getElementById('edit-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('edit-overlay')) closeEditModal();
+});
+
+// Load roster + pending invites once Firebase auth is actually restored.
+// (Firing on a fixed timer raced auth on refresh — the reads hit
+// permission-denied and the lists came up empty.)
+let _instrDataLoaded = false;
+function loadInstructorData(){
+  _instrDataLoaded = true;
+  try{ loadRoster(); }catch(e){}
+  try{ loadPending(); }catch(e){}
+  try{ watchUsers(); }catch(e){}
+  try{ watchStudents(); }catch(e){}
+  try{ watchTeachingPlan(); }catch(e){}
+}
+
+// Live listener on the students collection so exam scores, pre-test and progress
+// appear in the roster in real time (e.g. the moment a student submits the final
+// exam). Only admins / lead instructors may list the whole collection; plain
+// instructors are cohort-scoped by the rules, so they refresh via watchUsers and
+// manual reload instead of a (denied) full-collection listener.
+let _studentsWatching = false;
+function watchStudents(){
+  if (_studentsWatching) return;
+  if (!(s.role === 'admin' || s.role === 'lead_instructor')) return;
+  _studentsWatching = true;
+  let first = true;
+  onSnapshot(collection(db,(window.COURSE_NS||'')+'students'),
+    () => { if(first){ first = false; return; } scheduleRosterReload(); },
+    () => { _studentsWatching = false; });
+}
+
+// Live listener on the users collection (cohort-scoped for plain instructors) so
+// the roster reflects profile changes — cohort/role/name edits, new accounts —
+// in real time, keeping it in sync with the dashboard and other instructors.
+let _usersWatching = false;
+let _rosterReloadTimer = null;
+function scheduleRosterReload(){
+  clearTimeout(_rosterReloadTimer);
+  _rosterReloadTimer = setTimeout(() => { try{ loadRoster(); }catch(e){} }, 400);
+}
+async function watchUsers(){
+  if (_usersWatching) return;
+  _usersWatching = true;
+  try{
+    const seesAllLocal = s.role === 'admin' || s.role === 'lead_instructor';
+    let scope;
+    if (seesAllLocal) {
+      scope = collection(db,(window.COURSE_NS||'')+'users');
+    } else {
+      let c = myCohort;
+      try { const me = await getDoc(doc(db,(window.COURSE_NS||'')+'users',s.uid)); c = (me.exists() && me.data().cohort) || 'Unassigned'; } catch(e){}
+      scope = query(collection(db,(window.COURSE_NS||'')+'users'), where('cohort','==', c));
+    }
+    let first = true;
+    onSnapshot(scope, () => { if(first){ first = false; return; } scheduleRosterReload(); },
+      () => { _usersWatching = false; });
+  }catch(e){ _usersWatching = false; }
+}
+onAuthStateChanged(auth, user => { if(user) loadInstructorData(); });
+// Belt-and-braces: if auth was already settled before the listener attached.
+if (auth.currentUser) loadInstructorData();
+setTimeout(()=>{ if(!_instrDataLoaded && auth.currentUser) loadInstructorData(); }, 1200);
+
+
+
+// ── EXAM ACCESS CONTROL (uses local db directly) ──────────────────────────
+
+// Watch global exam flag in real-time using local db
+function startExamFlagWatcher() {
+  if (typeof db === 'undefined') {
+    setTimeout(startExamFlagWatcher, 300);
+    return;
+  }
+  onSnapshot(doc(db,(window.COURSE_NS||'')+'courseFlags', 'current'), snap => {
+    const flags = snap.exists() ? snap.data() : {};
+    const unlocked = !!flags.examUnlocked;
+    window._globalExamUnlocked = unlocked;
+    const el = document.getElementById('exam-global-status');
+    if (el) {
+      el.textContent = unlocked ? '✅ Unlocked for all students' : '🔒 Locked — students cannot access exam';
+      el.style.color = unlocked ? '#15803d' : '#dc2626';
+    }
+    const courseStart = Number(flags.courseStart) || 0;
+    // When a start date is set it governs the window; the manual flag is the fallback.
+    const fbOpen = courseStart > 0 ? (Date.now() >= courseStart) : !!flags.feedbackOpen;
+    const fel = document.getElementById('fb-global-status');
+    if (fel) {
+      if (courseStart > 0 && !fbOpen) {
+        fel.textContent = '⏳ Opens automatically at course start — ' + new Date(courseStart).toLocaleString();
+        fel.style.color = '#b45309';
+      } else if (courseStart > 0) {
+        fel.textContent = '✅ Open (course has started) — students can submit feedback';
+        fel.style.color = '#15803d';
+      } else {
+        fel.textContent = fbOpen ? '✅ Open — students can submit feedback' : '🚫 Closed — feedback hidden from students';
+        fel.style.color = fbOpen ? '#15803d' : '#dc2626';
+      }
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', startExamFlagWatcher);
+
+async function setFeedbackOpen(open) {
+  const r = document.getElementById('fb-ctrl-result');
+  r.style.color = 'var(--muted)'; r.textContent = open ? 'Opening…' : 'Closing…';
+  try {
+    await setDoc(doc(db,(window.COURSE_NS||'')+'courseFlags', 'current'), { feedbackOpen: open }, { merge: true });
+    r.style.color = open ? '#15803d' : '#dc2626';
+    r.textContent = open ? '✅ Feedback opened for all students.' : '🚫 Feedback closed for all students.';
+    setTimeout(() => { r.textContent = ''; }, 4000);
+  } catch(e) {
+    r.style.color = '#dc2626'; r.textContent = '❌ Error: ' + e.message;
+  }
+}
+
+async function setGlobalExam(unlock) {
+  const r = document.getElementById('exam-ctrl-result');
+  r.style.color = 'var(--muted)'; r.textContent = unlock ? 'Unlocking…' : 'Locking…';
+  try {
+    await setDoc(doc(db,(window.COURSE_NS||'')+'courseFlags', 'current'), { examUnlocked: unlock }, { merge: true });
+    r.style.color = unlock ? '#15803d' : '#dc2626';
+    r.textContent = unlock ? '✅ Exam unlocked for all students.' : '🔒 Exam locked for all students.';
+    setTimeout(() => { r.textContent = ''; }, 4000);
+  } catch(e) {
+    r.style.color = '#dc2626'; r.textContent = '❌ Error: ' + e.message;
+  }
+}
+
+async function quickToggleExam(uid, currentlyUnlocked) {
+  try {
+    await setDoc(doc(db,(window.COURSE_NS||'')+'students', uid), { examUnlocked: !currentlyUnlocked, examUnlockedAt: Date.now() }, { merge: true });
+    await loadRoster();
+  } catch(e) { alert('Error toggling exam: ' + e.message); }
+}
+
+// Mark / unmark a student's attendance for a day straight from the roster.
+// Writes to attendance/<uid>_<day> (the same docs students create on check-in);
+// staff create/delete is permitted by the rules. The live attendance listener
+// rebuilds _attByUid and re-renders the roster, so no manual refresh is needed.
+async function toggleAttendance(uid, day) {
+  const id = uid + '_' + daySlug(day);
+  const has = !!(_attByUid[uid] && _attByUid[uid].has(day));
+  try {
+    if (has) {
+      await deleteDoc(doc(db,(window.COURSE_NS||'')+'attendance', id));
+    } else {
+      const stu = allStudents.find(x => x.uid === uid);
+      await setDoc(doc(db,(window.COURSE_NS||'')+'attendance', id), {
+        uid, day, code: 'staff', name: (stu && stu.name) || '',
+        checkedInAt: Date.now(), markedBy: (getSession() && getSession().uid) || 'staff'
+      });
+    }
+  } catch(e) { alert('Error updating attendance: ' + e.message); }
+}
+window.toggleAttendance = toggleAttendance;
+
+// Show a breakdown of the questions a student missed on the final exam.
+function showExamMistakes(uid){
+  const s = allStudents.find(x => x.uid === uid);
+  const fe = s && s.finalExam;
+  if(!fe) return;
+  const when = fe.completedAt ? new Date(fe.completedAt).toLocaleString() : '—';
+  const result = fe.pct != null ? (fe.pct >= 84 ? 'PASS' : 'FAIL') : '—';
+  const items = (fe.mistakes||[]).map(mi =>
+    `<li style="margin-bottom:.7rem;padding:.6rem .7rem;border:1px solid var(--border);border-radius:8px">
+       <div style="font-weight:600;font-size:.85rem">Q${mi.n}. ${esc(mi.q)}</div>
+       <div style="font-size:.8rem;color:#dc2626;margin-top:.25rem">✗ Their answer: ${esc(mi.your)}</div>
+       <div style="font-size:.8rem;color:#16a34a">✓ Correct: ${esc(mi.correct)}</div>
+     </li>`).join('');
+  document.getElementById('exam-mistakes-title').textContent =
+    `${(s.name||s.email||'Student')} — Final Exam: ${result}${fe.pct!=null?' ('+fe.pct+'%)':''}`;
+  document.getElementById('exam-mistakes-sub').textContent =
+    `Submitted ${when} · ${(fe.mistakes||[]).length} question(s) missed`;
+  document.getElementById('exam-mistakes-list').innerHTML =
+    items || '<li style="color:#16a34a">No incorrect answers recorded. 🎉</li>';
+  document.getElementById('exam-mistakes-modal').style.display = 'flex';
+}
+window.showExamMistakes = showExamMistakes;
+window.closeExamMistakes = function(){ document.getElementById('exam-mistakes-modal').style.display = 'none'; };
+
+// ══ DAILY ATTENDANCE CHECK-IN ════════════════════════════════
+function daySlug(day){ return String(day||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
+function genCode(){ // unambiguous chars only (no 0/O/1/I)
+  const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s='';
+  for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)];
+  return s;
+}
+let _attWindow = null;       // last-known public window {open,day,expiresAt}
+let _attRows = [];           // all check-ins (live)
+
+// Attendance can be opened for a specific cohort. '' = the default/global
+// window (attendanceCode/current + courseFlags/current), unchanged behaviour.
+let attCohortKey = '';
+function attDocId(){ return attCohortKey ? 'c_'+attCohortKey : 'current'; }
+async function openAttendance(){
+  const day = document.getElementById('att-day').value;
+  const dur = Math.max(5, Math.min(240, parseInt(document.getElementById('att-dur').value)||45));
+  const code = genCode();
+  const expiresAt = Date.now() + dur*60*1000;
+  try {
+    await setDoc(doc(db,(window.COURSE_NS||'')+'attendanceCode',attDocId()), { code, day, open:true, openedAt:Date.now(), expiresAt }, { merge:false });
+    await setDoc(doc(db,(window.COURSE_NS||'')+'courseFlags',attDocId()), { attendance:{ open:true, day, expiresAt } }, { merge:true });
+  } catch(e){ alert('Error opening check-in: '+e.message); }
+}
+async function closeAttendance(){
+  try {
+    await setDoc(doc(db,(window.COURSE_NS||'')+'attendanceCode',attDocId()), { open:false }, { merge:true });
+    await setDoc(doc(db,(window.COURSE_NS||'')+'courseFlags',attDocId()), { attendance:{ open:false } }, { merge:true });
+  } catch(e){ alert('Error closing check-in: '+e.message); }
+}
+function renderAttList(){
+  const day = document.getElementById('att-day')?.value;
+  const box = document.getElementById('att-list'); if(!box) return;
+  const forDay = _attRows.filter(r => r.day===day).sort((a,b)=>(a.checkedInAt||0)-(b.checkedInAt||0));
+  const names = forDay.map(r => `${r.name||r.uid.slice(0,6)} · ${new Date(r.checkedInAt).toLocaleTimeString()}`);
+  box.innerHTML = `<strong>${forDay.length}</strong> checked in for ${day}` +
+    (names.length ? `<div style="margin-top:.4rem;line-height:1.6">${names.map(n=>'• '+n).join('<br>')}</div>` : '');
+}
+let _attCodeUnsub = null;
+function watchAttCode(){
+  // Secret code doc (staff-readable) → drives the code display + status. The
+  // doc depends on the selected cohort, so this is re-subscribable.
+  if(_attCodeUnsub){ try{ _attCodeUnsub(); }catch(e){} }
+  _attCodeUnsub = onSnapshot(doc(db,(window.COURSE_NS||'')+'attendanceCode',attDocId()), snap => {
+    const d = snap.exists() ? snap.data() : {};
+    _attWindow = d;
+    const open = !!d.open && d.expiresAt && Date.now() < d.expiresAt;
+    const box = document.getElementById('att-code-box');
+    const status = document.getElementById('att-status');
+    if(box){ box.style.display = open ? '' : 'none'; }
+    if(open){
+      document.getElementById('att-code').textContent = d.code || '—';
+      document.getElementById('att-code-sub').textContent = `${d.day} · open until ${new Date(d.expiresAt).toLocaleTimeString()}`;
+      if(status){ status.textContent = `✅ Check-in OPEN for ${d.day}`; status.style.color = '#15803d'; }
+    } else {
+      if(status){ status.textContent = '🛑 Check-in closed'; status.style.color = '#dc2626'; }
+    }
+  });
+}
+window.onAttCohortChange = function(){
+  attCohortKey = document.getElementById('att-cohort').value || '';
+  watchAttCode();
+};
+function startAttendanceWatchers(){
+  populateAttCohorts();
+  watchAttCode();
+  // All check-ins (live count + list).
+  onSnapshot(collection(db,(window.COURSE_NS||'')+'attendance'), snap => {
+    _attRows = []; snap.forEach(x => _attRows.push({ id:x.id, ...x.data() }));
+    // Index check-ins by uid so the roster can show per-student attendance.
+    _attByUid = {};
+    _attRows.forEach(r => { if(r.uid){ (_attByUid[r.uid] = _attByUid[r.uid] || new Set()).add(r.day); } });
+    renderAttList();
+    // Keep the roster's attendance badges current as check-ins arrive.
+    try { if (allStudents.length) applyRosterView(); } catch(e) {}
+  });
+  document.getElementById('att-day')?.addEventListener('change', renderAttList);
+}
+document.addEventListener('DOMContentLoaded', startAttendanceWatchers);
+
+// Expose access-control actions to the inline onclick handlers (module scope).
+window.setGlobalExam   = setGlobalExam;
+window.quickToggleExam = quickToggleExam;
+window.setFeedbackOpen = setFeedbackOpen;
+window.openAttendance  = openAttendance;
+window.closeAttendance = closeAttendance;
+
+</script>
+</body>
+</html>

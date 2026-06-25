@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pediatric Sedation Safety Course Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script>window.COURSE_NS='peds_';window.COURSE_BASE='/peds_sedation/';(function(){var p='peds_';try{var S=Storage.prototype,g=S.getItem,s=S.setItem,r=S.removeItem;S.getItem=function(k){return g.call(this,p+k)};S.setItem=function(k,v){return s.call(this,p+k,v)};S.removeItem=function(k){return r.call(this,p+k)};}catch(e){}})();</script>
+<script src="../firebase-config.js"></script>
+<script type="module" src="../firebase-sync.js"></script>
+<style>
+  *{font-family:'Manrope',system-ui,sans-serif}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);min-height:100vh;color:#1E293B}
+  .card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(30,41,59,0.06);border:1px solid rgba(8,145,178,0.08)}
+  .btn{padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;transition:all .2s;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px}
+  .btn-prim{background:#0891B2;color:#fff}.btn-prim:hover{background:#0e7490}
+  .btn-ghost{background:#fff;color:#0891B2;border:1px solid #0891B2}.btn-ghost:hover{background:#f0f9ff}
+  .tab{padding:10px 24px;border-radius:10px;font-weight:600;font-size:14px;color:#64748b;cursor:pointer;transition:all .2s}
+  .tab.active{background:#0891B2;color:#fff}
+  .tab:not(.active):hover{background:#f0f9ff;color:#0891B2}
+  .lang-toggle{display:inline-flex;border:1px solid #cbd5e1;border-radius:10px;overflow:hidden}
+  .lang-btn{padding:8px 14px;font-size:13px;font-weight:700;background:#fff;color:#64748b;border:none;cursor:pointer}
+  .lang-btn.active{background:#0891B2;color:#fff}
+  body[dir="rtl"] .session-time{min-width:110px}
+  body[dir="rtl"] .pill{margin-left:0;margin-right:6px}
+  body[dir="rtl"] .session:hover{transform:translateX(-2px)}
+  .instr-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .instr-chip{padding:4px 12px;border:1px solid #cbd5e1;border-radius:999px;font-size:13px;cursor:pointer;background:#fff;color:#475569;user-select:none;transition:all .15s}
+  .instr-chip:hover{border-color:#0891B2}
+  .instr-chip.on{background:#0891B2;color:#fff;border-color:#0891B2}
+  .session{display:flex;gap:14px;padding:14px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;margin-bottom:10px;cursor:grab;transition:all .2s}
+  .session:hover{border-color:#0891B2;transform:translateX(2px)}
+  .session.dragging{opacity:.4}
+  .session.drop-target{border-color:#0891B2;border-style:dashed}
+  .session-time{font-weight:700;font-size:13px;color:#475569;min-width:110px;letter-spacing:.3px}
+  .session-body{flex:1}
+  .session-title{font-weight:700;font-size:15px;color:#1E293B}
+  .session-meta{font-size:12px;color:#64748b;margin-top:2px}
+  .session-color{width:6px;border-radius:3px;flex-shrink:0}
+  .type-didactic{background:#0891B2}
+  .type-skills{background:#22C55E}
+  .type-megacode{background:#F59E0B}
+  .type-break{background:#94a3b8}
+  .type-exam{background:#EF4444}
+  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;margin-left:6px}
+  .pill-d{background:rgba(8,145,178,.12);color:#0891B2}
+  .pill-s{background:rgba(34,197,94,.12);color:#15803d}
+  .pill-m{background:rgba(245,158,11,.15);color:#b45309}
+  .pill-b{background:rgba(100,116,139,.15);color:#475569}
+  .pill-e{background:rgba(239,68,68,.15);color:#b91c1c}
+  .field{width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px}
+  .field:focus{outline:none;border-color:#0891B2;box-shadow:0 0 0 3px rgba(8,145,178,.15)}
+  .details{display:none;padding:12px;background:#f8fafc;border-radius:8px;margin-top:8px}
+  .details.show{display:block}
+  .toast{position:fixed;bottom:20px;right:20px;background:#22C55E;color:#fff;padding:12px 20px;border-radius:10px;font-weight:600;z-index:1000;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+  @media print{
+    .no-print{display:none!important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ccc}
+    .session{break-inside:avoid;page-break-inside:avoid}
+    .panel-day{display:block!important;page-break-after:always}
+    .day-print-title{display:block!important;font-size:22px;font-weight:800;margin:20px 0 10px}
+  }
+  .day-print-title{display:none}
+</style>
+</head>
+<body>
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+
+  <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 no-print">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight" data-i18n="appTitle">מתכנן קורס סדציה בטוחה בילדים</h1>
+      <p class="text-slate-500 text-sm" data-i18n="appSub">גרור לסידור מחדש · לחץ להרחבה · שמירה אוטומטית</p>
+    </div>
+    <div class="flex gap-2 flex-wrap items-center">
+      <a href="hub_instructor.html" class="btn btn-ghost" data-i18n="hub">→ מרכז</a>
+      <button class="btn btn-ghost" onclick="resetSchedule()" data-i18n="reset">↻ איפוס לברירת מחדל</button>
+      <button class="btn btn-ghost" onclick="window.print()" data-i18n="print">🖨️ הדפסה</button>
+    </div>
+  </header>
+
+  <section class="card p-5 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500" data-i18n="fDate">תאריך הקורס</label><input class="field mt-1" id="course_date" placeholder="לדוגמה: 28-29 במאי 2026"></div>
+      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500" data-i18n="fInstr">מדריך/ה ראשי/ת</label><input class="field mt-1" id="course_instr" placeholder="שם המדריך/ה"></div>
+      <div><label class="text-xs font-semibold uppercase tracking-wider text-slate-500" data-i18n="fLoc">מיקום</label><input class="field mt-1" id="course_loc" placeholder="אתר ההדרכה"></div>
+    </div>
+  </section>
+
+  <section class="card p-4 mb-4 no-print">
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="text-xs font-semibold uppercase tracking-wider text-slate-500" for="plan_cohort">קבוצה · Cohort</label>
+      <select class="field" id="plan_cohort" style="max-width:260px;cursor:pointer" onchange="onCohortChange(this.value)" title="כל קבוצה יכולה להחזיק לוח זמנים משלה. בחר קבוצה כדי לערוך את הקורס שלה.">
+        <option value="">ברירת מחדל · Default (all cohorts)</option>
+      </select>
+      <label class="text-xs font-semibold uppercase tracking-wider text-slate-500" for="plan_days" style="margin-inline-start:1rem">אורך · Length</label>
+      <select class="field" id="plan_days" style="max-width:160px;cursor:pointer" onchange="onDaysChange(this.value)" title="מספר ימי הקורס">
+        <option value="2">יומיים · 2 days</option>
+        <option value="1">יום אחד · 1 day</option>
+      </select>
+    </div>
+  </section>
+
+  <div class="flex gap-2 mb-5 no-print">
+    <div class="tab active" data-day="1" onclick="switchDay(1)" data-i18n="day1">יום 1</div>
+    <div class="tab" data-day="2" onclick="switchDay(2)" data-i18n="day2">יום 2</div>
+    <div class="flex-1"></div>
+    <div class="flex gap-2 text-xs items-center">
+      <span class="pill pill-d" data-i18n="legD">עיוני</span><span class="pill pill-s" data-i18n="legS">מיומנויות</span><span class="pill pill-m" data-i18n="legM">מגה-קוד</span><span class="pill pill-b" data-i18n="legB">הפסקה</span><span class="pill pill-e" data-i18n="legE">מבחן</span>
+    </div>
+  </div>
+
+  <div class="panel-day" id="day1_panel">
+    <div class="day-print-title" data-i18n="day1Print">יום 1 — זיהוי, אלגוריתמים ומגה-קודים</div>
+    <div id="day1_list"></div>
+  </div>
+  <div class="panel-day hidden" id="day2_panel">
+    <div class="day-print-title" data-i18n="day2Print">יום 2 — דום לב, טיפול לאחר דום לב ומבחנים</div>
+    <div id="day2_list"></div>
+  </div>
+
+  <section class="card p-5 mt-6 no-print">
+    <h3 class="font-bold mb-2" data-i18n="expTitle">ייצוא לוח הזמנים</h3>
+    <p class="text-sm text-slate-500 mb-3" data-i18n="expSub">כלי תכנון למדריכים. הדפיסו או ייצאו את לוח הזמנים; שתפו אותו עם התלמידים כ-PDF/תדפיס, לא כקישור הניתן לעריכה.</p>
+    <div class="flex flex-wrap gap-2 items-start">
+      <button class="btn btn-ghost" onclick="window.print()" data-i18n="expPrint">🖨️ הדפסה / שמירת PDF</button>
+      <button class="btn btn-ghost" onclick="exportCSV()" data-i18n="expCsv">⬇ ייצוא CSV</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// ── Auth gate: instructors only (the planner is an editable staff tool) ──────
+(function(){
+  const INSTRUCTOR_ROLES = ['admin','lead_instructor','instructor'];
+  let sess = null;
+  try { sess = JSON.parse(sessionStorage.getItem('pals_sess_v2') || 'null'); } catch(e) {}
+  if (!sess) { location.replace('index.html'); throw new Error('auth'); }
+  if (!INSTRUCTOR_ROLES.includes(sess.role)) { location.replace('hub_student.html'); throw new Error('auth'); }
+})();
+
+const DEFAULT_SCHEDULE = {
+  // Pediatric Sedation Safety — schedule content TBD. Starts blank; build it in
+  // the planner UI (or seed defaults here later), same shape as PALS.
+  day1: [],
+  day2: []
+};
+
+const KEY='pals2025_planner';
+let currentCohortKey='';      // '' = the default plan (coursePlan/current)
+let courseDays=2;             // course length for the selected cohort (1 or 2)
+let schedule = (function(){
+  try{const s=JSON.parse(localStorage.getItem(KEY));return s||structuredClone(DEFAULT_SCHEDULE)}catch(e){return structuredClone(DEFAULT_SCHEDULE)}
+})();
+let meta = (function(){try{return JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}')}catch(e){return{}}})();
+document.getElementById('course_date').value=meta.dates||'';
+document.getElementById('course_instr').value=meta.instructor||'';
+document.getElementById('course_loc').value=meta.site||'';
+['course_date','course_instr','course_loc'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    const cur=JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}');
+    cur.dates=document.getElementById('course_date').value;
+    cur.instructor=document.getElementById('course_instr').value;
+    cur.site=document.getElementById('course_loc').value;
+    cur.timestamp=new Date().toISOString();
+    localStorage.setItem('pals2025_course_meta',JSON.stringify(cur));
+    publishPlan();
+  });
+});
+
+// ── Language ─────────────────────────────────────────────────────────────────
+// The planner is Hebrew-only for now: edits write to the Hebrew fields, and an
+// English view here would show stale base text, so the toggle is disabled.
+let planLang = 'he';
+const UI = {
+  he:{ appTitle:'מתכנן קורס סדציה בטוחה בילדים', appSub:'גרור לסידור מחדש · לחץ להרחבה · שמירה אוטומטית',
+    hub:'→ מרכז', reset:'↻ איפוס לברירת מחדל', print:'🖨️ הדפסה',
+    fDate:'תאריך הקורס', fInstr:'מדריך/ה ראשי/ת', fLoc:'מיקום',
+    day1:'יום 1', day2:'יום 2', day1Print:'יום 1 — זיהוי, אלגוריתמים ומגה-קודים', day2Print:'יום 2 — דום לב, טיפול לאחר דום לב ומבחנים',
+    legD:'עיוני', legS:'מיומנויות', legM:'מגה-קוד', legB:'הפסקה', legE:'מבחן',
+    expTitle:'ייצוא לוח הזמנים', expSub:'כלי תכנון למדריכים. הדפיסו או ייצאו את לוח הזמנים; שתפו אותו עם התלמידים כ-PDF/תדפיס, לא כקישור הניתן לעריכה.', expPrint:'🖨️ הדפסה / שמירת PDF', expCsv:'⬇ ייצוא CSV',
+    eTitle:'כותרת', eTime:'שעה', eType:'סוג', eInstr:'מדריך/ה', eRoom:'חדר', eNotes:'הערות',
+    up:'↑ למעלה', down:'↓ למטה', del:'🗑 מחיקה', add:'+ הוספת מקטע' },
+  en:{ appTitle:'Pediatric Sedation Safety Course Planner', appSub:'Drag to reorder · click to expand · auto-save',
+    hub:'← Hub', reset:'↻ Reset Default', print:'🖨️ Print',
+    fDate:'Course Date', fInstr:'Lead Instructor', fLoc:'Location',
+    day1:'Day 1', day2:'Day 2', day1Print:'DAY 1 — Recognition, Algorithms, Megacodes', day2Print:'DAY 2 — Cardiac Arrest, Post-Arrest, Testing',
+    legD:'Didactic', legS:'Skills', legM:'Megacode', legB:'Break', legE:'Exam',
+    expTitle:'Export schedule', expSub:'Instructor planning tool. Print or export the schedule; share it with students as a PDF/printout, not an editable link.', expPrint:'🖨️ Print / Save PDF', expCsv:'⬇ Export CSV',
+    eTitle:'Title', eTime:'Time', eType:'Type', eInstr:'Instructor', eRoom:'Room', eNotes:'Notes',
+    up:'↑ Up', down:'↓ Down', del:'🗑 Delete', add:'+ Add Session' }
+};
+function t(k){ return (UI[planLang]||UI.he)[k]||k; }
+// Language-specific field accessor / key (title/instr/room/notes have He variants)
+function fKey(f){ return planLang==='he' ? f+'He' : f; }
+function fVal(s,f){ const he=planLang==='he'; return he ? (s[f+'He']!=null && s[f+'He']!=='' ? s[f+'He'] : (s[f]||'')) : (s[f]||''); }
+function applyUiLang(){
+  document.body.setAttribute('dir', planLang==='he'?'rtl':'ltr');
+  document.documentElement.lang = planLang==='he'?'he':'en';
+  document.title = planLang==='he' ? 'מתכנן קורס Pediatric Sedation Safety' : 'Pediatric Sedation Safety Course Planner';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.dataset.i18n; if(UI[planLang][k]!=null) el.textContent=UI[planLang][k]; });
+  document.querySelectorAll('[data-lang-toggle] .lang-btn').forEach(b=>b.classList.toggle('active', b.dataset.lang===planLang));
+}
+window.setPlanLang = function(l){
+  planLang=l;
+  try{ localStorage.setItem('pals_plan_lang', l); }catch(e){}
+  applyUiLang(); render();
+};
+
+function pillClass(t){return {didactic:'pill-d',skills:'pill-s',megacode:'pill-m',break:'pill-b',exam:'pill-e'}[t]||'pill-b'}
+function pillLabel(ty){return {didactic:t('legD'),skills:t('legS'),megacode:t('legM'),break:t('legB'),exam:t('legE')}[ty]||ty}
+
+// ── Rooms (fixed list) · Instructors (from roster) · Time picker (15-min) ─────
+const ROOMS=[
+  {en:'Training Room',  he:'חדר הדרכה'},
+  {en:'Practice Room 1',he:'חדר תרגול 1'},
+  {en:'Practice Room 2',he:'חדר תרגול 2'}
+];
+// Fixed instructor list — pick one or more per session.
+const INSTRUCTORS=['צוות הקורס','ניתאי','פאתן','נבילה','ליאל','כריסטין','שילה','ענת','אלון','מאיה','עדנאן','גל','גלית','דניאל','מריה','מרין','נדא','נטע','ענבל','תום'];
+function splitTime(time){const p=String(time||'').split('-');return {start:(p[0]||'').trim(),end:(p[1]||'').trim()};}
+function timeOptions(sel){
+  const opts=[];const seen=new Set();
+  for(let h=6;h<=22;h++)for(const m of [0,15,30,45]){if(h===22&&m>0)break;const v=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');opts.push(v);seen.add(v);}
+  let html='<option value=""'+(sel?'':' selected')+'>—</option>';
+  if(sel&&!seen.has(sel)) html+=`<option value="${escAttr(sel)}" selected>${escHtml(sel)}</option>`;
+  return html+opts.map(v=>`<option value="${v}"${v===sel?' selected':''}>${v}</option>`).join('');
+}
+function setTimePart(d,i,which,val){
+  const cur=splitTime(schedule[d][i].time);
+  if(which==='start')cur.start=val;else cur.end=val;
+  schedule[d][i].time=cur.end?(cur.start+'-'+cur.end):cur.start;
+  persist();
+  // Refresh the collapsed time/duration label without closing the open card.
+  const card=document.querySelector(`.session[data-day="${d}"][data-idx="${i}"] .session-time`);
+  if(card) card.textContent=schedule[d][i].time;
+}
+function roomOptions(s){
+  const curHe=s.roomHe||'',curEn=s.room||'';
+  const idx=ROOMS.findIndex(r=>r.he===curHe||r.en===curEn);
+  let html='<option value=""'+(!curHe&&!curEn?' selected':'')+'>—</option>';
+  if(idx<0&&(curHe||curEn)) html+=`<option value="__keep" selected>${escHtml(fVal(s,'room'))}</option>`;
+  return html+ROOMS.map((r,k)=>`<option value="${k}"${k===idx?' selected':''}>${escHtml(planLang==='he'?r.he:r.en)}</option>`).join('');
+}
+function setRoomField(d,i,val){
+  if(val==='__keep')return;
+  if(val===''){schedule[d][i].room='';schedule[d][i].roomHe='';}
+  else{const r=ROOMS[+val];if(r){schedule[d][i].room=r.en;schedule[d][i].roomHe=r.he;}}
+  persist();refreshMeta(d,i);
+}
+function selectedInstr(s){
+  return new Set(String(s.instr||s.instrHe||'').split(',').map(x=>x.trim()).filter(Boolean));
+}
+function instrChecklist(d,i,s){
+  const sel=selectedInstr(s);
+  return `<div class="instr-list">`+INSTRUCTORS.map(n=>{
+    const on=sel.has(n);
+    return `<label class="instr-chip${on?' on':''}" onclick="event.stopPropagation()"><input type="checkbox" value="${escAttr(n)}" ${on?'checked':''} onchange="toggleInstr('${d}',${i},this)" style="display:none">${escHtml(n)}</label>`;
+  }).join('')+`</div>`;
+}
+function toggleInstr(d,i,el){
+  el.closest('label').classList.toggle('on', el.checked);
+  const sel=selectedInstr(schedule[d][i]);
+  if(el.checked) sel.add(el.value); else sel.delete(el.value);
+  const val=INSTRUCTORS.filter(n=>sel.has(n)).join(', ');
+  schedule[d][i].instr=val; schedule[d][i].instrHe=val;
+  persist(); refreshMeta(d,i);
+}
+// Update the collapsed instructor/room meta line in place (keeps the card open).
+function refreshMeta(d,i){
+  const s=schedule[d][i];
+  const el=document.querySelector(`.session[data-day="${d}"][data-idx="${i}"] .session-meta`);
+  if(el) el.innerHTML=`${fVal(s,'instr')?'👤 '+escHtml(fVal(s,'instr'))+' · ':''}${fVal(s,'room')?'📍 '+escHtml(fVal(s,'room')):''}`;
+}
+
+function durationOf(time){
+  if(!time||!time.includes('-'))return '';
+  const [a,b]=time.split('-');
+  const [ah,am]=a.split(':').map(Number);const [bh,bm]=b.split(':').map(Number);
+  const mins=(bh*60+bm)-(ah*60+am);
+  return mins>0?`${mins} min`:'';
+}
+
+function render(){
+  ['day1','day2'].forEach(d=>{
+    const list=document.getElementById(d+'_list');
+    list.innerHTML=schedule[d].map((s,i)=>`
+      <div class="session" draggable="true" data-day="${d}" data-idx="${i}" onclick="toggleDetails(event,'${d}',${i})">
+        <div class="session-color type-${s.type}"></div>
+        <div class="session-time">${s.time}</div>
+        <div class="session-body">
+          <div class="session-title">${escHtml(fVal(s,'title'))}<span class="pill ${pillClass(s.type)}">${pillLabel(s.type)}</span>${durationOf(s.time)?`<span class="text-xs text-slate-400 mx-2">${durationOf(s.time)}</span>`:''}</div>
+          <div class="session-meta">${fVal(s,'instr')?'👤 '+escHtml(fVal(s,'instr'))+' · ':''}${fVal(s,'room')?'📍 '+escHtml(fVal(s,'room')):''}</div>
+          <div class="details" id="det_${d}_${i}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+              <div><label class="text-xs font-semibold text-slate-500">${t('eTitle')}</label><input class="field" value="${escAttr(fVal(s,'title'))}" onchange="updateField('${d}',${i},'title',this.value)" onclick="event.stopPropagation()"></div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eTime')}</label>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <select class="field" onchange="setTimePart('${d}',${i},'start',this.value)" onclick="event.stopPropagation()">${timeOptions(splitTime(s.time).start)}</select>
+                  <span class="text-slate-400">–</span>
+                  <select class="field" onchange="setTimePart('${d}',${i},'end',this.value)" onclick="event.stopPropagation()">${timeOptions(splitTime(s.time).end)}</select>
+                </div>
+              </div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eType')}</label>
+                <select class="field" onchange="updateField('${d}',${i},'type',this.value)" onclick="event.stopPropagation()">
+                  ${['didactic','skills','megacode','break','exam'].map(ty=>`<option ${ty===s.type?'selected':''} value="${ty}">${pillLabel(ty)}</option>`).join('')}
+                </select>
+              </div>
+              <div class="md:col-span-2"><label class="text-xs font-semibold text-slate-500">${t('eInstr')}</label>
+                ${instrChecklist(d,i,s)}
+              </div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eRoom')}</label>
+                <select class="field" onchange="setRoomField('${d}',${i},this.value)" onclick="event.stopPropagation()">${roomOptions(s)}</select>
+              </div>
+              <div><label class="text-xs font-semibold text-slate-500">${t('eNotes')}</label><input class="field" value="${escAttr(fVal(s,'notes'))}" onchange="updateField('${d}',${i},'notes',this.value)" onclick="event.stopPropagation()"></div>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button class="btn btn-ghost" onclick="moveSession(event,'${d}',${i},-1)">${t('up')}</button>
+              <button class="btn btn-ghost" onclick="moveSession(event,'${d}',${i},1)">${t('down')}</button>
+              <button class="btn" style="background:#fee2e2;color:#b91c1c" onclick="deleteSession(event,'${d}',${i})">${t('del')}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('') + `<button class="btn btn-ghost no-print w-full justify-center mt-2" onclick="addSession('${d}')">${t('add')}</button>`;
+  });
+  attachDragHandlers();
+}
+function escAttr(s){return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}
+function escHtml(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function toggleDetails(e,d,i){
+  if(e.target.closest('.field')||e.target.tagName==='BUTTON')return;
+  const el=document.getElementById(`det_${d}_${i}`);el.classList.toggle('show');
+}
+function updateField(d,i,f,v){
+  // Time and type are language-independent; text fields edit the active language.
+  const key = (f==='time'||f==='type') ? f : fKey(f);
+  schedule[d][i][key]=v;persist();
+  if(f==='type'||f==='time'||f==='title')render();
+}
+function moveSession(e,d,i,delta){
+  e.stopPropagation();
+  const j=i+delta;if(j<0||j>=schedule[d].length)return;
+  [schedule[d][i],schedule[d][j]]=[schedule[d][j],schedule[d][i]];persist();render();
+}
+function deleteSession(e,d,i){e.stopPropagation();if(!confirm(planLang==='he'?'למחוק את המקטע?':'Delete this session?'))return;schedule[d].splice(i,1);persist();render()}
+function addSession(d){const nt=planLang==='he'?'מקטע חדש':'New session';schedule[d].push({time:'00:00-00:00',title:nt,titleHe:nt,type:'didactic',instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''});persist();render()}
+// Publish schedule + meta to Firestore so students see the plan live, and
+// they get a pop-up whenever it changes. A content signature (`sig`) drives
+// student change-detection so simply re-opening the planner never triggers a
+// false "updated" notification. Debounced to coalesce rapid edits.
+let _publishTimer=null;
+function currentMeta(){try{return JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}')}catch(e){return{}}}
+function publishPlan(){
+  clearTimeout(_publishTimer);
+  _publishTimer=setTimeout(()=>{
+    const m=currentMeta();
+    const sig=JSON.stringify({schedule, days:courseDays, cohort:currentCohortKey, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
+    if(sig===localStorage.getItem('pals_plan_pub_sig')) return;  // nothing actually changed
+    const save=fb=>{ if(fb&&fb.saveCoursePlan){ fb.saveCoursePlan({ schedule, meta:m, days:courseDays, sig }, currentCohortKey); localStorage.setItem('pals_plan_pub_sig',sig); } };
+    if(window.FB&&window.FB.saveCoursePlan) save(window.FB);
+    else if(window.FB_READY) window.FB_READY.then(save);
+  },600);
+}
+function persist(){localStorage.setItem(KEY,JSON.stringify(schedule));publishPlan();toast(planLang==='he'?'נשמר':'Saved')}
+
+// ── Live two-way sync with the shared plan (coursePlan/current) ──────────────
+// Every edit publishes (above); here we also watch the shared doc so all
+// instructors stay in sync and a freshly opened planner adopts the live plan
+// instead of clobbering it with stale local/default data.
+let _pendingRemote=null;
+function fillMetaInputs(){
+  const m=currentMeta();
+  document.getElementById('course_date').value=m.dates||'';
+  document.getElementById('course_instr').value=m.instructor||'';
+  document.getElementById('course_loc').value=m.site||'';
+}
+function adoptPlan(data){
+  if(!data||!data.schedule) return;
+  schedule=data.schedule;
+  localStorage.setItem(KEY,JSON.stringify(schedule));
+  if(data.meta) localStorage.setItem('pals2025_course_meta',JSON.stringify(data.meta));
+  if(data.sig) localStorage.setItem('pals_plan_pub_sig',data.sig);
+  courseDays = (data.days===1||data.days==='1') ? 1 : 2;
+  applyDays();
+  fillMetaInputs();
+  render();
+}
+// Course length: hide Day 2 (tab + panel) for 1-day cohorts.
+function applyDays(){
+  const is1 = courseDays===1;
+  const tab2 = document.querySelector('.tab[data-day="2"]');
+  if(tab2) tab2.style.display = is1 ? 'none' : '';
+  const p2 = document.getElementById('day2_panel');
+  if(p2) p2.style.display = is1 ? 'none' : '';
+  const sel = document.getElementById('plan_days'); if(sel) sel.value = String(courseDays);
+  if(is1) switchDay(1);
+}
+window.onDaysChange = function(v){ courseDays = (String(v)==='1') ? 1 : 2; applyDays(); persist(); };
+// Switch which cohort's plan is being edited. Reset to a clean default first so a
+// brand-new cohort starts from the standard schedule (not the prior cohort's),
+// then re-subscribe — the live plan, if any, is adopted over it.
+window.onCohortChange = function(key){
+  const sel = document.getElementById('plan_cohort');
+  if(key==='__new__'){
+    const fb = window.FB;
+    const name = (prompt('Name the new cohort (e.g. "July 2026 – 1 day"):')||'').trim();
+    if(!name){ if(sel) sel.value = currentCohortKey||''; return; }
+    const k = fb && fb.cohortKey ? fb.cohortKey(name) : '';
+    if(!k){ alert('Please use a name with letters or numbers.'); if(sel) sel.value = currentCohortKey||''; return; }
+    Promise.resolve(fb && fb.addCohort ? fb.addCohort(name) : null)
+      .finally(()=>{ populateCohorts().finally(()=>{ if(sel) sel.value = k; onCohortChange(k); }); });
+    return;
+  }
+  currentCohortKey = key || '';
+  if(sel && sel.value !== currentCohortKey) sel.value = currentCohortKey;
+  localStorage.removeItem('pals_plan_pub_sig');
+  schedule = structuredClone(DEFAULT_SCHEDULE); courseDays = 2;
+  applyDays(); render();
+  subscribePlan();
+};
+async function populateCohorts(){
+  const sel = document.getElementById('plan_cohort'); if(!sel) return;
+  const fb = window.FB || (window.FB_READY ? await window.FB_READY : null);
+  if(!fb || !fb.getAllUsers || !fb.cohortKey) return;
+  let users = {}; try{ users = await fb.getAllUsers(); }catch(e){ users = {}; }
+  let registry = []; try{ registry = fb.loadCohortRegistry ? await fb.loadCohortRegistry() : []; }catch(e){ registry = []; }
+  const names = [...new Set([
+    ...Object.values(users||{}).map(u => (u && u.cohort || '').trim()),
+    ...registry.map(n => String(n||'').trim())
+  ].filter(c => c && c.toLowerCase() !== 'unassigned'))].sort();
+  const cur = sel.value;
+  sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+  const seen = new Set();
+  names.forEach(n => { const k = fb.cohortKey(n); if(!k || seen.has(k)) return; seen.add(k);
+    const o = document.createElement('option'); o.value = k; o.textContent = n; sel.appendChild(o); });
+  const nw = document.createElement('option'); nw.value = '__new__'; nw.textContent = '➕ New cohort…'; sel.appendChild(nw);
+  sel.value = [...sel.options].some(o => o.value===cur && o.value!=='__new__') ? cur : (currentCohortKey||'');
+}
+let _planUnsub=null;
+function subscribePlan(){
+  const sub=fb=>{ if(!fb||!fb.watchCoursePlan) return;
+    if(_planUnsub){ try{ _planUnsub(); }catch(e){} _planUnsub=null; }
+    _planUnsub = fb.watchCoursePlan(data=>{
+      if(!data){ publishPlan(); return; }                                  // nothing shared yet → seed from local
+      if(data.sig && data.sig===localStorage.getItem('pals_plan_pub_sig')) return;  // our own echo / already in sync
+      const ae=document.activeElement;
+      if(ae&&ae.closest&&ae.closest('#day1_list,#day2_list')){ _pendingRemote=data; return; }  // don't yank a field mid-edit
+      adoptPlan(data);
+    }, currentCohortKey);
+  };
+  if(window.FB&&window.FB.watchCoursePlan) sub(window.FB);
+  else if(window.FB_READY) window.FB_READY.then(sub);
+}
+function startPlanSync(){ populateCohorts(); subscribePlan(); }
+// Apply a deferred remote update once the instructor finishes editing a field.
+document.addEventListener('focusout',()=>{ if(_pendingRemote){ const d=_pendingRemote; _pendingRemote=null; adoptPlan(d); } });
+function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1500)}
+function resetSchedule(){if(!confirm(planLang==='he'?'לאפס ללוח ברירת המחדל? פעולה זו תמחק את העריכות שלך.':'Reset to default schedule? This discards your edits.'))return;schedule=structuredClone(DEFAULT_SCHEDULE);persist();render()}
+
+function switchDay(n){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.day==n));
+  document.getElementById('day1_panel').classList.toggle('hidden',n!==1);
+  document.getElementById('day2_panel').classList.toggle('hidden',n!==2);
+}
+
+function attachDragHandlers(){
+  let dragEl=null;
+  document.querySelectorAll('.session').forEach(s=>{
+    s.addEventListener('dragstart',e=>{dragEl=s;s.classList.add('dragging')});
+    s.addEventListener('dragend',()=>{dragEl=null;document.querySelectorAll('.session').forEach(x=>x.classList.remove('dragging','drop-target'))});
+    s.addEventListener('dragover',e=>{e.preventDefault();if(dragEl&&dragEl.dataset.day===s.dataset.day&&dragEl!==s)s.classList.add('drop-target')});
+    s.addEventListener('dragleave',()=>s.classList.remove('drop-target'));
+    s.addEventListener('drop',e=>{
+      e.preventDefault();s.classList.remove('drop-target');
+      if(!dragEl||dragEl.dataset.day!==s.dataset.day||dragEl===s)return;
+      const d=s.dataset.day;const from=parseInt(dragEl.dataset.idx);const to=parseInt(s.dataset.idx);
+      const item=schedule[d].splice(from,1)[0];schedule[d].splice(to,0,item);persist();render();
+    });
+  });
+}
+
+function exportCSV(){
+  const hdr=planLang==='he'?'יום,שעה,כותרת,סוג,מדריך,חדר,הערות':'Day,Time,Title,Type,Instructor,Room,Notes';
+  const rows=[hdr];
+  ['day1','day2'].forEach((d,di)=>schedule[d].forEach(s=>{
+    rows.push([di+1,s.time,fVal(s,'title'),pillLabel(s.type),fVal(s,'instr'),fVal(s,'room'),fVal(s,'notes')].map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(','));
+  }));
+  download(new Blob(['﻿'+rows.join('\n')],{type:'text/csv;charset=utf-8'}),'pals_schedule.csv');
+}
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+
+applyUiLang();
+render();
+// Subscribe to the shared plan: adopts the live schedule on open and keeps
+// every instructor + the student view in sync. Seeds the doc if none exists.
+startPlanSync();
+</script>
+</body>
+</html>
