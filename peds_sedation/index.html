@@ -396,6 +396,7 @@ async function bootstrapPalsAdmin(authUser) {
   } catch(e) { console.warn('[Peds] bootstrapPalsAdmin:', e.message); return null; }
 }
 
+
 // ── REGISTER (disabled — closed enrollment; accounts are admin-provisioned) ──
 window.register = function() {
   const errEl = document.getElementById('reg-err');
