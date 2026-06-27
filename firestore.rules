@@ -194,7 +194,12 @@ service cloud.firestore {
              && request.resource.data.email == request.auth.token.email
              && exists(/databases/$(database)/documents/peds_allowlist/$(request.auth.token.email))
              && get(/databases/$(database)/documents/peds_allowlist/$(request.auth.token.email)).data.role == request.resource.data.role
-             && get(/databases/$(database)/documents/peds_allowlist/$(request.auth.token.email)).data.registered == false );
+             && get(/databases/$(database)/documents/peds_allowlist/$(request.auth.token.email)).data.registered == false )
+        // Bootstrap: a PALS admin can self-create their own peds admin profile
+        || ( request.auth != null
+             && request.auth.uid == uid
+             && request.resource.data.role == 'admin'
+             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' );
       allow delete: if pedsIsAdmin();
     }
 
