@@ -235,6 +235,13 @@ onAuthStateChanged(auth, async (fbUser) => {
         redir(data.role || 'student');
         return;
       }
+      // No peds profile — try PALS admin bootstrap before showing login
+      const boot = await bootstrapPalsAdmin(fbUser);
+      if (boot) {
+        writeSession(fbUser.uid, 'admin', boot.name, fbUser.email);
+        redir('admin');
+        return;
+      }
     } catch(e) {}
   }
   overlay.classList.add('hidden');
@@ -300,9 +307,16 @@ window.signIn = async function() {
           role = repaired.role || 'student';
           name = repaired.name || name;
         } else {
-          document.getElementById('si-err-msg').textContent = 'Account found but no course profile exists. Ask your instructor to re-invite this email, then sign in again.';
-          errEl.style.display = 'flex';
-          btn.disabled = false; btnTxt.textContent = 'Sign In'; return;
+          // Bootstrap: if this person is a PALS admin, auto-create their peds admin profile
+          const bootstrapped = await bootstrapPalsAdmin(cred.user);
+          if (bootstrapped) {
+            role = 'admin';
+            name = bootstrapped.name || name;
+          } else {
+            document.getElementById('si-err-msg').textContent = 'Account found but no course profile exists. Ask your instructor to add you to this course.';
+            errEl.style.display = 'flex';
+            btn.disabled = false; btnTxt.textContent = 'Sign In'; return;
+          }
         }
       }
     } catch(e) { console.warn('Firestore read failed:', e.message); }
@@ -356,6 +370,32 @@ async function repairProfileFromInvite(authUser) {
     return profile;
   } catch(e) { console.warn('[PALS] repairProfileFromInvite:', e.message); return null; }
 }
+
+// ── Bootstrap a PALS admin as peds admin (first-time setup) ──────────────────
+// If someone has no peds_users profile but IS a PALS admin, they can self-claim
+// the peds admin role. The Firestore rule allows this cross-namespace create.
+async function bootstrapPalsAdmin(authUser) {
+  try {
+    const palsSnap = await getDoc(doc(db, 'users', authUser.uid));
+    if (!palsSnap.exists() || palsSnap.data().role !== 'admin') return null;
+    const pd = palsSnap.data();
+    const profile = {
+      uid:       authUser.uid,
+      email:     (authUser.email || '').toLowerCase(),
+      name:      pd.name || pd.displayName || authUser.email,
+      firstName: pd.firstName || '',
+      lastName:  pd.lastName  || '',
+      role:      'admin',
+      cohort:    'Admin',
+      createdAt: serverTimestamp(),
+      bootstrappedFromPals: true,
+      progress:  {},
+    };
+    await setDoc(doc(db, (window.COURSE_NS||'')+'users', authUser.uid), profile);
+    return profile;
+  } catch(e) { console.warn('[Peds] bootstrapPalsAdmin:', e.message); return null; }
+}
+
 
 // ── REGISTER (disabled — closed enrollment; accounts are admin-provisioned) ──
 window.register = function() {
