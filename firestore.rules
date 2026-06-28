@@ -37,7 +37,7 @@ service cloud.firestore {
     // Keys a user is NOT allowed to change on their own profile
     function touchesPrivileged() {
       return request.resource.data.diff(resource.data)
-               .affectedKeys().hasAny(['role', 'canAdmin']);
+               .affectedKeys().hasAny(['role', 'canAdmin', 'cohort']);
     }
 
     // ── USERS: profile + role ────────────────────────────────────
@@ -176,7 +176,7 @@ service cloud.firestore {
     function pedsUserCohort(uid) { return get(/databases/$(database)/documents/peds_users/$(uid)).data.cohort; }
     function pedsSeesAllCohorts(){ return pedsIsAdmin() || pedsRole() == 'lead_instructor'; }
     function pedsTouchesPrivileged() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'canAdmin']);
+      return request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'canAdmin', 'cohort']);
     }
 
     match /peds_users/{uid} {
