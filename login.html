@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medical Education Portal · Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="firebase-config.js"></script>
+<style>
+:root {
+  --bg:#f0f4ff;--s:#fff;--s2:#f8fafc;--b:#e0e7ef;--b2:#cbd5e1;
+  --t:#0f172a;--tm:#475569;--tf:#94a3b8;
+  --pals:#0891B2;--pals-d:#0e7490;--pals-l:rgba(8,145,178,.1);
+  --peds:#7C3AED;--peds-d:#6d28d9;--peds-l:rgba(124,58,237,.1);
+  --sh:0 4px 28px rgba(15,23,42,.1);--r:16px;
+  --tr:all .22s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"]{
+  --bg:#07101e;--s:#0d1f38;--s2:#0f2545;--b:#1e3a5f;--b2:#1a3358;
+  --t:#dff0fc;--tm:#7db8d4;--tf:#2d5f82;
+  --sh:0 4px 28px rgba(0,0,0,.5);
+  --pals-l:rgba(8,145,178,.18);--peds-l:rgba(124,58,237,.2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100dvh;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;transition:background .3s,color .3s}
+
+/* ── Background blobs ───────────────────────────────────── */
+.blob{position:fixed;border-radius:50%;filter:blur(110px);opacity:.12;z-index:0;pointer-events:none;animation:drift 20s ease-in-out infinite}
+.b1{width:520px;height:520px;background:var(--pals);top:-180px;left:-120px}
+.b2{width:440px;height:440px;background:var(--peds);bottom:-120px;right:-100px;animation-duration:25s;animation-direction:reverse}
+.b3{width:280px;height:280px;background:#34D399;bottom:15%;left:8%;opacity:.07;animation-duration:28s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,20px) scale(1.03)}}
+
+/* ── Wrapper ────────────────────────────────────────────── */
+.wrap{position:relative;z-index:1;width:100%;max-width:460px;display:flex;flex-direction:column;align-items:center}
+
+/* ── Brand ──────────────────────────────────────────────── */
+.brand-ring{width:68px;height:68px;border-radius:18px;background:linear-gradient(135deg,var(--pals),var(--peds));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(8,145,178,.3),0 0 0 8px rgba(8,145,178,.08);margin-bottom:1rem;animation:pop .55s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.brand-ring svg{fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;text-align:center}
+.sub{font-family:'Instrument Serif',serif;font-size:.92rem;color:var(--tm);margin-bottom:1.6rem;font-style:italic;text-align:center}
+
+/* ── Card ───────────────────────────────────────────────── */
+.card{background:var(--s);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--b);width:100%;padding:1.75rem;animation:slideup .45s .1s cubic-bezier(.4,0,.2,1) both}
+@keyframes slideup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Form ───────────────────────────────────────────────── */
+.fl{margin-bottom:1rem}
+.fl label{display:block;font-size:.71rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
+.field{width:100%;padding:.7rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);transition:var(--tr);font-family:'Inter',sans-serif}
+.field:focus{outline:none;border-color:var(--pals);box-shadow:0 0 0 3px var(--pals-l)}
+.pw-wrap{position:relative}.pw-wrap .field{padding-right:2.8rem}
+.pw-toggle{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tm);padding:0;display:flex;align-items:center;transition:var(--tr)}
+.pw-toggle:hover{color:var(--t)}
+.err{background:rgba(239,68,68,.08);color:#dc2626;border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none;align-items:center;gap:.5rem}
+.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.2rem;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-family:'Inter',sans-serif;background:linear-gradient(135deg,var(--pals),var(--peds))}
+.btn-go:hover{opacity:.9;transform:translateY(-1px)}
+.btn-go:active{transform:scale(.98)}
+.btn-go:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+/* ── Course picker ──────────────────────────────────────── */
+#picker-wrap{width:100%;max-width:640px}
+.picker-head{text-align:center;margin-bottom:1.5rem}
+.picker-head h2{font-size:1.5rem;font-weight:800;margin-bottom:.3rem}
+.picker-head p{color:var(--tm);font-size:.88rem}
+.courses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.course-card{background:var(--s);border-radius:var(--r);border:1px solid var(--b);box-shadow:var(--sh);overflow:hidden;cursor:pointer;transition:var(--tr);animation:slideup .4s cubic-bezier(.4,0,.2,1) both}
+.course-card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(15,23,42,.15)}
+.course-card:active{transform:translateY(-1px)}
+.course-bar{height:5px}
+.course-bar.pals{background:linear-gradient(90deg,var(--pals),#34D399)}
+.course-bar.peds{background:linear-gradient(90deg,var(--peds),var(--pals))}
+.course-body{padding:1.3rem}
+.course-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:.85rem}
+.course-icon.pals{background:var(--pals-l)}
+.course-icon.peds{background:var(--peds-l)}
+.course-name{font-weight:800;font-size:1rem;margin-bottom:.2rem}
+.course-sub{font-size:.78rem;color:var(--tm);margin-bottom:.8rem}
+.course-meta{display:flex;flex-wrap:wrap;gap:.4rem}
+.badge{font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.3px}
+.badge-pals{background:var(--pals-l);color:var(--pals)}
+.badge-peds{background:var(--peds-l);color:var(--peds)}
+.badge-role{background:rgba(100,116,139,.1);color:var(--tm)}
+.badge-cohort{background:rgba(52,211,153,.1);color:#065f46}
+[data-theme="dark"] .badge-cohort{color:#34d399}
+.enter-arrow{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:.85rem;border-top:1px solid var(--b);font-size:.82rem;font-weight:700;color:var(--tm)}
+.enter-arrow svg{opacity:.5;transition:var(--tr)}
+.course-card:hover .enter-arrow svg{opacity:1;transform:translateX(4px)}
+
+/* ── Loading overlay ────────────────────────────────────── */
+#auth-checking{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s}
+#auth-checking.hidden{opacity:0;pointer-events:none}
+.spinner{width:36px;height:36px;border:3px solid var(--b);border-top-color:var(--pals);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Misc ───────────────────────────────────────────────── */
+.theme-btn{position:fixed;top:1rem;right:1rem;background:var(--s);border:1px solid var(--b);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh);z-index:10;transition:var(--tr)}
+.theme-btn:hover{background:var(--s2);transform:rotate(20deg)}
+.back-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--tm);cursor:pointer;margin-top:1rem;padding:.4rem .6rem;border-radius:8px;transition:var(--tr)}
+.back-link:hover{color:var(--t);background:var(--s2)}
+.note{font-size:.75rem;color:var(--tf);text-align:center;margin-top:1rem;line-height:1.55}
+
+@media(max-width:500px){.courses-grid{grid-template-columns:1fr}.card{padding:1.3rem}h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div id="auth-checking"><div class="spinner"></div></div>
+
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+
+<button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle dark mode" id="thbtn">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="thico">
+    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>
+</button>
+
+<!-- ── SIGN-IN FORM ─────────────────────────────────────── -->
+<div class="wrap" id="login-wrap" style="display:none">
+  <div class="brand-ring">
+    <svg width="34" height="34" viewBox="0 0 34 34">
+      <path d="M17 3 L17 31 M3 17 L31 17" stroke-width="4"/>
+      <circle cx="17" cy="17" r="13" stroke-width="2"/>
+      <circle cx="17" cy="17" r="6.5" stroke-width="1.5" stroke-dasharray="3 3"/>
+    </svg>
+  </div>
+  <h1>Medical Education Portal</h1>
+  <div class="sub">PALS &amp; Pediatric Sedation Safety Courses</div>
+
+  <div class="card">
+    <div id="si-err" class="err" role="alert">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="si-err-msg">Incorrect credentials. Please try again.</span>
+    </div>
+    <div class="fl">
+      <label for="si-em">Email address</label>
+      <input class="field" id="si-em" type="email" autocomplete="email" placeholder="you@example.com"
+             onkeydown="if(event.key==='Enter')document.getElementById('si-pw').focus()">
+    </div>
+    <div class="fl">
+      <label for="si-pw">Password</label>
+      <div class="pw-wrap">
+        <input class="field" id="si-pw" type="password" autocomplete="current-password" placeholder="Your password"
+               onkeydown="if(event.key==='Enter')signIn()">
+        <button class="pw-toggle" onclick="togglePw()" type="button" aria-label="Show/hide password">
+          <svg id="pw-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <button id="si-btn" class="btn-go" onclick="signIn()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+        <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+      </svg>
+      <span id="si-txt">Sign In</span>
+    </button>
+    <p class="note">Accounts are created by your course administrator. Contact your instructor if you need access.</p>
+  </div>
+</div>
+
+<!-- ── COURSE PICKER ────────────────────────────────────── -->
+<div id="picker-wrap" style="display:none">
+  <div class="picker-head">
+    <div class="brand-ring" style="margin:0 auto 1rem">
+      <svg width="34" height="34" viewBox="0 0 34 34">
+        <path d="M17 3 L17 31 M3 17 L31 17" stroke-width="4"/>
+        <circle cx="17" cy="17" r="13" stroke-width="2"/>
+        <circle cx="17" cy="17" r="6.5" stroke-width="1.5" stroke-dasharray="3 3"/>
+      </svg>
+    </div>
+    <h2 id="picker-greeting">Welcome back!</h2>
+    <p id="picker-sub">Select a course to continue</p>
+  </div>
+  <div class="courses-grid" id="courses-grid"></div>
+  <div style="text-align:center">
+    <span class="back-link" onclick="showSignOut()" title="Sign out completely">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign out
+    </span>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }        from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+}                               from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {
+  getFirestore, doc, getDoc, setDoc, serverTimestamp
+}                               from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// Switch mode: user is already logged in, just picking a different course
+const isSwitchMode = location.hash === '#switch';
+const INSTRUCTOR_ROLES = ['admin', 'lead_instructor', 'instructor'];
+
+// ── Theme ─────────────────────────────────────────────────
+const THEME_KEY = 'pals_theme';
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  const ico = document.getElementById('thico');
+  if (!ico) return;
+  ico.innerHTML = t === 'dark'
+    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+}
+window.toggleTheme = () => {
+  const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem(THEME_KEY, t); } catch(e) {}
+  applyTheme(t);
+};
+try { applyTheme(localStorage.getItem(THEME_KEY) || 'light'); } catch(e) {}
+
+// ── Password toggle ───────────────────────────────────────
+window.togglePw = () => {
+  const inp = document.getElementById('si-pw');
+  const eye = document.getElementById('pw-eye');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  eye.innerHTML = show
+    ? '<line x1="1" y1="1" x2="23" y2="23"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>'
+    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+};
+
+// ── Fetch all courses the user has access to ──────────────
+async function fetchCourses(fbUser) {
+  const courses = [];
+
+  // ── PALS ──────────────────────────────────────────────
+  try {
+    const snap = await getDoc(doc(db, 'users', fbUser.uid));
+    if (snap.exists()) {
+      const d = snap.data();
+      courses.push({
+        ns:       '',
+        key:      'pals',
+        name:     'PALS 2025',
+        subtitle: 'Pediatric Advanced Life Support · Provider Course',
+        role:     d.role || 'student',
+        cohort:   d.cohort || '',
+        name_display: d.name || d.displayName || fbUser.email,
+        raw:      d,
+      });
+    }
+  } catch(e) { console.warn('[Login] PALS profile read:', e.message); }
+
+  // ── Pediatric Sedation Safety ─────────────────────────
+  try {
+    const snap = await getDoc(doc(db, 'peds_users', fbUser.uid));
+    if (snap.exists()) {
+      const d = snap.data();
+      courses.push({
+        ns:       'peds_',
+        key:      'peds',
+        name:     'Pediatric Sedation Safety',
+        subtitle: 'Pediatric Sedation Safety · Provider Course',
+        role:     d.role || 'student',
+        cohort:   d.cohort || '',
+        name_display: d.name || d.displayName || fbUser.email,
+        raw:      d,
+      });
+    } else {
+      // Bootstrap: a PALS admin auto-gets peds admin profile
+      const pals = courses.find(c => c.ns === '');
+      if (pals && pals.role === 'admin') {
+        const bootstrapped = await bootstrapPedsAdmin(fbUser, pals.raw);
+        if (bootstrapped) {
+          courses.push({
+            ns:       'peds_',
+            key:      'peds',
+            name:     'Pediatric Sedation Safety',
+            subtitle: 'Pediatric Sedation Safety · Provider Course',
+            role:     'admin',
+            cohort:   'Admin',
+            name_display: bootstrapped.name,
+            raw:      bootstrapped,
+          });
+        }
+      }
+    }
+  } catch(e) { console.warn('[Login] Peds profile read:', e.message); }
+
+  return courses;
+}
+
+// ── Auto-create peds admin profile for a PALS admin ──────
+async function bootstrapPedsAdmin(fbUser, palsData) {
+  try {
+    const profile = {
+      uid:       fbUser.uid,
+      email:     (fbUser.email || '').toLowerCase(),
+      name:      palsData.name || palsData.displayName || fbUser.email,
+      firstName: palsData.firstName || '',
+      lastName:  palsData.lastName  || '',
+      role:      'admin',
+      cohort:    'Admin',
+      createdAt: serverTimestamp(),
+      bootstrappedFromPals: true,
+      progress:  {},
+    };
+    await setDoc(doc(db, 'peds_users', fbUser.uid), profile);
+    return profile;
+  } catch(e) { console.warn('[Login] peds bootstrap:', e.message); return null; }
+}
+
+// ── Write session for a specific course ──────────────────
+// NOTE: no shim on this page — write raw keys.
+// Peds hub has a shim that reads 'peds_pals_sess_v2' when it calls getItem('pals_sess_v2').
+const SK = 'pals_sess_v2';
+function writeSession(ns, uid, role, name, email) {
+  const key  = ns + SK;
+  const sess = { uid, role, name, email, ts: Date.now() };
+  try { sessionStorage.setItem(key, JSON.stringify(sess)); } catch(e) {}
+}
+
+// ── Touch lastLogin timestamp ─────────────────────────────
+async function touchLastLogin(ns, uid) {
+  try {
+    await setDoc(doc(db, ns + 'users', uid), { lastLogin: serverTimestamp() }, { merge: true });
+  } catch(e) {}
+}
+
+// ── Redirect to the right hub ─────────────────────────────
+function hubUrl(ns, role) {
+  const base = ns === 'peds_' ? '/peds_sedation/' : '/';
+  return base + (INSTRUCTOR_ROLES.includes(role) ? 'hub_instructor.html' : 'hub_student.html');
+}
+
+// ── Enter a course (write session + redirect) ─────────────
+async function enterCourse(fbUser, course) {
+  writeSession(course.ns, fbUser.uid, course.role, course.name_display, fbUser.email);
+  touchLastLogin(course.ns, fbUser.uid); // fire-and-forget
+  window.location.href = hubUrl(course.ns, course.role);
+}
+
+// ── Auth state handler ────────────────────────────────────
+onAuthStateChanged(auth, async (fbUser) => {
+  const overlay = document.getElementById('auth-checking');
+  if (!fbUser) {
+    overlay.classList.add('hidden');
+    setTimeout(() => overlay.remove(), 300);
+    showLoginForm();
+    return;
+  }
+  const courses = await fetchCourses(fbUser);
+  overlay.classList.add('hidden');
+  setTimeout(() => overlay.remove(), 300);
+  if (courses.length === 0) {
+    showLoginForm('No course access found for this account.');
+    return;
+  }
+  if (isSwitchMode || courses.length > 1) {
+    showPicker(fbUser, courses);
+  } else {
+    enterCourse(fbUser, courses[0]);
+  }
+});
+
+// ── SIGN IN ───────────────────────────────────────────────
+window.signIn = async function() {
+  const email  = document.getElementById('si-em').value.trim();
+  const pw     = document.getElementById('si-pw').value;
+  const errEl  = document.getElementById('si-err');
+  const btn    = document.getElementById('si-btn');
+  const txt    = document.getElementById('si-txt');
+  errEl.style.display = 'none';
+
+  if (!email || !pw) {
+    showErr('Please enter your email and password.'); return;
+  }
+  btn.disabled = true; txt.textContent = 'Signing in…';
+
+  try {
+    const cred    = await signInWithEmailAndPassword(auth, email, pw);
+    const courses = await fetchCourses(cred.user);
+
+    if (courses.length === 0) {
+      showErr('Account found but no course access exists. Ask your instructor to add you to a course.');
+      btn.disabled = false; txt.textContent = 'Sign In'; return;
+    }
+    if (isSwitchMode || courses.length > 1) {
+      document.getElementById('login-wrap').style.display = 'none';
+      showPicker(cred.user, courses);
+    } else {
+      enterCourse(cred.user, courses[0]);
+    }
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found':     'No account found with that email.',
+      'auth/wrong-password':     'Incorrect password. Please try again.',
+      'auth/invalid-email':      'Please enter a valid email address.',
+      'auth/user-disabled':      'This account has been disabled.',
+      'auth/too-many-requests':  'Too many attempts — please wait a moment.',
+      'auth/invalid-credential': 'Incorrect email or password.',
+    };
+    showErr(msgs[e.code] || 'Sign-in failed. Please try again.');
+    document.getElementById('si-pw').value = '';
+    document.getElementById('si-pw').focus();
+    btn.disabled = false; txt.textContent = 'Sign In';
+  }
+};
+
+// ── Show sign-in form ─────────────────────────────────────
+function showLoginForm(errMsg) {
+  document.getElementById('login-wrap').style.display  = 'flex';
+  document.getElementById('picker-wrap').style.display = 'none';
+  if (errMsg) { showErr(errMsg); }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('si-err');
+  document.getElementById('si-err-msg').textContent = msg;
+  el.style.display = 'flex';
+}
+
+// ── Show course picker ────────────────────────────────────
+function showPicker(fbUser, courses) {
+  document.getElementById('login-wrap').style.display  = 'none';
+  document.getElementById('picker-wrap').style.display = 'block';
+
+  const name = (courses[0] && courses[0].name_display) || fbUser.email;
+  document.getElementById('picker-greeting').textContent = 'Welcome back, ' + name.split(' ')[0] + '!';
+  document.getElementById('picker-sub').textContent =
+    courses.length > 1
+      ? `You have access to ${courses.length} courses — select one to continue`
+      : 'Select your course to continue';
+
+  const grid = document.getElementById('courses-grid');
+  grid.innerHTML = '';
+
+  courses.forEach((c, i) => {
+    const isPals = c.ns === '';
+    const roleLabel = c.role.replace('_', ' ');
+    const card = document.createElement('div');
+    card.className = 'course-card';
+    card.style.animationDelay = (i * 0.07) + 's';
+    card.innerHTML = `
+      <div class="course-bar ${isPals ? 'pals' : 'peds'}"></div>
+      <div class="course-body">
+        <div class="course-icon ${isPals ? 'pals' : 'peds'}">${isPals ? '💙' : '💜'}</div>
+        <div class="course-name">${c.name}</div>
+        <div class="course-sub">${c.subtitle.split('·')[1]?.trim() || c.subtitle}</div>
+        <div class="course-meta">
+          <span class="badge badge-${isPals ? 'pals' : 'peds'}">${isPals ? 'PALS' : 'Peds Sedation'}</span>
+          <span class="badge badge-role">${roleLabel}</span>
+          ${c.cohort && c.cohort !== 'Admin' ? `<span class="badge badge-cohort">${c.cohort}</span>` : ''}
+        </div>
+        <div class="enter-arrow">
+          <span>Enter course</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => enterCourse(fbUser, c));
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterCourse(fbUser, c); }});
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    grid.appendChild(card);
+  });
+}
+
+// ── Sign out completely ───────────────────────────────────
+window.showSignOut = async function() {
+  try { await signOut(auth); } catch(e) {}
+  try { sessionStorage.removeItem(SK); sessionStorage.removeItem('peds_' + SK); } catch(e) {}
+  location.hash = '';
+  showLoginForm();
+};
+</script>
+
+<script>
+// Non-module: theme toggle must be globally available for the inline onclick
+// (already defined above inside the module via window.toggleTheme)
+</script>
+</body>
+</html>
