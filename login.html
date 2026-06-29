@@ -287,6 +287,21 @@ async function fetchCourses(fbUser) {
             name_display: bootstrapped.name,
             raw:      bootstrapped,
           });
+        } else {
+          // Bootstrap write failed (rules not yet deployed in Firebase).
+          // Still show the peds card — routing to peds/index.html lets its
+          // own onAuthStateChanged handle setup once rules go live.
+          courses.push({
+            ns:        'peds_',
+            key:       'peds',
+            name:      'Pediatric Sedation Safety',
+            subtitle:  'Pediatric Sedation Safety · Provider Course',
+            role:      'admin',
+            cohort:    '',
+            name_display: pals.name_display,
+            raw:       {},
+            viaIndex:  true, // route to peds/index.html instead of hub directly
+          });
         }
       }
     }
@@ -340,6 +355,12 @@ function hubUrl(ns, role) {
 
 // ── Enter a course (write session + redirect) ─────────────
 async function enterCourse(fbUser, course) {
+  // viaIndex: bootstrap write failed (rules not yet deployed); let the
+  // course's own sign-in page retry setup instead of going straight to hub.
+  if (course.viaIndex) {
+    window.location.href = '/peds_sedation/';
+    return;
+  }
   writeSession(course.ns, fbUser.uid, course.role, course.name_display, fbUser.email);
   touchLastLogin(course.ns, fbUser.uid); // fire-and-forget
   window.location.href = hubUrl(course.ns, course.role);
@@ -456,9 +477,10 @@ function showPicker(fbUser, courses) {
           <span class="badge badge-${isPals ? 'pals' : 'peds'}">${isPals ? 'PALS' : 'Peds Sedation'}</span>
           <span class="badge badge-role">${roleLabel}</span>
           ${c.cohort && c.cohort !== 'Admin' ? `<span class="badge badge-cohort">${c.cohort}</span>` : ''}
+          ${c.viaIndex ? '<span class="badge" style="background:rgba(245,158,11,.15);color:#b45309">Setup pending</span>' : ''}
         </div>
         <div class="enter-arrow">
-          <span>Enter course</span>
+          <span>${c.viaIndex ? 'Continue to setup' : 'Enter course'}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
