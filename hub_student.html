@@ -55,7 +55,7 @@ body::before {
 .t-left{display:flex;align-items:center;gap:.75rem}
 .logo-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#0891B2,#34D399);display:grid;place-items:center;flex-shrink:0}
 .topbar-title{font-weight:800;font-size:1rem}
-.topbar-sub{font-size:.7rem;color:var(--tm)}
+.topbar-sub{font-size:.7rem;color:var(--muted)}
 .t-right{display:flex;align-items:center;gap:.6rem}
 .badge-student{font-size:.7rem;background:var(--primary-light);color:var(--primary);font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.3px}
 .btn-sm{padding:.4rem .85rem;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:var(--tr);display:inline-flex;align-items:center;gap:4px}
@@ -63,21 +63,21 @@ body::before {
 .btn-logout:hover{background:rgba(239,68,68,.2)}
 .theme-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;transition:var(--tr)}
 .main{max-width:980px;margin:0 auto;padding:2rem 1.25rem}
-.welcome{background:linear-gradient(135deg,var(--primary-light2),rgba(52,211,153,.06));border:1px solid var(--border);border-radius:var(--r);padding:1.5rem 1.6rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.welcome{background:linear-gradient(135deg,var(--primary-light2),rgba(52,211,153,.06));border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem 1.6rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
 .welcome h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.45rem;margin-bottom:.25rem}
-.welcome p{font-size:.83rem;color:var(--tm)}
+.welcome p{font-size:.83rem;color:var(--muted)}
 .announce-banner{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1.25rem;display:none;align-items:center;gap:.75rem}
 .announce-ico{font-size:1.2rem;flex-shrink:0}
 .announce-txt{font-size:.86rem;font-weight:600;color:#92400e}
 [data-theme="light"] .announce-txt{color:#fcd34d}
-.progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.4rem;margin-bottom:1.5rem;box-shadow:var(--shadow)}
+.progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.4rem;margin-bottom:1.5rem;box-shadow:var(--shadow)}
 .progress-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.65rem}
 .progress-label{font-weight:700;font-size:.88rem}
 .progress-pct{font-size:1.1rem;font-weight:800;color:var(--primary)}
 .prog-bg{background:var(--border);border-radius:999px;height:11px;overflow:hidden}
 .prog-fill{height:11px;border-radius:999px;background:linear-gradient(90deg,#0891B2,#34D399);transition:width .9s cubic-bezier(.4,0,.2,1);min-width:0}
-.progress-sub{font-size:.75rem;color:var(--tm);margin-top:.5rem}
-.sec-hdr{font-size:.77rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.7px;margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.progress-sub{font-size:.75rem;color:var(--muted);margin-top:.5rem}
+.sec-hdr{font-size:.77rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
 .sec-hdr::after{content:'';flex:1;height:1px;background:var(--border)}
 /* Daily check-in */
 .checkin-card{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border-radius:12px;padding:1.1rem 1.2rem;margin-bottom:1.25rem;box-shadow:var(--shadow)}
@@ -92,22 +92,22 @@ body::before {
 [data-theme="light"] .checkin-done{color:#86efac}
 /* Read-only course plan */
 .plan-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1.75rem}
-.plan-meta{font-size:.82rem;color:var(--tm);margin-bottom:.75rem;display:flex;flex-wrap:wrap;gap:.4rem 1rem}
-.plan-meta b{color:var(--t)}
+.plan-meta{font-size:.82rem;color:var(--muted);margin-bottom:.75rem;display:flex;flex-wrap:wrap;gap:.4rem 1rem}
+.plan-meta b{color:var(--text)}
 .plan-tabs{display:flex;gap:.5rem;margin-bottom:.85rem}
-.plan-tab{padding:.4rem .9rem;border-radius:8px;font-weight:700;font-size:.8rem;color:var(--tm);cursor:pointer;border:1px solid var(--border);background:var(--surface2)}
+.plan-tab{padding:.4rem .9rem;border-radius:8px;font-weight:700;font-size:.8rem;color:var(--muted);cursor:pointer;border:1px solid var(--border);background:var(--surface2)}
 .plan-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .plan-row{display:flex;gap:.75rem;padding:.6rem .2rem;border-bottom:1px solid var(--border)}
 .plan-row:last-child{border-bottom:none}
 .plan-bar{width:5px;border-radius:3px;flex-shrink:0}
-.plan-time{font-weight:700;font-size:.78rem;color:var(--tm);min-width:96px;letter-spacing:.2px}
+.plan-time{font-weight:700;font-size:.78rem;color:var(--muted);min-width:96px;letter-spacing:.2px}
 .plan-info{flex:1}
-.plan-title{font-weight:700;font-size:.88rem;color:var(--t)}
-.plan-sub{font-size:.74rem;color:var(--tf);margin-top:.15rem}
+.plan-title{font-weight:700;font-size:.88rem;color:var(--text)}
+.plan-sub{font-size:.74rem;color:var(--faint);margin-top:.15rem}
 .plan-tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:.64rem;font-weight:700;margin-left:.4rem;vertical-align:middle}
-.plan-foot{font-size:.72rem;color:var(--tf);margin-top:.7rem}
+.plan-foot{font-size:.72rem;color:var(--faint);margin-top:.7rem}
 .plan-langtoggle{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.plan-langbtn{padding:.25rem .7rem;font-size:.72rem;font-weight:700;background:var(--surface2);color:var(--tm);border:none;cursor:pointer}
+.plan-langbtn{padding:.25rem .7rem;font-size:.72rem;font-weight:700;background:var(--surface2);color:var(--muted);border:none;cursor:pointer}
 .plan-langbtn.active{background:var(--primary);color:#fff}
 .plan-wrap[dir="rtl"] .plan-tag{margin-left:0;margin-right:.4rem}
 .plan-wrap[dir="rtl"] .plan-info{text-align:right}
@@ -118,26 +118,26 @@ body::before {
 .plan-pop.show{display:flex;animation:popin .25s ease}
 @keyframes popin{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
 .quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,260px));gap:.9rem;margin-bottom:1.75rem}
-.ql-card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:1.1rem 1rem;text-decoration:none;color:var(--t);transition:var(--tr);display:flex;flex-direction:column;gap:.35rem;position:relative;overflow:hidden}
+.ql-card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:1.1rem 1rem;text-decoration:none;color:var(--text);transition:var(--tr);display:flex;flex-direction:column;gap:.35rem;position:relative;overflow:hidden}
 .ql-card.locked{opacity:.5;pointer-events:none;cursor:not-allowed;filter:grayscale(.4)}
 .ql-card:not(.locked):hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:rgba(8,145,178,.4)}
 .ql-icon{font-size:1.5rem;margin-bottom:.1rem}
 .ql-title{font-weight:700;font-size:.9rem}
-.ql-sub{font-size:.74rem;color:var(--tm)}
+.ql-sub{font-size:.74rem;color:var(--muted)}
 .lock-chip{font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.3px;display:inline-flex;align-items:center;gap:3px;width:fit-content;margin-top:.15rem}
-.lock-chip.locked-state{background:rgba(148,163,184,.15);color:var(--tf)}
+.lock-chip.locked-state{background:rgba(148,163,184,.15);color:var(--faint)}
 .lock-chip.open-state{background:rgba(34,197,94,.12);color:#15803d}
 [data-theme="light"] .lock-chip.open-state{color:#86efac}
 .mod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.85rem;margin-bottom:2rem}
-.mod-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.95rem 1rem;display:flex;align-items:center;gap:.85rem;transition:var(--tr);text-decoration:none;color:var(--t)}
+.mod-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.95rem 1rem;display:flex;align-items:center;gap:.85rem;transition:var(--tr);text-decoration:none;color:var(--text)}
 .mod-card.available:hover{border-color:var(--primary);box-shadow:var(--shadow);transform:translateY(-2px)}
 .mod-card.locked-mod{opacity:.42;pointer-events:none}
 .mod-card.done-mod .mod-n-badge{background:rgba(34,197,94,.14);color:#15803d}
 [data-theme="light"] .mod-card.done-mod .mod-n-badge{color:#86efac}
 .mod-n-badge{width:38px;height:38px;border-radius:9px;background:var(--primary-light);color:var(--primary-dark);font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .3s}
-.mod-card.locked-mod .mod-n-badge{background:var(--border);color:var(--tf)}
+.mod-card.locked-mod .mod-n-badge{background:var(--border);color:var(--faint)}
 .mod-t{font-weight:700;font-size:.86rem;line-height:1.3;margin-bottom:.1rem}
-.mod-s{font-size:.73rem;color:var(--tm)}
+.mod-s{font-size:.73rem;color:var(--muted)}
 .mod-end-ico{margin-left:auto;font-size:1rem;flex-shrink:0}
 @media(max-width:440px){.quick-grid{grid-template-columns:1fr}}
 </style>
@@ -197,7 +197,7 @@ body::before {
   <div class="checkin-done" id="checkin-done" style="display:none"></div>
 
   <div class="sec-hdr">Quick Access</div>
-  <div style="background:var(--primary-light2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--tm);line-height:1.5">
+  <div style="background:var(--primary-light2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--muted);line-height:1.5">
     📝 The <strong>Pre-Test</strong> unlocks automatically once you complete all 9 modules. Your instructor opens <strong>Course Feedback</strong> during the course, and the <strong>Final Exam</strong> unlocks after your feedback is submitted.
   </div>
   <div class="quick-grid">
@@ -246,12 +246,12 @@ body::before {
 
 <!-- Entry reminder: outstanding course requirements (bilingual HE/EN) -->
 <div id="reminder-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem">
-  <div style="background:var(--surface);color:var(--t);max-width:460px;width:100%;border-radius:14px;padding:1.5rem;box-shadow:0 12px 44px rgba(0,0,0,.35);border:1px solid var(--border)">
+  <div style="background:var(--surface);color:var(--text);max-width:460px;width:100%;border-radius:14px;padding:1.5rem;box-shadow:0 12px 44px rgba(0,0,0,.35);border:1px solid var(--border)">
     <div style="font-size:1.7rem;text-align:center;margin-bottom:.4rem">📋</div>
     <h3 dir="rtl" style="text-align:center;font-weight:800;margin:0 0 .15rem;font-size:1.15rem">השלמת דרישות הקורס</h3>
-    <h3 dir="ltr" style="text-align:center;font-weight:700;margin:0 0 .8rem;font-size:.95rem;color:var(--tm)">Course requirements to complete</h3>
+    <h3 dir="ltr" style="text-align:center;font-weight:700;margin:0 0 .8rem;font-size:.95rem;color:var(--muted)">Course requirements to complete</h3>
     <p dir="rtl" style="font-size:.85rem;margin:.2rem 0">לא ניתן לסיים את הקורס ללא השלמת הפריטים הבאים:</p>
-    <p dir="ltr" style="font-size:.82rem;margin:.15rem 0 .7rem;color:var(--tm)">You won't be able to finish the course until you complete:</p>
+    <p dir="ltr" style="font-size:.82rem;margin:.15rem 0 .7rem;color:var(--muted)">You won't be able to finish the course until you complete:</p>
     <ul id="reminder-list" style="list-style:none;padding:0;margin:0 0 1rem"></ul>
     <button onclick="closeReminders()" style="width:100%;padding:.65rem;border:none;border-radius:9px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer">הבנתי · Got it</button>
   </div>
@@ -601,7 +601,7 @@ function showReminders(){
   document.getElementById('reminder-list').innerHTML = items.map(it =>
     `<li style="margin-bottom:.5rem;padding:.55rem .7rem;border:1px solid var(--border);border-radius:9px;background:var(--surface2)">
        <div dir="rtl" style="font-weight:600">⏳ ${esc(it.he)}</div>
-       <div dir="ltr" style="font-size:.82rem;color:var(--tm);margin-top:.1rem">${esc(it.en)}</div>
+       <div dir="ltr" style="font-size:.82rem;color:var(--muted);margin-top:.1rem">${esc(it.en)}</div>
      </li>`).join('');
   document.getElementById('reminder-modal').style.display='flex';
 }
