@@ -267,7 +267,7 @@ window.toggleTheme = () => {
   try { localStorage.setItem(THEME_KEY, t); } catch(e) {}
   applyTheme(t);
 };
-try { applyTheme(localStorage.getItem(THEME_KEY) || 'light'); } catch(e) {}
+try { applyTheme(localStorage.getItem(THEME_KEY) || 'dark'); } catch(e) {}
 
 // ── Password toggle ───────────────────────────────────────
 window.togglePw = () => {
