@@ -1171,7 +1171,7 @@ function populateMsgCohorts(){
 window.populateMsgCohorts = populateMsgCohorts;
 
 // ── Theme toggle ───────────────────────────────────────────────
-let dark = (()=>{try{const s=localStorage.getItem('pals_theme');if(s)return s==='dark';}catch(e){}return window.matchMedia('(prefers-color-scheme: dark)').matches;})();
+let dark = (()=>{try{const s=localStorage.getItem('pals_theme');if(s)return s==='dark';}catch(e){}return true;})();
 applyTheme();
 function toggleTheme() { dark = !dark; try{localStorage.setItem('pals_theme',dark?'dark':'light');}catch(e){} applyTheme(); }
 window.toggleTheme = toggleTheme;
