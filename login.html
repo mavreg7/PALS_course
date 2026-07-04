@@ -1,30 +1,76 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Medical Education Portal · Sign In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="firebase-config.js"></script>
 <style>
 :root {
-  --bg:#f0f4ff;--s:#fff;--s2:#f8fafc;--b:#e0e7ef;--b2:#cbd5e1;
-  --t:#0f172a;--tm:#475569;--tf:#94a3b8;
-  --pals:#0891B2;--pals-d:#0e7490;--pals-l:rgba(8,145,178,.1);
-  --peds:#7C3AED;--peds-d:#6d28d9;--peds-l:rgba(124,58,237,.1);
-  --sh:0 4px 28px rgba(15,23,42,.1);--r:16px;
-  --tr:all .22s cubic-bezier(.4,0,.2,1);
+  --bg: #07131f;
+  --surface: #0c1d2e;
+  --surface2: #091525;
+  --border: rgba(8,145,178,.20);
+  --text: #e0f4fc;
+  --muted: rgba(56,189,248,.6);
+  --faint: rgba(56,189,248,.3);
+  --primary: #0891B2;
+  --primary-dark: #0E7C86;
+  --primary-light: rgba(8,145,178,.12);
+  --pals: #0891B2;
+  --pals-d: #0E7C86;
+  --pals-l: rgba(8,145,178,.12);
+  --peds: #7C3AED;
+  --peds-d: #6d28d9;
+  --peds-l: rgba(124,58,237,.15);
+  --success: #22C55E;
+  --shadow: 0 4px 28px rgba(0,0,0,.5);
+  --radius: 16px;
+  --tr: all .22s cubic-bezier(.4,0,.2,1);
+  /* legacy aliases for existing selectors */
+  --s: var(--surface);
+  --s2: var(--surface2);
+  --b: var(--border);
+  --b2: rgba(8,145,178,.15);
+  --t: var(--text);
+  --tm: var(--muted);
+  --tf: var(--faint);
+  --sh: var(--shadow);
+  --r: var(--radius);
 }
-[data-theme="dark"]{
-  --bg:#07101e;--s:#0d1f38;--s2:#0f2545;--b:#1e3a5f;--b2:#1a3358;
-  --t:#dff0fc;--tm:#7db8d4;--tf:#2d5f82;
-  --sh:0 4px 28px rgba(0,0,0,.5);
-  --pals-l:rgba(8,145,178,.18);--peds-l:rgba(124,58,237,.2);
+[data-theme="light"] {
+  --bg: #f0f9fb;
+  --surface: #ffffff;
+  --surface2: #f4f9fb;
+  --border: #cce4ec;
+  --text: #0F1D2E;
+  --muted: #4a6b7a;
+  --faint: #8aaab8;
+  --pals-l: rgba(8,145,178,.1);
+  --peds-l: rgba(124,58,237,.1);
+  --shadow: 0 4px 28px rgba(8,145,178,.13);
+  /* legacy aliases */
+  --s: var(--surface);
+  --s2: var(--surface2);
+  --b: var(--border);
+  --b2: #b8d4df;
+  --t: var(--text);
+  --tm: var(--muted);
+  --tf: var(--faint);
+  --sh: var(--shadow);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100dvh;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;transition:background .3s,color .3s}
+body{min-height:100dvh;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;transition:background .3s,color .3s}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, rgba(8,145,178,.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none; z-index: 0;
+}
 
 /* ── Background blobs ───────────────────────────────────── */
 .blob{position:fixed;border-radius:50%;filter:blur(110px);opacity:.12;z-index:0;pointer-events:none;animation:drift 20s ease-in-out infinite}
@@ -41,7 +87,7 @@ body{min-height:100dvh;font-family:'Inter',system-ui,sans-serif;background:var(-
 @keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
 .brand-ring svg{fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;text-align:center}
-.sub{font-family:'Instrument Serif',serif;font-size:.92rem;color:var(--tm);margin-bottom:1.6rem;font-style:italic;text-align:center}
+.sub{font-family:'Plus Jakarta Sans',sans-serif;font-size:.92rem;color:var(--tm);margin-bottom:1.6rem;font-style:italic;text-align:center}
 
 /* ── Card ───────────────────────────────────────────────── */
 .card{background:var(--s);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--b);width:100%;padding:1.75rem;animation:slideup .45s .1s cubic-bezier(.4,0,.2,1) both}
@@ -50,13 +96,13 @@ h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;tex
 /* ── Form ───────────────────────────────────────────────── */
 .fl{margin-bottom:1rem}
 .fl label{display:block;font-size:.71rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
-.field{width:100%;padding:.7rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);transition:var(--tr);font-family:'Inter',sans-serif}
+.field{width:100%;padding:.7rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);transition:var(--tr);font-family:'Plus Jakarta Sans',sans-serif}
 .field:focus{outline:none;border-color:var(--pals);box-shadow:0 0 0 3px var(--pals-l)}
 .pw-wrap{position:relative}.pw-wrap .field{padding-right:2.8rem}
 .pw-toggle{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tm);padding:0;display:flex;align-items:center;transition:var(--tr)}
 .pw-toggle:hover{color:var(--t)}
 .err{background:rgba(239,68,68,.08);color:#dc2626;border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none;align-items:center;gap:.5rem}
-.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.2rem;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-family:'Inter',sans-serif;background:linear-gradient(135deg,var(--pals),var(--peds))}
+.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.2rem;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;background:linear-gradient(135deg,var(--pals),var(--peds))}
 .btn-go:hover{opacity:.9;transform:translateY(-1px)}
 .btn-go:active{transform:scale(.98)}
 .btn-go:disabled{opacity:.6;cursor:not-allowed;transform:none}
@@ -67,8 +113,8 @@ h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;tex
 .picker-head h2{font-size:1.5rem;font-weight:800;margin-bottom:.3rem}
 .picker-head p{color:var(--tm);font-size:.88rem}
 .courses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
-.course-card{background:var(--s);border-radius:var(--r);border:1px solid var(--b);box-shadow:var(--sh);overflow:hidden;cursor:pointer;transition:var(--tr);animation:slideup .4s cubic-bezier(.4,0,.2,1) both}
-.course-card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(15,23,42,.15)}
+.course-card{background:var(--s);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh);overflow:hidden;cursor:pointer;transition:var(--tr);animation:slideup .4s cubic-bezier(.4,0,.2,1) both}
+.course-card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(8,145,178,.25);border-color:rgba(8,145,178,.5)}
 .course-card:active{transform:translateY(-1px)}
 .course-bar{height:5px}
 .course-bar.pals{background:linear-gradient(90deg,var(--pals),#34D399)}
@@ -84,8 +130,8 @@ h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;tex
 .badge-pals{background:var(--pals-l);color:var(--pals)}
 .badge-peds{background:var(--peds-l);color:var(--peds)}
 .badge-role{background:rgba(100,116,139,.1);color:var(--tm)}
-.badge-cohort{background:rgba(52,211,153,.1);color:#065f46}
-[data-theme="dark"] .badge-cohort{color:#34d399}
+.badge-cohort{background:rgba(52,211,153,.1);color:#34d399}
+[data-theme="light"] .badge-cohort{color:#065f46}
 .enter-arrow{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:.85rem;border-top:1px solid var(--b);font-size:.82rem;font-weight:700;color:var(--tm)}
 .enter-arrow svg{opacity:.5;transition:var(--tr)}
 .course-card:hover .enter-arrow svg{opacity:1;transform:translateX(4px)}
