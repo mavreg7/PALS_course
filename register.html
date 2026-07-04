@@ -1,38 +1,70 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PALS 2025 · Register</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="firebase-config.js"></script>
 <style>
-:root{--p:#0891B2;--pd:#0e7490;--v:#7C3AED;--bg:#f0f9ff;--s:#fff;--s2:#f8fafc;--b:#bae6fd;--b2:#e2e8f0;--t:#0f172a;--tm:#475569;--tf:#94a3b8;--sh:0 4px 28px rgba(8,145,178,.13);--r:16px;--tr:all .2s ease}
-[data-theme="dark"]{--bg:#07131f;--s:#0d2137;--s2:#102a45;--b:#1a3a5c;--b2:#1e3a5f;--t:#e0f4fc;--tm:#7db8d4;--tf:#2d5f82;--sh:0 4px 28px rgba(0,0,0,.5)}
+:root {
+  --bg: #07131f;
+  --surface: #0c1d2e;
+  --surface2: #091525;
+  --border: rgba(8,145,178,.20);
+  --text: #e0f4fc;
+  --muted: rgba(56,189,248,.6);
+  --faint: rgba(56,189,248,.3);
+  --primary: #0891B2;
+  --primary-dark: #0E7C86;
+  --primary-light: rgba(8,145,178,.12);
+  --peds: #7C3AED;
+  --success: #22C55E;
+  --shadow: 0 4px 28px rgba(0,0,0,.5);
+  --radius: 16px;
+  --tr: all .22s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="light"] {
+  --bg: #f0f9fb;
+  --surface: #ffffff;
+  --surface2: #f4f9fb;
+  --border: #cce4ec;
+  --text: #0F1D2E;
+  --muted: #4a6b7a;
+  --faint: #8aaab8;
+  --shadow: 0 4px 28px rgba(8,145,178,.13);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100dvh;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
+body{min-height:100dvh;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, rgba(8,145,178,.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none; z-index: 0;
+}
 .wrap{width:100%;max-width:430px;display:flex;flex-direction:column;align-items:center}
 .logo-ring{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#0891B2,#34D399);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(8,145,178,.4);margin-bottom:1rem}
 .logo-ring svg{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
-.sub{font-family:'Instrument Serif',serif;font-size:.95rem;color:var(--tm);margin-bottom:1.4rem;font-style:italic}
-.card{background:var(--s);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--b);width:100%;padding:1.75rem}
+.sub{font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;color:var(--muted);margin-bottom:1.4rem;font-style:italic}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);width:100%;padding:1.75rem}
 .fl{margin-bottom:1rem}
-.fl label{display:block;font-size:.72rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
-.field{width:100%;padding:.72rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);font-family:'Inter',sans-serif}
-.field:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(8,145,178,.15)}
+.fl label{display:block;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
+.field{width:100%;padding:.72rem 1rem;border:1.5px solid var(--border);border-radius:9px;font-size:.93rem;background:var(--surface2);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif}
+.field:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(8,145,178,.15)}
 .field:disabled{opacity:.7}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;color:#fff;font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0891B2,#0284C7)}
+.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;background:linear-gradient(135deg,#0891B2,#0284C7)}
 .btn-go:hover{background:linear-gradient(135deg,#0e7490,#0369a1)}
 .btn-go:disabled{opacity:.6;cursor:not-allowed}
 .err{background:rgba(239,68,68,.09);color:#dc2626;border:1px solid rgba(239,68,68,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none}
 .ok-msg{background:rgba(34,197,94,.09);color:#15803d;border:1px solid rgba(34,197,94,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none}
-.rolechip{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(8,145,178,.12);color:var(--pd);text-transform:capitalize}
-.note{font-size:.76rem;color:var(--tf);text-align:center;margin-top:1rem;line-height:1.5}
-.note a{color:var(--p);font-weight:600}
+.rolechip{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(8,145,178,.12);color:var(--primary-dark);text-transform:capitalize}
+.note{font-size:.76rem;color:var(--faint);text-align:center;margin-top:1rem;line-height:1.5}
+.note a{color:var(--primary);font-weight:600}
 #step2{display:none}
-.spinner{width:30px;height:30px;border:3px solid var(--b);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:400px){.field-row{grid-template-columns:1fr}}
 </style>
