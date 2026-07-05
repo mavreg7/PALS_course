@@ -1187,6 +1187,18 @@ function msgRecipients(){
       role: s.role || existing.role,
     });
   });
+  // 3. Bridge pre-registration form data saved to localStorage on this device.
+  //    Fills in phone numbers that were collected via pals_forms_portal.html
+  //    but never uploaded to Firestore.
+  try {
+    const preReg = JSON.parse(localStorage.getItem('pals2025_preregistration') || '[]');
+    preReg.forEach(p => {
+      if (!p.email || !p.phone) return;
+      const email = String(p.email).toLowerCase();
+      const existing = map.get(email);
+      if (existing && !existing.phone) map.set(email, { ...existing, phone: p.phone });
+    });
+  } catch(e) {}
   return [...map.values()]
     .filter(a => scope==='ALL' || (a.cohort||'Unassigned')===scope);
 }
@@ -2000,11 +2012,18 @@ function openEditModal(uid) {
   document.getElementById('edit-fname').value = s.firstName || (s.name||'').split(' ')[0] || '';
   document.getElementById('edit-lname').value = s.lastName  || (s.name||'').split(' ').slice(1).join(' ') || '';
   document.getElementById('edit-cohort').value = (s.cohort && s.cohort !== 'Unassigned') ? s.cohort : '';
-  // Phone may live on the user doc or (for bulk-imported people) the allowlist.
+  // Phone may live on the user doc, the allowlist, or the pre-registration form (localStorage).
   let phone = s.phone || '';
   if (!phone && s.email) {
     const al = (_allowlistDocs||[]).find(d => String(d.id).toLowerCase() === String(s.email).toLowerCase());
     if (al && al.data && al.data.phone) phone = al.data.phone;
+  }
+  if (!phone && s.email) {
+    try {
+      const preReg = JSON.parse(localStorage.getItem('pals2025_preregistration') || '[]');
+      const pr = preReg.find(p => p.email && String(p.email).toLowerCase() === String(s.email).toLowerCase());
+      if (pr && pr.phone) phone = pr.phone;
+    } catch(e) {}
   }
   document.getElementById('edit-phone').value = phone;
   document.getElementById('edit-role').value  = s.role || 'student';
