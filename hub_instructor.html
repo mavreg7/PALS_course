@@ -308,7 +308,8 @@ html[dir="rtl"] .welcome{flex-direction:row-reverse}
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
           <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" onclick="msgResetInvite()" title="Reset the message to the default registration invite.">↺ Invite text</button>
           <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" onclick="msgInsertLink()" title="Append the self-registration link to the message.">🔗 Insert link</button>
-          <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" onclick="msgCopyNumbers()" title="Copy all numbers (international) for a WhatsApp broadcast list.">⧉ Copy numbers</button>
+          <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" onclick="msgCopyNumbers()" title="Copy all phone numbers (international format) for use in a WhatsApp broadcast list.">⧉ Copy numbers</button>
+          <button class="btn-sm" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:.5rem .8rem;font-weight:700" onclick="msgOpenWhatsAppWeb()" title="Open WhatsApp Web with the message pre-filled — then select a broadcast list or new broadcast to send to everyone at once.">📤 WhatsApp Web (broadcast)</button>
         </div>
       </div>
       <textarea id="msg-body" rows="4" style="width:100%;box-sizing:border-box;padding:.6rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.88rem;resize:vertical"></textarea>
@@ -1177,6 +1178,13 @@ window.msgCopyNumbers = function(){
   navigator.clipboard.writeText(nums.join(', ')).catch(()=>{});
   const box = document.getElementById('msg-list');
   if(box){ const n=document.createElement('div'); n.style.cssText='font-size:.78rem;color:var(--success);margin-top:.4rem'; n.textContent='Copied '+nums.length+' number'+(nums.length===1?'':'s')+'.'; box.appendChild(n); setTimeout(()=>n.remove(),3000); }
+};
+window.msgOpenWhatsAppWeb = function(){
+  const text = (document.getElementById('msg-body').value||'').trim();
+  if(!text){ alert('Write a message first.'); return; }
+  // Opens WhatsApp Web with the message pre-filled but no recipient —
+  // the user selects a broadcast list (or creates a new one from the copied numbers).
+  window.open('https://web.whatsapp.com/send?text='+encodeURIComponent(text), '_blank');
 };
 function populateMsgCohorts(){
   const sel = document.getElementById('msg-cohort'); if(!sel) return;
