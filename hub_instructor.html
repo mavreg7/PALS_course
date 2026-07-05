@@ -1161,8 +1161,33 @@ function waNumber(raw, cc){
 function msgRecipients(){
   const sel = document.getElementById('msg-cohort');
   const scope = sel ? sel.value : 'ALL';
-  return (_allowlistDocs||[])
-    .map(d => ({ email:d.id, ...(d.data||{}) }))
+  // Merge registered students + allowlist invitees, deduped by email.
+  // Registered students are the authoritative source; allowlist fills in
+  // anyone invited but not yet registered (or provides phone if missing).
+  const map = new Map();
+  // 1. Seed with allowlist (invited people, including pre-registered CSV imports)
+  (_allowlistDocs||[]).forEach(d => {
+    const email = (d.id||'').toLowerCase();
+    if(email) map.set(email, { email: d.id, ...(d.data||{}) });
+  });
+  // 2. Overlay with registered students (their profile may have a phone the
+  //    allowlist lacks, or they may never have had an allowlist entry at all)
+  (allStudents||[]).forEach(s => {
+    const email = (s.email||'').toLowerCase();
+    if(!email) return;
+    const existing = map.get(email) || {};
+    map.set(email, {
+      ...existing,
+      email: s.email,
+      name: s.name || existing.name,
+      firstName: s.firstName || existing.firstName,
+      lastName: s.lastName || existing.lastName,
+      phone: s.phone || existing.phone,
+      cohort: s.cohort || existing.cohort,
+      role: s.role || existing.role,
+    });
+  });
+  return [...map.values()]
     .filter(a => scope==='ALL' || (a.cohort||'Unassigned')===scope);
 }
 window.renderMsgList = function(){
@@ -1278,8 +1303,11 @@ function walkDone(){
 window.walkClose = function(){ document.getElementById('walk-overlay').style.display='none'; };
 function populateMsgCohorts(){
   const sel = document.getElementById('msg-cohort'); if(!sel) return;
-  // Cohorts that actually have invitees (allowlist), so phone-only cohorts show.
-  const names = [...new Set((_allowlistDocs||[]).map(d => (d.data&&d.data.cohort)||'Unassigned'))].sort();
+  // Cohorts from both registered students and the allowlist.
+  const names = [...new Set([
+    ...(_allowlistDocs||[]).map(d => (d.data&&d.data.cohort)||'Unassigned'),
+    ...(allStudents||[]).map(s => s.cohort||'Unassigned'),
+  ])].sort();
   const cur = sel.value;
   sel.innerHTML = '<option value="ALL">All cohorts</option>' + names.map(c=>`<option value="${msgEsc(c)}">${msgEsc(c)}</option>`).join('');
   if([...sel.options].some(o=>o.value===cur)) sel.value=cur;
