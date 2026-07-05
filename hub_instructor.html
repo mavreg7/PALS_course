@@ -158,15 +158,34 @@ body::before {
 .edit-notes:focus{border-color:var(--primary)}
 .edit-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap}
 
+/* ── RTL / Hebrew ──────────────────────────────────────────── */
+.lang-toggle{display:flex;gap:3px}
+.lang-btn{padding:.3rem .65rem;border-radius:7px;font-size:.76rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:inherit;transition:var(--tr)}
+.lang-btn.active{background:var(--primary-light);color:var(--primary);border-color:rgba(8,145,178,.4)}
+html[dir="rtl"] .section-title::after{display:none}
+html[dir="rtl"] .section-title::before{content:'';flex:1;height:1px;background:var(--border)}
+html[dir="rtl"] .topbar{flex-direction:row-reverse}
+html[dir="rtl"] .topbar-left{flex-direction:row-reverse}
+html[dir="rtl"] .topbar-right{flex-direction:row-reverse}
+html[dir="rtl"] .edit-actions{justify-content:flex-start}
+html[dir="rtl"] .modal-header{flex-direction:row-reverse}
+html[dir="rtl"] .ta-table{direction:rtl}
+html[dir="rtl"] .roster-table{direction:rtl}
+html[dir="rtl"] .welcome{flex-direction:row-reverse}
+
 </style>
 </head>
 <body>
 <nav class="topbar">
   <div class="topbar-left">
     <div class="logo"><svg viewBox="0 0 40 40" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><line x1="20" y1="8" x2="20" y2="32"/><line x1="8" y1="20" x2="32" y2="20"/><circle cx="20" cy="20" r="16" stroke-width="2.5"/></svg></div>
-    <div><div class="topbar-title">PALS 2025</div><div style="font-size:.7rem;color:var(--muted)">Instructor Hub</div></div>
+    <div><div class="topbar-title">PALS 2025</div><div style="font-size:.7rem;color:var(--muted)"><span data-he="פורטל מדריכים">Instructor Hub</span></div></div>
   </div>
   <div class="topbar-right">
+    <div class="lang-toggle">
+      <button class="lang-btn" data-lang="he" onclick="setInstLang('he')">עברית</button>
+      <button class="lang-btn" data-lang="en" onclick="setInstLang('en')">EN</button>
+    </div>
     <span class="topbar-role" id="user-badge">INSTRUCTOR</span>
     <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
       <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -237,12 +256,12 @@ body::before {
   <div class="welcome">
     <div class="welcome-text">
       <h2 id="welcome-name">Welcome, Instructor</h2>
-      <p>You have full access to all course tools, student data, and evaluation resources.</p>
+      <p><span data-he="יש לך גישה מלאה לכלי הקורס, נתוני הסטודנטים ומשאבי ההערכה.">You have full access to all course tools, student data, and evaluation resources.</span></p>
     </div>
     <span class="badge badge-instructor">👨‍🏫 INSTRUCTOR ACCESS</span>
   </div>
 
-  <div class="section-title">Core Tools</div>
+  <div class="section-title"><span data-he="כלים מרכזיים">Core Tools</span></div>
   <div class="grid-3" style="margin-bottom:2rem">
     <a href="pals_forms_portal.html" class="card"><div class="card-body"><div class="card-icon" style="background:rgba(8,145,178,.1);color:#0891B2">📋</div><div class="card-title">Forms Portal</div><div class="card-desc">Pre-registration, pre-test, attendance, skills checklists, megacode eval, final exam, certificates.</div></div><div class="grad-bar"></div></a>
     <a href="pals_instructor_dashboard.html" class="card"><div class="card-body"><div class="card-icon" style="background:rgba(124,58,237,.1);color:#7C3AED">📊</div><div class="card-title">Instructor Dashboard</div><div class="card-desc">Roster, scores, attendance analytics, bulk CSV exports, feedback overview.</div></div><div class="grad-bar purple"></div></a>
@@ -250,13 +269,13 @@ body::before {
   </div>
 
   <div id="admin-controls" style="display:none">
-    <div class="section-title">Admin Controls</div>
+    <div class="section-title"><span data-he="ניהול מערכת">Admin Controls</span></div>
     <!-- Create Student card injected here by JS when role === admin -->
     <div class="grid-3" style="margin-bottom:2rem" id="admin-grid"></div>
   </div>
 
   <div id="bulk-section" style="display:none">
-    <div class="section-title">Bulk Enrollment — invite by CSV / Excel</div>
+    <div class="section-title"><span data-he="רישום מרוכז — CSV / Excel">Bulk Enrollment — invite by CSV / Excel</span></div>
     <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
       <p style="font-size:.85rem;color:var(--muted);margin-bottom:.85rem">Upload a <strong>CSV</strong> or <strong>Excel</strong> file of participants. Recognised columns: <strong>email</strong> (required), <strong>name</strong> (or <strong>first</strong>/<strong>last</strong>), <strong>role</strong> (student / instructor / lead_instructor — default student), optional <strong>cohort</strong>, optional <strong>phone</strong> (for WhatsApp / SMS invites). Not sure of the format? Click <strong>“Download template”</strong> for a ready-to-fill sheet. Each listed person can then self-register <em>once</em> using the link below. After uploading, use the <strong>“Email all invitees”</strong> button to send the invite — uploading alone does not email anyone.</p>
       <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
@@ -272,7 +291,7 @@ body::before {
       </div>
     </div>
 
-    <div class="section-title" style="margin-top:1.5rem">Invites &amp; updates by WhatsApp / SMS</div>
+    <div class="section-title" style="margin-top:1.5rem"><span data-he="הזמנות ועדכונים ב-WhatsApp / SMS">Invites &amp; updates by WhatsApp / SMS</span></div>
     <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
       <p style="font-size:.85rem;color:var(--muted);margin-bottom:.85rem">Phone numbers come from the <strong>phone</strong> column of your upload. Pick a cohort, edit the message — the registration link is included by default for invites — then tap <strong>WhatsApp</strong> or <strong>SMS</strong> next to each person; their app opens with the message ready to send. Use it again during the course to send updates (just clear the link and type your update).</p>
       <div style="display:flex;gap:.9rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:.8rem">
@@ -297,7 +316,7 @@ body::before {
     </div>
   </div>
 
-  <div class="section-title">Exam Access Control</div>
+  <div class="section-title"><span data-he="בקרת גישה למבחן">Exam Access Control</span></div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
       <div style="flex:1;min-width:200px">
@@ -321,7 +340,7 @@ body::before {
     <div id="exam-ctrl-result" style="margin-top:.5rem;font-size:.82rem"></div>
   </div>
 
-  <div class="section-title">Feedback Window</div>
+  <div class="section-title"><span data-he="חלון משוב">Feedback Window</span></div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
       <div style="flex:1;min-width:200px">
@@ -345,7 +364,7 @@ body::before {
     <div id="fb-ctrl-result" style="margin-top:.5rem;font-size:.82rem"></div>
   </div>
 
-  <div class="section-title">Daily Attendance Check-in</div>
+  <div class="section-title"><span data-he="נוכחות יומית">Daily Attendance Check-in</span></div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
     <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem">
       <div style="min-width:170px">
@@ -387,7 +406,7 @@ body::before {
     </div>
   </div>
 
-  <div class="section-title">Teaching Assignments</div>
+  <div class="section-title"><span data-he="סדר יום הוראה">Teaching Assignments</span></div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
     <div style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem">
       Shared instructor schedule — allocate staff to sessions, frontal talks, skill stations and scenarios. Visible to all instructors and saved live; anyone on the team can edit.
@@ -396,13 +415,13 @@ body::before {
       <table id="ta-table" class="ta-table">
         <thead>
           <tr>
-            <th style="width:90px">Day</th>
-            <th style="width:110px">Time</th>
-            <th style="width:150px">Type</th>
-            <th>Session / Topic</th>
-            <th style="width:170px">Instructor(s)</th>
-            <th style="width:120px">Location</th>
-            <th>Notes</th>
+            <th style="width:90px"><span data-he="יום">Day</span></th>
+            <th style="width:110px"><span data-he="שעה">Time</span></th>
+            <th style="width:150px"><span data-he="סוג">Type</span></th>
+            <th><span data-he="נושא/מפגש">Session / Topic</span></th>
+            <th style="width:170px"><span data-he="מדריך/ים">Instructor(s)</span></th>
+            <th style="width:120px"><span data-he="מיקום">Location</span></th>
+            <th><span data-he="הערות">Notes</span></th>
             <th style="width:38px"></th>
           </tr>
         </thead>
@@ -424,7 +443,7 @@ body::before {
     </datalist>
   </div>
 
-  <div class="section-title">Broadcast Announcement</div>
+  <div class="section-title"><span data-he="הודעה לכל הסטודנטים">Broadcast Announcement</span></div>
   <div class="card" style="cursor:default;padding:1.25rem;margin-bottom:2rem">
     <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end">
       <div style="flex:1;min-width:240px">
@@ -446,11 +465,11 @@ body::before {
     <div id="ann-result" style="font-size:.8rem;margin-top:.6rem;color:var(--muted)"></div>
   </div>
 
-  <div class="section-title">11 Learning Modules</div>
+  <div class="section-title"><span data-he="11 מודולי למידה">11 Learning Modules</span></div>
   <div class="modules-grid" id="modules-grid"></div>
 
   <!-- ── Roster: registered people + pending invites, with bulk actions ── -->
-  <div class="section-title" style="margin-top:2.5rem">Roster &amp; Participants</div>
+  <div class="section-title" style="margin-top:2.5rem"><span data-he="רשימת משתתפים">Roster &amp; Participants</span></div>
 
   <div class="roster-stats">
     <div class="stat-chip">Total students: <strong id="stat-total">—</strong></div>
@@ -504,13 +523,13 @@ body::before {
       <thead>
         <tr>
           <th style="width:34px;text-align:center"><input type="checkbox" id="rb-all" onclick="toggleAllRoster(this.checked)" title="Select all shown"></th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Cohort</th>
-          <th>Role</th>
-          <th>Progress / Status</th>
-          <th>Last Active</th>
-          <th>Actions</th>
+          <th><span data-he="שם">Name</span></th>
+          <th><span data-he="מייל">Email</span></th>
+          <th><span data-he="קבוצה">Cohort</span></th>
+          <th><span data-he="תפקיד">Role</span></th>
+          <th><span data-he="התקדמות/סטטוס">Progress / Status</span></th>
+          <th><span data-he="כניסה אחרונה">Last Active</span></th>
+          <th><span data-he="פעולות">Actions</span></th>
         </tr>
       </thead>
       <tbody id="roster-tbody">
@@ -1182,6 +1201,23 @@ function applyTheme() {
     : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
 }
 
+// ── RTL / Hebrew ───────────────────────────────────────────────
+let _instLang = (()=>{ try{ return localStorage.getItem('pals_inst_lang')||'he'; }catch(e){ return 'he'; } })();
+window.setInstLang = function(l) {
+  _instLang = l;
+  try { localStorage.setItem('pals_inst_lang', l); } catch(e) {}
+  applyInstLang();
+};
+function applyInstLang() {
+  const he = _instLang === 'he';
+  document.documentElement.setAttribute('dir', he ? 'rtl' : 'ltr');
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === _instLang));
+  document.querySelectorAll('[data-he]').forEach(el => {
+    if (!el.dataset.en) el.dataset.en = el.textContent.trim();
+    el.textContent = he ? el.dataset.he : el.dataset.en;
+  });
+}
+applyInstLang();
 
 // ── ROSTER GLOBALS ─────────────────────────────────────────────
 // MOD_LABELS / MOD_COUNT cover ALL modules (incl. the two instructor-run
