@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PALS 2025 · Sign In</title>
+<title>Medical Education Portal · Sign In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -435,6 +435,7 @@ window.signIn = async function() {
 
 // ── Show sign-in form ─────────────────────────────────────
 function showLoginForm(errMsg) {
+  document.title = 'Medical Education Portal · Sign In';
   document.getElementById('login-wrap').style.display  = 'flex';
   document.getElementById('picker-wrap').style.display = 'none';
   if (errMsg) { showErr(errMsg); }
@@ -448,6 +449,9 @@ function showErr(msg) {
 
 // ── Show course picker ────────────────────────────────────
 function showPicker(fbUser, courses) {
+  document.title = courses.length === 1
+    ? courses[0].name + ' · Sign In'
+    : 'Medical Education Portal · Select Course';
   document.getElementById('login-wrap').style.display  = 'none';
   document.getElementById('picker-wrap').style.display = 'block';
 
