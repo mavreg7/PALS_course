@@ -309,10 +309,13 @@ html[dir="rtl"] .welcome{flex-direction:row-reverse}
           <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" onclick="msgResetInvite()" title="Reset the message to the default registration invite.">↺ Invite text</button>
           <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" onclick="msgInsertLink()" title="Append the self-registration link to the message.">🔗 Insert link</button>
           <button class="btn-sm btn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem" onclick="msgCopyNumbers()" title="Copy all phone numbers (international format) for use in a WhatsApp broadcast list.">⧉ Copy numbers</button>
-          <button class="btn-sm" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:.5rem .8rem;font-weight:700" onclick="msgOpenWhatsAppWeb()" title="Open WhatsApp Web with the message pre-filled — then select a broadcast list or new broadcast to send to everyone at once.">📤 WhatsApp Web (broadcast)</button>
+          <button class="btn-sm" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:.5rem .8rem;font-weight:700" onclick="msgOpenWhatsAppWeb()" title="Opens WhatsApp with the message ready to send. On mobile: opens the WhatsApp app — pick your broadcast list. On desktop: opens WhatsApp Web.">📤 Open in WhatsApp</button>
         </div>
       </div>
       <textarea id="msg-body" rows="4" style="width:100%;box-sizing:border-box;padding:.6rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.88rem;resize:vertical"></textarea>
+      <div style="margin-top:.5rem;font-size:.76rem;color:var(--muted);line-height:1.55">
+        💡 <strong>Bulk send tip:</strong> tap <em>⧉ Copy numbers</em>, then in WhatsApp create a <strong>Broadcast List</strong> (New Broadcast → paste numbers) — every recipient gets the message as a private chat. Tap <em>📤 Open in WhatsApp</em> to open the app with the message pre-filled.
+      </div>
       <div id="msg-list" style="margin-top:.85rem"></div>
     </div>
   </div>
@@ -1182,9 +1185,13 @@ window.msgCopyNumbers = function(){
 window.msgOpenWhatsAppWeb = function(){
   const text = (document.getElementById('msg-body').value||'').trim();
   if(!text){ alert('Write a message first.'); return; }
-  // Opens WhatsApp Web with the message pre-filled but no recipient —
-  // the user selects a broadcast list (or creates a new one from the copied numbers).
-  window.open('https://web.whatsapp.com/send?text='+encodeURIComponent(text), '_blank');
+  const enc = encodeURIComponent(text);
+  // On mobile: open WhatsApp app directly; on desktop: open WhatsApp Web.
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const url = isMobile
+    ? 'whatsapp://send?text=' + enc
+    : 'https://web.whatsapp.com/send?text=' + enc;
+  window.open(url, '_blank');
 };
 function populateMsgCohorts(){
   const sel = document.getElementById('msg-cohort'); if(!sel) return;
