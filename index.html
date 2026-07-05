@@ -3,196 +3,520 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Medical Education Portal · Sign In</title>
+<title>PALS 2025 · Sign In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="firebase-config.js"></script>
 <style>
+/* ── Tokens ──────────────────────────────────────────────── */
 :root {
-  --bg: #07131f;
-  --surface: #0c1d2e;
-  --surface2: #091525;
-  --border: rgba(8,145,178,.20);
-  --text: #e0f4fc;
-  --muted: rgba(56,189,248,.6);
-  --faint: rgba(56,189,248,.3);
-  --primary: #0891B2;
-  --primary-dark: #0E7C86;
-  --primary-light: rgba(8,145,178,.12);
-  --peds: #7C3AED;
-  --success: #22C55E;
-  --warn: #F59E0B;
-  --danger: #EF4444;
-  --shadow: 0 4px 28px rgba(0,0,0,.5);
-  --radius: 16px;
-  --tr: all .22s cubic-bezier(.4,0,.2,1);
+  --p:      #0891B2;
+  --pd:     #0E7C86;
+  --pl:     rgba(8,145,178,.12);
+  --pit:    #0891B2;
+  --v:      #7C3AED;
+  --amber:  #B45309;
+  --tr:     all .22s cubic-bezier(.4,0,.2,1);
+
+  /* Light theme */
+  --bg:     #f0f9fb;
+  --dot:    rgba(8,145,178,.13);
+  --card:   #ffffff;
+  --card2:  #f4f9fb;
+  --border: #d8e9ef;
+  --border2:#ccdde4;
+  --text:   #0F1D2E;
+  --muted:  #4a6b7a;
+  --faint:  #8daab6;
+  --sh:     0 8px 40px rgba(8,145,178,.14), 0 2px 8px rgba(8,145,178,.08);
+  --sh-btn: 0 4px 20px rgba(8,145,178,.3), 0 1px 4px rgba(8,145,178,.18);
+  --glow:   0 8px 40px rgba(8,145,178,.14);
+  --glow-b: 0 8px 52px rgba(8,145,178,.24);
 }
-[data-theme="light"] {
-  --bg: #f0f9fb;
-  --surface: #ffffff;
-  --surface2: #f4f9fb;
-  --border: #cce4ec;
-  --text: #0F1D2E;
-  --muted: #4a6b7a;
-  --faint: #8aaab8;
-  --shadow: 0 4px 28px rgba(8,145,178,.13);
+[data-theme="dark"] {
+  --bg:     #07131f;
+  --dot:    rgba(8,145,178,.10);
+  --card:   rgba(255,255,255,.03);
+  --card2:  rgba(255,255,255,.04);
+  --border: rgba(8,145,178,.22);
+  --border2:rgba(255,255,255,.08);
+  --text:   #e0f4fc;
+  --muted:  rgba(56,189,248,.65);
+  --faint:  rgba(255,255,255,.2);
+  --sh:     0 0 24px rgba(8,145,178,.25);
+  --sh-btn: 0 0 36px rgba(8,145,178,.4), 0 4px 16px rgba(8,145,178,.22);
+  --glow:   0 0 24px rgba(8,145,178,.2);
+  --glow-b: 0 0 48px rgba(8,145,178,.5);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100dvh;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;transition:background .3s,color .3s;overflow-x:hidden}
+
+/* ── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100dvh;
+  font-family: 'Inter', 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  transition: background .3s, color .3s;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── Dot grid ────────────────────────────────────────────── */
 body::before {
   content: '';
-  position: fixed; inset: 0;
-  background-image: radial-gradient(circle, rgba(8,145,178,.08) 1px, transparent 1px);
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
   background-size: 22px 22px;
-  pointer-events: none; z-index: 0;
+  pointer-events: none;
+  z-index: 0;
 }
-.ecg-wrap { position: fixed; bottom: 2rem; left: 0; right: 0; z-index: 0; opacity: .18; pointer-events: none; overflow: hidden; height: 48px; }
-.ecg-line { display: block; width: 200%; animation: ecg-scroll 4s linear infinite; }
-@keyframes ecg-scroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-.blob{position:fixed;border-radius:50%;filter:blur(100px);opacity:.15;z-index:0;pointer-events:none;animation:drift 18s ease-in-out infinite}
-.blob1{width:480px;height:480px;background:#0891B2;top:-140px;left:-100px}
-.blob2{width:400px;height:400px;background:#7C3AED;bottom:-100px;right:-80px;animation-duration:22s;animation-direction:reverse}
-.blob3{width:260px;height:260px;background:#34D399;bottom:20%;left:10%;opacity:.09;animation-duration:26s}
-@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(35px,25px) scale(1.04)}}
-.wrap{position:relative;z-index:1;width:100%;max-width:430px;display:flex;flex-direction:column;align-items:center}
-.logo-ring{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#0891B2,#34D399);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(8,145,178,.4),0 0 0 8px rgba(8,145,178,.1);margin-bottom:1.1rem;animation:pop .6s cubic-bezier(.34,1.56,.64,1) both}
-@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
-.logo-ring svg{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
-.sub{font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;color:var(--muted);margin-bottom:1.5rem;font-style:italic}
+/* ── Center ambient glow ─────────────────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px; height: 500px;
+  background: radial-gradient(ellipse, rgba(8,145,178,.08) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
 
-/* Tab switcher */
-.tabs{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:4px;gap:4px;width:100%;margin-bottom:1rem}
-.tab{flex:1;padding:.55rem;border-radius:8px;border:none;background:transparent;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:var(--tr)}
-.tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 6px rgba(8,145,178,.14)}
-.tab:hover:not(.active){color:var(--text)}
+/* ── Auth loading overlay ────────────────────────────────── */
+#auth-checking {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  transition: opacity .3s;
+}
+#auth-checking.hidden { opacity: 0; pointer-events: none; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--p);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);width:100%;padding:1.75rem;animation:slideup .5s .1s cubic-bezier(.4,0,.2,1) both}
-@keyframes slideup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.panel{display:none}.panel.active{display:block}
-.fl{margin-bottom:1rem}
-.fl label{display:block;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
-.field{width:100%;padding:.72rem 1rem;border:1.5px solid var(--border);border-radius:9px;font-size:.93rem;background:var(--surface2);color:var(--text);transition:var(--tr);font-family:'Plus Jakarta Sans',sans-serif}
-.field:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(8,145,178,.15)}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-.err{background:rgba(239,68,68,.09);color:#dc2626;border:1px solid rgba(239,68,68,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none;align-items:center;gap:.5rem}
-.ok-msg{background:rgba(34,197,94,.09);color:#15803d;border:1px solid rgba(34,197,94,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none;align-items:center;gap:.5rem}
-.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;position:relative;overflow:hidden;background:linear-gradient(135deg,#0891B2,#0284C7)}
-.btn-go:hover{background:linear-gradient(135deg,#0e7490,#0369a1)}
-.btn-go:active{transform:scale(.98)}
-.btn-go:disabled{opacity:.6;cursor:not-allowed}
-.btn-reg{background:linear-gradient(135deg,#7C3AED,#0891B2)}
-.btn-reg:hover{background:linear-gradient(135deg,#6d28d9,#0e7490)}
-.div{height:1px;background:var(--border);margin:1.3rem 0;position:relative}
-.div span{position:absolute;left:50%;transform:translateX(-50%) translateY(-50%);background:var(--surface);padding:0 .75rem;font-size:.72rem;color:var(--faint);white-space:nowrap}
-.hints{display:flex;flex-direction:column;gap:.4rem}
-.hint{display:flex;align-items:center;gap:.6rem;font-size:.79rem;color:var(--muted);background:var(--surface2);padding:.5rem .8rem;border-radius:8px;border:1px solid var(--border)}
-.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.pw-wrap{position:relative}.pw-wrap .field{padding-right:2.8rem}
-.pw-toggle{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:0;display:flex;align-items:center;transition:var(--tr)}
-.pw-toggle:hover{color:var(--text)}
-.theme-btn{position:fixed;top:1rem;right:1rem;background:var(--surface);border:1px solid var(--border);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);z-index:10;transition:var(--tr)}
-.theme-btn:hover{background:var(--surface2);transform:rotate(20deg)}
-#auth-checking{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .3s}
-#auth-checking.hidden{opacity:0;pointer-events:none}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.reg-note{font-size:.74rem;color:var(--faint);text-align:center;margin-top:.9rem;line-height:1.5}
-@media(max-width:400px){.card{padding:1.3rem}h1{font-size:1.55rem}.field-row{grid-template-columns:1fr}}
+/* ── Top controls ────────────────────────────────────────── */
+.top-controls {
+  position: fixed; top: 1rem; right: 1rem;
+  display: flex; gap: 6px; align-items: center;
+  z-index: 10;
+}
+.ctrl-btn {
+  width: 36px; height: 36px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  transition: var(--tr);
+  box-shadow: var(--glow);
+}
+.ctrl-btn:hover { color: var(--text); transform: rotate(15deg); }
+.lang-toggle {
+  display: flex; gap: 2px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 9px; padding: 3px;
+  box-shadow: var(--glow);
+}
+.lang-btn {
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 10px; font-weight: 700;
+  cursor: pointer;
+  transition: var(--tr);
+  background: transparent;
+  color: var(--faint);
+}
+.lang-btn.active {
+  background: var(--p);
+  color: #fff;
+  box-shadow: 0 1px 6px rgba(8,145,178,.35);
+}
+
+/* ── Main wrap ───────────────────────────────────────────── */
+.wrap {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 400px;
+  display: flex; flex-direction: column;
+  align-items: center;
+}
+
+/* ── ECG line ────────────────────────────────────────────── */
+.ecg-line {
+  margin-bottom: 20px;
+}
+@keyframes ecg-draw {
+  from { stroke-dashoffset: 220; }
+  to   { stroke-dashoffset: 0; }
+}
+.ecg-path {
+  stroke-dasharray: 220;
+  animation: ecg-draw 1.4s ease-out forwards;
+}
+
+/* ── Title ───────────────────────────────────────────────── */
+.title-block {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.title-pals {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  line-height: .9;
+}
+.title-year {
+  font-size: 2.4rem;
+  font-weight: 300;
+  letter-spacing: 4px;
+  color: var(--p);
+  line-height: .9;
+  margin-bottom: 10px;
+}
+.title-sub {
+  font-size: 11px;
+  color: var(--faint);
+  letter-spacing: .05em;
+}
+.badge-row {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin-top: 10px;
+}
+.badge {
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: 9px; font-weight: 700;
+}
+.badge-amber {
+  background: rgba(180,83,9,.12);
+  border: 1px solid rgba(180,83,9,.25);
+  color: #f59e0b;
+}
+[data-theme="light"] .badge-amber {
+  background: #FEF6E7;
+  border-color: rgba(180,83,9,.22);
+  color: #B45309;
+}
+.badge-teal {
+  background: rgba(8,145,178,.12);
+  border: 1px solid rgba(8,145,178,.25);
+  color: #38bdf8;
+}
+[data-theme="light"] .badge-teal {
+  background: rgba(8,145,178,.1);
+  border-color: rgba(8,145,178,.2);
+  color: var(--pd);
+}
+
+/* ── Form card ───────────────────────────────────────────── */
+@keyframes pulse-glow {
+  0%,100% { box-shadow: var(--glow); }
+  50%     { box-shadow: var(--glow-b); }
+}
+.card {
+  width: 100%;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 26px;
+  animation: pulse-glow 3.5s ease-in-out infinite;
+}
+
+/* ── Form fields ─────────────────────────────────────────── */
+.fl { margin-bottom: 14px; }
+.fl label {
+  display: block;
+  font-size: 9px; font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase; letter-spacing: .1em;
+  margin-bottom: 6px;
+}
+.field {
+  width: 100%;
+  padding: .72rem 1rem;
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  font-size: .93rem;
+  background: var(--card2);
+  color: var(--faint);
+  font-family: 'Inter', sans-serif;
+  transition: var(--tr);
+}
+.field::placeholder { color: var(--faint); opacity: .7; }
+.field:focus {
+  outline: none;
+  border-color: var(--p);
+  box-shadow: 0 0 0 3px rgba(8,145,178,.15);
+  color: var(--text);
+}
+.pw-wrap { position: relative; }
+.pw-wrap .field { padding-right: 2.8rem; }
+.pw-toggle {
+  position: absolute; right: .8rem; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--faint); padding: 0;
+  display: flex; align-items: center;
+  transition: var(--tr);
+}
+.pw-toggle:hover { color: var(--text); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+
+/* ── Messages ────────────────────────────────────────────── */
+.err {
+  background: rgba(239,68,68,.09);
+  color: #ef4444;
+  border: 1px solid rgba(239,68,68,.22);
+  border-radius: 10px;
+  padding: .65rem .95rem;
+  font-size: .83rem; font-weight: 600;
+  margin-bottom: .9rem;
+  display: none; align-items: center; gap: .5rem;
+}
+[data-theme="light"] .err { color: #dc2626; }
+.ok-msg {
+  background: rgba(34,197,94,.09);
+  color: #22c55e;
+  border: 1px solid rgba(34,197,94,.22);
+  border-radius: 10px;
+  padding: .65rem .95rem;
+  font-size: .83rem; font-weight: 600;
+  margin-bottom: .9rem;
+  display: none; align-items: center; gap: .5rem;
+}
+[data-theme="light"] .ok-msg { color: #15803d; }
+
+/* ── CTA button ──────────────────────────────────────────── */
+.btn-go {
+  width: 100%; padding: .85rem 1rem;
+  border-radius: 11px;
+  font-weight: 700; font-size: .95rem;
+  border: none; cursor: pointer;
+  margin-top: .2rem;
+  transition: var(--tr);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, var(--p), var(--pd));
+  box-shadow: var(--sh-btn);
+}
+.btn-go:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn-go:active { transform: scale(.98) translateY(0); }
+.btn-go:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.btn-reg { background: linear-gradient(135deg, var(--v), var(--p)); }
+
+/* ── Divider ─────────────────────────────────────────────── */
+.divider {
+  height: 1px; background: var(--border2);
+  margin: 18px 0; position: relative;
+}
+.divider span {
+  position: absolute; left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background: var(--bg);
+  padding: 0 .75rem;
+  font-size: .72rem; color: var(--faint); white-space: nowrap;
+}
+
+/* ── Role hints ──────────────────────────────────────────── */
+.hints { display: flex; flex-direction: column; gap: 6px; }
+.hint {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .8rem; color: var(--muted);
+  background: var(--card2);
+  padding: .55rem .85rem;
+  border-radius: 9px;
+  border: 1px solid var(--border2);
+}
+.dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* ── Footer note ─────────────────────────────────────────── */
+.reg-note {
+  font-size: .73rem; color: var(--faint);
+  text-align: center; margin-top: .9rem; line-height: 1.55;
+}
+
+/* ── Footer status row ───────────────────────────────────── */
+.status-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 20px;
+}
+.status-dot { width: 5px; height: 5px; border-radius: 50%; }
+.status-sep { width: 1px; height: 10px; background: var(--border2); }
+.status-label { font-size: 10px; color: var(--faint); }
+
+/* ── Panel switching ─────────────────────────────────────── */
+.panel { display: none; }
+.panel.active { display: block; }
+.tabs {
+  display: flex;
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: 11px; padding: 4px; gap: 4px;
+  width: 100%; margin-bottom: 1rem;
+}
+.tab {
+  flex: 1; padding: .55rem;
+  border-radius: 8px; border: none;
+  background: transparent;
+  color: var(--faint);
+  font-family: 'Inter', sans-serif; font-size: .85rem; font-weight: 600;
+  cursor: pointer; transition: var(--tr);
+}
+.tab.active {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 1px 6px rgba(8,145,178,.14);
+}
+.tab:hover:not(.active) { color: var(--text); }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 420px) {
+  .card { padding: 20px 18px; }
+  .title-pals, .title-year { font-size: 2rem; }
+  .field-row { grid-template-columns: 1fr; }
+}
+
+/* ── RTL support ─────────────────────────────────────────── */
+[dir="rtl"] .field { text-align: right; }
+[dir="rtl"] .pw-toggle { right: auto; left: .8rem; }
+[dir="rtl"] .pw-wrap .field { padding-right: 1rem; padding-left: 2.8rem; }
 </style>
 </head>
 <body>
-<div class="ecg-wrap"><svg class="ecg-line" viewBox="0 0 1200 48" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="0,24 48,24 52,21 57,16 62,21 67,24 70,26 74,3 78,40 84,24 100,24 108,19 116,14 124,19 130,24 200,24 248,24 252,21 257,16 262,21 267,24 270,26 274,3 278,40 284,24 300,24 308,19 316,14 324,19 330,24 400,24 448,24 452,21 457,16 462,21 467,24 470,26 474,3 478,40 484,24 500,24 508,19 516,14 524,19 530,24 600,24 648,24 652,21 657,16 662,21 667,24 670,26 674,3 678,40 684,24 700,24 708,19 716,14 724,19 730,24 800,24 848,24 852,21 857,16 862,21 867,24 870,26 874,3 878,40 884,24 900,24 908,19 916,14 924,19 930,24 1000,24 1048,24 1052,21 1057,16 1062,21 1067,24 1070,26 1074,3 1078,40 1084,24 1100,24 1108,19 1116,14 1124,19 1130,24 1200,24" stroke="#0891B2" stroke-width="2" stroke-linejoin="round"/></svg></div>
+
+<!-- ── Auth checking overlay ───────────────────────────── -->
 <div id="auth-checking"><div class="spinner"></div></div>
 
-<div class="blob blob1"></div>
-<div class="blob blob2"></div>
-<div class="blob blob3"></div>
-
-<button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle dark mode" id="thbtn">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="thico">
-    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-  </svg>
-</button>
-
-<div class="wrap" id="login-wrap" style="display:none">
-  <div class="logo-ring">
-    <svg width="36" height="36" viewBox="0 0 36 36">
-      <path d="M18 4 L18 32 M4 18 L32 18" stroke-width="4"/>
-      <circle cx="18" cy="18" r="14" stroke-width="2"/>
-      <circle cx="18" cy="18" r="7" stroke-width="1.5" stroke-dasharray="3 3"/>
-    </svg>
+<!-- ── Top controls ────────────────────────────────────── -->
+<div class="top-controls">
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="lang-he" onclick="setLang('he')" style="font-family:'Assistant',sans-serif">עב</button>
   </div>
-  <h1>Medical Education Portal</h1>
-  <div class="sub">PALS &amp; Pediatric Sedation Safety Courses</div>
+  <button class="ctrl-btn" onclick="toggleTheme()" id="thbtn" aria-label="Toggle dark mode">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="thico">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+</div>
 
+<!-- ── Main login wrap ──────────────────────────────────── -->
+<div class="wrap" id="login-wrap" style="display:none">
+
+  <!-- ECG line -->
+  <svg class="ecg-line" width="130" height="28" viewBox="0 0 130 28" fill="none" aria-hidden="true">
+    <polyline class="ecg-path" points="0,14 26,14 32,3 39,25 46,3 53,14 130,14"
+      stroke="#0891B2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".6">
+    </polyline>
+  </svg>
+
+  <!-- Title -->
+  <div class="title-block">
+    <div class="title-pals">PALS</div>
+    <div class="title-year">2025</div>
+    <div class="title-sub">Pediatric Advanced Life Support</div>
+    <div class="badge-row">
+      <span class="badge badge-amber">AHA 2025</span>
+      <span class="badge badge-teal">MSR</span>
+    </div>
+  </div>
+
+  <!-- Form card -->
   <div class="card">
 
-    <!-- ── SIGN IN PANEL ───────────────────────────────────── -->
+    <!-- Sign In panel (only panel — registration is admin-provisioned) -->
     <div class="panel active" id="panel-signin" role="tabpanel">
+
       <div id="si-err" class="err">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
         <span id="si-err-msg">Incorrect credentials. Please try again.</span>
       </div>
+
       <div class="fl">
         <label for="si-em">Email address</label>
-        <input class="field" id="si-em" type="email" autocomplete="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')document.getElementById('si-pw').focus()">
+        <input class="field" id="si-em" type="email" autocomplete="email" placeholder="you@hospital.org"
+          onkeydown="if(event.key==='Enter')document.getElementById('si-pw').focus()">
       </div>
+
       <div class="fl">
         <label for="si-pw">Password</label>
         <div class="pw-wrap">
-          <input class="field" id="si-pw" type="password" autocomplete="current-password" placeholder="Your password" onkeydown="if(event.key==='Enter')signIn()">
+          <input class="field" id="si-pw" type="password" autocomplete="current-password" placeholder="Your password"
+            onkeydown="if(event.key==='Enter')signIn()">
           <button class="pw-toggle" onclick="togglePw('si-pw','si-eye')" type="button" aria-label="Show/hide password">
-            <svg id="si-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="si-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
+            </svg>
           </button>
         </div>
       </div>
+
       <button id="si-btn" class="btn-go" onclick="signIn()">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+          <polyline points="10 17 15 12 10 7"></polyline>
+          <line x1="15" y1="12" x2="3" y2="12"></line>
+        </svg>
         <span id="si-btn-txt">Sign In</span>
       </button>
-      <div class="div"><span>Access levels</span></div>
+
+      <div class="divider"><span>Access levels</span></div>
+
       <div class="hints">
-        <div class="hint"><div class="dot" style="background:#0891B2"></div><span><strong>Students</strong> — modules, quizzes, progress &amp; certificate</span></div>
-        <div class="hint"><div class="dot" style="background:#7C3AED"></div><span><strong>Instructors</strong> — roster, exams, eval tools &amp; admin controls</span></div>
+        <div class="hint">
+          <div class="dot" style="background:#0891B2"></div>
+          <span><strong>Students</strong> — modules, quizzes, progress &amp; certificate</span>
+        </div>
+        <div class="hint">
+          <div class="dot" style="background:#7C3AED"></div>
+          <span><strong>Instructors</strong> — roster, exams, eval tools &amp; admin controls</span>
+        </div>
       </div>
-      <p class="reg-note">Accounts are created by your course administrator. Contact your instructor if you need access or a password reset.</p>
+
+      <p class="reg-note">Accounts are created by your course administrator.<br>Contact your instructor if you need access or a password reset.</p>
+
     </div>
 
-    <!-- ── REGISTER PANEL (removed — accounts are admin-provisioned only) ─────────────────────────────────── -->
+    <!-- Register panel (hidden — closed enrollment) -->
     <div class="panel" id="panel-reg" role="tabpanel" style="display:none">
       <div id="reg-err" class="err">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
         <span id="reg-err-msg">Please check your details and try again.</span>
       </div>
       <div id="reg-ok" class="ok-msg">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
         <span>Account created! Redirecting…</span>
       </div>
       <div class="field-row">
-        <div class="fl">
-          <label for="reg-fn">First Name</label>
-          <input class="field" id="reg-fn" type="text" autocomplete="given-name" placeholder="Sarah">
-        </div>
-        <div class="fl">
-          <label for="reg-ln">Last Name</label>
-          <input class="field" id="reg-ln" type="text" autocomplete="family-name" placeholder="Cohen">
-        </div>
+        <div class="fl"><label for="reg-fn">First Name</label><input class="field" id="reg-fn" type="text" autocomplete="given-name" placeholder="Sarah"></div>
+        <div class="fl"><label for="reg-ln">Last Name</label><input class="field" id="reg-ln" type="text" autocomplete="family-name" placeholder="Cohen"></div>
       </div>
-      <div class="fl">
-        <label for="reg-em">Email Address</label>
-        <input class="field" id="reg-em" type="email" autocomplete="email" placeholder="sarah.cohen@hospital.org">
-      </div>
+      <div class="fl"><label for="reg-em">Email Address</label><input class="field" id="reg-em" type="email" autocomplete="email" placeholder="sarah@hospital.org"></div>
       <div class="fl">
         <label for="reg-pw">Password</label>
         <div class="pw-wrap">
           <input class="field" id="reg-pw" type="password" autocomplete="new-password" placeholder="Minimum 6 characters">
-          <button class="pw-toggle" onclick="togglePw('reg-pw','reg-eye')" type="button" aria-label="Show/hide password">
-            <svg id="reg-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <button class="pw-toggle" onclick="togglePw('reg-pw','reg-eye')" type="button">
+            <svg id="reg-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </button>
         </div>
       </div>
@@ -200,23 +524,32 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
         <label for="reg-pw2">Confirm Password</label>
         <div class="pw-wrap">
           <input class="field" id="reg-pw2" type="password" autocomplete="new-password" placeholder="Repeat your password" onkeydown="if(event.key==='Enter')register()">
-          <button class="pw-toggle" onclick="togglePw('reg-pw2','reg-eye2')" type="button" aria-label="Show/hide password">
-            <svg id="reg-eye2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <button class="pw-toggle" onclick="togglePw('reg-pw2','reg-eye2')" type="button">
+            <svg id="reg-eye2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </button>
         </div>
       </div>
-      <div class="fl">
-        <label for="reg-cohort">Cohort / Group <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
-        <input class="field" id="reg-cohort" type="text" placeholder="e.g. June 2026">
-      </div>
+      <div class="fl"><label for="reg-cohort">Cohort / Group <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input class="field" id="reg-cohort" type="text" placeholder="e.g. June 2026"></div>
       <button id="reg-btn" class="btn-go btn-reg" onclick="register()">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
         <span id="reg-btn-txt">Create My Account</span>
       </button>
       <p class="reg-note">Student accounts only. Instructors are added by the administrator.</p>
     </div>
 
   </div>
+
+  <!-- Status footer -->
+  <div class="status-row">
+    <div class="status-dot" style="background:#0891B2"></div>
+    <span class="status-label">Students</span>
+    <div class="status-sep"></div>
+    <div class="status-dot" style="background:#7C3AED"></div>
+    <span class="status-label">Instructors</span>
+    <div class="status-sep"></div>
+    <span class="status-label">AHA · MSR 2025</span>
+  </div>
+
 </div>
 
 <script type="module">
@@ -274,7 +607,6 @@ window.switchTab = function(tab) {
   document.getElementById('tab-'   + tab).classList.add('active');
   document.getElementById('tab-'   + tab).setAttribute('aria-selected','true');
   document.getElementById('panel-' + tab).classList.add('active');
-  // Clear errors on switch
   ['si-err','reg-err','reg-ok'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
 };
 
@@ -317,9 +649,6 @@ window.signIn = async function() {
         name = data.name || data.displayName || name;
         await setDoc(doc(db, 'users', cred.user.uid), { lastLogin: serverTimestamp() }, { merge: true });
       } else {
-        // Self-heal an orphaned registration: the Auth account exists but its
-        // course profile was never written. Rebuild it from the invite if the
-        // invite is still pending, so the person can sign in / appear on roster.
         const repaired = await repairProfileFromInvite(cred.user);
         if (repaired) {
           role = repaired.role || 'student';
@@ -350,10 +679,7 @@ window.signIn = async function() {
   }
 };
 
-// ── Recover an orphaned account (Auth exists, course profile missing) ────────
-// Rebuilds users/{uid} from the person's allowlist invite. Works while the
-// invite is still pending (registered:false), which is the case when the
-// original registration failed before writing the profile.
+// ── Repair orphaned account from allowlist invite ─────────────
 async function repairProfileFromInvite(authUser) {
   try {
     const em = (authUser.email || '').toLowerCase();
@@ -361,7 +687,7 @@ async function repairProfileFromInvite(authUser) {
     const inv = await getDoc(doc(db, 'allowlist', em));
     if (!inv.exists()) return null;
     const a = inv.data() || {};
-    if (a.registered) return null;          // rules require registered==false to self-create
+    if (a.registered) return null;
     const role  = a.role || 'student';
     const parts = (a.name || '').split(/\s+/);
     const profile = {
@@ -382,7 +708,7 @@ async function repairProfileFromInvite(authUser) {
   } catch(e) { console.warn('[PALS] repairProfileFromInvite:', e.message); return null; }
 }
 
-// ── REGISTER (disabled — closed enrollment; accounts are admin-provisioned) ──
+// ── REGISTER (disabled — closed enrollment) ───────────────────
 window.register = function() {
   const errEl = document.getElementById('reg-err');
   if (errEl) {
@@ -402,48 +728,24 @@ window.__register_legacy = async function() {
   const okEl    = document.getElementById('reg-ok');
   const btn     = document.getElementById('reg-btn');
   const btnTxt  = document.getElementById('reg-btn-txt');
-
-  errEl.style.display = 'none';
-  okEl.style.display  = 'none';
-
-  // Validation
-  function showErr(msg) {
-    document.getElementById('reg-err-msg').textContent = msg;
-    errEl.style.display = 'flex';
-  }
-  if (!fname || !lname)          { showErr('Please enter your first and last name.');          return; }
-  if (!email || !email.includes('@')) { showErr('Please enter a valid email address.');        return; }
-  if (pw.length < 6)             { showErr('Password must be at least 6 characters.');          return; }
-  if (pw !== pw2)                { showErr('Passwords do not match. Please try again.');         return; }
-
-  btn.disabled = true;
-  btnTxt.textContent = 'Creating account…';
-
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+  function showErr(msg) { document.getElementById('reg-err-msg').textContent = msg; errEl.style.display = 'flex'; }
+  if (!fname || !lname)           { showErr('Please enter your first and last name.'); return; }
+  if (!email || !email.includes('@')) { showErr('Please enter a valid email address.'); return; }
+  if (pw.length < 6)              { showErr('Password must be at least 6 characters.'); return; }
+  if (pw !== pw2)                 { showErr('Passwords do not match. Please try again.'); return; }
+  btn.disabled = true; btnTxt.textContent = 'Creating account…';
   try {
-    // 1. Create Firebase Auth account
     const cred = await createUserWithEmailAndPassword(auth, email, pw);
     const uid  = cred.user.uid;
-
-    // 2. Write Firestore profile — role is ALWAYS student for self-registration
     await setDoc(doc(db, 'users', uid), {
-      uid,
-      name:        `${fname} ${lname}`,
-      firstName:   fname,
-      lastName:    lname,
-      email,
-      role:        'student',          // hardcoded — cannot be changed by the student
-      cohort:      cohort || 'Unassigned',
-      createdAt:   serverTimestamp(),
-      selfRegistered: true,
-      progress:    {}
+      uid, name: `${fname} ${lname}`, firstName: fname, lastName: lname, email,
+      role: 'student', cohort: cohort || 'Unassigned',
+      createdAt: serverTimestamp(), selfRegistered: true, progress: {}
     });
-
-    // 3. Show success briefly then redirect
-    okEl.style.display = 'flex';
-    btnTxt.textContent = '✓ Done!';
+    okEl.style.display = 'flex'; btnTxt.textContent = '✓ Done!';
     writeSession(uid, 'student', `${fname} ${lname}`, email);
     setTimeout(() => redir('student'), 1200);
-
   } catch(e) {
     const msgs = {
       'auth/email-already-in-use': 'That email is already registered. Try signing in instead.',
@@ -453,21 +755,28 @@ window.__register_legacy = async function() {
       'auth/too-many-requests':    'Too many attempts. Please wait a moment.',
     };
     showErr(msgs[e.code] || `Registration failed (${e.code}). Please try again.`);
-    btn.disabled = false;
-    btnTxt.textContent = 'Create My Account';
+    btn.disabled = false; btnTxt.textContent = 'Create My Account';
   }
 };
 
 // ── Theme ─────────────────────────────────────────────────────
 let dark = (()=>{try{const s=localStorage.getItem('pals_theme');if(s)return s==='dark';}catch(e){}return true;})();
-function applyTheme(){
+function applyTheme() {
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   document.getElementById('thico').innerHTML = dark
-    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
-    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'
+    : '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>';
 }
-window.toggleTheme = function(){ dark = !dark; try{localStorage.setItem('pals_theme',dark?'dark':'light');}catch(e){} applyTheme(); };
+window.toggleTheme = function() { dark = !dark; try{localStorage.setItem('pals_theme',dark?'dark':'light');}catch(e){} applyTheme(); };
 applyTheme();
+
+// ── Language ──────────────────────────────────────────────────
+window.setLang = function(lang) {
+  document.documentElement.lang = lang;
+  document.documentElement.dir  = lang === 'he' ? 'rtl' : 'ltr';
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-he').classList.toggle('active', lang === 'he');
+};
 </script>
 </body>
 </html>
