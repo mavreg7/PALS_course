@@ -99,6 +99,10 @@ h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
         <input class="field" id="nm" type="text" autocomplete="name" placeholder="First Last">
       </div>
       <div class="fl">
+        <label for="ph">Phone number <span style="font-weight:400;opacity:.7">(optional — for WhatsApp / SMS updates)</span></label>
+        <input class="field" id="ph" type="tel" autocomplete="tel" placeholder="0501234567">
+      </div>
+      <div class="fl">
         <label for="pw">Choose a password</label>
         <input class="field" id="pw" type="password" autocomplete="new-password" placeholder="Minimum 6 characters">
       </div>
@@ -147,6 +151,7 @@ window.checkInvite = async function(){
     document.getElementById('who').textContent = invite.name || emailKey;
     document.getElementById('role-chip').textContent = (invite.role||'student').replace('_',' ');
     document.getElementById('nm').value = invite.name || '';
+    document.getElementById('ph').value = invite.phone || '';
     document.getElementById('step1').style.display='none';
     document.getElementById('step2').style.display='block';
     document.getElementById((invite.name?'pw':'nm')).focus();
@@ -157,6 +162,7 @@ window.createAccount = async function(){
   clearMsg();
   const pw=document.getElementById('pw').value, pw2=document.getElementById('pw2').value;
   const fullName=(document.getElementById('nm').value||'').trim();
+  const phone=(document.getElementById('ph').value||'').trim();
   if(!fullName){ showErr('Please enter your full name.'); return; }
   if(pw.length<6){ showErr('Password must be at least 6 characters.'); return; }
   if(pw!==pw2){ showErr('Passwords do not match.'); return; }
@@ -173,11 +179,12 @@ window.createAccount = async function(){
       lastName:  invite.lastName  || _parts.slice(1).join(' ') || '',
       role,
       cohort: invite.cohort || 'Unassigned',
+      phone: phone || '',
       createdAt: serverTimestamp(),
       viaInvite: true,
       progress: {}
     });
-    await setDoc(doc(db,'allowlist',emailKey), { registered: true, registeredAt: serverTimestamp() }, { merge: true });
+    await setDoc(doc(db,'allowlist',emailKey), { registered: true, registeredAt: serverTimestamp(), ...(phone ? { phone } : {}) }, { merge: true });
     try{ sessionStorage.setItem(SK, JSON.stringify({ uid, role, name: fullName, email: emailKey, ts: Date.now() })); }catch(e){}
     okEl.textContent='✅ Account created! Redirecting…'; okEl.style.display='block';
     setTimeout(()=>redir(role), 1200);
