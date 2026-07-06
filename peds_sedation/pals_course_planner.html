@@ -355,16 +355,33 @@ let _publishTimer=null;
 function currentMeta(){try{return JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}')}catch(e){return{}}}
 function publishPlan(){
   clearTimeout(_publishTimer);
-  _publishTimer=setTimeout(()=>{
-    const m=currentMeta();
-    const sig=JSON.stringify({schedule, days:courseDays, cohort:currentCohortKey, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
-    if(sig===localStorage.getItem('pals_plan_pub_sig')) return;  // nothing actually changed
-    const save=fb=>{ if(fb&&fb.saveCoursePlan){ fb.saveCoursePlan({ schedule, meta:m, days:courseDays, sig }, currentCohortKey); localStorage.setItem('pals_plan_pub_sig',sig); } };
-    if(window.FB&&window.FB.saveCoursePlan) save(window.FB);
-    else if(window.FB_READY) window.FB_READY.then(save);
-  },600);
+  return new Promise(resolve=>{
+    _publishTimer=setTimeout(async()=>{
+      const m=currentMeta();
+      const sig=JSON.stringify({schedule, days:courseDays, cohort:currentCohortKey, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
+      if(sig===localStorage.getItem('pals_plan_pub_sig')){ resolve(true); return; }
+      const save=async fb=>{
+        if(fb&&fb.saveCoursePlan){
+          await fb.saveCoursePlan({ schedule, meta:m, days:courseDays, sig }, currentCohortKey);
+          localStorage.setItem('pals_plan_pub_sig',sig);
+        }
+      };
+      try{
+        if(window.FB&&window.FB.saveCoursePlan) await save(window.FB);
+        else if(window.FB_READY) await window.FB_READY.then(save);
+        resolve(true);
+      }catch(e){
+        console.error('[Planner] saveCoursePlan failed:',e);
+        resolve(false);
+      }
+    },600);
+  });
 }
-function persist(){localStorage.setItem(KEY,JSON.stringify(schedule));publishPlan();toast(planLang==='he'?'נשמר':'Saved')}
+async function persist(){
+  localStorage.setItem(KEY,JSON.stringify(schedule));
+  const ok=await publishPlan();
+  toast(ok?(planLang==='he'?'נשמר':'Saved'):(planLang==='he'?'שגיאה בשמירה':'Save failed'));
+}
 
 // ── Live two-way sync with the shared plan (coursePlan/current) ──────────────
 // Every edit publishes (above); here we also watch the shared doc so all
