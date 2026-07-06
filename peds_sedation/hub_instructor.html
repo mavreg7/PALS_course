@@ -1069,7 +1069,7 @@ window.copyRegLink = function(){ const t=document.getElementById('reg-link').tex
 function msgEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function regLinkUrl(){ return (document.getElementById('reg-link')?.textContent || (location.href.replace(/[^/]*(\?.*)?(#.*)?$/, '') + 'register.html')); }
 function defaultInviteMsg(){
-  return `שלום! הוזמנת לקורס סדציה בטוחה בילדים. נא להירשם בקישור (עם אותה כתובת מייל):\n${regLinkUrl()}\n\nHello! You're invited to the Pediatric Sedation Safety course. Please register here:\n${regLinkUrl()}`;
+  return `שלום! הוזמנת לקורס בטיחות בסדציה בילדים. נא להירשם בקישור (עם אותה כתובת מייל):\n${regLinkUrl()}\n\nHello! You're invited to the Pediatric Sedation Safety course. Please register here:\n${regLinkUrl()}`;
 }
 // Normalise a phone to international digits for wa.me (no +, no leading 0).
 function waNumber(raw, cc){
