@@ -175,7 +175,15 @@ const DEFAULT_SCHEDULE = {
 };
 
 const KEY='pals2025_planner';
-let currentCohortKey='';      // '' = the default plan (coursePlan/current)
+const COHORT_KEY_STORAGE='pals2025_planner_cohort';
+function plannerCohortKey(name){
+  const fbKey=(window.FB&&window.FB.cohortKey)?window.FB.cohortKey(name):'';
+  if(fbKey) return fbKey;
+  if(!name) return '';
+  let h=0; for(let i=0;i<name.length;i++) h=(Math.imul(31,h)+name.charCodeAt(i))|0;
+  return 'k'+Math.abs(h).toString(36);
+}
+let currentCohortKey=(function(){try{return localStorage.getItem(COHORT_KEY_STORAGE)||''}catch(e){return ''}})();
 let courseDays=2;             // course length for the selected cohort (1 or 2)
 let schedule = (function(){
   try{const s=JSON.parse(localStorage.getItem(KEY));return s||structuredClone(DEFAULT_SCHEDULE)}catch(e){return structuredClone(DEFAULT_SCHEDULE)}
@@ -381,16 +389,21 @@ let _publishTimer=null;
 function currentMeta(){try{return JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}')}catch(e){return{}}}
 function publishPlan(){
   clearTimeout(_publishTimer);
-  _publishTimer=setTimeout(()=>{
-    const m=currentMeta();
-    const sig=JSON.stringify({schedule, days:courseDays, cohort:currentCohortKey, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
-    if(sig===localStorage.getItem('pals_plan_pub_sig')) return;  // nothing actually changed
-    const save=fb=>{ if(fb&&fb.saveCoursePlan){ fb.saveCoursePlan({ schedule, meta:m, days:courseDays, sig }, currentCohortKey); localStorage.setItem('pals_plan_pub_sig',sig); } };
-    if(window.FB&&window.FB.saveCoursePlan) save(window.FB);
-    else if(window.FB_READY) window.FB_READY.then(save);
-  },600);
+  return new Promise(resolve=>{
+    _publishTimer=setTimeout(async()=>{
+      const m=currentMeta();
+      const sig=JSON.stringify({schedule, days:courseDays, cohort:currentCohortKey, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
+      if(sig===localStorage.getItem('pals_plan_pub_sig')){ resolve(true); return; }
+      const save=async fb=>{ if(fb&&fb.saveCoursePlan){ await fb.saveCoursePlan({ schedule, meta:m, days:courseDays, sig }, currentCohortKey); localStorage.setItem('pals_plan_pub_sig',sig); } };
+      try{
+        if(window.FB&&window.FB.saveCoursePlan) await save(window.FB);
+        else if(window.FB_READY) await window.FB_READY.then(save);
+        resolve(true);
+      }catch(e){ console.error('[Planner] saveCoursePlan failed:',e); resolve(false); }
+    },600);
+  });
 }
-function persist(){localStorage.setItem(KEY,JSON.stringify(schedule));publishPlan();toast(planLang==='he'?'נשמר':'Saved')}
+async function persist(){localStorage.setItem(KEY,JSON.stringify(schedule));const ok=await publishPlan();toast(ok?(planLang==='he'?'נשמר':'Saved'):(planLang==='he'?'שגיאה בשמירה':'Save failed'))}
 
 // ── Live two-way sync with the shared plan (coursePlan/current) ──────────────
 // Every edit publishes (above); here we also watch the shared doc so all
@@ -434,13 +447,14 @@ window.onCohortChange = function(key){
     const fb = window.FB;
     const name = (prompt('Name the new cohort (e.g. "July 2026 – 1 day"):')||'').trim();
     if(!name){ if(sel) sel.value = currentCohortKey||''; return; }
-    const k = fb && fb.cohortKey ? fb.cohortKey(name) : '';
+    const k = plannerCohortKey(name);
     if(!k){ alert('Please use a name with letters or numbers.'); if(sel) sel.value = currentCohortKey||''; return; }
     Promise.resolve(fb && fb.addCohort ? fb.addCohort(name) : null)
       .finally(()=>{ populateCohorts().finally(()=>{ if(sel) sel.value = k; onCohortChange(k); }); });
     return;
   }
   currentCohortKey = key || '';
+  try{ localStorage.setItem(COHORT_KEY_STORAGE, currentCohortKey); }catch(e){}
   if(sel && sel.value !== currentCohortKey) sel.value = currentCohortKey;
   localStorage.removeItem('pals_plan_pub_sig');
   schedule = structuredClone(DEFAULT_SCHEDULE); courseDays = 2;
@@ -450,20 +464,22 @@ window.onCohortChange = function(key){
 async function populateCohorts(){
   const sel = document.getElementById('plan_cohort'); if(!sel) return;
   const fb = window.FB || (window.FB_READY ? await window.FB_READY : null);
-  if(!fb || !fb.getAllUsers || !fb.cohortKey) return;
+  if(!fb || !fb.getAllUsers) return;
   let users = {}; try{ users = await fb.getAllUsers(); }catch(e){ users = {}; }
   let registry = []; try{ registry = fb.loadCohortRegistry ? await fb.loadCohortRegistry() : []; }catch(e){ registry = []; }
   const names = [...new Set([
     ...Object.values(users||{}).map(u => (u && u.cohort || '').trim()),
     ...registry.map(n => String(n||'').trim())
   ].filter(c => c && c.toLowerCase() !== 'unassigned'))].sort();
-  const cur = sel.value;
+  const cur = currentCohortKey || sel.value;
   sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
   const seen = new Set();
-  names.forEach(n => { const k = fb.cohortKey(n); if(!k || seen.has(k)) return; seen.add(k);
+  names.forEach(n => { const k = plannerCohortKey(n); if(!k || seen.has(k)) return; seen.add(k);
     const o = document.createElement('option'); o.value = k; o.textContent = n; sel.appendChild(o); });
   const nw = document.createElement('option'); nw.value = '__new__'; nw.textContent = '➕ New cohort…'; sel.appendChild(nw);
-  sel.value = [...sel.options].some(o => o.value===cur && o.value!=='__new__') ? cur : (currentCohortKey||'');
+  const restoredKey = [...sel.options].some(o => o.value===cur && o.value!=='__new__') ? cur : '';
+  sel.value = restoredKey;
+  if(restoredKey !== currentCohortKey){ currentCohortKey = restoredKey; try{ localStorage.setItem(COHORT_KEY_STORAGE,restoredKey); }catch(e){} }
 }
 let _planUnsub=null;
 function subscribePlan(){
