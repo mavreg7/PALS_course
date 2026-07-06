@@ -72,7 +72,7 @@
       <p class="text-slate-500 text-sm">Student & instructor forms · auto-saved locally</p>
     </div>
     <div class="flex gap-2">
-      <a href="index.html" class="btn btn-ghost">← Hub</a>
+      <a href="hub_instructor.html" class="btn btn-ghost">← Hub</a>
       <button class="btn btn-prim" onclick="window.print()">🖨️ Print Active</button>
     </div>
   </header>
@@ -347,7 +347,7 @@ const INSTRUCTOR_ROLES = ['admin','lead_instructor','instructor'];
 const _sess = (()=>{try{return JSON.parse(sessionStorage.getItem('pals_sess_v2')||'null');}catch(e){return null;}})();
 
 // ── Auth gate ────────────────────────────────────────────────────────────────
-if(!_sess){location.replace('index.html');}
+if(!_sess){location.replace('/login.html');}
 
 const IS_INSTRUCTOR = _sess && INSTRUCTOR_ROLES.includes(_sess.role);
 const IS_STUDENT    = _sess && _sess.role === 'student';

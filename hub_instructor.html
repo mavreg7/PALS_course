@@ -706,7 +706,7 @@ async function logout() {
   try { sessionStorage.removeItem(SK); } catch(e) {}
   try { sessionStorage.setItem('pals_signed_out', '1'); } catch(e) {}
   try { await signOut(auth); } catch(e) {}
-  window.location.replace('index.html');
+  window.location.replace('/login.html');
 }
 
 // ── Auth guard ─────────────────────────────────────────────────
@@ -715,7 +715,7 @@ if (!s) {
   window.__pals_sess = null;
   try { sessionStorage.removeItem(SK); } catch(e) {}
   try { await signOut(auth); } catch(e) {}
-  window.location.replace('index.html');
+  window.location.replace('/login.html');
 } else if (!INSTRUCTOR_ROLES.includes(s.role)) {
   // A student landed here — send them to the student hub, do NOT sign out.
   window.location.replace('hub_student.html');
@@ -889,7 +889,7 @@ async function recoverExistingAccount(fname, lname, email, role, cohort, phone) 
     }, { merge: true });
     inviteOk = true;
   } catch(e) { /* staff allowlist write; non-fatal */ }
-  const loginUrl = new URL('index.html', location.href).href;
+  const loginUrl = new URL('/login.html', location.href).href;
   resultBox.innerHTML = `
     <strong>⚠️ This email already has a sign-in account.</strong><br>
     You don't need to create it again.${inviteOk ? ` Their invite has been refreshed (role <em>${esc(role)}</em>, cohort <em>${esc(cohort||'Unassigned')}</em>), so the moment they sign in their roster profile is restored automatically.` : ''}
@@ -915,7 +915,7 @@ window.sendResetTo = async function(email) {
 function showSuccess(fname, lname, email, pw, role, cohort) {
   submitBtn.textContent = '✓ Account Created';
   resultBox.className = 'create-result success';
-  const loginUrl = new URL('index.html', location.href).href;
+  const loginUrl = new URL('/login.html', location.href).href;
   const subject  = encodeURIComponent('Your PALS 2025 course login');
   const body     = encodeURIComponent(
     `Hello ${fname},\n\nYou have been enrolled in the PALS 2025 course as ${(role||'student').replace('_',' ')}.\n\n`+
@@ -2002,7 +2002,7 @@ function openEditModal(uid) {
   // Direct password-setting is admin-only (enforced again server-side).
   document.getElementById('edit-setpw-btn').style.display =
     (getSession()?.role === 'admin') ? '' : 'none';
-  const loginUrl = new URL('index.html', location.href).href;
+  const loginUrl = new URL('/login.html', location.href).href;
   const su = encodeURIComponent('Your PALS 2025 course sign-in');
   const bd = encodeURIComponent(
     `Hello ${s.firstName || s.name || ''},\n\n`+
