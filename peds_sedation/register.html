@@ -54,7 +54,7 @@ h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
         <input class="field" id="em" type="email" autocomplete="email" placeholder="you@hospital.org" onkeydown="if(event.key==='Enter')checkInvite()">
       </div>
       <button class="btn-go" id="check-btn" onclick="checkInvite()">Check my invitation</button>
-      <p class="note">Use the email your course administrator registered. Not on the list? <a href="index.html">Contact your instructor</a>.</p>
+      <p class="note">Use the email your course administrator registered. Not on the list? <a href="/login.html">Contact your instructor</a>.</p>
     </div>
 
     <!-- STEP 2: set password -->
@@ -112,7 +112,7 @@ window.checkInvite = async function(){
     const snap = await getDoc(doc(db,(window.COURSE_NS||'')+'allowlist',emailKey));
     if(!snap.exists()){ showErr('This email is not on the course list. Please contact your instructor.'); btn.disabled=false; btn.textContent='Check my invitation'; return; }
     invite = snap.data();
-    if(invite.registered){ showErr('This invitation was already used. Please sign in instead.'); setTimeout(()=>window.location.href='index.html',1800); return; }
+    if(invite.registered){ showErr('This invitation was already used. Please sign in instead.'); setTimeout(()=>window.location.href='/login.html',1800); return; }
     document.getElementById('who').textContent = invite.name || emailKey;
     document.getElementById('role-chip').textContent = (invite.role||'student').replace('_',' ');
     document.getElementById('nm').value = invite.name || '';
@@ -153,7 +153,7 @@ window.createAccount = async function(){
   }catch(e){
     const map={'auth/email-already-in-use':'This email is already registered. Please sign in.','auth/weak-password':'Password is too weak (min 6 characters).','auth/network-request-failed':'Network error. Try again.'};
     showErr(map[e.code] || ('Registration failed: '+(e.code||e.message)));
-    if(e.code==='auth/email-already-in-use') setTimeout(()=>window.location.href='index.html',1800);
+    if(e.code==='auth/email-already-in-use') setTimeout(()=>window.location.href='/login.html',1800);
     btn.disabled=false; btn.textContent='Create my account';
   }
 };

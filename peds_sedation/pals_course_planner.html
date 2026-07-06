@@ -137,7 +137,7 @@
   const INSTRUCTOR_ROLES = ['admin','lead_instructor','instructor'];
   let sess = null;
   try { sess = JSON.parse(sessionStorage.getItem('pals_sess_v2') || 'null'); } catch(e) {}
-  if (!sess) { location.replace('index.html'); throw new Error('auth'); }
+  if (!sess) { location.replace('/login.html'); throw new Error('auth'); }
   if (!INSTRUCTOR_ROLES.includes(sess.role)) { location.replace('hub_student.html'); throw new Error('auth'); }
 })();
 
