@@ -1,30 +1,31 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="he" dir="rtl" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pediatric Sedation Safety · Register</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<title>הרדמה בילדים · הרשמה לקורס</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>window.COURSE_NS='peds_';window.COURSE_BASE='/peds_sedation/';(function(){var p='peds_';try{var S=Storage.prototype,g=S.getItem,s=S.setItem,r=S.removeItem;S.getItem=function(k){return g.call(this,p+k)};S.setItem=function(k,v){return s.call(this,p+k,v)};S.removeItem=function(k){return r.call(this,p+k)};}catch(e){}})();</script>
 <script src="../firebase-config.js"></script>
 <style>
-:root{--p:#0891B2;--pd:#0e7490;--v:#7C3AED;--bg:#f0f9ff;--s:#fff;--s2:#f8fafc;--b:#bae6fd;--b2:#e2e8f0;--t:#0f172a;--tm:#475569;--tf:#94a3b8;--sh:0 4px 28px rgba(8,145,178,.13);--r:16px;--tr:all .2s ease}
+:root{--p:#0891B2;--pd:#0e7490;--bg:#f0f9ff;--s:#fff;--s2:#f8fafc;--b:#bae6fd;--b2:#e2e8f0;--t:#0f172a;--tm:#475569;--tf:#94a3b8;--sh:0 4px 28px rgba(8,145,178,.13);--r:16px;--tr:all .2s ease}
 [data-theme="dark"]{--bg:#07131f;--s:#0d2137;--s2:#102a45;--b:#1a3a5c;--b2:#1e3a5f;--t:#e0f4fc;--tm:#7db8d4;--tf:#2d5f82;--sh:0 4px 28px rgba(0,0,0,.5)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100dvh;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
+body{min-height:100dvh;font-family:'Heebo',system-ui,sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
 .wrap{width:100%;max-width:430px;display:flex;flex-direction:column;align-items:center}
 .logo-ring{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#0891B2,#34D399);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(8,145,178,.4);margin-bottom:1rem}
 .logo-ring svg{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
-.sub{font-family:'Instrument Serif',serif;font-size:.95rem;color:var(--tm);margin-bottom:1.4rem;font-style:italic;text-align:center}
+h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;text-align:center}
+.sub{font-size:.95rem;color:var(--tm);margin-bottom:1.4rem;text-align:center}
 .card{background:var(--s);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--b);width:100%;padding:1.75rem}
 .fl{margin-bottom:1rem}
 .fl label{display:block;font-size:.72rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
-.field{width:100%;padding:.72rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);font-family:'Inter',sans-serif;transition:var(--tr)}
+.field{width:100%;padding:.72rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);font-family:'Heebo',sans-serif;transition:var(--tr);text-align:right}
 .field:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(8,145,178,.15)}
 .field:disabled{opacity:.7}
+.field[type="email"]{direction:ltr;text-align:left}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;color:#fff;font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0891B2,#0284C7);transition:var(--tr)}
+.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;color:#fff;font-family:'Heebo',sans-serif;background:linear-gradient(135deg,#0891B2,#0284C7);transition:var(--tr)}
 .btn-go:hover{background:linear-gradient(135deg,#0e7490,#0369a1)}
 .btn-go:disabled{opacity:.6;cursor:not-allowed}
 .err{background:rgba(239,68,68,.09);color:#dc2626;border:1px solid rgba(239,68,68,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none}
@@ -38,41 +39,41 @@ h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
 <body>
 <div class="wrap">
   <div class="logo-ring"><svg width="32" height="32" viewBox="0 0 36 36"><path d="M18 4 L18 32 M4 18 L32 18" stroke-width="4"/><circle cx="18" cy="18" r="14" stroke-width="2"/></svg></div>
-  <h1>Pediatric Sedation Safety</h1>
-  <div class="sub">Course registration</div>
+  <h1>הרדמה בטוחה בילדים</h1>
+  <div class="sub">הרשמה לקורס</div>
   <div class="card">
     <div id="err" class="err"></div>
     <div id="ok" class="ok-msg"></div>
 
     <div class="fl">
-      <label for="em">Email address</label>
-      <input class="field" id="em" type="email" autocomplete="email" placeholder="you@hospital.org">
-    </div>
-    <div class="fl">
-      <label for="nm">Full name</label>
-      <input class="field" id="nm" type="text" autocomplete="name" placeholder="First Last">
+      <label for="nm">שם מלא</label>
+      <input class="field" id="nm" type="text" autocomplete="name" placeholder="שם פרטי ושם משפחה">
     </div>
     <div class="field-row">
       <div class="fl">
-        <label for="ph">Mobile number</label>
-        <input class="field" id="ph" type="tel" autocomplete="tel" placeholder="0501234567">
+        <label for="ph">מספר נייד</label>
+        <input class="field" id="ph" type="tel" autocomplete="tel" placeholder="050-1234567">
       </div>
       <div class="fl">
-        <label for="idn">ID number</label>
+        <label for="idn">תעודת זהות</label>
         <input class="field" id="idn" type="text" inputmode="numeric" autocomplete="off" placeholder="123456789">
       </div>
     </div>
+    <div class="fl">
+      <label for="em">כתובת אימייל</label>
+      <input class="field" id="em" type="email" autocomplete="email" placeholder="you@hospital.org">
+    </div>
     <hr class="divider">
     <div class="fl">
-      <label for="pw">Choose a password</label>
-      <input class="field" id="pw" type="password" autocomplete="new-password" placeholder="Minimum 6 characters">
+      <label for="pw">סיסמה</label>
+      <input class="field" id="pw" type="password" autocomplete="new-password" placeholder="לפחות 6 תווים" style="direction:ltr;text-align:left">
     </div>
     <div class="fl">
-      <label for="pw2">Confirm password</label>
-      <input class="field" id="pw2" type="password" autocomplete="new-password" placeholder="Repeat your password" onkeydown="if(event.key==='Enter')createAccount()">
+      <label for="pw2">אימות סיסמה</label>
+      <input class="field" id="pw2" type="password" autocomplete="new-password" placeholder="חזור על הסיסמה" style="direction:ltr;text-align:left" onkeydown="if(event.key==='Enter')createAccount()">
     </div>
-    <button class="btn-go" id="create-btn" onclick="createAccount()">Create my account</button>
-    <p class="note">Already registered? <a href="/login.html">Sign in here</a>.</p>
+    <button class="btn-go" id="create-btn" onclick="createAccount()">יצירת חשבון</button>
+    <p class="note">כבר רשום? <a href="/login.html">כניסה למערכת</a></p>
   </div>
 </div>
 
@@ -100,31 +101,32 @@ onAuthStateChanged(auth, async (u)=>{
 
 window.createAccount = async function(){
   clearMsg();
-  const email = (document.getElementById('em').value||'').trim().toLowerCase();
   const fullName = (document.getElementById('nm').value||'').trim();
-  const phone = (document.getElementById('ph').value||'').trim();
+  const phone    = (document.getElementById('ph').value||'').trim();
   const idNumber = (document.getElementById('idn').value||'').trim();
-  const pw = document.getElementById('pw').value;
-  const pw2 = document.getElementById('pw2').value;
+  const email    = (document.getElementById('em').value||'').trim().toLowerCase();
+  const pw       = document.getElementById('pw').value;
+  const pw2      = document.getElementById('pw2').value;
 
-  if(!email || !email.includes('@')){ showErr('Please enter a valid email address.'); return; }
-  if(!fullName){ showErr('Please enter your full name.'); return; }
-  if(!phone){ showErr('Please enter your mobile number.'); return; }
-  if(!idNumber){ showErr('Please enter your ID number.'); return; }
-  if(pw.length<6){ showErr('Password must be at least 6 characters.'); return; }
-  if(pw!==pw2){ showErr('Passwords do not match.'); return; }
+  if(!fullName)                      { showErr('נא להזין שם מלא.'); return; }
+  if(!phone)                         { showErr('נא להזין מספר נייד.'); return; }
+  if(!idNumber)                      { showErr('נא להזין מספר תעודת זהות.'); return; }
+  if(!email || !email.includes('@')) { showErr('נא להזין כתובת אימייל תקינה.'); return; }
+  if(pw.length < 6)                  { showErr('הסיסמה חייבת להכיל לפחות 6 תווים.'); return; }
+  if(pw !== pw2)                     { showErr('הסיסמאות אינן תואמות.'); return; }
 
-  const btn=document.getElementById('create-btn'); btn.disabled=true; btn.textContent='Creating account…';
+  const btn = document.getElementById('create-btn');
+  btn.disabled = true; btn.textContent = 'יוצר חשבון…';
   try{
     const cred = await createUserWithEmailAndPassword(auth, email, pw);
     const uid = cred.user.uid;
     const role = 'student';
     const _parts = fullName.split(/\s+/);
-    await setDoc(doc(db,NS+'users',uid), {
+    await setDoc(doc(db, NS+'users', uid), {
       uid, email,
       name: fullName,
       firstName: _parts[0] || '',
-      lastName: _parts.slice(1).join(' ') || '',
+      lastName:  _parts.slice(1).join(' ') || '',
       role,
       phone,
       idNumber,
@@ -134,13 +136,18 @@ window.createAccount = async function(){
       progress: {}
     });
     try{ sessionStorage.setItem(SK, JSON.stringify({ uid, role, name: fullName, email, ts: Date.now() })); }catch(e){}
-    okEl.textContent='✅ Account created! Redirecting…'; okEl.style.display='block';
+    okEl.textContent = '✅ החשבון נוצר! מעביר אותך למערכת…'; okEl.style.display = 'block';
     setTimeout(()=>redir(role), 1200);
   }catch(e){
-    const map={'auth/email-already-in-use':'This email is already registered. Please sign in.','auth/weak-password':'Password is too weak (min 6 characters).','auth/network-request-failed':'Network error. Try again.'};
-    showErr(map[e.code] || ('Registration failed: '+(e.code||e.message)));
-    if(e.code==='auth/email-already-in-use') setTimeout(()=>window.location.href='/login.html',1800);
-    btn.disabled=false; btn.textContent='Create my account';
+    const map = {
+      'auth/email-already-in-use':    'כתובת האימייל כבר רשומה במערכת. נא להתחבר.',
+      'auth/weak-password':           'הסיסמה חלשה מדי (לפחות 6 תווים).',
+      'auth/network-request-failed':  'שגיאת רשת. נסה שוב.',
+      'auth/invalid-email':           'כתובת האימייל אינה תקינה.'
+    };
+    showErr(map[e.code] || ('ההרשמה נכשלה: ' + (e.code || e.message)));
+    if(e.code === 'auth/email-already-in-use') setTimeout(()=>window.location.href='/login.html', 1800);
+    btn.disabled = false; btn.textContent = 'יצירת חשבון';
   }
 };
 </script>
