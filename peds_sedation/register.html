@@ -73,6 +73,7 @@ h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;tex
       <input class="field" id="pw2" type="password" autocomplete="new-password" placeholder="חזור על הסיסמה" style="direction:ltr;text-align:left" onkeydown="if(event.key==='Enter')createAccount()">
     </div>
     <button class="btn-go" id="create-btn" onclick="createAccount()">יצירת חשבון</button>
+    <p class="note" style="margin-top:.5rem">משתתפי PALS קיימים — השאירו סיסמה ריקה</p>
     <p class="note">כבר רשום? <a href="/login.html">כניסה למערכת</a></p>
   </div>
 </div>
@@ -108,51 +109,55 @@ window.createAccount = async function(){
   const pw       = document.getElementById('pw').value;
   const pw2      = document.getElementById('pw2').value;
 
+  // These four fields are mandatory for ALL paths — new accounts and existing-account links.
   if(!fullName)                      { showErr('נא להזין שם מלא.'); return; }
   if(!phone)                         { showErr('נא להזין מספר נייד.'); return; }
   if(!idNumber)                      { showErr('נא להזין מספר תעודת זהות.'); return; }
   if(!email || !email.includes('@')) { showErr('נא להזין כתובת אימייל תקינה.'); return; }
-  if(pw.length < 6)                  { showErr('הסיסמה חייבת להכיל לפחות 6 תווים.'); return; }
-  if(pw !== pw2)                     { showErr('הסיסמאות אינן תואמות.'); return; }
 
   const btn = document.getElementById('create-btn');
   btn.disabled = true; btn.textContent = 'יוצר חשבון…';
-  try{
-    const cred = await createUserWithEmailAndPassword(auth, email, pw);
-    const uid = cred.user.uid;
-    const role = 'student';
-    const _parts = fullName.split(/\s+/);
-    await setDoc(doc(db, NS+'users', uid), {
-      uid, email,
-      name: fullName,
-      firstName: _parts[0] || '',
-      lastName:  _parts.slice(1).join(' ') || '',
-      role,
-      phone,
-      idNumber,
-      cohort: 'Unassigned',
-      createdAt: serverTimestamp(),
-      viaInvite: false,
-      progress: {}
-    });
-    // Mirror to allowlist so this person appears in WhatsApp / SMS messaging lists.
-    try {
-      await setDoc(doc(db, NS+'allowlist', email), {
+  const _parts = fullName.split(/\s+/);
+
+  // Password is only required when creating a brand-new account.
+  // Existing-account holders (e.g. PALS participants) may leave the password
+  // blank — they are linked to the sedation course without a new password.
+  const wantsNewAccount = pw.length > 0;
+
+  try {
+    if(wantsNewAccount) {
+      if(pw.length < 6) { showErr('הסיסמה חייבת להכיל לפחות 6 תווים.'); btn.disabled=false; btn.textContent='יצירת חשבון'; return; }
+      if(pw !== pw2)    { showErr('הסיסמאות אינן תואמות.'); btn.disabled=false; btn.textContent='יצירת חשבון'; return; }
+      const cred = await createUserWithEmailAndPassword(auth, email, pw);
+      const uid = cred.user.uid;
+      const role = 'student';
+      await setDoc(doc(db, NS+'users', uid), {
+        uid, email,
         name: fullName, firstName: _parts[0]||'', lastName: _parts.slice(1).join(' ')||'',
-        email, phone, idNumber, role: 'student', cohort: 'Unassigned',
-        registered: true, selfRegistered: true, registeredAt: serverTimestamp()
-      }, { merge: true });
-    } catch(ae){}
-    try{ sessionStorage.setItem(SK, JSON.stringify({ uid, role, name: fullName, email, ts: Date.now() })); }catch(e){}
-    okEl.textContent = '✅ החשבון נוצר! מעביר אותך למערכת…'; okEl.style.display = 'block';
-    setTimeout(()=>redir(role), 1200);
-  }catch(e){
+        role, phone, idNumber, cohort: 'Unassigned',
+        createdAt: serverTimestamp(), viaInvite: false, progress: {}
+      });
+      // Mirror to allowlist so this person appears in WhatsApp / SMS messaging lists.
+      try {
+        await setDoc(doc(db, NS+'allowlist', email), {
+          name: fullName, firstName: _parts[0]||'', lastName: _parts.slice(1).join(' ')||'',
+          email, phone, idNumber, role: 'student', cohort: 'Unassigned',
+          registered: true, selfRegistered: true, registeredAt: serverTimestamp()
+        }, { merge: true });
+      } catch(ae){}
+      try{ sessionStorage.setItem(SK, JSON.stringify({ uid, role, name: fullName, email, ts: Date.now() })); }catch(e){}
+      okEl.textContent = '✅ החשבון נוצר! מעביר אותך למערכת…'; okEl.style.display = 'block';
+      setTimeout(()=>redir(role), 1200);
+      return;
+    }
+    // No password entered → treat as existing-account cross-course enrollment.
+    throw { code: 'auth/email-already-in-use' };
+  } catch(e) {
     if(e.code === 'auth/email-already-in-use'){
-      // Existing Firebase Auth account (e.g. PALS course participant or instructor).
-      // Try to enrol them as a student in peds_sedation using the form data they submitted.
+      // Existing Firebase Auth account (e.g. PALS participant or instructor).
+      // Enrol them in peds_sedation using the mandatory form data they just submitted.
       btn.textContent = 'מחפש חשבון קיים…';
       try {
-        const _parts = fullName.split(/\s+/);
         // Check if already enrolled in peds_sedation.
         const pedsSnap = await getDocs(query(collection(db, NS+'users'), where('email','==',email)));
         if(!pedsSnap.empty){
@@ -167,6 +172,13 @@ window.createAccount = async function(){
           const palsSnap = await getDocs(query(collection(db, 'users'), where('email','==',email)));
           if(!palsSnap.empty) linkedUid = palsSnap.docs[0].id;
         } catch(_){}
+        // If the email is not in any system and the user left the password blank,
+        // we cannot create an account — ask them to set a password.
+        if(!linkedUid && !wantsNewAccount){
+          showErr('האימייל לא נמצא במערכת. אנא הזן סיסמה חדשה כדי ליצור חשבון.');
+          btn.disabled=false; btn.textContent='יצירת חשבון';
+          return;
+        }
         // Write to allowlist regardless (email as doc ID, no UID required).
         await setDoc(doc(db, NS+'allowlist', email), {
           name: fullName, firstName: _parts[0]||'', lastName: _parts.slice(1).join(' ')||'',
@@ -195,9 +207,9 @@ window.createAccount = async function(){
       return;
     }
     const map = {
-      'auth/weak-password':           'הסיסמה חלשה מדי (לפחות 6 תווים).',
-      'auth/network-request-failed':  'שגיאת רשת. נסה שוב.',
-      'auth/invalid-email':           'כתובת האימייל אינה תקינה.'
+      'auth/weak-password':          'הסיסמה חלשה מדי (לפחות 6 תווים).',
+      'auth/network-request-failed': 'שגיאת רשת. נסה שוב.',
+      'auth/invalid-email':          'כתובת האימייל אינה תקינה.'
     };
     showErr(map[e.code] || ('ההרשמה נכשלה: ' + (e.code || e.message)));
     btn.disabled = false; btn.textContent = 'יצירת חשבון';
