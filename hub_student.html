@@ -456,11 +456,13 @@ function showPlanPop(updatedAt){
 // Route the student to their cohort's course plan (coursePlan/c_<key>),
 // falling back to the default plan (coursePlan/current) when their cohort has
 // no custom plan yet. Honors the per-cohort course length via plan.days.
+// Same hash logic as plannerCohortKey in the planner — handles non-ASCII names (e.g. Hebrew).
+function cohortSlug(fb, name){ const k=(fb&&fb.cohortKey)?fb.cohortKey(name):''; if(k) return k; if(!name) return ''; let h=0; for(let i=0;i<name.length;i++) h=(Math.imul(31,h)+name.charCodeAt(i))|0; return 'k'+Math.abs(h).toString(36); }
 let _planWatchUnsub=null;
 async function initStudentPlanWatch(){
   const fb=window.FB; if(!fb||!fb.watchCoursePlan) return;
   let cohortKey='';
-  try{ if(fb.loadMyCohort && fb.cohortKey){ cohortKey = fb.cohortKey(await fb.loadMyCohort()); } }catch(e){}
+  try{ if(fb.loadMyCohort){ cohortKey = cohortSlug(fb, await fb.loadMyCohort()); } }catch(e){}
   let triedFallback = !cohortKey;
   const watch=(key)=>{
     if(_planWatchUnsub){ try{ _planWatchUnsub(); }catch(e){} }
@@ -494,7 +496,7 @@ function applyFlags(){
 }
 async function initCohortFlagsWatch(){
   const fb = window.FB; if(!fb) return;
-  try{ if(fb.loadMyCohort && fb.cohortKey){ _studentCohortKey = fb.cohortKey(await fb.loadMyCohort()); } }catch(e){}
+  try{ if(fb.loadMyCohort){ _studentCohortKey = cohortSlug(fb, await fb.loadMyCohort()); } }catch(e){}
   if(_studentCohortKey && fb.watchCohortFlags){
     fb.watchCohortFlags(_studentCohortKey, data=>{ _cohortFlags = data; applyFlags(); });
   }

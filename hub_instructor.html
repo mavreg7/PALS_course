@@ -1764,8 +1764,7 @@ function populateCohortFilter() {
 function populateAttCohorts(){
   const sel = document.getElementById('att-cohort'); if(!sel) return;
   const fb = window.FB;
-  const slug = n => (fb && fb.cohortKey) ? fb.cohortKey(n)
-    : String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+  const slug = n => { const k=(fb&&fb.cohortKey)?fb.cohortKey(n):''; if(k) return k; if(!n) return ''; let h=0,s=String(n); for(let i=0;i<s.length;i++) h=(Math.imul(31,h)+s.charCodeAt(i))|0; return 'k'+Math.abs(h).toString(36); };
   const cur = sel.value;
   sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
   const seen = new Set();
