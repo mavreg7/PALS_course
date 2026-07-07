@@ -1165,6 +1165,7 @@ let allUsers    = {};
 let _attByUid   = {};                 // uid → Set of attendance day labels ("Day 1"…)
 let allPending  = [];                 // invited (allowlist) people not yet registered
 let _allowlistDocs = [];              // raw allowlist snapshot {id,data}
+let _cohortRegistry = [];             // cohort names from courseFlags/_cohorts
 let _pendingCohort = 'Unassigned';    // scope cohort for a plain instructor
 let _pendingSeesAll = false;
 let seesAll     = false;              // admin / lead instructor → cross-cohort
@@ -1565,15 +1566,32 @@ async function taSave(){
 function populateCohortOptions() {
   const dl = document.getElementById('cohort-options');
   if (!dl) return;
-  const cohorts = [...new Set(Object.values(allUsers).map(u => (u.cohort || '').trim()).filter(Boolean))].sort();
+  const fromUsers = Object.values(allUsers).map(u => (u.cohort || '').trim()).filter(Boolean);
+  const fromReg   = _cohortRegistry.filter(n => n && n.toLowerCase() !== 'unassigned');
+  const cohorts   = [...new Set([...fromUsers, ...fromReg])].sort();
   dl.innerHTML = cohorts.map(c => `<option value="${c}"></option>`).join('');
+}
+
+async function loadCohortRegistry() {
+  try {
+    if(window.FB && window.FB.loadCohortRegistry){
+      _cohortRegistry = (await window.FB.loadCohortRegistry()) || [];
+    } else {
+      const snap = await getDoc(doc(db,(window.COURSE_NS||'')+'courseFlags','_cohorts'));
+      _cohortRegistry = snap.exists() ? (snap.data().names || []) : [];
+    }
+    try{ populateCohortOptions(); }catch(e){}
+    try{ populateCohortFilter(); }catch(e){}
+  } catch(e){ _cohortRegistry = []; }
 }
 
 // ── Cohort isolation: each cohort is viewed as its own section ──────────────
 let activeCohort = (()=>{ try { return localStorage.getItem('pals_active_cohort') || 'ALL'; } catch(e) { return 'ALL'; } })();
 
 function cohortList() {
-  return [...new Set(allStudents.map(s => s.cohort || 'Unassigned'))].sort();
+  const fromUsers = allStudents.map(s => s.cohort || 'Unassigned');
+  const fromReg   = _cohortRegistry.filter(n => n && n.toLowerCase() !== 'unassigned');
+  return [...new Set([...fromUsers, ...fromReg])].sort();
 }
 function populateCohortFilter() {
   const sel = document.getElementById('cohort-filter');
@@ -2068,6 +2086,7 @@ function loadInstructorData(){
   _instrDataLoaded = true;
   try{ loadRoster(); }catch(e){}
   try{ loadPending(); }catch(e){}
+  try{ loadCohortRegistry(); }catch(e){}
   try{ watchUsers(); }catch(e){}
   try{ watchStudents(); }catch(e){}
   try{ watchTeachingPlan(); }catch(e){}
