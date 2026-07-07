@@ -16,25 +16,22 @@ body{min-height:100dvh;font-family:'Inter',system-ui,sans-serif;background:var(-
 .logo-ring{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#0891B2,#34D399);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(8,145,178,.4);margin-bottom:1rem}
 .logo-ring svg{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
-.sub{font-family:'Instrument Serif',serif;font-size:.95rem;color:var(--tm);margin-bottom:1.4rem;font-style:italic}
+.sub{font-family:'Instrument Serif',serif;font-size:.95rem;color:var(--tm);margin-bottom:1.4rem;font-style:italic;text-align:center}
 .card{background:var(--s);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--b);width:100%;padding:1.75rem}
 .fl{margin-bottom:1rem}
 .fl label{display:block;font-size:.72rem;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.35rem}
-.field{width:100%;padding:.72rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);font-family:'Inter',sans-serif}
+.field{width:100%;padding:.72rem 1rem;border:1.5px solid var(--b2);border-radius:9px;font-size:.93rem;background:var(--s2);color:var(--t);font-family:'Inter',sans-serif;transition:var(--tr)}
 .field:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(8,145,178,.15)}
 .field:disabled{opacity:.7}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;color:#fff;font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0891B2,#0284C7)}
+.btn-go{width:100%;padding:.85rem;border-radius:11px;font-weight:700;font-size:.95rem;border:none;cursor:pointer;margin-top:.35rem;color:#fff;font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0891B2,#0284C7);transition:var(--tr)}
 .btn-go:hover{background:linear-gradient(135deg,#0e7490,#0369a1)}
 .btn-go:disabled{opacity:.6;cursor:not-allowed}
 .err{background:rgba(239,68,68,.09);color:#dc2626;border:1px solid rgba(239,68,68,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none}
 .ok-msg{background:rgba(34,197,94,.09);color:#15803d;border:1px solid rgba(34,197,94,.22);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;font-weight:600;margin-bottom:.9rem;display:none}
-.rolechip{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(8,145,178,.12);color:var(--pd);text-transform:capitalize}
 .note{font-size:.76rem;color:var(--tf);text-align:center;margin-top:1rem;line-height:1.5}
 .note a{color:var(--p);font-weight:600}
-#step2{display:none}
-.spinner{width:30px;height:30px;border:3px solid var(--b);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
-@keyframes spin{to{transform:rotate(360deg)}}
+.divider{border:none;border-top:1px solid var(--b2);margin:.75rem 0}
 @media(max-width:400px){.field-row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -42,41 +39,40 @@ h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem}
 <div class="wrap">
   <div class="logo-ring"><svg width="32" height="32" viewBox="0 0 36 36"><path d="M18 4 L18 32 M4 18 L32 18" stroke-width="4"/><circle cx="18" cy="18" r="14" stroke-width="2"/></svg></div>
   <h1>Pediatric Sedation Safety</h1>
-  <div class="sub">Course registration — invited participants</div>
+  <div class="sub">Course registration</div>
   <div class="card">
     <div id="err" class="err"></div>
     <div id="ok" class="ok-msg"></div>
 
-    <!-- STEP 1: verify invite by email -->
-    <div id="step1">
-      <div class="fl">
-        <label for="em">Your email address</label>
-        <input class="field" id="em" type="email" autocomplete="email" placeholder="you@hospital.org" onkeydown="if(event.key==='Enter')checkInvite()">
-      </div>
-      <button class="btn-go" id="check-btn" onclick="checkInvite()">Check my invitation</button>
-      <p class="note">Use the email your course administrator registered. Not on the list? <a href="/login.html">Contact your instructor</a>.</p>
+    <div class="fl">
+      <label for="em">Email address</label>
+      <input class="field" id="em" type="email" autocomplete="email" placeholder="you@hospital.org">
     </div>
-
-    <!-- STEP 2: set password -->
-    <div id="step2">
-      <div class="fl">
-        <label>You're enrolled as</label>
-        <div><strong id="who"></strong> &nbsp; <span class="rolechip" id="role-chip"></span></div>
-      </div>
-      <div class="fl">
-        <label for="nm">Your full name</label>
-        <input class="field" id="nm" type="text" autocomplete="name" placeholder="First Last">
-      </div>
-      <div class="fl">
-        <label for="pw">Choose a password</label>
-        <input class="field" id="pw" type="password" autocomplete="new-password" placeholder="Minimum 6 characters">
-      </div>
-      <div class="fl">
-        <label for="pw2">Confirm password</label>
-        <input class="field" id="pw2" type="password" autocomplete="new-password" placeholder="Repeat your password" onkeydown="if(event.key==='Enter')createAccount()">
-      </div>
-      <button class="btn-go" id="create-btn" onclick="createAccount()">Create my account</button>
+    <div class="fl">
+      <label for="nm">Full name</label>
+      <input class="field" id="nm" type="text" autocomplete="name" placeholder="First Last">
     </div>
+    <div class="field-row">
+      <div class="fl">
+        <label for="ph">Mobile number</label>
+        <input class="field" id="ph" type="tel" autocomplete="tel" placeholder="0501234567">
+      </div>
+      <div class="fl">
+        <label for="idn">ID number</label>
+        <input class="field" id="idn" type="text" inputmode="numeric" autocomplete="off" placeholder="123456789">
+      </div>
+    </div>
+    <hr class="divider">
+    <div class="fl">
+      <label for="pw">Choose a password</label>
+      <input class="field" id="pw" type="password" autocomplete="new-password" placeholder="Minimum 6 characters">
+    </div>
+    <div class="fl">
+      <label for="pw2">Confirm password</label>
+      <input class="field" id="pw2" type="password" autocomplete="new-password" placeholder="Repeat your password" onkeydown="if(event.key==='Enter')createAccount()">
+    </div>
+    <button class="btn-go" id="create-btn" onclick="createAccount()">Create my account</button>
+    <p class="note">Already registered? <a href="/login.html">Sign in here</a>.</p>
   </div>
 </div>
 
@@ -90,64 +86,54 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const SK = 'pals_sess_v2';
 const INSTRUCTOR_ROLES = ['admin','lead_instructor','instructor'];
+const NS = window.COURSE_NS || '';
 
-let invite = null, emailKey = '';
 const errEl = document.getElementById('err'), okEl = document.getElementById('ok');
 function showErr(m){ errEl.textContent = m; errEl.style.display='block'; okEl.style.display='none'; }
 function clearMsg(){ errEl.style.display='none'; okEl.style.display='none'; }
 function redir(role){ window.location.href = INSTRUCTOR_ROLES.includes(role) ? 'hub_instructor.html' : 'hub_student.html'; }
 
-// Already signed in? go to the right hub
 onAuthStateChanged(auth, async (u)=>{
   if(!u) return;
-  try{ const s=await getDoc(doc(db,(window.COURSE_NS||'')+'users',u.uid)); if(s.exists()){ redir(s.data().role||'student'); } }catch(e){}
+  try{ const s=await getDoc(doc(db,NS+'users',u.uid)); if(s.exists()){ redir(s.data().role||'student'); } }catch(e){}
 });
-
-window.checkInvite = async function(){
-  clearMsg();
-  emailKey = document.getElementById('em').value.trim().toLowerCase();
-  if(!emailKey || !emailKey.includes('@')){ showErr('Please enter a valid email address.'); return; }
-  const btn=document.getElementById('check-btn'); btn.disabled=true; btn.textContent='Checking…';
-  try{
-    const snap = await getDoc(doc(db,(window.COURSE_NS||'')+'allowlist',emailKey));
-    if(!snap.exists()){ showErr('This email is not on the course list. Please contact your instructor.'); btn.disabled=false; btn.textContent='Check my invitation'; return; }
-    invite = snap.data();
-    if(invite.registered){ showErr('This invitation was already used. Please sign in instead.'); setTimeout(()=>window.location.href='/login.html',1800); return; }
-    document.getElementById('who').textContent = invite.name || emailKey;
-    document.getElementById('role-chip').textContent = (invite.role||'student').replace('_',' ');
-    document.getElementById('nm').value = invite.name || '';
-    document.getElementById('step1').style.display='none';
-    document.getElementById('step2').style.display='block';
-    document.getElementById((invite.name?'pw':'nm')).focus();
-  }catch(e){ showErr('Could not verify invitation: '+e.message); btn.disabled=false; btn.textContent='Check my invitation'; }
-};
 
 window.createAccount = async function(){
   clearMsg();
-  const pw=document.getElementById('pw').value, pw2=document.getElementById('pw2').value;
-  const fullName=(document.getElementById('nm').value||'').trim();
+  const email = (document.getElementById('em').value||'').trim().toLowerCase();
+  const fullName = (document.getElementById('nm').value||'').trim();
+  const phone = (document.getElementById('ph').value||'').trim();
+  const idNumber = (document.getElementById('idn').value||'').trim();
+  const pw = document.getElementById('pw').value;
+  const pw2 = document.getElementById('pw2').value;
+
+  if(!email || !email.includes('@')){ showErr('Please enter a valid email address.'); return; }
   if(!fullName){ showErr('Please enter your full name.'); return; }
+  if(!phone){ showErr('Please enter your mobile number.'); return; }
+  if(!idNumber){ showErr('Please enter your ID number.'); return; }
   if(pw.length<6){ showErr('Password must be at least 6 characters.'); return; }
   if(pw!==pw2){ showErr('Passwords do not match.'); return; }
+
   const btn=document.getElementById('create-btn'); btn.disabled=true; btn.textContent='Creating account…';
   try{
-    const cred = await createUserWithEmailAndPassword(auth, emailKey, pw);
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
     const uid = cred.user.uid;
-    const role = invite.role || 'student';
-    const _parts=fullName.split(/\s+/);
-    await setDoc(doc(db,(window.COURSE_NS||'')+'users',uid), {
-      uid, email: emailKey,
+    const role = 'student';
+    const _parts = fullName.split(/\s+/);
+    await setDoc(doc(db,NS+'users',uid), {
+      uid, email,
       name: fullName,
-      firstName: invite.firstName || _parts[0] || '',
-      lastName:  invite.lastName  || _parts.slice(1).join(' ') || '',
+      firstName: _parts[0] || '',
+      lastName: _parts.slice(1).join(' ') || '',
       role,
-      cohort: invite.cohort || 'Unassigned',
+      phone,
+      idNumber,
+      cohort: 'Unassigned',
       createdAt: serverTimestamp(),
-      viaInvite: true,
+      viaInvite: false,
       progress: {}
     });
-    await setDoc(doc(db,(window.COURSE_NS||'')+'allowlist',emailKey), { registered: true, registeredAt: serverTimestamp() }, { merge: true });
-    try{ sessionStorage.setItem(SK, JSON.stringify({ uid, role, name: fullName, email: emailKey, ts: Date.now() })); }catch(e){}
+    try{ sessionStorage.setItem(SK, JSON.stringify({ uid, role, name: fullName, email, ts: Date.now() })); }catch(e){}
     okEl.textContent='✅ Account created! Redirecting…'; okEl.style.display='block';
     setTimeout(()=>redir(role), 1200);
   }catch(e){
