@@ -385,12 +385,15 @@ function addSession(d){const nt=planLang==='he'?'מקטע חדש':'New session';
 // they get a pop-up whenever it changes. A content signature (`sig`) drives
 // student change-detection so simply re-opening the planner never triggers a
 // false "updated" notification. Debounced to coalesce rapid edits.
-let _publishTimer=null;
+let _publishTimer=null,_publishResolve=null;
 function currentMeta(){try{return JSON.parse(localStorage.getItem('pals2025_course_meta')||'{}')}catch(e){return{}}}
 function publishPlan(){
   clearTimeout(_publishTimer);
+  if(_publishResolve){_publishResolve(true);_publishResolve=null;}
   return new Promise(resolve=>{
+    _publishResolve=resolve;
     _publishTimer=setTimeout(async()=>{
+      _publishResolve=null;
       const m=currentMeta();
       const sig=JSON.stringify({schedule, days:courseDays, cohort:currentCohortKey, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
       if(sig===localStorage.getItem('pals_plan_pub_sig')){ resolve(true); return; }
@@ -448,7 +451,6 @@ window.onCohortChange = function(key){
     const name = (prompt('Name the new cohort (e.g. "July 2026 – 1 day"):')||'').trim();
     if(!name){ if(sel) sel.value = currentCohortKey||''; return; }
     const k = plannerCohortKey(name);
-    if(!k){ alert('Please use a name with letters or numbers.'); if(sel) sel.value = currentCohortKey||''; return; }
     Promise.resolve(fb && fb.addCohort ? fb.addCohort(name) : null)
       .finally(()=>{ populateCohorts().finally(()=>{ if(sel) sel.value = k; onCohortChange(k); }); });
     return;
@@ -477,9 +479,10 @@ async function populateCohorts(){
   names.forEach(n => { const k = plannerCohortKey(n); if(!k || seen.has(k)) return; seen.add(k);
     const o = document.createElement('option'); o.value = k; o.textContent = n; sel.appendChild(o); });
   const nw = document.createElement('option'); nw.value = '__new__'; nw.textContent = '➕ New cohort…'; sel.appendChild(nw);
+  if(!names.length) return;  // data failed to load — preserve existing selection unchanged
   const restoredKey = [...sel.options].some(o => o.value===cur && o.value!=='__new__') ? cur : '';
   sel.value = restoredKey;
-  if(restoredKey !== currentCohortKey){ currentCohortKey = restoredKey; try{ localStorage.setItem(COHORT_KEY_STORAGE,restoredKey); }catch(e){} }
+  if(restoredKey !== currentCohortKey){ currentCohortKey = restoredKey; try{ localStorage.setItem(COHORT_KEY_STORAGE,restoredKey); }catch(e){} subscribePlan(); }
 }
 let _planUnsub=null;
 function subscribePlan(){
