@@ -97,6 +97,15 @@ function redir(role){ window.location.href = INSTRUCTOR_ROLES.includes(role) ? '
 
 onAuthStateChanged(auth, async (u)=>{
   if(!u) return;
+  // Only auto-redirect if this browser has an active peds session already stored.
+  // Without this check, an admin who is signed in would be bounced to hub_instructor
+  // the moment they visit the registration page to observe or test the student flow.
+  try{
+    const stored = sessionStorage.getItem(SK); // reads peds_pals_sess_v2 via shim
+    if(!stored) return;
+    const sess = JSON.parse(stored);
+    if(!sess || sess.uid !== u.uid) return;
+  }catch(e){ return; }
   try{ const s=await getDoc(doc(db,NS+'users',u.uid)); if(s.exists()){ redir(s.data().role||'student'); } }catch(e){}
 });
 
