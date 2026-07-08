@@ -312,6 +312,39 @@ async function fetchCourses(fbUser) {
             viaIndex:  true,
           });
         }
+      } else {
+        // No PALS profile — check if this is a peds-only self-registered user
+        // whose peds_users doc failed to write (e.g. due to a rule ordering issue).
+        // Recover by reading from peds_allowlist and recreating the profile.
+        try {
+          const email = (fbUser.email || '').toLowerCase();
+          const alSnap = await getDoc(doc(db, 'peds_allowlist', email));
+          if (alSnap.exists()) {
+            const al = alSnap.data();
+            const profile = {
+              uid: fbUser.uid, email,
+              name:      al.name      || fbUser.displayName || email,
+              firstName: al.firstName || '',
+              lastName:  al.lastName  || '',
+              role:      al.role      || 'student',
+              cohort:    al.cohort    || 'Unassigned',
+              phone:     al.phone     || '',
+              idNumber:  al.idNumber  || '',
+              createdAt: serverTimestamp(),
+              viaInvite: false, progress: {},
+            };
+            await setDoc(doc(db, 'peds_users', fbUser.uid), profile);
+            // Mark allowlist as registered now that the profile exists.
+            try { await setDoc(doc(db, 'peds_allowlist', email), { registered: true, registeredAt: serverTimestamp() }, { merge: true }); } catch(_){}
+            courses.push({
+              ns: 'peds_', key: 'peds',
+              name: 'Pediatric Sedation Safety',
+              subtitle: 'Pediatric Sedation Safety · Provider Course',
+              role: profile.role, cohort: profile.cohort,
+              name_display: profile.name, raw: profile,
+            });
+          }
+        } catch(re) { console.warn('[Login] peds allowlist recovery:', re.message); }
       }
     }
   } catch(e) { console.warn('[Login] Peds profile read:', e.message); }
