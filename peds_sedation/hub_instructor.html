@@ -2027,9 +2027,8 @@ async function sendPasswordReset() {
 }
 window.sendPasswordReset = sendPasswordReset;
 
-// Admin-only: set a user's password directly via a serverless function that
-// runs the Firebase Admin SDK. Tries the Vercel endpoint (/api/...) first, then
-// the Netlify endpoint (/.netlify/functions/...), so it works on either host.
+// Admin-only: set a user's password directly via the Vercel serverless
+// function (/api/set-user-password) that runs the Firebase Admin SDK.
 // The client sends the admin's ID token; the server re-checks the admin role.
 async function setUserPassword() {
   if (!editUid) return;
@@ -2049,7 +2048,7 @@ async function setUserPassword() {
     if (!auth.currentUser) throw new Error('Your session expired — please reload and sign in again.');
     const idToken = await auth.currentUser.getIdToken();
     const payload = JSON.stringify({ idToken, targetUid: editUid, newPassword: pw });
-    const endpoints = ['/api/set-user-password', '/.netlify/functions/set-user-password'];
+    const endpoints = ['/api/set-user-password'];
     let res = null, data = null;
     for (const url of endpoints) {
       try {
