@@ -1566,6 +1566,17 @@ async function applyBulkAssign(){
       if(role)   data.role   = role;
       const ref = r.type==='user' ? fsDoc(db,'users',r.id) : fsDoc(db,'allowlist',r.id);
       await updateDoc(ref, data);
+      // For a registered user, mirror the change onto their allowlist entry so the
+      // invited/pending list and the WhatsApp/SMS list (which read the allowlist)
+      // reflect the new cohort/role — same as the single-user Edit does.
+      if(r.type==='user' && r.email){
+        const parts = String(r.name||'').trim().split(/\s+/);
+        const mirror = { email:r.email, registered:true };
+        if(r.name){ mirror.name=r.name; mirror.firstName=parts[0]||''; mirror.lastName=parts.slice(1).join(' ')||''; }
+        if(cohort) mirror.cohort=cohort;
+        if(role)   mirror.role=role;
+        try{ await setDoc(doc(db,'allowlist',r.email), mirror, {merge:true}); }catch(_){}
+      }
       ok++;
     }catch(e){ fail++; if(errs.length<4) errs.push(r.email+': '+e.message); }
   }
