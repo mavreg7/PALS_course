@@ -109,7 +109,13 @@ h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;tex
 </style>
 </head>
 <body>
-<div id="auth-checking"><div class="spinner"></div></div>
+<div id="auth-checking">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:.6rem">
+    <div class="spinner"></div>
+    <p style="font-size:.78rem;color:var(--tm)">Signing you in…</p>
+    <a href="#" id="force-login-link" style="font-size:.75rem;color:var(--pals);text-decoration:none;margin-top:.25rem;opacity:.7">Sign in as a different account</a>
+  </div>
+</div>
 
 <div class="blob b1"></div>
 <div class="blob b2"></div>
@@ -165,7 +171,7 @@ h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;tex
       </svg>
       <span id="si-txt">Sign In</span>
     </button>
-    <p class="note">Accounts are created by your course administrator. Contact your instructor if you need access.</p>
+    <p class="note">PALS accounts are set up by your instructor. For Pediatric Sedation Safety, you can <a href="/peds_sedation/register.html" style="color:var(--pals);font-weight:600">self-register here</a>.</p>
   </div>
 </div>
 
@@ -505,6 +511,17 @@ window.showSignOut = async function() {
   location.hash = '';
   showLoginForm();
 };
+
+// ── "Sign in as different account" — escape the auto-route overlay ──
+async function forceShowLogin(e) {
+  if (e) e.preventDefault();
+  try { await signOut(auth); } catch(er) {}
+  try { sessionStorage.removeItem(SK); sessionStorage.removeItem('peds_' + SK); } catch(er) {}
+  const ov = document.getElementById('auth-checking');
+  if (ov) { ov.classList.add('hidden'); setTimeout(() => ov.remove(), 300); }
+  showLoginForm();
+}
+document.getElementById('force-login-link').addEventListener('click', forceShowLogin);
 </script>
 
 <script>
