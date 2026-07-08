@@ -677,6 +677,9 @@ if (!s) {
   document.getElementById('welcome-name').textContent = 'Welcome, ' + s.name;
   document.getElementById('user-badge').textContent = s.role === 'admin' ? 'ADMIN' : s.name.toUpperCase();
   document.getElementById('logout-btn').addEventListener('click', logout);
+  // Staff auto-enrolled from PALS arrive with no phone — prompt for a mobile so
+  // they can be reached on the course messaging list.
+  checkStaffPhone();
 
   // ── Inject "Create Student" card for admins only ─────────────
   if (s.role === 'admin') {
@@ -2350,6 +2353,60 @@ window.setFeedbackOpen = setFeedbackOpen;
 window.openAttendance  = openAttendance;
 window.closeAttendance = closeAttendance;
 
+// ── Staff mobile prompt ───────────────────────────────────────────────────────
+// PALS staff auto-enrolled into this course via login.html's bootstrap arrive
+// with no phone. Prompt for a mobile so they appear on the messaging list.
+async function checkStaffPhone() {
+  try {
+    const snap = await getDoc(doc(db,(window.COURSE_NS||'')+'users', s.uid));
+    if (!snap.exists()) return;
+    const d = snap.data();
+    if ((d.phone || '').trim()) return;   // already has a mobile
+    document.getElementById('sp-phone').value = '';
+    document.getElementById('staffphone-modal').style.display = 'flex';
+    document.getElementById('sp-save').addEventListener('click', () => saveStaffPhone(d));
+  } catch(e) { /* non-fatal: never block the hub on this */ }
+}
+async function saveStaffPhone(d) {
+  const err = document.getElementById('sp-err');
+  const btn = document.getElementById('sp-save');
+  const phone = (document.getElementById('sp-phone').value || '').trim();
+  if (!phone) { err.textContent = 'נא להזין מספר נייד.'; err.style.display = 'block'; return; }
+  err.style.display = 'none'; btn.disabled = true; btn.textContent = 'שומר…';
+  const email = (d.email || s.email || '').trim().toLowerCase();
+  try {
+    await setDoc(doc(db,(window.COURSE_NS||'')+'users', s.uid), { phone }, { merge: true });
+    // Mirror onto the allowlist so staff also show on the messaging list.
+    if (email) {
+      try {
+        await setDoc(doc(db,(window.COURSE_NS||'')+'allowlist', email), {
+          email, phone, name: d.name || s.name || email,
+          role: d.role || s.role || 'instructor',
+          cohort: d.cohort || 'Unassigned', registered: true,
+        }, { merge: true });
+      } catch(_){}
+    }
+    document.getElementById('staffphone-modal').style.display = 'none';
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'שמירה · Save';
+    err.textContent = 'השמירה נכשלה, נסה שוב. ' + (e.message || ''); err.style.display = 'block';
+  }
+}
+
 </script>
+
+<!-- Staff mobile prompt: shown when an instructor auto-enrolled from PALS has no phone -->
+<div id="staffphone-modal" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--surface);color:var(--text);max-width:420px;width:100%;border-radius:14px;padding:1.5rem;box-shadow:0 12px 44px rgba(0,0,0,.35);border:1px solid var(--border)">
+    <div style="font-size:1.7rem;text-align:center;margin-bottom:.4rem">📱</div>
+    <h3 dir="rtl" style="text-align:center;font-weight:800;margin:0 0 .15rem;font-size:1.15rem">הוספת מספר נייד</h3>
+    <h3 dir="ltr" style="text-align:center;font-weight:700;margin:0 0 .8rem;font-size:.95rem;color:var(--muted)">Add your mobile number</h3>
+    <p dir="rtl" style="font-size:.85rem;margin:.2rem 0 1rem;color:var(--muted)">כדי שנוכל ליצור איתך קשר ברשימת ההודעות של הקורס, נא להזין מספר נייד:</p>
+    <label dir="rtl" style="display:block;font-size:.8rem;font-weight:600;margin:.4rem 0 .2rem">מספר נייד · Mobile</label>
+    <input id="sp-phone" type="tel" dir="ltr" style="width:100%;padding:.6rem;border:1px solid var(--border);border-radius:9px;font-size:.95rem;box-sizing:border-box;background:var(--surface);color:var(--text)">
+    <div id="sp-err" dir="rtl" style="display:none;color:#b91c1c;font-size:.8rem;margin-top:.5rem"></div>
+    <button id="sp-save" style="width:100%;margin-top:1rem;padding:.65rem;border:none;border-radius:9px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer">שמירה · Save</button>
+  </div>
+</div>
 </body>
 </html>
