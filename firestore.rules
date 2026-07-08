@@ -222,7 +222,15 @@ service cloud.firestore {
     match /peds_allowlist/{email} {
       allow get:    if true;
       allow list:   if pedsIsStaff();
-      allow create, delete: if pedsIsStaff();
+      allow delete: if pedsIsStaff();
+      // Staff add invitees; a self-registering user may create ONLY their own
+      // entry (doc id must equal their auth email) and only as a student, so
+      // self-registered participants show up in the instructor roster/messaging.
+      allow create: if pedsIsStaff()
+        || ( request.auth != null
+             && request.auth.token.email == email
+             && request.resource.data.email == email
+             && request.resource.data.role == 'student' );
       allow update: if pedsIsStaff()
         || ( request.auth != null
              && request.auth.token.email == email
