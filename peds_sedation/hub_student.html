@@ -298,11 +298,14 @@ async function checkProfileComplete() {
     const d = snap.data();
     const nm = (d.name || '').trim();
     const email = (d.email || s.email || '').trim().toLowerCase();
-    // The orphan signal: no name, or the name is just the email address. Only
-    // these accounts are prompted — users with a real name are never nagged.
-    const nameless = !nm || nm.toLowerCase() === email;
-    if (!nameless) return;
-    document.getElementById('pf-name').value  = '';
+    // Prompt when the profile is incomplete: no real name (orphan recovery), OR a
+    // missing mobile / ID. This forces the phone requirement for everyone who
+    // reaches the hub without going through register.html — notably PALS users
+    // auto-enrolled via login.html's bootstrap, who never entered a phone.
+    const nameless   = !nm || nm.toLowerCase() === email;
+    const incomplete = nameless || !(d.phone || '').trim() || !(d.idNumber || '').trim();
+    if (!incomplete) return;
+    document.getElementById('pf-name').value  = nameless ? '' : nm;
     document.getElementById('pf-phone').value = d.phone || '';
     document.getElementById('pf-id').value    = d.idNumber || '';
     document.getElementById('profile-modal').style.display = 'flex';
