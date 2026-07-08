@@ -140,18 +140,25 @@ window.createAccount = async function(){
       const cred = await createUserWithEmailAndPassword(auth, email, pw);
       const uid = cred.user.uid;
       const role = 'student';
+      // Write allowlist FIRST with registered:false so the peds_users create rule
+      // (which requires the allowlist entry to exist) is satisfied.
+      try {
+        await setDoc(doc(db, NS+'allowlist', email), {
+          name: fullName, firstName: _parts[0]||'', lastName: _parts.slice(1).join(' ')||'',
+          email, phone, idNumber, role: 'student', cohort: 'Unassigned',
+          registered: false, selfRegistered: true, addedAt: serverTimestamp()
+        }, { merge: true });
+      } catch(ae){}
       await setDoc(doc(db, NS+'users', uid), {
         uid, email,
         name: fullName, firstName: _parts[0]||'', lastName: _parts.slice(1).join(' ')||'',
         role, phone, idNumber, cohort: 'Unassigned',
         createdAt: serverTimestamp(), viaInvite: false, progress: {}
       });
-      // Mirror to allowlist so this person appears in WhatsApp / SMS messaging lists.
+      // Mark as fully registered now that the profile doc exists.
       try {
         await setDoc(doc(db, NS+'allowlist', email), {
-          name: fullName, firstName: _parts[0]||'', lastName: _parts.slice(1).join(' ')||'',
-          email, phone, idNumber, role: 'student', cohort: 'Unassigned',
-          registered: true, selfRegistered: true, registeredAt: serverTimestamp()
+          registered: true, registeredAt: serverTimestamp()
         }, { merge: true });
       } catch(ae){}
       try{ sessionStorage.setItem(SK, JSON.stringify({ uid, role, name: fullName, email, ts: Date.now() })); }catch(e){}
