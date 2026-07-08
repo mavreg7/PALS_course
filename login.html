@@ -274,31 +274,32 @@ async function fetchCourses(fbUser) {
         raw:      d,
       });
     } else {
-      // Bootstrap: a PALS admin auto-gets peds admin profile
+      // Bootstrap: any PALS user who lacks a peds profile gets one on first login.
+      // Admins keep admin; everyone else starts as student (role can be elevated manually).
       const pals = courses.find(c => c.ns === '');
-      if (pals && pals.role === 'admin') {
-        const bootstrapped = await bootstrapPedsAdmin(fbUser, pals.raw);
+      if (pals) {
+        const pedsRole = pals.role === 'admin' ? 'admin' : 'student';
+        const bootstrapped = await bootstrapPedsProfile(fbUser, pals.raw, pedsRole);
         if (bootstrapped) {
           courses.push({
             ns:       'peds_',
             key:      'peds',
             name:     'Pediatric Sedation Safety',
             subtitle: 'Pediatric Sedation Safety · Provider Course',
-            role:     'admin',
-            cohort:   'Admin',
+            role:     pedsRole,
+            cohort:   pedsRole === 'admin' ? 'Admin' : 'Unassigned',
             name_display: bootstrapped.name,
             raw:      bootstrapped,
           });
         } else {
-          // Bootstrap write failed (rules not yet deployed in Firebase).
-          // Still show the peds card — routing to peds/index.html lets its
-          // own onAuthStateChanged handle setup once rules go live.
+          // Bootstrap write failed — still surface the peds card so the user
+          // can reach the registration page or contact their instructor.
           courses.push({
             ns:        'peds_',
             key:       'peds',
             name:      'Pediatric Sedation Safety',
             subtitle:  'Pediatric Sedation Safety · Provider Course',
-            role:      'admin',
+            role:      pedsRole,
             cohort:    '',
             name_display: pals.name_display,
             raw:       {},
@@ -312,8 +313,8 @@ async function fetchCourses(fbUser) {
   return courses;
 }
 
-// ── Auto-create peds admin profile for a PALS admin ──────
-async function bootstrapPedsAdmin(fbUser, palsData) {
+// ── Auto-create peds profile for any PALS user on first login ──
+async function bootstrapPedsProfile(fbUser, palsData, role) {
   try {
     const profile = {
       uid:       fbUser.uid,
@@ -321,8 +322,8 @@ async function bootstrapPedsAdmin(fbUser, palsData) {
       name:      palsData.name || palsData.displayName || fbUser.email,
       firstName: palsData.firstName || '',
       lastName:  palsData.lastName  || '',
-      role:      'admin',
-      cohort:    'Admin',
+      role,
+      cohort:    role === 'admin' ? 'Admin' : 'Unassigned',
       createdAt: serverTimestamp(),
       bootstrappedFromPals: true,
       progress:  {},
