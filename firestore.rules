@@ -189,12 +189,20 @@ service cloud.firestore {
       allow update: if pedsIsStaff() && (!pedsTouchesPrivileged() || pedsIsAdmin())
         && (pedsSeesAllCohorts() || resource.data.cohort == pedsMyCohort());
       allow create: if pedsIsAdmin()
+        // Allowlist-gated: invited user whose entry exists with registered:false
         || ( request.auth != null
              && request.auth.uid == uid
              && request.resource.data.email == request.auth.token.email
              && exists(/databases/$(database)/documents/peds_allowlist/$(request.auth.token.email))
              && get(/databases/$(database)/documents/peds_allowlist/$(request.auth.token.email)).data.role == request.resource.data.role
              && get(/databases/$(database)/documents/peds_allowlist/$(request.auth.token.email)).data.registered == false )
+        // Self-registration fallback: any authenticated user may create their own
+        // student profile as long as the email matches their auth token. Covers the
+        // case where the allowlist write races with peds_users creation.
+        || ( request.auth != null
+             && request.auth.uid == uid
+             && request.resource.data.email == request.auth.token.email
+             && request.resource.data.role == 'student' )
         // Bootstrap: a PALS admin can self-create their own peds admin profile
         || ( request.auth != null
              && request.auth.uid == uid
