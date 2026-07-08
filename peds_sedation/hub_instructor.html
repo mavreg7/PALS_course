@@ -1675,9 +1675,9 @@ function modCount(progress) {
 function updateStats() {
   const scope   = visibleStudents();
   const total   = scope.length;
-  const done    = scope.filter(s => modCount(s.progress) >= LEARNING_COUNT).length;
-  const inprog  = scope.filter(s => { const c=modCount(s.progress); return c>0 && c<LEARNING_COUNT; }).length;
-  const notst   = scope.filter(s => modCount(s.progress) === 0).length;
+  const done    = LEARNING_COUNT > 0 ? scope.filter(s => modCount(s.progress) >= LEARNING_COUNT).length : 0;
+  const inprog  = LEARNING_COUNT > 0 ? scope.filter(s => { const c=modCount(s.progress); return c>0 && c<LEARNING_COUNT; }).length : 0;
+  const notst   = LEARNING_COUNT > 0 ? scope.filter(s => modCount(s.progress) === 0).length : 0;
   document.getElementById('stat-total').textContent      = total;
   document.getElementById('stat-done').textContent       = done;
   document.getElementById('stat-progress').textContent   = inprog;
@@ -1727,11 +1727,7 @@ function renderRoster(rows) {
     }
     const s = r;
     const count = modCount(s.progress);
-    const pct   = Math.round(count/LEARNING_COUNT*100);
-    // Pre-test badge: green with % once taken, grey dash otherwise.
-    const preDone = s.preTest && s.preTest.pct != null;
-    const preBadge = `<span title="Pre-test ${preDone?'completed — '+s.preTest.pct+'%':'not taken yet'}"
-      style="padding:.18rem .45rem;border-radius:6px;font-size:.7rem;font-weight:700;border:1.5px solid ${preDone?'#22c55e':'#cbd5e1'};background:${preDone?'rgba(34,197,94,.1)':'rgba(148,163,184,.08)'};color:${preDone?'#15803d':'#64748b'}">📝 ${preDone?s.preTest.pct+'%':'—'}</span>`;
+    const pct   = LEARNING_COUNT > 0 ? Math.round(count/LEARNING_COUNT*100) : 0;
     // Attendance badges: one per course day, green when the student checked in.
     const attDays = _attByUid[s.uid] || null;
     const attBadge = ['Day 1','Day 2'].map(d => {
@@ -1756,11 +1752,11 @@ function renderRoster(rows) {
       <td style="font-size:.8rem">${esc(s.cohort)}</td>
       <td><span class="badge-role ${roleClass}">${esc(s.role)}</span></td>
       <td>
-        <div class="prog-bar-wrap">
+        ${LEARNING_COUNT > 0 ? `<div class="prog-bar-wrap">
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
           <span class="prog-pct">${count}/${LEARNING_COUNT}</span>
-        </div>
-        <div style="display:flex;gap:.3rem;margin-top:.4rem;flex-wrap:wrap;align-items:center">${preBadge}${attBadge}${examBadge}</div>
+        </div>` : ''}
+        <div style="display:flex;gap:.3rem;margin-top:.4rem;flex-wrap:wrap;align-items:center">${attBadge}${examBadge}</div>
       </td>
       <td style="font-size:.78rem;color:var(--muted)">${timeAgo(s.updatedAt)}</td>
       <td style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
