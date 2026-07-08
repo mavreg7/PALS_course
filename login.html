@@ -313,38 +313,51 @@ async function fetchCourses(fbUser) {
           });
         }
       } else {
-        // No PALS profile — check if this is a peds-only self-registered user
-        // whose peds_users doc failed to write (e.g. due to a rule ordering issue).
-        // Recover by reading from peds_allowlist and recreating the profile.
+        // No PALS profile and no peds_users doc. This is a peds-only self-registered
+        // user whose profile write never landed (created before the fix deployed, or
+        // whose allowlist write was denied). The only self-service signup in this app
+        // is peds registration, so an orphaned auth account belongs to a peds student.
+        // Recover unconditionally: rebuild the profile from the allowlist entry if one
+        // exists, otherwise from the auth account itself. The deployed self-registration
+        // rule permits any signed-in user to create their own student profile.
         try {
           const email = (fbUser.email || '').toLowerCase();
-          const alSnap = await getDoc(doc(db, 'peds_allowlist', email));
-          if (alSnap.exists()) {
-            const al = alSnap.data();
-            const profile = {
-              uid: fbUser.uid, email,
-              name:      al.name      || fbUser.displayName || email,
-              firstName: al.firstName || '',
-              lastName:  al.lastName  || '',
-              role:      al.role      || 'student',
-              cohort:    al.cohort    || 'Unassigned',
-              phone:     al.phone     || '',
-              idNumber:  al.idNumber  || '',
-              createdAt: serverTimestamp(),
-              viaInvite: false, progress: {},
-            };
-            await setDoc(doc(db, 'peds_users', fbUser.uid), profile);
-            // Mark allowlist as registered now that the profile exists.
-            try { await setDoc(doc(db, 'peds_allowlist', email), { registered: true, registeredAt: serverTimestamp() }, { merge: true }); } catch(_){}
-            courses.push({
-              ns: 'peds_', key: 'peds',
-              name: 'Pediatric Sedation Safety',
-              subtitle: 'Pediatric Sedation Safety · Provider Course',
-              role: profile.role, cohort: profile.cohort,
-              name_display: profile.name, raw: profile,
-            });
-          }
-        } catch(re) { console.warn('[Login] peds allowlist recovery:', re.message); }
+          let al = {};
+          try {
+            const alSnap = await getDoc(doc(db, 'peds_allowlist', email));
+            if (alSnap.exists()) al = alSnap.data();
+          } catch(_){}
+          const profile = {
+            uid: fbUser.uid, email,
+            name:      al.name      || fbUser.displayName || email,
+            firstName: al.firstName || '',
+            lastName:  al.lastName  || '',
+            role:      'student',
+            cohort:    al.cohort    || 'Unassigned',
+            phone:     al.phone     || '',
+            idNumber:  al.idNumber  || '',
+            createdAt: serverTimestamp(),
+            viaInvite: false, progress: {},
+          };
+          await setDoc(doc(db, 'peds_users', fbUser.uid), profile);
+          // Best-effort: create/refresh the allowlist entry so this student shows up in
+          // the instructor roster and messaging list, and mark them registered.
+          try {
+            await setDoc(doc(db, 'peds_allowlist', email), {
+              name: profile.name, firstName: profile.firstName, lastName: profile.lastName,
+              email, phone: profile.phone, idNumber: profile.idNumber,
+              role: 'student', cohort: profile.cohort,
+              registered: true, selfRegistered: true, registeredAt: serverTimestamp(),
+            }, { merge: true });
+          } catch(_){}
+          courses.push({
+            ns: 'peds_', key: 'peds',
+            name: 'Pediatric Sedation Safety',
+            subtitle: 'Pediatric Sedation Safety · Provider Course',
+            role: profile.role, cohort: profile.cohort,
+            name_display: profile.name, raw: profile,
+          });
+        } catch(re) { console.warn('[Login] peds orphan recovery:', re.message); }
       }
     }
   } catch(e) { console.warn('[Login] Peds profile read:', e.message); }
