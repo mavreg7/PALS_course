@@ -323,7 +323,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
       <div style="min-width:130px">
         <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem">Day</div>
         <select id="att-day" style="padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:700">
-          <option>Day 1</option><option>Day 2</option>
+          <option>Day 1</option>
         </select>
       </div>
       <div style="min-width:120px">
@@ -1730,7 +1730,7 @@ function renderRoster(rows) {
     const pct   = LEARNING_COUNT > 0 ? Math.round(count/LEARNING_COUNT*100) : 0;
     // Attendance badges: one per course day, green when the student checked in.
     const attDays = _attByUid[s.uid] || null;
-    const attBadge = ['Day 1','Day 2'].map(d => {
+    const attBadge = ['Day 1'].map(d => {
       const here = !!(attDays && attDays.has(d));
       return `<button type="button" onclick="toggleAttendance('${s.uid}','${d}')"
         title="${here?'Marked present for '+d+' — click to unmark':'Click to mark present for '+d}"
