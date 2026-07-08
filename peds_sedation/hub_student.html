@@ -191,7 +191,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
       <span class="lock-chip locked-state" id="chip-exam">🔒 Not yet available</span>
     </a>
   </div>
-  <div class="sec-hdr">9 Learning Modules</div>
+  <div class="sec-hdr" id="mod-sec-hdr">Learning Modules</div>
   <div class="mod-grid" id="mod-grid"></div>
 
   <div class="sec-hdr" id="plan-hdr" style="display:none">📅 תוכנית הקורס</div>
@@ -414,11 +414,17 @@ function render(){
     examCard.style.display='none';
   }
   // Certificate is issued by instructors — not shown in the student portal.
-  const pct=Math.round(completed/MODULES.length*100);
+  // Learning modules are deferred for this course, so guard against 0 modules
+  // (avoids NaN% from completed/0 and a misleading hardcoded module count).
+  const noModules = MODULES.length === 0;
+  const pct=noModules?0:Math.round(completed/MODULES.length*100);
   document.getElementById('prog-pct').textContent=pct+'%';
   document.getElementById('prog-fill').style.width=pct+'%';
+  const hdr=document.getElementById('mod-sec-hdr');
+  if(hdr) hdr.textContent=noModules?'Learning Modules':`${MODULES.length} Learning Modules`;
   document.getElementById('prog-sub').textContent=
-    pct===100?(examUnlocked
+    noModules?'Course content will be available soon — your instructor will guide the in-person sessions.'
+    :pct===100?(examUnlocked
         ? (feedbackDone ? '🎉 The final exam is open — good luck!' : '🎉 Modules done! Submit your course feedback, then the final exam opens.')
         : (_feedbackOpen
             ? '🎉 All modules complete! Submit your feedback — your instructor will open the final exam.'
@@ -432,7 +438,9 @@ function render(){
   else{const openNext=allOpen||nextI===0||prog[nextI-1];
     if(openNext){cbtn.href=MODULES[nextI].file;cbtn.textContent=(completed===0?'▶ Start: ':'▶ Continue: ')+'Module '+MODULES[nextI].n+' — '+MODULES[nextI].title;cbtn.style.display='inline-flex';}
     else{cbtn.style.display='none';}}
-  document.getElementById('mod-grid').innerHTML=MODULES.map((m,i)=>{
+  document.getElementById('mod-grid').innerHTML=noModules
+    ?`<div style="grid-column:1/-1;padding:1.4rem;text-align:center;color:var(--tm);background:var(--s2);border:1px dashed var(--b);border-radius:11px;font-size:.9rem">📚 Course modules will appear here once your instructor publishes them.</div>`
+    :MODULES.map((m,i)=>{
     const done=!!prog[i];
     const open=allOpen||i===0||(i>0&&prog[i-1]);
     const cls='mod-card '+(done?'done-mod ':open?'available ':'locked-mod ');
