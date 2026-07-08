@@ -4,7 +4,7 @@
 
 - Static HTML/JS/CSS — no build step
 - Firebase Auth + Firestore (single project, dual namespace: `users`/`peds_users`)
-- Deployed on Vercel and Netlify
+- Deployed on Vercel
 
 ## Namespacing
 
@@ -13,4 +13,4 @@
 
 ## PR workflow
 
-When CI (Vercel + Netlify previews) is green, merge the PR using squash merge.
+When CI (Vercel preview) is green, merge the PR using squash merge.
