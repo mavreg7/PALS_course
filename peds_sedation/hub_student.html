@@ -175,15 +175,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
 
   <div class="sec-hdr">Quick Access</div>
   <div style="background:var(--pl2);border:1px solid var(--b);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--tm);line-height:1.5">
-    📝 The <strong>Pre-Test</strong> unlocks automatically once you complete all 9 modules. Your instructor opens <strong>Course Feedback</strong> during the course, and the <strong>Final Exam</strong> unlocks after your feedback is submitted.
+    Your instructor opens <strong>Course Feedback</strong> during the course, and the <strong>Final Exam</strong> unlocks after your feedback is submitted.
   </div>
   <div class="quick-grid">
-    <a href="pals_forms_portal.html#pretest" class="ql-card locked" id="ql-pretest" style="display:none">
-      <span class="ql-icon">📝</span>
-      <div class="ql-title">Pre-Test</div>
-      <div class="ql-sub">Knowledge check · unlocks after modules</div>
-      <span class="lock-chip locked-state" id="chip-pretest">🔒 Not yet available</span>
-    </a>
     <a href="pals_forms_portal.html#feedback" class="ql-card locked" id="ql-feedback">
       <span class="ql-icon">💬</span>
       <div class="ql-title">Course Feedback</div>
@@ -283,7 +277,6 @@ function applyRemoteData(data) {
   if (data.flags && Object.keys(data.flags).length) {
     try { sessionStorage.setItem('pals_flags', JSON.stringify(data.flags)); } catch(e) {}
   }
-  try { sessionStorage.setItem('pals_pretest', JSON.stringify(data.preTest || null)); } catch(e) {}
   try { sessionStorage.setItem('pals_finalexam', JSON.stringify(data.finalExam || null)); } catch(e) {}
   try { sessionStorage.setItem('pals_certificate', JSON.stringify(data.certificate || null)); } catch(e) {}
   try { sessionStorage.setItem('pals_feedback', JSON.stringify(data.feedback || null)); } catch(e) {}
@@ -305,7 +298,6 @@ function render(){
   _feedbackOpen = _courseStart>0 ? (Date.now()>=_courseStart) : _feedbackOpenManual;
   const f=getFlags();
   const prog=getProgress();
-  const preTest=getExamData('pals_pretest');
   const finalExam=getExamData('pals_finalexam');
   const allOpen=f.unlockedModules&&f.unlockedModules.length>=11;
   function gate(id,chipId,open,label){
@@ -320,15 +312,6 @@ function render(){
   const feedback=getExamData('pals_feedback');
   const feedbackDone=!!(feedback&&feedback.submittedAt);
   const examUnlocked=(()=>{try{return sessionStorage.getItem('pals_examunlock')==='1';}catch(e){return false;}})()||_globalExamUnlocked;
-  // Pre-test card is always visible so students know it exists; it stays locked
-  // (with an x/9 progress hint) until all 9 learning modules are complete.
-  const pretestCard=document.getElementById('ql-pretest');
-  pretestCard.style.display='';
-  if(allModulesDone){
-    gate('ql-pretest','chip-pretest',true,preTest?`✅ Completed · ${preTest.pct}%`:'✅ Open now');
-  } else {
-    gate('ql-pretest','chip-pretest',false,`🔒 Complete all modules (${completed}/${MODULES.length})`);
-  }
   // Feedback: closed/unavailable until the instructor opens the window (course
   // start). It stays openable afterward if already submitted so it can be reviewed.
   const feedbackAvailable = _feedbackOpen || feedbackDone;
@@ -352,8 +335,8 @@ function render(){
     pct===100?(examUnlocked
         ? (feedbackDone ? '🎉 The final exam is open — good luck!' : '🎉 Modules done! Submit your course feedback, then the final exam opens.')
         : (_feedbackOpen
-            ? '🎉 All modules complete! Take the pre-test and submit your feedback — your instructor will open the final exam.'
-            : '🎉 All modules complete! Take the pre-test — course feedback opens during the course, then your instructor opens the final exam.'))
+            ? '🎉 All modules complete! Submit your feedback — your instructor will open the final exam.'
+            : '🎉 All modules complete! Course feedback opens during the course, then your instructor opens the final exam.'))
     :completed===0?'Start with Module 1 to begin your journey.'
     :`${completed} of ${MODULES.length} modules completed — keep going!`;
   // Continue where you left off → first incomplete (unlocked) module
@@ -562,18 +545,12 @@ let _remindersShown = false;
 function showReminders(){
   if(_remindersShown) return;
   const prog=getProgress();
-  const preTest=getExamData('pals_pretest');
   const completed=MODULES.filter((_,i)=>prog[i]).length;
   const modulesDone = completed===MODULES.length;
-  const pretestDone = !!preTest;
   const items=[];
   if(!modulesDone){
     items.push({he:`להשלים את כל מודולי הלימוד (${completed}/${MODULES.length} הושלמו)`,
                 en:`Complete all learning modules (${completed}/${MODULES.length} done)`});
-  }
-  if(!pretestDone){
-    items.push({he:'להשלים את המבחן המקדים (Pre-Test)',
-                en:'Complete the Pre-Test'});
   }
   if(!items.length) return;                 // nothing outstanding — stay quiet
   _remindersShown = true;
