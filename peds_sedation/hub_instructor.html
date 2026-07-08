@@ -1786,7 +1786,7 @@ function exportCSV() {
   const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Pre-Test %','Final Exam %','Feedback','Exam Access','Last Active']];
   visibleStudents().forEach(s => {
     const count = modCount(s.progress);
-    rows.push([s.name, s.email, s.cohort, s.role, count, Math.round(count/LEARNING_COUNT*100)+'%',
+    rows.push([s.name, s.email, s.cohort, s.role, count, (LEARNING_COUNT>0?Math.round(count/LEARNING_COUNT*100):0)+'%',
       (s.preTest&&s.preTest.pct!=null)?s.preTest.pct+'%':'',
       (s.finalExam&&s.finalExam.pct!=null)?s.finalExam.pct+'%':'',
       (s.feedback&&s.feedback.submittedAt)?'Submitted':'',
