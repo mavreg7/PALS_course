@@ -2358,6 +2358,9 @@ window.closeAttendance = closeAttendance;
 // with no phone. Prompt for a mobile so they appear on the messaging list.
 async function checkStaffPhone() {
   try {
+    // Only plain instructors are prompted — admins and lead instructors run the
+    // course and don't belong on the participant messaging list, so don't nag them.
+    if (s.role === 'admin' || s.role === 'lead_instructor') return;
     const snap = await getDoc(doc(db,(window.COURSE_NS||'')+'users', s.uid));
     if (!snap.exists()) return;
     const d = snap.data();
