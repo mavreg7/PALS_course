@@ -142,9 +142,21 @@
 })();
 
 const DEFAULT_SCHEDULE = {
-  // Pediatric Sedation Safety — schedule content TBD. Starts blank; build it in
-  // the planner UI (or seed defaults here later), same shape as PALS.
-  day1: [],
+  // Pediatric Sedation Safety — suggested 1-day schedule, seeded as a GUIDE for
+  // instructors to adapt (edit / reorder / assign instructors & rooms / publish).
+  // Mirrors the course outline; day2 stays empty (this is a 1-day course).
+  day1: [
+    {time:'08:00-08:30', title:'Arrival & setup',                       titleHe:'התארגנות',                    type:'break',    instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''},
+    {time:'08:30-09:30', title:'Approach to pain & anxiety in children', titleHe:'הגישה לכאב וחרדה בילדים',      type:'didactic', instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''},
+    {time:'09:30-09:45', title:'Break',                                  titleHe:'הפסקה',                       type:'break',    instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''},
+    {time:'09:45-10:30', title:'Sedation safety + pharmacology',         titleHe:'בטיחות בסדציה + פרמקולוגיה',   type:'didactic', instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''},
+    {time:'10:30-11:00', title:'Time Out & simulation prep',             titleHe:'Time Out והכנות לסימולציה',    type:'skills',   instr:'',instrHe:'',room:'',roomHe:'',notes:'ER nurses',notesHe:'אחיות מלר"ד'},
+    {time:'11:00-11:15', title:'Lunch break',                            titleHe:'הפסקת צהריים',                 type:'break',    instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''},
+    {time:'11:15-12:00', title:'Simulation scenarios — round 1',         titleHe:'תרחישי סימולציה — סבב 1',      type:'megacode', instr:'',instrHe:'',room:'',roomHe:'',notes:'Groups rotate: Scenario 1 / 2 / 3',notesHe:'סבב בין הקבוצות: תרחיש 1 / 2 / 3'},
+    {time:'12:00-12:45', title:'Simulation scenarios — round 2',         titleHe:'תרחישי סימולציה — סבב 2',      type:'megacode', instr:'',instrHe:'',room:'',roomHe:'',notes:'Groups rotate: Scenario 2 / 3 / 1',notesHe:'סבב בין הקבוצות: תרחיש 2 / 3 / 1'},
+    {time:'12:45-13:30', title:'Simulation scenarios — round 3',         titleHe:'תרחישי סימולציה — סבב 3',      type:'megacode', instr:'',instrHe:'',room:'',roomHe:'',notes:'Groups rotate: Scenario 3 / 1 / 2',notesHe:'סבב בין הקבוצות: תרחיש 3 / 1 / 2'},
+    {time:'13:30-14:00', title:'Exam & course wrap-up',                  titleHe:'בחינה וסיכום קורס',            type:'exam',     instr:'',instrHe:'',room:'',roomHe:'',notes:'',notesHe:''},
+  ],
   day2: []
 };
 
@@ -159,7 +171,7 @@ function plannerCohortKey(name){
   return 'k'+Math.abs(h).toString(36);
 }
 let currentCohortKey=(function(){try{return localStorage.getItem(COHORT_KEY_STORAGE)||''}catch(e){return ''}})();
-let courseDays=2;             // course length for the selected cohort (1 or 2)
+let courseDays=1;             // course length for the selected cohort (1 or 2) — Sedation is 1-day by default
 let schedule = (function(){
   try{const s=JSON.parse(localStorage.getItem(KEY));return s||structuredClone(DEFAULT_SCHEDULE)}catch(e){return structuredClone(DEFAULT_SCHEDULE)}
 })();
@@ -187,7 +199,7 @@ const UI = {
   he:{ appTitle:'מתכנן קורס סדציה בטוחה בילדים', appSub:'גרור לסידור מחדש · לחץ להרחבה · שמירה אוטומטית',
     hub:'→ מרכז', reset:'↻ איפוס לברירת מחדל', print:'🖨️ הדפסה',
     fDate:'תאריך הקורס', fInstr:'מדריך/ה ראשי/ת', fLoc:'מיקום',
-    day1:'יום 1', day2:'יום 2', day1Print:'יום 1 — זיהוי, אלגוריתמים ומגה-קודים', day2Print:'יום 2 — דום לב, טיפול לאחר דום לב ומבחנים',
+    day1:'יום 1', day2:'יום 2', day1Print:'יום הקורס — בטיחות בסדציה בילדים', day2Print:'יום 2',
     legD:'עיוני', legS:'מיומנויות', legM:'מגה-קוד', legB:'הפסקה', legE:'מבחן',
     expTitle:'ייצוא לוח הזמנים', expSub:'כלי תכנון למדריכים. הדפיסו או ייצאו את לוח הזמנים; שתפו אותו עם התלמידים כ-PDF/תדפיס, לא כקישור הניתן לעריכה.', expPrint:'🖨️ הדפסה / שמירת PDF', expCsv:'⬇ ייצוא CSV',
     eTitle:'כותרת', eTime:'שעה', eType:'סוג', eInstr:'מדריך/ה', eRoom:'חדר', eNotes:'הערות',
@@ -195,7 +207,7 @@ const UI = {
   en:{ appTitle:'Pediatric Sedation Safety Course Planner', appSub:'Drag to reorder · click to expand · auto-save',
     hub:'← Hub', reset:'↻ Reset Default', print:'🖨️ Print',
     fDate:'Course Date', fInstr:'Lead Instructor', fLoc:'Location',
-    day1:'Day 1', day2:'Day 2', day1Print:'DAY 1 — Recognition, Algorithms, Megacodes', day2Print:'DAY 2 — Cardiac Arrest, Post-Arrest, Testing',
+    day1:'Day 1', day2:'Day 2', day1Print:'Course Day — Pediatric Sedation Safety', day2Print:'Day 2',
     legD:'Didactic', legS:'Skills', legM:'Megacode', legB:'Break', legE:'Exam',
     expTitle:'Export schedule', expSub:'Instructor planning tool. Print or export the schedule; share it with students as a PDF/printout, not an editable link.', expPrint:'🖨️ Print / Save PDF', expCsv:'⬇ Export CSV',
     eTitle:'Title', eTime:'Time', eType:'Type', eInstr:'Instructor', eRoom:'Room', eNotes:'Notes',
@@ -446,7 +458,7 @@ window.onCohortChange = function(key){
   try{ localStorage.setItem(COHORT_KEY_STORAGE, currentCohortKey); }catch(e){}
   if(sel && sel.value !== currentCohortKey) sel.value = currentCohortKey;
   localStorage.removeItem('pals_plan_pub_sig');
-  schedule = structuredClone(DEFAULT_SCHEDULE); courseDays = 2;
+  schedule = structuredClone(DEFAULT_SCHEDULE); courseDays = 1;
   applyDays(); render();
   subscribePlan();
 };
