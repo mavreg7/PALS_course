@@ -171,6 +171,8 @@ h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;tex
       </svg>
       <span id="si-txt">Sign In</span>
     </button>
+    <div id="si-ok" role="status" style="display:none;margin-top:.7rem;font-size:.85rem;color:#15803d;font-weight:600"></div>
+    <p class="note" style="margin-top:.7rem"><a href="#" onclick="resetPassword();return false" style="color:var(--pals);font-weight:600">Forgot your password?</a> — we'll email you a reset link.</p>
     <p class="note">PALS accounts are set up by your instructor. For Pediatric Sedation Safety, you can <a href="/peds_sedation/register.html" style="color:var(--pals);font-weight:600">self-register here</a>.</p>
   </div>
 </div>
@@ -200,7 +202,7 @@ h1{font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;tex
 <script type="module">
 import { initializeApp }        from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail
 }                               from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore, doc, getDoc, setDoc, serverTimestamp
@@ -473,11 +475,11 @@ window.signIn = async function() {
   } catch(e) {
     const msgs = {
       'auth/user-not-found':     'No account found with that email.',
-      'auth/wrong-password':     'Incorrect password. Please try again.',
+      'auth/wrong-password':     'Incorrect password. Use “Forgot your password?” below to reset it.',
       'auth/invalid-email':      'Please enter a valid email address.',
       'auth/user-disabled':      'This account has been disabled.',
       'auth/too-many-requests':  'Too many attempts — please wait a moment.',
-      'auth/invalid-credential': 'Incorrect email or password.',
+      'auth/invalid-credential': 'Incorrect email or password. Use “Forgot your password?” below to reset it.',
     };
     showErr(msgs[e.code] || 'Sign-in failed. Please try again.');
     document.getElementById('si-pw').value = '';
@@ -498,7 +500,24 @@ function showErr(msg) {
   const el = document.getElementById('si-err');
   document.getElementById('si-err-msg').textContent = msg;
   el.style.display = 'flex';
+  const ok = document.getElementById('si-ok'); if (ok) ok.style.display = 'none';
 }
+
+// Self-serve password reset — for anyone who can't sign in (forgotten password,
+// or a PALS user whose account was created by an admin). Emails a reset link.
+window.resetPassword = async function() {
+  const email = (document.getElementById('si-em').value || '').trim().toLowerCase();
+  const ok = document.getElementById('si-ok');
+  document.getElementById('si-err').style.display = 'none';
+  if (!email) { showErr('Enter your email above first, then click “Forgot your password?”.'); return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    ok.textContent = '✅ Password-reset link sent to ' + email + '. Check your inbox (and spam), set a new password, then sign in.';
+    ok.style.display = 'block';
+  } catch(e) {
+    showErr(e.code === 'auth/invalid-email' ? 'Please enter a valid email address.' : 'Could not send the reset email — please try again.');
+  }
+};
 
 // ── Show course picker ────────────────────────────────────
 function showPicker(fbUser, courses) {
