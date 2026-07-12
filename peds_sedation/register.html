@@ -80,7 +80,7 @@ h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.2rem;tex
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const app = initializeApp(FIREBASE_CONFIG);
@@ -209,7 +209,19 @@ window.createAccount = async function(){
             role: 'student', phone, idNumber, cohort: 'Unassigned',
             createdAt: serverTimestamp(), viaInvite: false, progress: {}
           }, { merge: true });
-          okEl.textContent = '✅ פרטיך נוספו לקורס! כנס עם הסיסמה הקיימת שלך.';
+          // The email already had an account (e.g. a PALS user), so the password
+          // typed above was NOT applied — sign in with the existing password, or
+          // reset it here if unknown. This is the common "credentials incorrect" trap.
+          okEl.innerHTML = '✅ פרטיך נוספו לקורס!<br>יש לך כבר חשבון — היכנס/י עם הסיסמה הקיימת שלך, או '
+            + '<a href="#" id="reg-reset" style="color:#0891B2;font-weight:700">שלח/י קישור לאיפוס סיסמה</a>.';
+          okEl.style.display='block'; errEl.style.display='none';
+          const rr = document.getElementById('reg-reset');
+          if(rr) rr.onclick = async ev => { ev.preventDefault(); rr.textContent='שולח…';
+            try { await sendPasswordResetEmail(auth, email); rr.textContent = '✅ נשלח קישור לאיפוס לכתובת ' + email + ' (בדוק/י גם בתיקיית הספאם)'; }
+            catch(_) { rr.textContent = 'השליחה נכשלה — נסה/י שוב מדף הכניסה'; } };
+          setTimeout(()=>window.location.href='/login.html', 8000);
+          btn.disabled=false; btn.textContent='יצירת חשבון';
+          return;
         } else {
           okEl.textContent = '✅ פרטיך נרשמו! אנא פנה למרכז ההדרכה לאישור גישה.';
         }
