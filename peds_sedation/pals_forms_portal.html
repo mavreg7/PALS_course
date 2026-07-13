@@ -5,25 +5,357 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pediatric Sedation Safety · Forms Portal</title>
 <script>window.COURSE_NS='peds_';window.COURSE_BASE='/peds_sedation/';(function(){var p='peds_';try{var S=Storage.prototype,g=S.getItem,s=S.setItem,r=S.removeItem;S.getItem=function(k){return g.call(this,p+k)};S.setItem=function(k,v){return s.call(this,p+k,v)};S.removeItem=function(k){return r.call(this,p+k)};}catch(e){}})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script src="../firebase-config.js"></script>
+<script type="module" src="../firebase-sync.js"></script>
 <style>
-  body{font-family:Inter,system-ui,sans-serif;background:#f0f9ff;color:#0f172a;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-  .card{background:#fff;border:1px solid #bae6fd;border-radius:16px;box-shadow:0 4px 28px rgba(8,145,178,.13);max-width:560px;padding:40px;text-align:center}
-  h1{font-size:1.5rem;margin:0 0 .4rem}
-  p{color:#475569;line-height:1.6}
-  .tag{display:inline-block;background:rgba(8,145,178,.1);color:#0e7490;font-weight:700;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;padding:.3rem .7rem;border-radius:999px;margin-bottom:1rem}
-  a{display:inline-block;margin-top:1.2rem;background:#0891B2;color:#fff;text-decoration:none;font-weight:700;padding:.6rem 1.2rem;border-radius:10px}
+  *{font-family:'Manrope',system-ui,sans-serif}
+  body{background:linear-gradient(135deg,#F8FAFC,#EFF6FF);min-height:100vh;color:#1E293B}
+  .card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(30,41,59,0.06);border:1px solid rgba(8,145,178,0.08)}
+  .btn{padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;transition:all .2s;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px}
+  .btn-prim{background:#0891B2;color:#fff}.btn-prim:hover{background:#0e7490}
+  .btn-ghost{background:#fff;color:#0891B2;border:1px solid #0891B2}.btn-ghost:hover{background:#f0f9ff}
+  .tab{padding:10px 22px;border-radius:10px;font-weight:600;font-size:14px;color:#64748b;cursor:pointer}
+  .tab.active{background:#0891B2;color:#fff}
+  .tab:not(.active):hover{background:#f0f9ff;color:#0891B2}
+  .field{width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;margin-top:4px}
+  .field:focus{outline:none;border-color:#0891B2;box-shadow:0 0 0 3px rgba(8,145,178,.15)}
+  .lbl{font-size:.82rem;font-weight:700;color:#334155}
+  .panel{display:none}.panel.active{display:block}
+  .toast{position:fixed;bottom:20px;right:20px;color:#fff;padding:12px 20px;border-radius:10px;font-weight:600;z-index:1000;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="tag">Pediatric Sedation Safety</div>
-    <h1>Forms &amp; Exam — coming soon</h1>
-    <p>The pre-course assessment, written exam and feedback forms for the
-    Pediatric Sedation Safety course will be built here. The course content
-    is being prepared separately; the system structure (accounts, cohorts,
-    roster, attendance, messaging, scheduling) is ready to use.</p>
-    <a href="hub_student.html">← Back to the portal</a>
+<div class="max-w-3xl mx-auto px-4 sm:px-6 py-6">
+
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">Pediatric Sedation Safety — Forms</h1>
+      <p class="text-slate-500 text-sm">Course feedback and final exam</p>
+    </div>
+    <a href="hub_student.html" class="btn btn-ghost" id="back-link">← Back to hub</a>
+  </header>
+
+  <div class="flex gap-2 mb-5" id="tabs"></div>
+
+  <!-- Instructor note -->
+  <div class="panel" data-panel="staff">
+    <div class="card p-6">
+      <h2 class="text-lg font-bold mb-2">Staff view</h2>
+      <p class="text-sm text-slate-600">This is the student forms area. Manage the <strong>feedback window</strong> and the <strong>final-exam unlock</strong> from the
+      <a href="hub_instructor.html" class="text-cyan-700 underline">instructor hub</a>. The feedback form below is shown for preview.</p>
+    </div>
   </div>
+
+  <!-- FEEDBACK -->
+  <div class="panel" data-panel="feedback">
+    <div id="feedback-lock-banner" style="display:none;background:#DCFCE7;border:1.5px solid #22C55E;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#166534;font-size:15px;">
+      ✅ Thank you — your feedback has been recorded and is now locked.
+      <br><span dir="rtl" style="display:block;font-weight:400">✅ תודה — המשוב שלך נשמר וננעל. המבחן הסופי נפתח, ולכן לא ניתן עוד לשנות את התשובות.</span>
+    </div>
+    <div id="feedback-required-note" style="display:none;background:#EFF6FF;border:1.5px solid #0891B2;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#0e7490;font-size:15px;">
+      📝 Please complete this short feedback form. It must be submitted before the final exam unlocks — you can edit it any time while feedback is open.
+      <br><span dir="rtl" style="display:block;font-weight:400">📝 נא למלא את טופס המשוב הקצר. יש לשלוח אותו לפני שהמבחן הסופי נפתח — ניתן לערוך כל עוד המשוב פתוח.</span>
+    </div>
+    <div id="feedback-closed-banner" style="display:none;background:#FEF9C3;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#92400E;font-size:15px;">
+      🚫 Course feedback isn't open right now.
+      <br><span dir="rtl" style="display:block;font-weight:400">🚫 המשוב על הקורס אינו פתוח כעת. המדריך יפתח אותו במהלך הקורס.</span>
+    </div>
+    <div class="card p-6" id="fb-card">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <h2 class="text-xl font-bold" id="fb-title">Course Feedback</h2>
+        <button class="btn btn-ghost" id="fb-lang-btn" onclick="toggleFbLang()" style="white-space:nowrap">עברית</button>
+      </div>
+      <div class="mb-4">
+        <label class="lbl" id="fb-name-lbl">Your name *</label>
+        <input class="field" id="fb_name" placeholder="Your full name">
+        <div class="text-xs text-slate-500 mt-1" id="fb-allreq">All fields are required. The date is recorded automatically when you submit.</div>
+      </div>
+      <div id="fb_ratings" class="space-y-3"></div>
+      <div class="mt-4"><label class="lbl" id="fb-good-lbl">What worked well? *</label><textarea class="field" id="fb_good" rows="2"></textarea></div>
+      <div class="mt-3"><label class="lbl" id="fb-improve-lbl">Suggestions for improvement *</label><textarea class="field" id="fb_improve" rows="2"></textarea></div>
+      <div class="mt-3"><label class="lbl" id="fb-recommend-lbl">Would you recommend this course? *</label>
+        <select class="field" id="fb_recommend"></select>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-5">
+        <button class="btn btn-prim" id="fb-submit-btn" onclick="saveFeedback()">💾 Submit Feedback</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL EXAM -->
+  <div class="panel" data-panel="exam">
+    <div id="exam-lock-banner" style="display:none;background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-weight:700;color:#92400E;font-size:15px;"></div>
+    <div class="card p-6" id="exam-card">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <h2 class="text-xl font-bold">Final Exam</h2>
+      </div>
+      <div class="mb-4">
+        <label class="lbl">Your name *</label>
+        <input class="field" id="ex_name" placeholder="Your full name">
+      </div>
+      <div id="exam_questions" class="space-y-4"></div>
+      <div class="flex flex-wrap gap-2 mt-5">
+        <button class="btn btn-prim" id="exam-submit-btn" onclick="submitExam()">✔ Submit Exam</button>
+      </div>
+      <div id="exam_result" class="mt-4"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Session (student or staff) ───────────────────────────────────────────────
+function getSession(){ try{ return JSON.parse(sessionStorage.getItem('pals_sess_v2')||'null'); }catch(e){ return null; } }
+const SESS = getSession();
+if(!SESS){ location.replace('/login.html'); }
+const STUDENT_SESS = (SESS && SESS.role==='student') ? SESS : null;
+const IS_STUDENT   = !!STUDENT_SESS;
+const IS_STAFF     = !!(SESS && ['admin','lead_instructor','instructor'].includes(SESS.role));
+document.getElementById('back-link').setAttribute('href', IS_STAFF && !IS_STUDENT ? 'hub_instructor.html' : 'hub_student.html');
+
+// ── Final-exam question bank — add sedation questions here to enable the exam ──
+// Shape: { q:'…', a:['opt1','opt2',…], correct:<index> }.  While empty, the exam
+// stays a gated "coming soon" — the feedback-first gate is already enforced.
+const EXAM_QS = [];
+const EXAM_PASS = 80;   // passing %
+
+// ── Firebase (namespace-aware via window.COURSE_NS) ──────────────────────────
+async function fbReady(timeoutMs){
+  const deadline = Date.now() + (timeoutMs||4000);
+  while(!window.FB_READY && !window.FB && Date.now() < deadline){ await new Promise(r=>setTimeout(r,40)); }
+  if(window.FB) return window.FB;
+  if(window.FB_READY){ try{ return await window.FB_READY; }catch(e){ return window.FB; } }
+  return window.FB;
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+function tabList(){
+  if(IS_STUDENT){
+    const t=[{id:'feedback',label:'Course Feedback'}];
+    if(STU.examUnlocked && feedbackDone()) t.push({id:'exam',label:'Final Exam'});
+    return t;
+  }
+  return [{id:'staff',label:'Overview'},{id:'feedback',label:'Feedback (preview)'}];
+}
+function buildTabs(){
+  const arr=tabList();
+  document.getElementById('tabs').innerHTML = arr.map(t=>`<div class="tab" data-tab="${t.id}" onclick="switchTab('${t.id}')">${t.label}</div>`).join('');
+}
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.dataset.panel===id));
+}
+let _tabsSig='';
+function refreshTabs(){
+  const arr=tabList(); const sig=arr.map(t=>t.id).join(',');
+  const active=document.querySelector('.tab.active')?.dataset.tab;
+  buildTabs();
+  if(sig!==_tabsSig){ _tabsSig=sig; }
+  const want = (location.hash.replace('#','')) || active;
+  switchTab(arr.some(t=>t.id===want) ? want : arr[0].id);
+}
+
+// ── Live student state ───────────────────────────────────────────────────────
+let STU = { _data:{}, globalExam:false, perExam:false, examUnlocked:false, feedbackOpen:false, feedbackOpenManual:false, courseStart:0, feedback:null };
+let _fbPrefilled=false;
+function feedbackDone(){ return !!(STU.feedback && STU.feedback.submittedAt); }
+
+function applyStudentState(data){
+  if(data) STU._data = data;
+  STU.perExam      = !!(STU._data && STU._data.examUnlocked);
+  STU.examUnlocked = !!(STU.globalExam || STU.perExam);
+  STU.feedback     = (STU._data && STU._data.feedback) || null;
+  STU.feedbackOpen = STU.courseStart>0 ? (Date.now()>=STU.courseStart) : !!STU.feedbackOpenManual;
+  applyFeedbackLock();
+  applyExamGate();
+  if(!_fbPrefilled && STU.feedback){ prefillFeedback(STU.feedback); _fbPrefilled=true; }
+  refreshTabs();
+}
+
+if(IS_STUDENT){
+  (async()=>{
+    const fb = await fbReady(4000);
+    if(fb && fb.watchCourseFlags){
+      fb.watchCourseFlags(flags => {
+        STU.globalExam = !!flags.examUnlocked;
+        STU.feedbackOpenManual = !!flags.feedbackOpen;
+        STU.courseStart = Number(flags.courseStart)||0;
+        applyStudentState();
+      });
+    }
+    const load = async()=>{ if(fb&&fb.loadAndSync){ const d=await fb.loadAndSync().catch(()=>null); applyStudentState(d); } };
+    await load();
+    setInterval(load, 15000);
+    setInterval(()=>applyStudentState(), 15000);
+  })();
+}
+
+// ── Feedback gate ────────────────────────────────────────────────────────────
+function applyFeedbackLock(){
+  if(!IS_STUDENT) return;
+  const submitted = feedbackDone();
+  const frozen   = STU.examUnlocked && submitted;   // recorded + exam open → locked
+  const closed   = !STU.feedbackOpen && !frozen;    // window not open
+  const editable = STU.feedbackOpen && !frozen;
+  const lockB=document.getElementById('feedback-lock-banner');
+  const closedB=document.getElementById('feedback-closed-banner');
+  const reqNote=document.getElementById('feedback-required-note');
+  if(lockB)   lockB.style.display   = frozen ? 'block':'none';
+  if(closedB) closedB.style.display = closed ? 'block':'none';
+  if(reqNote) reqNote.style.display = (editable && !submitted) ? 'block':'none';
+  const card=document.getElementById('fb-card');
+  card.querySelectorAll('input,textarea,select,button').forEach(el=>{ if(el.id==='fb-lang-btn') return; el.disabled = !editable; });
+  card.querySelectorAll('[data-fb] button').forEach(b=>{ b.disabled = !editable; });
+}
+
+// ── Final-exam gate: instructor-unlocked AND feedback submitted ───────────────
+function applyExamGate(){
+  if(!IS_STUDENT) return;
+  const banner=document.getElementById('exam-lock-banner');
+  const card=document.getElementById('exam-card');
+  const blocked = !STU.examUnlocked || !feedbackDone();
+  if(!STU.examUnlocked){
+    banner.innerHTML='🔒 The final exam has not been unlocked yet. Your instructor will open it when the class is ready.';
+    banner.style.display='block';
+  } else if(!feedbackDone()){
+    banner.innerHTML='📝 Almost there — please complete the <a href="#feedback" onclick="switchTab(\'feedback\');return false;" style="color:#0e7490;text-decoration:underline">Course Feedback</a> form before taking the final exam.';
+    banner.style.display='block';
+  } else {
+    banner.style.display='none';
+  }
+  card.style.display = blocked ? 'none' : 'block';
+  if(!blocked) renderExam();
+}
+
+// ── Feedback form (bilingual) ────────────────────────────────────────────────
+const FB_ITEMS=['Course organization','Instructor knowledge','Hands-on simulation time','Simulation scenarios realism','Quality of slides','Pace of course','Materials provided','Likelihood to recommend'];
+const FB_REC=['Definitely','Probably','Unsure','No'];
+const FB_I18N={
+  en:{ dir:'ltr', langBtn:'עברית', title:'Course Feedback', name:'Your name', namePh:'Your full name',
+    allreq:'All fields are required. The date is recorded automatically when you submit.',
+    good:'What worked well?', improve:'Suggestions for improvement', recommend:'Would you recommend this course?',
+    submit:'💾 Submit Feedback', items:FB_ITEMS, rec:FB_REC },
+  he:{ dir:'rtl', langBtn:'English', title:'משוב על הקורס', name:'השם שלך', namePh:'שם מלא',
+    allreq:'כל השדות הם חובה. התאריך נרשם אוטומטית עם השליחה.',
+    good:'מה עבד טוב?', improve:'הצעות לשיפור', recommend:'האם תמליץ/י על הקורס?', submit:'💾 שליחת משוב',
+    items:['ארגון הקורס','ידע המדריכים','זמן תרגול/סימולציה מעשי','ריאליזם של תרחישי הסימולציה','איכות המצגות','קצב הקורס','החומרים שסופקו','הסבירות להמליץ'],
+    rec:['בהחלט','כנראה','לא בטוח/ה','לא'] }
+};
+let _fbLang='he';
+window._fb={};
+function renderFB(){
+  const t=FB_I18N[_fbLang];
+  document.getElementById('fb_ratings').innerHTML=t.items.map((it,i)=>`
+    <div class="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-slate-50">
+      <div class="text-sm flex-1">${it}</div>
+      <div class="flex gap-1" data-fb="${i}">
+        ${[1,2,3,4,5].map(n=>`<button onclick="setFB(${i},${n})" class="rounded-full border border-slate-300 text-xs font-bold" style="width:2rem;height:2rem" data-fbn="${n}">${n}</button>`).join('')}
+      </div>
+    </div>`).join('');
+  Object.keys(window._fb||{}).forEach(i=>{ if(window._fb[i]) setFB(+i,window._fb[i]); });
+}
+function applyFbLang(){
+  const t=FB_I18N[_fbLang];
+  const card=document.getElementById('fb-card');
+  card.dir=t.dir; card.style.textAlign=t.dir==='rtl'?'right':'';
+  document.getElementById('fb-title').textContent=t.title;
+  document.getElementById('fb-name-lbl').textContent=t.name+' *';
+  document.getElementById('fb_name').placeholder=t.namePh;
+  document.getElementById('fb-allreq').textContent=t.allreq;
+  document.getElementById('fb-good-lbl').textContent=t.good+' *';
+  document.getElementById('fb-improve-lbl').textContent=t.improve+' *';
+  document.getElementById('fb-recommend-lbl').textContent=t.recommend+' *';
+  document.getElementById('fb-submit-btn').textContent=t.submit;
+  document.getElementById('fb-lang-btn').textContent=t.langBtn;
+  const sel=document.getElementById('fb_recommend'); const prev=sel.value;
+  sel.innerHTML=FB_REC.map((v,i)=>`<option value="${v}">${t.rec[i]}</option>`).join('');
+  if(prev) sel.value=prev;
+  renderFB();
+}
+function toggleFbLang(){ _fbLang=_fbLang==='en'?'he':'en'; applyFbLang(); applyFeedbackLock(); }
+function setFB(i,n){
+  window._fb[i]=n;
+  document.querySelectorAll(`[data-fb="${i}"] button`).forEach(b=>{
+    const v=parseInt(b.dataset.fbn); const on=v<=n;
+    b.style.background=on?'#0891B2':''; b.style.color=on?'#fff':''; b.style.borderColor=on?'#0891B2':'';
+  });
+}
+function prefillFeedback(fb){
+  if(!fb) return;
+  if(fb.lang && FB_I18N[fb.lang]){ _fbLang=fb.lang; applyFbLang(); }
+  if(Array.isArray(fb.ratings)) fb.ratings.forEach((r,i)=>{ if(r&&r.score) setFB(i,r.score); });
+  if(fb.good!=null)    document.getElementById('fb_good').value=fb.good;
+  if(fb.improve!=null) document.getElementById('fb_improve').value=fb.improve;
+  if(fb.recommend)     document.getElementById('fb_recommend').value=fb.recommend;
+  if(fb.name)          document.getElementById('fb_name').value=fb.name;
+}
+async function saveFeedback(){
+  if(STUDENT_SESS && STU.examUnlocked && feedbackDone()){ toast('Feedback is locked — the exam has been unlocked','#EF4444'); return; }
+  if(STUDENT_SESS && !STU.feedbackOpen){ toast("Course feedback isn't open right now",'#EF4444'); return; }
+  const he=_fbLang==='he';
+  const name=document.getElementById('fb_name').value.trim();
+  const ratings=FB_ITEMS.map((it,i)=>({item:it,score:window._fb[i]||0}));
+  const good=document.getElementById('fb_good').value.trim();
+  const improve=document.getElementById('fb_improve').value.trim();
+  const recommend=document.getElementById('fb_recommend').value;
+  if(!name){ toast(he?'נא להזין את שמך':'Please enter your name','#EF4444'); return; }
+  if(ratings.some(r=>!r.score)){ toast(he?'נא לדרג כל פריט (1–5)':'Please rate every item (1–5)','#EF4444'); return; }
+  if(!good || !improve){ toast(he?'נא למלא את כל שדות הטקסט':'Please complete all written fields','#EF4444'); return; }
+  const payload={name,date:new Date().toISOString().slice(0,10),ratings,good,improve,recommend,lang:_fbLang};
+  if(STUDENT_SESS){
+    const fb=await fbReady();
+    if(fb&&fb.saveFeedback){ await fb.saveFeedback(payload); }
+    STU.feedback={...payload,submittedAt:Date.now()};
+    STU._data.feedback=STU.feedback; _fbPrefilled=true;
+    applyStudentState();
+    toast(he?'המשוב נשמר · תודה. ניתן לערוך עד שהמבחן ייפתח.':'Feedback saved · thank you. You can edit it until the exam is unlocked.');
+  } else {
+    toast('Preview only — sign in as a student to submit.','#F59E0B');
+  }
+}
+
+// ── Final exam (empty bank → "coming soon") ──────────────────────────────────
+function renderExam(){
+  const wrap=document.getElementById('exam_questions');
+  const btn=document.getElementById('exam-submit-btn');
+  if(!EXAM_QS.length){
+    wrap.innerHTML='<div class="text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg p-4">📝 The final exam is being prepared — questions will appear here once your instructor adds them. Your feedback is already recorded, so you\'ll be able to take it as soon as it\'s ready.</div>';
+    btn.style.display='none';
+    return;
+  }
+  btn.style.display='';
+  wrap.innerHTML=EXAM_QS.map((q,i)=>`
+    <div class="border border-slate-200 rounded-lg p-3">
+      <div class="font-semibold text-sm mb-2">${i+1}. ${q.q}</div>
+      ${q.a.map((opt,j)=>`<label class="flex items-center gap-2 text-sm py-1"><input type="radio" name="exq${i}" value="${j}"> ${opt}</label>`).join('')}
+    </div>`).join('');
+}
+async function submitExam(){
+  if(!EXAM_QS.length) return;
+  if(!STU.examUnlocked || !feedbackDone()){ toast('Complete the feedback form first','#EF4444'); return; }
+  let correct=0; const mistakes=[];
+  EXAM_QS.forEach((q,i)=>{
+    const sel=document.querySelector(`input[name="exq${i}"]:checked`);
+    const val=sel?parseInt(sel.value):-1;
+    if(val===q.correct) correct++; else mistakes.push(i+1);
+  });
+  const pct=Math.round(correct/EXAM_QS.length*100);
+  const pass=pct>=EXAM_PASS;
+  const fb=await fbReady();
+  if(fb&&fb.saveExamScore){ try{ await fb.saveExamScore('final',correct,EXAM_QS.length,{mistakes}); }catch(e){} }
+  document.getElementById('exam_result').innerHTML=`<div class="card p-4" style="border-color:${pass?'#22C55E':'#EF4444'};background:${pass?'rgba(34,197,94,.08)':'rgba(239,68,68,.08)'}"><div class="text-lg font-bold">${pass?'✅ PASS':'❌ Below passing'} — ${correct}/${EXAM_QS.length} (${pct}%)</div><div class="text-sm mt-1">${pass?'Well done.':'Review the missed items with your instructor.'}</div></div>`;
+}
+
+function toast(msg,color='#22C55E'){ const t=document.createElement('div');t.className='toast';t.textContent=msg;t.style.background=color;document.body.appendChild(t);setTimeout(()=>t.remove(),2400); }
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+if(STUDENT_SESS){ const el=document.getElementById('fb_name'); if(el){ el.value=STUDENT_SESS.name||''; } const ex=document.getElementById('ex_name'); if(ex){ ex.value=STUDENT_SESS.name||''; ex.readOnly=true; } }
+applyFbLang();
+buildTabs();
+if(IS_STUDENT){ try{ applyStudentState(); }catch(e){} refreshTabs(); }
+else { switchTab('staff'); }
+</script>
 </body>
 </html>
