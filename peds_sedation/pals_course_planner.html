@@ -400,12 +400,22 @@ function currentMeta(){try{return JSON.parse(localStorage.getItem('pals2025_cour
 function publishPlan(){
   clearTimeout(_publishTimer);
   if(_publishResolve){_publishResolve(true);_publishResolve=null;}
+  // Snapshot what to save RIGHT NOW — not 600ms from now. The previous version
+  // read the live `schedule`/`currentCohortKey` globals inside the setTimeout,
+  // so switching cohorts within the debounce window (e.g. editing course date,
+  // then quickly picking a different cohort) fired the save with the NEW
+  // cohort's key but the OLD/reset schedule, silently overwriting that
+  // cohort's real plan with the wrong content. Capturing everything at call
+  // time makes the eventual write always match what was true when triggered.
+  const scheduleSnap = structuredClone(schedule);
+  const daysSnap = courseDays;
+  const cohortSnap = currentCohortKey;
+  const m=currentMeta();
   return new Promise(resolve=>{
     _publishResolve=resolve;
     _publishTimer=setTimeout(async()=>{
       _publishResolve=null;
-      const m=currentMeta();
-      const sig=JSON.stringify({schedule, days:courseDays, cohort:currentCohortKey, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
+      const sig=JSON.stringify({schedule:scheduleSnap, days:daysSnap, cohort:cohortSnap, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
       if(sig===localStorage.getItem('pals_plan_pub_sig')){ resolve(true); return; }
       // Mark this signature as ours BEFORE saving. The Firestore write echoes back
       // through watchCoursePlan almost immediately; if pub_sig isn't set yet the
@@ -414,7 +424,7 @@ function publishPlan(){
       localStorage.setItem('pals_plan_pub_sig',sig);
       const save=async fb=>{
         if(fb&&fb.saveCoursePlan){
-          await fb.saveCoursePlan({ schedule, meta:m, days:courseDays, sig }, currentCohortKey);
+          await fb.saveCoursePlan({ schedule:scheduleSnap, meta:m, days:daysSnap, sig }, cohortSnap);
         }
       };
       try{
@@ -527,10 +537,21 @@ async function populateCohorts(){
   if(restoredKey !== currentCohortKey){ currentCohortKey = restoredKey; try{ localStorage.setItem(COHORT_KEY_STORAGE,restoredKey); }catch(e){} subscribePlan(); }
 }
 let _planUnsub=null;
+let _subGen=0;   // bumped on every subscribePlan() call — see below
 function subscribePlan(){
+  // Tag this subscription with a generation number. Switching cohorts calls
+  // subscribePlan() again before the previous listener's teardown/callbacks
+  // have necessarily settled; without this guard a callback from the OLD
+  // (superseded) listener could still fire — e.g. reporting "no plan yet" for
+  // the cohort you just left — and its `!data → publishPlan()` fallback would
+  // then write against whatever cohort is now selected, clobbering real data
+  // that simply hadn't loaded yet. Only the newest generation is allowed to act.
+  const myGen = ++_subGen;
+  const myCohort = currentCohortKey;
   const sub=fb=>{ if(!fb||!fb.watchCoursePlan) return;
     if(_planUnsub){ try{ _planUnsub(); }catch(e){} _planUnsub=null; }
     _planUnsub = fb.watchCoursePlan(data=>{
+      if(myGen!==_subGen || myCohort!==currentCohortKey) return;   // superseded — ignore
       if(!data){ publishPlan(); return; }                                  // nothing shared yet → seed from local
       if(data.sig && data.sig===localStorage.getItem('pals_plan_pub_sig')) return;  // our own echo / already in sync
       const ae=document.activeElement;
