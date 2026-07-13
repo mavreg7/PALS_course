@@ -1641,7 +1641,17 @@ function populateCohortFilter() {
 function populateAttCohorts(){
   const sel = document.getElementById('att-cohort'); if(!sel) return;
   const fb = window.FB;
-  const slug = n => { const k=(fb&&fb.cohortKey)?fb.cohortKey(n):''; if(k) return k; if(!n) return ''; let h=0,s=String(n); for(let i=0;i<s.length;i++) h=(Math.imul(31,h)+s.charCodeAt(i))|0; return 'k'+Math.abs(h).toString(36); };
+  // A name with non-ASCII characters must skip FB's slugifier: it strips every
+  // non a-z0-9 character, so e.g. "יולי 2026" and "אוגוסט 2026" both reduce to
+  // just "2026" and would collide onto the same per-cohort attendance doc.
+  const slug = n => {
+    if(!n) return '';
+    const s=String(n); const hasNonAscii = /[^\x00-\x7F]/.test(s);
+    const k=(!hasNonAscii && fb && fb.cohortKey)?fb.cohortKey(n):'';
+    if(k) return k;
+    let h=0; for(let i=0;i<s.length;i++) h=(Math.imul(31,h)+s.charCodeAt(i))|0;
+    return 'k'+Math.abs(h).toString(36);
+  };
   const cur = sel.value;
   sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
   const seen = new Set();

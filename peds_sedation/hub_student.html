@@ -577,7 +577,17 @@ function showPlanPop(updatedAt){
 // falling back to the default plan (coursePlan/current) when their cohort has
 // no custom plan yet. Honors the per-cohort course length via plan.days.
 // Same hash logic as plannerCohortKey in the planner — handles non-ASCII names (e.g. Hebrew).
-function cohortSlug(fb, name){ const k=(fb&&fb.cohortKey)?fb.cohortKey(name):''; if(k) return k; if(!name) return ''; let h=0; for(let i=0;i<name.length;i++) h=(Math.imul(31,h)+name.charCodeAt(i))|0; return 'k'+Math.abs(h).toString(36); }
+// A name with non-ASCII characters must skip FB's slugifier: it strips every
+// non a-z0-9 character, so e.g. "יולי 2026" (July) and "אוגוסט 2026" (August)
+// both reduce to just "2026" and would collide onto the same plan document.
+function cohortSlug(fb, name){
+  if(!name) return '';
+  const hasNonAscii = /[^\x00-\x7F]/.test(name);
+  const k=(!hasNonAscii && fb && fb.cohortKey)?fb.cohortKey(name):'';
+  if(k) return k;
+  let h=0; for(let i=0;i<name.length;i++) h=(Math.imul(31,h)+name.charCodeAt(i))|0;
+  return 'k'+Math.abs(h).toString(36);
+}
 let _planWatchUnsub=null;
 async function initStudentPlanWatch(){
   const fb=window.FB; if(!fb||!fb.watchCoursePlan) return;
