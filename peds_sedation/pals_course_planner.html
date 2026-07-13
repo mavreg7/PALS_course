@@ -72,6 +72,7 @@
     <div>
       <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight" data-i18n="appTitle">מתכנן קורס סדציה בטוחה בילדים</h1>
       <p class="text-slate-500 text-sm" data-i18n="appSub">גרור לסידור מחדש · לחץ להרחבה · שמירה אוטומטית</p>
+      <p class="text-xs text-slate-400 mt-1" id="save-status"></p>
     </div>
     <div class="flex gap-2 flex-wrap items-center">
       <a href="hub_instructor.html" class="btn btn-ghost" data-i18n="hub">→ מרכז</a>
@@ -96,8 +97,8 @@
       </select>
       <label class="text-xs font-semibold uppercase tracking-wider text-slate-500" for="plan_days" style="margin-inline-start:1rem">אורך · Length</label>
       <select class="field" id="plan_days" style="max-width:160px;cursor:pointer" onchange="onDaysChange(this.value)" title="מספר ימי הקורס">
+        <option value="1" selected>יום אחד · 1 day</option>
         <option value="2">יומיים · 2 days</option>
-        <option value="1">יום אחד · 1 day</option>
       </select>
     </div>
   </section>
@@ -446,10 +447,17 @@ function publishPlan(){
     },600);
   });
 }
+function setSaveStatus(text){ const el=document.getElementById('save-status'); if(el) el.textContent=text; }
 async function persist(){
   localStorage.setItem(KEY,JSON.stringify(schedule));
   const ok=await publishPlan();
   toast(ok?(planLang==='he'?'נשמר':'Saved'):(planLang==='he'?'שגיאה בשמירה':'Save failed'));
+  // Persistent status (unlike the 1.5s toast) so it's still visible if you
+  // check back later, not just at the instant of saving.
+  const now=new Date().toLocaleTimeString(planLang==='he'?'he-IL':undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  setSaveStatus(ok
+    ? (planLang==='he'?'✅ נשמר בשעה '+now:'✅ Saved at '+now)
+    : (planLang==='he'?'❌ שמירה נכשלה — בדוק/י חיבור':'❌ Save failed — check connection'));
 }
 
 // ── Live two-way sync with the shared plan (coursePlan/current) ──────────────
@@ -467,6 +475,12 @@ function adoptPlan(data){
   if(!data||!data.schedule) return;
   schedule=data.schedule;
   localStorage.setItem(KEY,JSON.stringify(schedule));
+  // Server-confirmed save time (from Firestore, not a local guess) — proves the
+  // plan you're viewing genuinely round-tripped through the database.
+  if(data.updatedAt){
+    const dt=new Date(data.updatedAt).toLocaleString(planLang==='he'?'he-IL':undefined);
+    setSaveStatus(planLang==='he'?'✅ אושר בענן — עודכן לאחרונה '+dt:'✅ Confirmed in the cloud — last updated '+dt);
+  }
   if(data.meta) localStorage.setItem('pals2025_course_meta',JSON.stringify(data.meta));
   if(data.sig) localStorage.setItem('pals_plan_pub_sig',data.sig);
   // Course length: honor an explicit saved value, but never force 2 when the
@@ -608,6 +622,11 @@ function exportCSV(){
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
 
 applyUiLang();
+applyDays();   // sync the Length dropdown / Day-2 visibility to the real in-memory
+                // value immediately — otherwise a brand-new cohort with no saved
+                // doc yet (adoptPlan() never runs for it) keeps showing the static
+                // HTML's default state until/unless a cohort with existing data
+                // happens to load, which looked like the course defaulting to 2 days.
 render();
 // Subscribe to the shared plan: adopts the live schedule on open and keeps
 // every instructor + the student view in sync. Seeds the doc if none exists.
