@@ -7,9 +7,9 @@
 // peds_. This complements the manual "Broadcast Announcement" tool (which staff
 // use for ad-hoc messages); this one fires automatically on content updates.
 window.PEDS_NEWS = {
-  v: 1,
-  he: 'נוספו חומרי קורס חדשים — מצגות (כאב וחרדה, עקרונות בטיחות, פרמקולוגיה) והנחיות/חוזרים של משרד הבריאות. ראו במדור "חומרי הקורס".',
-  en: 'New course materials added — presentations and MOH guidelines/circulars. See "Course Materials".'
+  v: 2,
+  he: 'חדש: טופס משוב קצר על הקורס (חובה למילוי לפני המבחן הסופי), וכן חומרי קורס — מצגות והנחיות/חוזרים של משרד הבריאות. ראו במדור "חומרי הקורס".',
+  en: 'New: a short course-feedback form (required before the final exam), plus course materials — presentations and MOH guidelines/circulars. See "Course Materials".'
 };
 
 (function(){
