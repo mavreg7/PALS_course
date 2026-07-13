@@ -240,7 +240,29 @@ const ROOMS=[
   {en:'Practice Room 2',he:'חדר תרגול 2'}
 ];
 // Fixed instructor list — pick one or more per session.
-const INSTRUCTORS=['צוות הקורס','ניתאי','פאתן','נבילה','ליאל','כריסטין','שילה','ענת','אלון','מאיה','עדנאן','גל','גלית','דניאל','מריה','מרין','נדא','נטע','ענבל','תום'];
+// Base team list — merged at startup with every staff member in the course
+// roster (loadInstructors), so all instructors are allocatable, including any
+// added after this list was written.
+let INSTRUCTORS=['צוות הקורס','ניתאי','פאתן','נבילה','ליאל','כריסטין','שילה','ענת','אלון','מאיה','עדנאן','גל','גלית','דניאל','מריה','מרין','נדא','נטע','ענבל','תום'];
+// Pull all staff (instructor / lead_instructor / admin) from the roster and add
+// any name not already in the base list, then re-render the allocation chips.
+async function loadInstructors(){
+  try{
+    const fb = window.FB || (window.FB_READY ? await window.FB_READY : null);
+    if(!fb || !fb.getAllUsers) return;
+    const users = await fb.getAllUsers();
+    const staffRoles = ['instructor','lead_instructor','admin'];
+    const names = INSTRUCTORS.slice();
+    const seen = new Set(names);
+    Object.values(users||{}).forEach(u=>{
+      if(!u || !staffRoles.includes(u.role)) return;
+      const n = (u.firstName || (u.name||'').trim().split(/\s+/)[0] || u.name || '').trim();
+      if(n && !seen.has(n)){ seen.add(n); names.push(n); }
+    });
+    INSTRUCTORS = names;
+    render();
+  }catch(e){ /* keep the base list on any failure */ }
+}
 function splitTime(time){const p=String(time||'').split('-');return {start:(p[0]||'').trim(),end:(p[1]||'').trim()};}
 function timeOptions(sel){
   const opts=[];const seen=new Set();
@@ -384,10 +406,14 @@ function publishPlan(){
       const m=currentMeta();
       const sig=JSON.stringify({schedule, days:courseDays, cohort:currentCohortKey, meta:{dates:m.dates||'',instructor:m.instructor||'',site:m.site||''}});
       if(sig===localStorage.getItem('pals_plan_pub_sig')){ resolve(true); return; }
+      // Mark this signature as ours BEFORE saving. The Firestore write echoes back
+      // through watchCoursePlan almost immediately; if pub_sig isn't set yet the
+      // echo looks like a remote edit and gets adopted mid-edit — re-rendering the
+      // list and collapsing the card you're editing (e.g. when setting an end time).
+      localStorage.setItem('pals_plan_pub_sig',sig);
       const save=async fb=>{
         if(fb&&fb.saveCoursePlan){
           await fb.saveCoursePlan({ schedule, meta:m, days:courseDays, sig }, currentCohortKey);
-          localStorage.setItem('pals_plan_pub_sig',sig);
         }
       };
       try{
@@ -395,6 +421,7 @@ function publishPlan(){
         else if(window.FB_READY) await window.FB_READY.then(save);
         resolve(true);
       }catch(e){
+        localStorage.removeItem('pals_plan_pub_sig');   // save failed — allow re-publish / remote adoption
         console.error('[Planner] saveCoursePlan failed:',e);
         resolve(false);
       }
@@ -498,7 +525,7 @@ function subscribePlan(){
   if(window.FB&&window.FB.watchCoursePlan) sub(window.FB);
   else if(window.FB_READY) window.FB_READY.then(sub);
 }
-function startPlanSync(){ populateCohorts(); subscribePlan(); }
+function startPlanSync(){ populateCohorts(); subscribePlan(); loadInstructors(); }
 // Apply a deferred remote update once the instructor finishes editing a field.
 document.addEventListener('focusout',()=>{ if(_pendingRemote){ const d=_pendingRemote; _pendingRemote=null; adoptPlan(d); } });
 function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1500)}
