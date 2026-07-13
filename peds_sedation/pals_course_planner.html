@@ -455,11 +455,17 @@ function adoptPlan(data){
   // Course length: honor an explicit saved value, but never force 2 when the
   // field is absent (legacy plans predate it), and don't clobber a length the
   // instructor just chose — otherwise a stray sync snapshot resets a 1-day
-  // cohort back to 2 the moment it's set.
+  // cohort back to 2 the moment it's set. A plan with no Day-2 content is a
+  // 1-day plan regardless of a stale days:2, and we heal the stored value so
+  // the student view reflects 1 day too.
   if(Date.now() - _daysTouchedAt > 2500){
+    const day2Empty = !(data.schedule && data.schedule.day2 && data.schedule.day2.length);
+    const storedTwo = (data.days===2||data.days==='2');
     if(data.days===1||data.days==='1') courseDays=1;
-    else if(data.days===2||data.days==='2') courseDays=2;
-    // absent → keep the current length
+    else if(day2Empty) courseDays=1;
+    else if(storedTwo) courseDays=2;
+    // absent + has Day-2 content → keep the current length
+    if(storedTwo && courseDays===1){ try{ publishPlan(); }catch(e){} }  // heal stale days:2 (empty Day 2)
   }
   applyDays();
   fillMetaInputs();
