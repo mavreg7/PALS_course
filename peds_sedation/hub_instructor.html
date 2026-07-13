@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>window.COURSE_NS='peds_';window.COURSE_BASE='/peds_sedation/';(function(){var p='peds_';try{var S=Storage.prototype,g=S.getItem,s=S.setItem,r=S.removeItem;S.getItem=function(k){return g.call(this,p+k)};S.setItem=function(k,v){return s.call(this,p+k,v)};S.removeItem=function(k){return r.call(this,p+k)};}catch(e){}})();</script>
 <script src="../firebase-config.js"></script>
+<script src="course-news.js"></script>
 <script src="modules.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -200,6 +201,11 @@ body{min-height:100vh;background:var(--bg);color:var(--text);transition:backgrou
 <datalist id="cohort-options"></datalist>
 
 <main class="main">
+  <div id="news-banner" dir="rtl" style="display:none;align-items:center;gap:.75rem;background:rgba(8,145,178,.1);border:1px solid rgba(8,145,178,.3);border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1.25rem">
+    <span style="font-size:1.2rem;flex-shrink:0">📚</span>
+    <div id="news-txt" style="font-size:.86rem;font-weight:600;color:#0e7490"></div>
+    <button id="news-x" aria-label="Dismiss" style="background:none;border:none;cursor:pointer;font-size:1rem;color:inherit;margin-inline-start:auto">✕</button>
+  </div>
   <div class="welcome">
     <div class="welcome-text">
       <h2 id="welcome-name">Welcome, Instructor</h2>
