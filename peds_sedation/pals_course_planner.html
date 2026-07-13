@@ -172,6 +172,7 @@ function plannerCohortKey(name){
 }
 let currentCohortKey=(function(){try{return localStorage.getItem(COHORT_KEY_STORAGE)||''}catch(e){return ''}})();
 let courseDays=1;             // course length for the selected cohort (1 or 2) — Sedation is 1-day by default
+let _daysTouchedAt=0;         // when the instructor last picked a length — guards it from being clobbered by a stray sync
 let schedule = (function(){
   try{const s=JSON.parse(localStorage.getItem(KEY));return s||structuredClone(DEFAULT_SCHEDULE)}catch(e){return structuredClone(DEFAULT_SCHEDULE)}
 })();
@@ -451,7 +452,15 @@ function adoptPlan(data){
   localStorage.setItem(KEY,JSON.stringify(schedule));
   if(data.meta) localStorage.setItem('pals2025_course_meta',JSON.stringify(data.meta));
   if(data.sig) localStorage.setItem('pals_plan_pub_sig',data.sig);
-  courseDays = (data.days===1||data.days==='1') ? 1 : 2;
+  // Course length: honor an explicit saved value, but never force 2 when the
+  // field is absent (legacy plans predate it), and don't clobber a length the
+  // instructor just chose — otherwise a stray sync snapshot resets a 1-day
+  // cohort back to 2 the moment it's set.
+  if(Date.now() - _daysTouchedAt > 2500){
+    if(data.days===1||data.days==='1') courseDays=1;
+    else if(data.days===2||data.days==='2') courseDays=2;
+    // absent → keep the current length
+  }
   applyDays();
   fillMetaInputs();
   render();
@@ -466,7 +475,7 @@ function applyDays(){
   const sel = document.getElementById('plan_days'); if(sel) sel.value = String(courseDays);
   if(is1) switchDay(1);
 }
-window.onDaysChange = function(v){ courseDays = (String(v)==='1') ? 1 : 2; applyDays(); persist(); };
+window.onDaysChange = function(v){ courseDays = (String(v)==='1') ? 1 : 2; _daysTouchedAt = Date.now(); applyDays(); persist(); };
 // Switch which cohort's plan is being edited. Reset to a clean default first so a
 // brand-new cohort starts from the standard schedule (not the prior cohort's),
 // then re-subscribe — the live plan, if any, is adopted over it.
@@ -485,6 +494,7 @@ window.onCohortChange = function(key){
   try{ localStorage.setItem(COHORT_KEY_STORAGE, currentCohortKey); }catch(e){}
   if(sel && sel.value !== currentCohortKey) sel.value = currentCohortKey;
   localStorage.removeItem('pals_plan_pub_sig');
+  _daysTouchedAt = 0;   // switching cohorts: always read the new cohort's own length
   schedule = structuredClone(DEFAULT_SCHEDULE); courseDays = 1;
   applyDays(); render();
   subscribePlan();
