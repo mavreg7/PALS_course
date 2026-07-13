@@ -162,11 +162,18 @@ const DEFAULT_SCHEDULE = {
 
 const KEY='pals2025_planner';
 const COHORT_KEY_STORAGE='pals2025_planner_cohort';
-// Derive a stable slug from a cohort name; falls back to a hash for non-ASCII (e.g. Hebrew)
+// Derive a stable slug from a cohort name; falls back to a hash for non-ASCII (e.g. Hebrew).
+// IMPORTANT: FB.cohortKey() strips every non a-z0-9 character, so a Hebrew name
+// like "יולי 2026" (July) reduces to just "2026" — identical to "אוגוסט 2026"
+// (August) or any other Hebrew cohort sharing that year. Both would then read/
+// write the SAME coursePlan document and silently overwrite each other's plan.
+// Any name containing non-ASCII characters must skip FB's slugifier entirely
+// and use the hash (which reads every character) so distinct names never collide.
 function plannerCohortKey(name){
-  const fbKey=(window.FB&&window.FB.cohortKey)?window.FB.cohortKey(name):'';
-  if(fbKey) return fbKey;
   if(!name) return '';
+  const hasNonAscii = /[^\x00-\x7F]/.test(name);
+  const fbKey=(!hasNonAscii && window.FB && window.FB.cohortKey)?window.FB.cohortKey(name):'';
+  if(fbKey) return fbKey;
   let h=0; for(let i=0;i<name.length;i++) h=(Math.imul(31,h)+name.charCodeAt(i))|0;
   return 'k'+Math.abs(h).toString(36);
 }
