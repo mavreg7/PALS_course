@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <script>window.COURSE_NS='peds_';window.COURSE_BASE='/peds_sedation/';(function(){var p='peds_';try{var S=Storage.prototype,g=S.getItem,s=S.setItem,r=S.removeItem;S.getItem=function(k){return g.call(this,p+k)};S.setItem=function(k,v){return s.call(this,p+k,v)};S.removeItem=function(k){return r.call(this,p+k)};}catch(e){}})();</script>
 <script src="../firebase-config.js"></script>
+<script src="course-news.js"></script>
 <script src="modules.js"></script>
 <script type="module" src="../firebase-sync.js"></script>
 <style>
@@ -144,6 +145,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-heig
   <div class="announce-banner" id="announce-banner">
     <span class="announce-ico">📣</span>
     <div class="announce-txt" id="announce-txt"></div>
+  </div>
+  <div class="announce-banner" id="news-banner" dir="rtl" style="background:rgba(8,145,178,.1);border-color:rgba(8,145,178,.3)">
+    <span class="announce-ico">📚</span>
+    <div class="announce-txt" id="news-txt" style="color:#0e7490"></div>
+    <button id="news-x" aria-label="Dismiss" style="background:none;border:none;cursor:pointer;font-size:1rem;color:inherit;margin-inline-start:auto">✕</button>
   </div>
   <div class="welcome">
     <div>
