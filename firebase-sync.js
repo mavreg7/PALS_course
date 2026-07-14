@@ -256,7 +256,13 @@ async function fbSaveCoursePlan(plan, cohortKey) {
     await _ensureAuthReady();
     await setDoc(doc(_db,_ns+'coursePlan',_planDocId(cohortKey)),
       { ...plan, updatedAt: Date.now() }, { merge:true });
-  } catch(e) { console.warn('[PALS FB] saveCoursePlan:', e.message); }
+  } catch(e) {
+    console.warn('[PALS FB] saveCoursePlan:', e.message);
+    // Rethrow (rather than swallow) so the planner can tell a genuinely failed
+    // write from a successful one — it shows a persistent "Saved" vs "Save
+    // failed" status to the instructor and this was previously always "Saved".
+    throw e;
+  }
 }
 
 // ── STUDENT: watch the published course plan ────────────────
