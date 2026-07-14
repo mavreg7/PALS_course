@@ -2314,10 +2314,15 @@ async function openAttendance(){
   const day = document.getElementById('att-day').value;
   const dur = Math.max(5, Math.min(240, parseInt(document.getElementById('att-dur').value)||45));
   const code = genCode();
-  const expiresAt = Date.now() + dur*60*1000;
+  const openedAt = Date.now();
+  const expiresAt = openedAt + dur*60*1000;
   try {
-    await setDoc(doc(db,(window.COURSE_NS||'')+'attendanceCode',attDocId()), { code, day, open:true, openedAt:Date.now(), expiresAt }, { merge:false });
-    await setDoc(doc(db,(window.COURSE_NS||'')+'courseFlags',attDocId()), { attendance:{ open:true, day, expiresAt } }, { merge:true });
+    await setDoc(doc(db,(window.COURSE_NS||'')+'attendanceCode',attDocId()), { code, day, open:true, openedAt, expiresAt }, { merge:false });
+    // openedAt is also mirrored onto courseFlags (not just attendanceCode) so the
+    // student hub can tell, when BOTH a cohort-specific and course-wide window
+    // are open at once, which one you actually meant just now — the most
+    // recently opened always wins, regardless of which is more "specific".
+    await setDoc(doc(db,(window.COURSE_NS||'')+'courseFlags',attDocId()), { attendance:{ open:true, day, expiresAt, openedAt } }, { merge:true });
   } catch(e){ alert('Error opening check-in: '+e.message); }
 }
 async function closeAttendance(){
