@@ -617,9 +617,20 @@ function applyFlags(){
   _globalExamUnlocked = !!g.examUnlocked;
   _feedbackOpenManual = !!g.feedbackOpen;
   _courseStart = Number(c.courseStart != null ? c.courseStart : g.courseStart) || 0;
-  // Attendance window + which code doc to validate against: the cohort's own
-  // window wins when present, else the global one (back-compat for live courses).
-  const useCohortAtt = (c.attendance != null);
+  // Attendance window + which code doc to validate against. A cohort's flags
+  // doc keeps its `attendance` field forever once written (Firestore merges
+  // don't clear it), so picking "cohort wins whenever the field exists" would
+  // PERMANENTLY lock that cohort onto its own code doc the moment an
+  // instructor opens attendance for it even once — even long after that
+  // window closed. If the instructor later opens a course-wide window instead
+  // (forgetting to re-select that cohort, or intentionally running one shared
+  // code for everyone), those students would silently never see it. Instead,
+  // prefer whichever window is genuinely open RIGHT NOW; only fall back to
+  // "cohort field merely exists" as a tie-break when both or neither are open.
+  const now = Date.now();
+  const isOpen = a => !!(a && a.open && a.day && a.expiresAt && now < a.expiresAt);
+  const cOpen = isOpen(c.attendance), gOpen = isOpen(g.attendance);
+  const useCohortAtt = cOpen || (!gOpen && c.attendance != null);
   _attWindow   = (useCohortAtt ? c.attendance : g.attendance) || null;
   _attCodeDoc  = useCohortAtt ? ('c_' + _studentCohortKey) : 'current';
   renderCheckin(); render();
