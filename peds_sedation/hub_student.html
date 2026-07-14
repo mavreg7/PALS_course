@@ -630,7 +630,14 @@ function applyFlags(){
   const now = Date.now();
   const isOpen = a => !!(a && a.open && a.day && a.expiresAt && now < a.expiresAt);
   const cOpen = isOpen(c.attendance), gOpen = isOpen(g.attendance);
-  const useCohortAtt = cOpen || (!gOpen && c.attendance != null);
+  // If BOTH happen to be open at once (e.g. a cohort window from earlier
+  // testing hasn't expired yet, and a fresh course-wide window is opened for
+  // the actual check-in), trust whichever was opened MOST RECENTLY — that's
+  // the instructor's real current intent — not "cohort always wins": that
+  // would silently route students to a stale code nobody is displaying.
+  const useCohortAtt = (cOpen && gOpen)
+    ? (Number(c.attendance.openedAt)||0) >= (Number(g.attendance.openedAt)||0)
+    : cOpen || (!gOpen && c.attendance != null);
   _attWindow   = (useCohortAtt ? c.attendance : g.attendance) || null;
   _attCodeDoc  = useCohortAtt ? ('c_' + _studentCohortKey) : 'current';
   renderCheckin(); render();
