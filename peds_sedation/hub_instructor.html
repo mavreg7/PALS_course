@@ -1028,7 +1028,7 @@ window.downloadEnrollTemplate = function(){
     // Fallback to CSV if the spreadsheet library failed to load.
     const csv = aoa.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.href = URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'}));
     a.download = 'pals_enrollment_template.csv'; a.click();
   }
 };
@@ -1827,10 +1827,10 @@ function filterRoster() {
 
 // ── EXPORT CSV ────────────────────────────────────────────────
 function exportCSV() {
-  const rows = [['Name','Email','Cohort','Role','Modules Done','Progress %','Pre-Test %','Final Exam %','Feedback','Exam Access','Last Active']];
+  const rows = [['Name','Email','ID Number','Phone','Cohort','Role','Modules Done','Progress %','Pre-Test %','Final Exam %','Feedback','Exam Access','Last Active']];
   visibleStudents().forEach(s => {
     const count = modCount(s.progress);
-    rows.push([s.name, s.email, s.cohort, s.role, count, (LEARNING_COUNT>0?Math.round(count/LEARNING_COUNT*100):0)+'%',
+    rows.push([s.name, s.email, s.idNumber||'', s.phone||'', s.cohort, s.role, count, (LEARNING_COUNT>0?Math.round(count/LEARNING_COUNT*100):0)+'%',
       (s.preTest&&s.preTest.pct!=null)?s.preTest.pct+'%':'',
       (s.finalExam&&s.finalExam.pct!=null)?s.finalExam.pct+'%':'',
       (s.feedback&&s.feedback.submittedAt)?'Submitted':'',
@@ -1838,7 +1838,10 @@ function exportCSV() {
       timeAgo(s.updatedAt)]);
   });
   const csv  = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv'});
+  // Prepend a UTF-8 BOM — without it, Excel (the default CSV opener on Windows,
+  // and what most instructors use) misreads the encoding and renders Hebrew
+  // names/cohorts as garbled mojibake instead of readable text.
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8;'});
   const a    = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   const cohortTag = activeCohort === 'ALL' ? 'all' : activeCohort.replace(/[^A-Za-z0-9_-]+/g,'_');
