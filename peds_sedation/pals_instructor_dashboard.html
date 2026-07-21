@@ -362,6 +362,8 @@ function buildRoster() {
     merged.set(key, {
       name:      u.name || u.displayName || u.email || '—',
       email:     u.email || '—',
+      idNumber:  u.idNumber || '',
+      phone:     u.phone || '',
       role:      u.role  || 'student',
       cohort:    u.cohort || '—',
       source:    'firebase',
@@ -599,7 +601,9 @@ window.exportFeedback = function(){
   const csvRows = [header];
   rows.forEach(r=>{ const m={}; r.ratings.forEach(x=>m[x.item]=x.score); csvRows.push([r.cohort,r.name,r.date,...itemSet.map(it=>m[it]??''),r.recommend,r.good,r.improve]); });
   const csv = csvRows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n');
-  download(new Blob([csv],{type:'text/csv'}), 'pals_feedback_'+(a==='ALL'?'all':a.replace(/[^A-Za-z0-9_-]+/g,'_'))+'_'+new Date().toISOString().slice(0,10)+'.csv');
+  // BOM so Excel reads Hebrew comments/cohort names correctly instead of as
+  // garbled mojibake — this export is full of free-text Hebrew feedback.
+  download(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'}), 'pals_feedback_'+(a==='ALL'?'all':a.replace(/[^A-Za-z0-9_-]+/g,'_'))+'_'+new Date().toISOString().slice(0,10)+'.csv');
 };
 
 window.printFeedback = function(){
@@ -812,9 +816,12 @@ function cohortKeyOf(name){
 window.exportRoster = function(){
   const r=buildRoster();
   if(!r.length){alert('No data');return}
-  const keys=['name','email','role','cohort','source','attendance','pretest','bls','megacode','exam','cert'];
-  const csv=[keys.join(',')].concat(r.map(o=>keys.map(k=>'"'+String(o[k]??'').replace(/"/g,'""')+'"').join(','))).join('\n');
-  download(new Blob([csv],{type:'text/csv'}),'pals_roster.csv');
+  const keys=['name','email','idNumber','phone','role','cohort','source','attendance','pretest','bls','megacode','exam','cert'];
+  const header=['Name','Email','ID Number','Phone','Role','Cohort','Source','Attendance','Pre-Test','BLS','Megacode','Exam','Certificate'];
+  const csv=[header.join(',')].concat(r.map(o=>keys.map(k=>'"'+String(o[k]??'').replace(/"/g,'""')+'"').join(','))).join('\n');
+  // BOM so Excel (the default CSV opener on Windows) reads Hebrew names/cohorts
+  // correctly instead of as garbled mojibake.
+  download(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'}),'pals_roster.csv');
 };
 window.printAttendance = function(){
   const w=window.open('','_blank');
