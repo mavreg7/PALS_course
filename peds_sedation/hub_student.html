@@ -332,6 +332,13 @@ if (!s) {
   checkProfileComplete();
 }
 
+// Hebrew letters, spaces, hyphens (e.g. "בן-דוד"), and geresh/gershayim for
+// abbreviations — nothing else. Names are how instructors identify students on
+// the roster and attendance sheets, so they must be entered in Hebrew.
+function isHebrewFullName(name){
+  return /^[א-ת\s'"׳״-]+$/.test(name) && /[א-ת]/.test(name);
+}
+
 // ── Complete-your-profile prompt for recovered / detail-less accounts ──────────
 async function checkProfileComplete() {
   try {
@@ -344,8 +351,12 @@ async function checkProfileComplete() {
     // missing mobile / ID. This forces the phone requirement for everyone who
     // reaches the hub without going through register.html — notably PALS users
     // auto-enrolled via login.html's bootstrap, who never entered a phone.
-    const nameless   = !nm || nm.toLowerCase() === email;
-    const incomplete = nameless || !(d.phone || '').trim() || !(d.idNumber || '').trim();
+    const nameless  = !nm || nm.toLowerCase() === email;
+    // Also re-open the modal for existing users whose stored name isn't
+    // Hebrew-only (entered before this was enforced, or via the PALS
+    // auto-enrollment bootstrap) — everyone must have a Hebrew name on file.
+    const nonHebrew  = !nameless && !isHebrewFullName(nm);
+    const incomplete = nameless || nonHebrew || !(d.phone || '').trim() || !(d.idNumber || '').trim();
     if (!incomplete) return;
     document.getElementById('pf-name').value  = nameless ? '' : nm;
     document.getElementById('pf-phone').value = d.phone || '';
@@ -363,6 +374,7 @@ async function saveProfile(email) {
   const idNum = (document.getElementById('pf-id').value    || '').trim();
   const show  = m => { err.textContent = m; err.style.display = 'block'; };
   if (!name)  return show('נא להזין שם מלא.');
+  if (!isHebrewFullName(name)) return show('נא להזין שם מלא בעברית בלבד.');
   if (!phone) return show('נא להזין מספר נייד.');
   if (!idNum) return show('נא להזין מספר תעודת זהות.');
   err.style.display = 'none'; btn.disabled = true; btn.textContent = 'שומר…';

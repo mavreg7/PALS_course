@@ -109,6 +109,14 @@ onAuthStateChanged(auth, async (u)=>{
   try{ const s=await getDoc(doc(db,NS+'users',u.uid)); if(s.exists()){ redir(s.data().role||'student'); } }catch(e){}
 });
 
+// Hebrew letters, spaces, hyphens (e.g. "בן-דוד"), and geresh/gershayim for
+// abbreviations — nothing else (no Latin letters, digits, or other scripts).
+// Names are how instructors identify students on the roster and attendance
+// sheets, so they must be entered consistently in Hebrew.
+function isHebrewFullName(name){
+  return /^[א-ת\s'"׳״-]+$/.test(name) && /[א-ת]/.test(name);
+}
+
 window.createAccount = async function(){
   clearMsg();
   const fullName = (document.getElementById('nm').value||'').trim();
@@ -120,6 +128,7 @@ window.createAccount = async function(){
 
   // These four fields are mandatory for ALL paths — new accounts and existing-account links.
   if(!fullName)                      { showErr('נא להזין שם מלא.'); return; }
+  if(!isHebrewFullName(fullName))    { showErr('נא להזין שם מלא בעברית בלבד.'); return; }
   if(!phone)                         { showErr('נא להזין מספר נייד.'); return; }
   if(!idNumber)                      { showErr('נא להזין מספר תעודת זהות.'); return; }
   if(!email || !email.includes('@')) { showErr('נא להזין כתובת אימייל תקינה.'); return; }
